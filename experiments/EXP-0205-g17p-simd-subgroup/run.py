@@ -67,6 +67,9 @@ CANARY_RETRIES = 3
 BASELINE_EVERY = 128
 BIN = HERE / "work" / "bin"
 WORK = HERE / "work"
+DB_SHA = hashlib.sha256((PINNED / "db.json").read_bytes()).hexdigest()[:16]
+HARNESS_SHA = hashlib.sha256(
+    (HERE / "harness" / "carriers205.py").read_bytes()).hexdigest()[:16]
 
 
 def fault_class(resp):
@@ -129,10 +132,31 @@ class CarrierRunner:
             bytes(self.main[off:off + length]), start, width, value)
         return bytes(b)
 
-    def submit(self, blob):
+    def submit(self, blob, ledger=None):
+        """Write the spliced archive, RE-READ IT FROM DISK, and record the
+        actual dispatched instruction bytes (Gate A).
+
+        The ledger must not be the bytes we intended to write -- that is what
+        the caller already has, and a defect that drops a requested bit is
+        invisible to it (DEF-0166: an assembler that could not CLEAR a bit).
+        These bytes come out of the exact file handed to `newLibraryWithURL:`,
+        and `value_from_actual` below decodes the field back out of them
+        independently, so `requested == decoded` is a checked assertion rather
+        than an assumption."""
         self.seq += 1
         p = self.spdir / ("%s_%d.bin" % (self.name, self.seq))
         p.write_bytes(blob)
+        if ledger is not None:
+            onwire = p.read_bytes()
+            ledger["program_sha256"] = hashlib.sha256(onwire).hexdigest()
+            ledger["program_len"] = len(onwire)
+            off, ilen = ledger["off"], ledger["instr_len"]
+            a = onwire[self.main_off + off:self.main_off + off + ilen]
+            ledger["actual_bytes"] = a.hex()
+            ledger["main_off"] = self.main_off
+            if ledger.get("start") is not None:
+                ledger["decoded_value"] = L.get_bits(a, ledger["start"],
+                                                     ledger["width"])
         try:
             return self.runner.request(
                 archive=str(p), grid=self.spec["grid"], tg=self.spec["tg"],
@@ -144,9 +168,9 @@ class CarrierRunner:
             except OSError:
                 pass
 
-    def issue(self, blob):
+    def issue(self, blob, ledger=None):
         statuses, classes, innocent = [], [], 0
-        resp = self.submit(blob)
+        resp = self.submit(blob, ledger)
         while resp["status"] != "OK" and is_innocent(resp) and innocent < INNOCENT_RETRIES:
             classes.append(fault_class(resp))
             innocent += 1
@@ -174,11 +198,11 @@ class CarrierRunner:
         nbad = sum(1 for s in statuses if s != "OK")
         return best, statuses, classes, innocent, nbad
 
-    def measure(self, blob, expect):
+    def measure(self, blob, expect, ledger=None):
         observed, resp = {}, {"status": "NONE"}
         statuses, classes, innocent = [], [], 0
         for _ in range(CANARY_RETRIES):
-            resp, statuses, classes, innocent, nbad = self.issue(blob)
+            resp, statuses, classes, innocent, nbad = self.issue(blob, ledger)
             if resp["status"] == "HANG":
                 return ("hang", {"status": "HANG"}, None, "HANG",
                         statuses, classes, innocent)
@@ -280,6 +304,10 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--limit-values", type=int, default=0,
                     help="PILOT ONLY: dispatch every Nth value")
+    ap.add_argument("--reverse", action="store_true",
+                    help="Gate E: run carriers, arms and values in REVERSED "
+                         "order. A confirmation run in the same order shares "
+                         "every ordering artefact with the run it confirms.")
     args = ap.parse_args()
 
     doc = json.loads(Path(args.arms).read_text())
@@ -302,6 +330,9 @@ def main():
     by_carrier = {}
     for a in arms:
         by_carrier.setdefault(a["carrier"], []).append(a)
+    if args.reverse:
+        by_carrier = {k: list(reversed(v))
+                      for k, v in reversed(list(by_carrier.items()))}
 
     ncase = 0
     t0 = time.time()
@@ -338,6 +369,8 @@ def main():
             vals = a["values"]
             if args.limit_values > 1:
                 vals = vals[::args.limit_values]
+            if args.reverse:
+                vals = list(reversed(vals))
             baseline(a["arm"] + ":open")
             for n, v in enumerate(vals):
                 expect = C.oracle_for(carrier, a["instr"], a["field"], v) \
@@ -345,11 +378,25 @@ def main():
                 blob = cr.blob(off, ilen, start, width, v)
                 mm = cr.mutated_main(off, ilen, start, width, v)
                 tok = L.token_at(mm, off)
-                oc, obs, m, st, sts, cls, inn = cr.measure(blob, expect)
+                # GATE A ledger: filled inside submit() from the file actually
+                # handed to the device, then checked against the request.
+                ledger = {"off": off, "instr_len": ilen,
+                          "start": start, "width": width,
+                          "requested_value": v,
+                          "requested_bytes": mm[off:off + ilen].hex()}
+                oc, obs, m, st, sts, cls, inn = cr.measure(blob, expect, ledger)
+                ledger["requested_equals_decoded"] = (
+                    ledger.get("decoded_value") == v)
+                ledger["requested_bytes_equal_actual"] = (
+                    ledger.get("actual_bytes") == ledger["requested_bytes"])
+                if not (ledger["requested_equals_decoded"]
+                        and ledger["requested_bytes_equal_actual"]):
+                    oc = "ledger_mismatch"
                 emit(sweep, {
                     "carrier": carrier, "arm": a["arm"], "instr": a["instr"],
                     "field": a["field"], "value": v,
-                    "bytes": mm[off:off + ilen].hex(), "token": tok,
+                    "bytes": ledger.get("actual_bytes"), "token": tok,
+                    "ledger": ledger,
                     "observed": obs,
                     "oracle": (["0x%08x" % (x & C.M32) for x in expect]
                                if expect else None),
@@ -358,6 +405,9 @@ def main():
                     "role": a["role"], "occ": a["occ"], "off": off,
                     "instr_len": ilen, "start": start, "width": width,
                     "baseline_field": a["baseline_field"],
+                    "db_sha256": DB_SHA, "harness_sha256": HARNESS_SHA,
+                    "run_id": args.run_id, "case_order": ncase,
+                    "order_mode": "reversed" if args.reverse else "forward",
                     "note": a.get("note", ""), "ts": time.time()})
                 ncase += 1
                 if n and n % BASELINE_EVERY == 0:

@@ -58,6 +58,18 @@ BASELINE_EVERY = 120
 BIN = HERE / "work" / "bin"
 WORK = HERE / "work"
 
+# GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS 3): the harness revision that
+# produced every case, recorded per record so a later audit can tell which
+# instrument was in the loop. `db_rev` is the PINNED descriptor snapshot.
+HARNESS_REV = {
+    "run200.py": hashlib.sha256((HERE / "run200.py").read_bytes()).hexdigest()[:16],
+    "words200.py": hashlib.sha256(
+        (HERE / "harness" / "words200.py").read_bytes()).hexdigest()[:16],
+    "carriers200.py": hashlib.sha256(
+        (HERE / "harness" / "carriers200.py").read_bytes()).hexdigest()[:16],
+}
+DB_REV = hashlib.sha256((PINNED / "db.json").read_bytes()).hexdigest()[:16]
+
 
 def fault_class(resp):
     e = resp.get("error") or ""
@@ -252,17 +264,83 @@ def env_report(run_dir, arms_path, run_id):
     return rep
 
 
-def case_record(cr, a, fill, res, extra):
+def sem_bucket(outcome):
+    """GATE C (corrections 3): the five buckets the host predictor must be able
+    to distinguish, computed from the observed outcome and NOT from the
+    prediction, so `sem_match` below is a real comparison."""
+    if outcome == "ok":
+        return "correct_effect"
+    if outcome in ("wrong_value",):
+        return "different_but_coherent"
+    if outcome in ("not_written", "silent_zero"):
+        return "no_write_or_dead_path"
+    if outcome in ("fault", "hang"):
+        return "rejected_faulted_hung"
+    return "invalid_or_contaminated"
+
+
+PREDICT_BUCKET = {
+    "not_written": "no_write_or_dead_path",
+    "ok": "correct_effect",
+    "written": None,            # any of correct/coherent; see sem_match below
+    "wrong_or_fault": None,
+}
+
+
+def sem_match(predict, outcome):
+    """Did the observation land in the bucket the HOST predicted, before the
+    run? `written` and `wrong_or_fault` are deliberately COARSE predictions and
+    are scored as such -- a predictor that could not be wrong is not a
+    predictor, so each of them EXCLUDES at least one bucket."""
+    b = sem_bucket(outcome)
+    if predict == "not_written":
+        return b == "no_write_or_dead_path"
+    if predict == "ok":
+        return b == "correct_effect"
+    if predict == "written":
+        # the planted terminator was swallowed: the program must have REACHED
+        # the result store. Excludes no_write_or_dead_path.
+        return b in ("correct_effect", "different_but_coherent")
+    if predict == "wrong_or_fault":
+        # a desynchronised stream must NOT return the carrier oracle.
+        return b in ("different_but_coherent", "no_write_or_dead_path",
+                     "rejected_faulted_hung")
+    return None
+
+
+def case_record(cr, a, fill, res, extra, blob):
     oc, obs, m, st, sts, cls, inn = res
     mm = cr.mutated_main(a["off"], fill)
+    # ---- GATE A: the ACTUAL bytes, read back out of the program that was
+    # dispatched, never out of the value we intended to write. Requested and
+    # actual are produced by different code paths on purpose: `fill` comes from
+    # the frozen catalogue, `actual` is sliced out of the blob the runner read.
+    off_abs = cr.main_off + a["off"]
+    actual = bytes(blob[off_abs:off_abs + a["len"]])
+    tok = L.token_at(mm, a["off"])
+    dec = None
+    try:
+        rec_d, _len = L.isadb.decode_one(bytes(mm), a["off"])
+        dec = {k: v for k, v in rec_d.items() if k in ("mnemonic", "dst", "b3")}
+    except Exception:                                           # noqa: BLE001
+        dec = None
     rec = {"carrier": a["carrier"], "arm": a["arm"], "instr": extra["instr"],
            "field": "_instruction", "value": extra["value"],
            "fill_id": extra["fid"], "bytes": fill.hex(),
+           "requested_bytes": fill.hex(), "actual_bytes": actual.hex(),
+           "ledger_ok": actual == fill,
+           "decoded_from_actual": dec,
+           "program_sha256": hashlib.sha256(blob).hexdigest(),
+           "instr_offset": off_abs, "main_off": cr.main_off,
+           "db_rev": DB_REV, "harness_rev": HARNESS_REV,
            "hole_off": a["off"], "hole_len": a["len"],
-           "token": L.token_at(mm, a["off"]),
+           "token": tok,
            "observed": obs, "oracle": {"predict": extra["predict"],
                                        "carrier_oracle": cr.spec["oracle"]},
-           "predict": extra["predict"], "match": m, "outcome": oc, "status": st,
+           "predict": extra["predict"], "predicted_bucket": extra["predict"],
+           "observed_bucket": sem_bucket(oc),
+           "sem_match": sem_match(extra["predict"], oc),
+           "match": m, "outcome": oc, "status": st,
            "statuses": sts, "fault_classes": cls, "innocent_retries": inn,
            "role": extra["role"], "note": extra["note"], "ts": time.time()}
     return rec
@@ -304,11 +382,13 @@ def probe_holes(run_dir, sweep):
             a = {"carrier": name, "arm": "%s@h8_%d" % (name, h["off"]),
                  "off": h["off"], "len": 8}
             fill = bytes.fromhex(W.ruler_fills(8, [], [])[0]["hex"])
-            res = cr.measure(cr.blob(h["off"], fill))
+            bl = cr.blob(h["off"], fill)
+            res = cr.measure(bl)
             rec = case_record(cr, a, fill, res,
                               {"instr": "stop", "value": h["off"],
                                "fid": "C_reach", "predict": "not_written",
-                               "role": "control_reach", "note": json.dumps(h)})
+                               "role": "control_reach", "note": json.dumps(h)},
+                              bl)
             emit(sweep, rec)
         cr.close()
         time.sleep(0.2)
@@ -320,6 +400,16 @@ def main():
     ap.add_argument("--arms", default=str(HERE / "harness" / "arms200.json"))
     ap.add_argument("--probe-holes", action="store_true")
     ap.add_argument("--only", default="")
+    ap.add_argument("--reverse", action="store_true",
+                    help="GATE E (corrections 3): dispatch the SAME frozen arms "
+                         "and the SAME frozen fills in REVERSED order. A "
+                         "confirmation run must not repeat the discovery run's "
+                         "case order, or an order-dependent artefact reproduces "
+                         "itself perfectly.")
+    ap.add_argument("--roles", default="",
+                    help="comma-separated fill roles to dispatch; used by the "
+                         "ISOLATION pass, which re-runs only the readings a "
+                         "verdict rests on.")
     args = ap.parse_args()
 
     run_dir = HERE / "raw" / args.run_id
@@ -342,6 +432,14 @@ def main():
     if args.only:
         keep = set(args.only.split(","))
         arms = [a for a in arms if a["carrier"] in keep]
+    if args.roles:
+        keep_r = set(args.roles.split(","))
+        arms = [dict(a, fills=[f for f in a["fills"] if f["role"] in keep_r])
+                for a in arms]
+        arms = [a for a in arms if a["fills"]]
+    if args.reverse:
+        arms = list(reversed(arms))
+        arms = [dict(a, fills=list(reversed(a["fills"]))) for a in arms]
     by_carrier = {}
     for a in arms:
         by_carrier.setdefault(a["carrier"], []).append(a)
@@ -385,8 +483,9 @@ def main():
                                          % (len(fill), a["len"]),
                                  "ts": time.time()})
                     continue
-                res = cr.measure(cr.blob(a["off"], fill))
-                emit(sweep, case_record(cr, a, fill, res, f))
+                bl = cr.blob(a["off"], fill)
+                res = cr.measure(bl)
+                emit(sweep, case_record(cr, a, fill, res, f, bl))
                 ncase += 1
                 if n and n % BASELINE_EVERY == 0:
                     baseline(a["arm"] + ":mid%d" % n)

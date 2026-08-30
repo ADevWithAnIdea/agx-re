@@ -25,6 +25,7 @@ compiled form of our own MSL.
 from __future__ import print_function
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -63,6 +64,15 @@ def _load(name, path):
 agxparse = _load("agxparse", TOOLS / "shdump" / "agxparse.py")
 import saferunner                # noqa: E402
 
+def _rev():
+    """Harness + database revision, recorded on every case (Gate A)."""
+    h = hashlib.sha256()
+    for n in ("isa_helpers.py", "casematrix.py", "oracle.py", "run.py"):
+        h.update((HERE / n).read_bytes())
+    return "db:%s|harness:%s" % (H.DB_SHA256[:12], h.hexdigest()[:12])
+
+
+REV = _rev()
 SHDUMP = TOOLS / "shdump" / "shdump"
 AGXRUN = TOOLS / "agxtest" / "agxrun_persist"
 
@@ -106,10 +116,23 @@ class Carrier:
         self.hangs = 0
 
     def dispatch(self, plan, block, grid=1, tg=1):
-        prog = H.synth_program(plan, block, self.region_len)
+        """Dispatch one program and return (response, output words, ACTUAL-BYTE LEDGER).
+
+        GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 3).  The ledger is not taken from
+        the request.  The spliced program is written to disk, READ BACK from that artifact, and
+        the instruction bytes are extracted at the offset the program builder reports.  A
+        requested bit that never reached the hardware -- DEF-0166's failure -- shows up here as
+        a requested/actual disagreement, which no assemble-disassemble round trip can see."""
+        prog, block_off = H.synth_program(plan, block, self.region_len)
         buf = bytearray(self.basebuf)
         buf[self.region_off:self.region_off + self.region_len] = prog
         self.spliced.write_bytes(bytes(buf))
+        onwire = self.spliced.read_bytes()                 # the artifact actually handed over
+        instr_off = self.region_off + block_off
+        actual = onwire[instr_off:instr_off + len(block)]
+        ledger = {"program_sha256": hashlib.sha256(onwire).hexdigest(),
+                  "program_len": len(onwire), "instr_offset": instr_off,
+                  "actual_block": actual.hex()}
         resp = self.runner.request(archive=str(self.spliced), grid=grid, tg=tg,
                                    ins={0: str(self.poison)},
                                    outs={0: H.OUT_WORDS * 4}, timeout=self.timeout)
@@ -117,7 +140,7 @@ class Carrier:
             self.hangs += 1
         raw = resp["outs"].get(0, b"")
         words = [struct.unpack_from("<I", raw, i)[0] for i in range(0, len(raw) - 3, 4)]
-        return resp, words
+        return resp, words, ledger
 
     def close(self):
         try:
@@ -199,6 +222,33 @@ def predict(case, o, lay, hp_model):
     return orc, nul
 
 
+def released_lanes(o, lay):
+    """OBSERVATION, not prediction: half-lanes that were non-zero before the block and zero
+    after it, excluding the marker registers and the dump index register.  Recorded on every
+    case so a source-release behaviour is visible in raw whatever the oracle models."""
+    if o is None:
+        return None
+    skip = set(lay.marker_regs) | {lay.R_IDX}
+    out = []
+    for r in range(H.N_REGS):
+        if r in skip:
+            continue
+        for h in (0, 1):
+            if H.lane(o["pre"][r], h) != 0 and H.lane(o["post"][r], h) == 0:
+                out.append([r, h])
+    return out
+
+
+def result_match(o, orc, case):
+    """Did the DESTINATION LANE alone carry the predicted value?  Weaker than the full-vector
+    `oracle_match` and never used as the promotion gate; recorded so an arithmetic model can
+    be judged separately from side effects (this is what makes the `ext` byte analysis
+    possible at all)."""
+    if o is None or orc is None or orc.get("dst") is None or orc.get("result16") is None:
+        return None
+    return H.lane(o["post"][orc["dst"]], orc.get("dst_half") or 0) == orc["result16"]
+
+
 def alt2r_match(o, orc, case):
     """Would the TWO-ROUNDING (unfused) prediction have matched?  Recorded per case so a
     fused/unfused disagreement is MEASURED rather than assumed (PRE_REGISTRATION 4.3)."""
@@ -233,8 +283,9 @@ def run_case(car, plan, c, anchor, expected, log, hp_model, attempts_max=3, grid
     lay = plan["lay"]
     blk = bytes.fromhex(c["bytes"]) + H.marker_chain(lay)
     attempts, out, o, resp = [], None, None, None
+    ledger = None
     for _ in range(attempts_max):
-        resp, words = car.dispatch(plan, blk, grid=grid, tg=tg)
+        resp, words, ledger = car.dispatch(plan, blk, grid=grid, tg=tg)
         o = observe(words)
         out = classify(resp, o, anchor, expected)
         attempts.append({"outcome": out, "status": resp["status"],
@@ -243,7 +294,23 @@ def run_case(car, plan, c, anchor, expected, log, hp_model, attempts_max=3, grid
         if out not in ("measurement_failed", "invalid_run", "hang") and \
                 not is_victim(resp.get("error")):
             break
+    # ---- GATE A: decode the field value back out of the ACTUAL dispatched bytes -----------
+    actual_instr = bytes.fromhex(ledger["actual_block"])[:len(bytes.fromhex(c["bytes"]))]
+    if c.get("byte_index") is not None:
+        decoded = actual_instr[c["byte_index"]] if c["byte_index"] < len(actual_instr) else None
+    elif c.get("fstart") is not None:
+        decoded = M.get_field_bits(actual_instr, c["fstart"], c["fwidth"])
+    else:
+        decoded = None
+    ledger = dict(ledger)
+    ledger.update(actual_instr=actual_instr.hex(), requested_instr=c["bytes"],
+                  requested_value=c["value"], decoded_value=decoded,
+                  bytes_match=(actual_instr.hex() == c["bytes"]),
+                  ledger_ok=(decoded == c["value"]) if decoded is not None else None,
+                  rev=REV)
     orc, nul = predict(c, o, lay, hp_model)
+    sem, fits = O.classify_semantics(o, bytes.fromhex(c["bytes"]), lay, c["instr"],
+                                     out, is_victim(resp.get("error")), orc)
     tok_mn, tok_len = H.tokenize_first(bytes.fromhex(c["bytes"]))
     mk = markers_seen(o, lay)
     anchor_mk = markers_seen(anchor, lay) if anchor else None
@@ -261,6 +328,9 @@ def run_case(car, plan, c, anchor, expected, log, hp_model, attempts_max=3, grid
                oracle=orc,
                oracle_match=(orc is not None and o is not None and o["post"] == orc["post"]),
                oracle_match_alt2r=alt2r_match(o, orc, c),
+               oracle_result_match=result_match(o, orc, c),
+               ledger=ledger, semantic_class=sem, semantic_model_fits=fits,
+               released_lanes=released_lanes(o, lay),
                null_match=(nul is not None and o is not None and o["post"] == nul["post"]),
                hp_model_fits=(O.hp_model_fits(o["pre"], o["post"], bytes.fromhex(c["bytes"]), lay)
                               if (o is not None and c["instr"] == "half_pack") else None),
@@ -331,7 +401,7 @@ def main():
             key = c["arm"]
             if key not in anchors:
                 # ONE anchor observation per arm per run.  NEVER refreshed.
-                resp, words = car.dispatch(
+                resp, words, _led = car.dispatch(
                     plan, bytes.fromhex(c["anchor"]) + H.marker_chain(plan["lay"]))
                 o = observe(words)
                 anchors[key] = o

@@ -46,3 +46,8 @@ AMENDED: hard outcomes now enter the cross-run comparison as their own class
 (`hard:<outcome>`), while still being EXCLUDED from `moved` (control C5 -- a GPU fault is not
 movement). Made while run01 was still executing and before `verdicts.py` had been run against
 any capture. Contract re-frozen; the amended file is hashed in CAPTURE_CONTRACT.json.
+
+Note for auditors: `CAPTURE_CONTRACT.json`'s `repo.revision` is rewritten by each re-freeze and
+now reads `ff747ca3`; the revision at the ORIGINAL pre-registration freeze, before any build or
+device run, was **`f59821fe`**. It moved because sibling experiments land continuously. Per
+`SUBAGENT_BRIEF.md`, captures are gated on the AUTHORED BLOB HASHES, never on live `HEAD`.

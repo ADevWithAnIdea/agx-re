@@ -2,7 +2,11 @@
  "carry_gen.srcB": {
   "claims": [
    {
-    "claim": "accepted set fits (v & 0x7F) == 0x03, 2 of 256, on both arms",
+    "claim": "accepted set fits (v & 0x7F) == 0x03, N of M, on both arms",
+    "claimed": [
+     2,
+     256
+    ],
     "ok": true,
     "raw": {
      "g17p_20260829_run01|A_CARRY_INPLACE": {
@@ -44,7 +48,11 @@
     }
    },
    {
-    "claim": "A_CARRY_SYNTH.srcB released register map reg=(v>>1)&0x3F, fit 22/22",
+    "claim": "A_CARRY_SYNTH.srcB released register map reg=(v>>1)&0x3F, fit N/M",
+    "claimed": [
+     22,
+     22
+    ],
     "ok": true,
     "raw": {
      "g17p_20260829_run01|A_CARRY_SYNTH": "22/22",
@@ -53,13 +61,14 @@
    }
   ],
   "label": "hardware-run",
-  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 23/22",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 22/22",
   "verdict": "SUPPORTED"
  },
  "falu2_ext.srcB_neg": {
   "claims": [
    {
-    "claim": "the two byte strings differ in EXACTLY ONE BIT, bit 43",
+    "claim": "the two byte strings differ in EXACTLY ONE BIT, bit N",
+    "claimed": 43,
     "ok": true,
     "raw": {
      "bit": 43,
@@ -68,7 +77,11 @@
     }
    },
    {
-    "claim": "db.json models srcB_neg at start=43 width=1",
+    "claim": "db.json models srcB_neg at the start/width the note states",
+    "claimed": [
+     43,
+     1
+    ],
     "ok": true,
     "raw": [
      [
@@ -78,7 +91,11 @@
     ]
    },
    {
-    "claim": "w0 moves 8.0 -> 2.0 with both sentinels holding, identical in all three runs",
+    "claim": "w0 moves X -> Y with both sentinels holding, identical in all three runs",
+    "claimed": [
+     "8.0",
+     "2.0"
+    ],
     "ok": true,
     "raw": {
      "m4_20260828_run01": {
@@ -332,6 +349,12 @@
   "claims": [
    {
     "claim": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field value, every arm's control firing",
+    "claimed": [
+     0,
+     10,
+     2,
+     1
+    ],
     "ok": true,
     "raw": {
      "all_controls_fired": true,
@@ -349,7 +372,12 @@
     }
    },
    {
-    "claim": "0/256 across 10 occurrences",
+    "claim": "N/M across K occurrences",
+    "claimed": [
+     0,
+     256,
+     10
+    ],
     "ok": true,
     "raw": [
      256
@@ -357,6 +385,7 @@
    },
    {
     "claim": "six loop carriers all emit scope_kind == 0x1a, four emit both 0x54 and 0x56; at four 0x1a occurrences 0x00 and 0x54 FAULT while 0x56 and 0xFF are correct; never reached a gated pair",
+    "claimed_carriers": "six",
     "ok": true,
     "raw": {
      "carriers": [
@@ -391,6 +420,7 @@
    },
    {
     "claim": "EXP-0172 showed byte+2 ASYMMETRIC over its two legal values on three arms",
+    "claimed_arms": 3,
     "ok": true,
     "raw": {
      "arms": 5,
@@ -416,6 +446,12 @@
   "claims": [
    {
     "claim": "loc separated BY VALUE: 0/256 at one sample, 128/256 at four",
+    "claimed": [
+     0,
+     256,
+     128,
+     256
+    ],
     "ok": true,
     "raw": {
      "g17p_20260830_run01": {
@@ -505,7 +541,11 @@
     }
    },
    {
-    "claim": "10,398 dispatch records but only 10 carry an oracle (0.1%)",
+    "claim": "N dispatch records but only M carry an oracle",
+    "claimed": [
+     "10,398",
+     "10"
+    ],
     "ok": true,
     "raw": {
      "n": 10398,
@@ -532,7 +572,11 @@
  "iter_flat._instruction": {
   "claims": [
    {
-    "claim": "EXP-0155 reproduced its baselines on G17P 23/23",
+    "claim": "EXP-0155 reproduced its baselines on G17P N/M",
+    "claimed": [
+     23,
+     23
+    ],
     "ok": true,
     "raw": {
      "ok": 23
@@ -557,7 +601,8 @@
     }
    },
    {
-    "claim": "EXP-0167 ran 196,114 assembler-GENERATED mov_imm instances whose 01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs",
+    "claim": "EXP-0167 ran N assembler-GENERATED mov_imm instances whose 01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs",
+    "claimed": "196,114",
     "ok": true,
     "raw": {
      "iso01_iso02_byte_identical": true,
@@ -612,7 +657,7 @@
   "claims": [
    {
     "claim": "EXP-0140 swept flag, mode and sel at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512",
-    "ok": false,
+    "ok": true,
     "raw": {
      "see": "analysis/check_0140.json :: psel.flag/mode/sel; byte+3 is the `sel` group, 512 cases, all stable, all observed == oracle"
     }
@@ -620,12 +665,17 @@
   ],
   "label": "hardware-run",
   "note": "EXP-0181 refresh from corpus-correlation: EXP-0010 E3 validated the grid-predicate select's BEHAVIOUR on hardware, and EXP-0140 swept `flag`, `mode` and `sel` at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512 -- the same immediate model it proved for `sel`. The predicate select is confirmed by value, not by co-variation.",
-  "verdict": "CONTRADICTED"
+  "verdict": "SUPPORTED"
  },
  "uniform_mov._instruction": {
   "claims": [
    {
     "claim": "EXP-0168 re-measured dst: 214 movements, 224 distinct byte strings, 100.000% agreement",
+    "claimed": [
+     "214",
+     "224",
+     "100.000"
+    ],
     "ok": true,
     "raw": {
      "agree_pct": [

@@ -3026,7 +3026,22 @@
     "evidence": [
      "EXP-0156"
     ],
-    "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK) | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 36 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
+    "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK) | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 36 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "live but INDISTINGUISHABLE: 1 distinct valid payload over 36 legal values",
+     "hazard": "see note",
+     "counts": {
+      "legal": 36,
+      "distinct_valid_payloads": 1
+     },
+     "target": "G17P-direct"
+    }
    },
    "reserved": {
     "label": "untested",
@@ -6205,7 +6220,25 @@
     "evidence": [
      "EXP-0155"
     ],
-    "note": "WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 255 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic. **THIS IS THE SHARPEST INSTANCE IN THE CORPUS: the 'movement' was OUR OWN DISASSEMBLER, not the hardware.** All 512 records carry ONE identical `observed` payload. The two moved cells are both value 86 with `outcome: undecodable` and the note 're-decodes as `pack_convert`' -- while `status: OK`, the sentinel is written, and the pixel readback is BYTE-IDENTICAL to the other 255 values. A tokenizer disagreement promoted an 8-bit field with 255 legal values to emitter grade."
+    "note": "WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 255 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic. **THIS IS THE SHARPEST INSTANCE IN THE CORPUS: the 'movement' was OUR OWN DISASSEMBLER, not the hardware.** All 512 records carry ONE identical `observed` payload. The two moved cells are both value 86 with `outcome: undecodable` and the note 're-decodes as `pack_convert`' -- while `status: OK`, the sentinel is written, and the pixel readback is BYTE-IDENTICAL to the other 255 values. A tokenizer disagreement promoted an 8-bit field with 255 legal values to emitter grade.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "accepted-inert in the tested envelope (512 records, ONE identical observed payload); global role unknown",
+     "hazard": "none: 0 hard outcomes. The 2 cells that moved were `undecodable` -- OUR OWN DISASSEMBLER, status OK, pixel readback byte-identical",
+     "counts": {
+      "legal": 255,
+      "distinct_valid_payloads": 1,
+      "faults": 0,
+      "undecodable": 2,
+      "records": 512
+     },
+     "target": "G17P-direct"
+    }
    },
    "dst": {
     "label": "hardware-run",
@@ -7776,7 +7809,22 @@
     "evidence": [
      "EXP-0147"
     ],
-    "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related. | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 1522 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
+    "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related. | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 1522 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "live but INDISTINGUISHABLE: 1 distinct valid payload over 1522 legal values",
+     "hazard": "see note",
+     "counts": {
+      "legal": 1522,
+      "distinct_valid_payloads": 1
+     },
+     "target": "M4-direct"
+    }
    }
   },
   "cvt_f2h_dst": {
@@ -9144,7 +9192,23 @@
     "evidence": [
      "EXP-0157"
     ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 191 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic."
+    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 191 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "inert in the tested envelope; global role unknown",
+     "hazard": "REPRODUCIBLE FAULT MAP: 128 of 191 legal values FAULT, 100% cross-run agreement. This is a first-class capability-map fact (\u00a76: behaviour at first invalid entry) and is NOT erased by the promotion withdrawal",
+     "counts": {
+      "legal": 191,
+      "distinct_valid_payloads": 1,
+      "faults": 128
+     },
+     "target": "G17P-direct"
+    }
    }
   },
   "ray_move_zero6": {
@@ -10406,7 +10470,24 @@
     "evidence": [
      "EXP-0147"
     ],
-    "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic."
+    "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "inert in the tested envelope; global role unknown",
+     "hazard": "REPRODUCIBLE HAZARD MAP: 987 `no_draw` + 39 `fault` over 817 legal values, 100% cross-run agreement. First-class capability-map fact, retained",
+     "counts": {
+      "legal": 817,
+      "distinct_valid_payloads": 1,
+      "no_draw": 987,
+      "faults": 39
+     },
+     "target": "M4-direct"
+    }
    }
   },
   "mesh_out_src": {
@@ -10990,7 +11071,22 @@
     "evidence": [
      "EXP-0156"
     ],
-    "note": "WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 32 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
+    "note": "WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 32 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
+    "axes": {
+     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
+     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "recipe": "not-generated",
+     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
+     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
+     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
+     "liveness": "live but INDISTINGUISHABLE: 1 distinct valid payload over 32 legal values",
+     "hazard": "see note",
+     "counts": {
+      "legal": 32,
+      "distinct_valid_payloads": 1
+     },
+     "target": "G17P-direct"
+    }
    },
    "tail": {
     "label": "hardware-run",

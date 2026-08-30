@@ -34,7 +34,7 @@ def check(name, lib):
     errs = []
     seen = {}
     for k, v in sorted(lib.items()):
-        key = tuple(v)
+        key = C.canon(v)
         if key in seen:
             errs.append("%s: library members %r and %r are the SAME vector %r"
                         % (name, seen[key], k, v))
@@ -52,16 +52,16 @@ def main():
         if spec["oracle"] is None or len(spec["oracle"]) != 8:
             errs.append("%s: carrier oracle is not an 8-lane vector" % cname)
     cs = C.copysign_library(C.CS_A, C.CS_B)
-    if tuple(cs["copysign(a,b)"]) == tuple(cs["-a"]):
+    if C.canon(cs["copysign(a,b)"]) == C.canon(cs["-a"]):
         errs.append("copysign inputs: copysign(a,b) == -a; the library cannot "
                     "distinguish a sign copy from a negation")
-    if tuple(cs["copysign(a,b)"]) == tuple(cs["copysign(b,a)"]):
+    if C.canon(cs["copysign(a,b)"]) == C.canon(cs["copysign(b,a)"]):
         errs.append("copysign inputs: the two operand ROLE assignments collide")
     if not any(str(x) == "-0.0" for x in C.CS_B):
         errs.append("copysign inputs: no -0.0 sign source")
-    for cname in ("f3e_sat", "f3e_chain"):
+    for cname in ("f3e_sat", "f3e_chain", "f3e_sat_x"):
         lib = C.CARRIERS[cname]["library"]
-        if len({tuple(v) for v in lib.values()}) != len(lib):
+        if len({C.canon(v) for v in lib.values()}) != len(lib):
             errs.append("%s: saturation collapsed the library" % cname)
     fs = C.fspecial_library(C.FS_A, C.FS_B)
     ra, rb = fs["rsqrt(a)"], fs["rsqrt(b)"]
@@ -71,7 +71,7 @@ def main():
                     "Newton-Raphson refinement and read as correct")
 
     for cname, spec in sorted(C.CARRIERS.items()):
-        n = len({tuple(v) for v in spec["library"].values()})
+        n = len({C.canon(v) for v in spec["library"].values()})
         print("  %-10s library members=%-3d distinct vectors=%-3d %s"
               % (cname, len(spec["library"]), n,
                  "OK" if n == len(spec["library"]) else "<-- COLLISION"))

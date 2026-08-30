@@ -62,8 +62,27 @@ PLAN = {
                    ("dst", "control_dim")],
 }
 
+# AMENDMENT 1, 2026-08-30, made BEFORE any gated run and after pilot01 only.
+# The `dst` control_dim arm is swept 0..191, NOT 0..255.
+#
+# Reason, stated in full because trimming a frozen range needs one. pilot01
+# dispatched dst=192 on BOTH reuse carriers and got 3/3 CMDBUF_ERROR with
+# `ErrorHang` on each -- the same dst[7:6] == 0b11 wall EXP-0168 mapped exactly
+# on `frag_color_pack.dst` (0x00..0xBF clean, 0xC0..0xFF hang, contiguous). This
+# arm is a CONTROL, not a characterisation: its whole job is to fire once and
+# prove the carrier can detect a change in the post-instruction content of the
+# source register, and it fires at dst=0. Sweeping 0xC0..0xFF here would cost up
+# to 256 device resets across two runs on a machine other experiments share,
+# and -- worse for this experiment -- each reset manufactures `InnocentVictim`
+# contamination in the very target arms the control exists to support.
+#
+# FIELD-SWEEP-PROTOCOL 3(c) forbids a hang BUDGET on a field being
+# characterised, because a budget guarantees the region is never mapped. That
+# is not what this is: `simd_ballot.dst` and `simd_shuffle.dst` are not fields
+# under test here, and the 0xC0 observation is reported as a finding rather than
+# silently skipped. Mapping that wall on these two instructions is a named debt.
 CONTROL_VALUES = {"psrc": CTRL16, "src": CTRL16, "lane": LANE16,
-                  "dst": DENSE256}
+                  "dst": list(range(192))}
 
 GROUP = {"simd_ballot": "ballot", "simd_reduce": "reduce",
          "simd_shuffle": "shuffle"}

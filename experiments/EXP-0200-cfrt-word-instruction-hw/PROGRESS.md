@@ -40,3 +40,37 @@
   pre-freeze calibration, then the contract is re-frozen with it hashed.
 
 Next: push, verify remotely as a SEPARATE step, build, census, hole probe.
+
+## 2026-08-30 M1 — contract v4 frozen, arms frozen, calibration done
+
+- Pushed; `harness/verify_remote200.py` run as a **separate unchained step**:
+  **41/41 blobs match on the device**, and **27/27 `t1/` blobs match EXP-0187's
+  own `CAPTURE_CONTRACT.json`** — target 1 is that contract honoured unchanged,
+  as a check rather than a claim.
+- Built `work/bin/{shdump,agxrun_persist_as}` and `t1/work/bin/{shdump,
+  shdump_mesh,agxrun_persist_as}` on the neo.
+- **Census** (`raw/prefreeze/census200.json`, then `census200.v2.json` after
+  amendment A1). All ten carriers compile. `cw_trans` carries walk-confirmed
+  natural holes for all three 2-byte targets (n1_word x6, n2_compact2 x1,
+  n3_word x3). **Zero** walk-confirmed holes for the three 4-byte targets
+  anywhere — the pinned walk stops at 60-62 tokens on every RT program
+  (EXP-0187 4.2 / EXP-0157) — hence amendment A1, which admits a signature hit
+  cross-checked with `decode_one` at that offset.
+- **Hole probe** (`raw/prefreeze/holeprobe01`, 159 records, NO verdict cites it).
+  All ten carriers returned their exact non-zero oracle unmutated with the
+  sentinel intact. Ruler holes admitted on 3 of 10 carriers: `cw_trans` 6/37,
+  `cw_bar` 3/4, `cw_mix` 1/2; **0 of 88 on the four RT carriers**, because every
+  RT ruler candidate the walk can produce lies in the first ~400 bytes of an
+  8-12 KB program, before the sentinel store. A stop there writes nothing at all
+  -> `invalid_run` by the frozen classifier, which is the correct conservative
+  reading. Recorded as an instrument limitation; amendment A2 raised the caps.
+- **`harness/arms200.json` frozen: 74 arms, 736 cases, 129 holes dropped.**
+  9 ruler arms x 38 fills across 3 carriers; 65 transparency arms, including
+  `rq_mdist@1306` and `rq_inst@1268` — EXP-0187's own two proven-decoded
+  `n4_rt_word` occurrences.
+- `analysis/contract200.py encodings`: 11/11 byte constants re-derived from the
+  pinned descriptors; **74 arms, all fills distinct within each arm** (the
+  aliased-sweep check).
+
+Next: gated pairs, serialized (T1 run01, T1 run02, T2 run01, T2 run02) so this
+experiment does not contaminate its own confirmation runs.

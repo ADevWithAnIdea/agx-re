@@ -87,7 +87,7 @@ def main():
         lay = H.LAYOUTS[arm["layout"]]
         plan = H.seed_plan(arm["seeds"], arm["layout"])
         pre = [plan["words"].get(i, 0) for i in range(16)]
-        anc = M.anchor_bytes(arm["instr"])
+        anc = M.anchor_bytes(arm["instr"], arm["layout"])
         if arm["instr"] == "half_alu_fma12":
             good = O.fma12_predict(pre, anc, lay)
             a = O.v16(H.hval(pre, anc[1])[0])
@@ -98,7 +98,7 @@ def main():
             fal_detail["%s/F2_opsel_distinguishable" % arm["id"]] = (alt != good["result16"])
             fal_ok &= (alt != good["result16"])
             # F4: predicting a different destination must give a different post vector
-            shifted = bytes([((M.DST_FIXED + 1) << 4) | (anc[0] & 0xF)]) + anc[1:]
+            shifted = bytes([((M.DST_BY_LAYOUT[arm["layout"]] + 1) << 4) | (anc[0] & 0xF)]) + anc[1:]
             d4 = O.fma12_predict(pre, shifted, lay)["post"] != good["post"]
             fal_detail["%s/F4_dstshift" % arm["id"]] = d4
             fal_ok &= d4
@@ -109,7 +109,7 @@ def main():
             alt = O.to_f16(B * A)[0]
             fal_detail["%s/F3_hp_opsel_distinguishable" % arm["id"]] = (alt != good["result16"])
             fal_ok &= (alt != good["result16"])
-            shifted = bytes([((M.DST_FIXED + 1) << 4) | (anc[0] & 0xF)]) + anc[1:]
+            shifted = bytes([((M.DST_BY_LAYOUT[arm["layout"]] + 1) << 4) | (anc[0] & 0xF)]) + anc[1:]
             d4 = O.halfpack_predict(pre, shifted, lay)["post"] != good["post"]
             fal_detail["%s/F4_dstshift" % arm["id"]] = d4
             fal_ok &= d4
@@ -123,7 +123,7 @@ def main():
         lay = H.LAYOUTS[arm["layout"]]
         plan = H.seed_plan(arm["seeds"], arm["layout"])
         pre = [plan["words"].get(i, 0) for i in range(16)]
-        anc = M.anchor_bytes(arm["instr"])
+        anc = M.anchor_bytes(arm["instr"], arm["layout"])
         good = (O.fma12_predict(pre, anc, lay) if arm["instr"] == "half_alu_fma12"
                 else O.halfpack_predict(pre, anc, lay))
         nullok &= (O.null_predict(pre, lay)["post"] != good["post"])
@@ -167,6 +167,62 @@ def main():
     check("G6h `ext` is FORCED to untested per PRE_REG 6",
           V.FORCE_LABEL.get(("half_alu_fma12", "ext")) == "untested")
 
+    # G9 (GATE A, offline half) -- decoding the field back out of the BUILT bytes must
+    #     return the requested value for every case in the matrix.  The on-hardware half of
+    #     Gate A reads the bytes back from the dispatched artifact; this is the part that can
+    #     be proved without a device.
+    bad_led = []
+    for c in cases:
+        b = bytes.fromhex(c["bytes"])
+        if c.get("byte_index") is not None:
+            got = b[c["byte_index"]]
+        elif c.get("fstart") is not None:
+            got = M.get_field_bits(b, c["fstart"], c["fwidth"])
+        else:
+            continue
+        if got != c["value"]:
+            bad_led.append([c["arm"], c["field"], c["value"], got])
+    check("G9 ledger decode == requested value", not bad_led, str(bad_led[:3]))
+
+    # G10 -- the semantic classifier must be able to return every Gate C bucket, including
+    #        the ones that are NOT a pass.
+    lay = H.LAYOUTS["HI"]
+    plan = H.seed_plan("A", "HI")
+    pre = [plan["words"].get(i, 0) for i in range(16)]
+    anc = M.anchor_bytes("half_alu_fma12", "HI")
+    good = O.fma12_predict(pre, anc, lay)
+    o_ok = {"pre": pre, "post": good["post"], "pre_sent": H.SENT_PRE,
+            "post_sent": H.SENT_POST, "stray": [], "n_stray": 0}
+    o_null = {"pre": pre, "post": O.null_predict(pre, lay)["post"], "pre_sent": H.SENT_PRE,
+              "post_sent": H.SENT_POST, "stray": [], "n_stray": 0}
+    weird = list(good["post"])
+    weird[good["dst"]] = 0x12345678
+    o_weird = {"pre": pre, "post": weird, "pre_sent": H.SENT_PRE, "post_sent": H.SENT_POST,
+               "stray": [], "n_stray": 0}
+    alt = O.fma12_predict(pre, anc, lay, "a*b+c")
+    o_alt = {"pre": pre, "post": alt["post"], "pre_sent": H.SENT_PRE,
+             "post_sent": H.SENT_POST, "stray": [], "n_stray": 0}
+    buckets = {
+        "correct": O.classify_semantics(o_ok, anc, lay, "half_alu_fma12", "ok", False, good)[0],
+        "no_write": O.classify_semantics(o_null, anc, lay, "half_alu_fma12", "wrong_value",
+                                         False, good)[0],
+        "unexplained": O.classify_semantics(o_weird, anc, lay, "half_alu_fma12", "wrong_value",
+                                            False, good)[0],
+        "faulted": O.classify_semantics(o_ok, anc, lay, "half_alu_fma12", "fault", False,
+                                        good)[0],
+        "contaminated": O.classify_semantics(o_ok, anc, lay, "half_alu_fma12", "ok", True,
+                                             good)[0],
+        "measurement": O.classify_semantics(None, anc, lay, "half_alu_fma12",
+                                            "measurement_failed", False, good)[0],
+    }
+    exp = {"correct": "correct", "no_write": "no_write", "unexplained": "unexplained",
+           "faulted": "faulted_or_rejected", "contaminated": "contaminated",
+           "measurement": "measurement_failure"}
+    check("G10 semantic classifier reaches every Gate C bucket", buckets == exp, str(buckets))
+    alt_cls = O.classify_semantics(o_alt, anc, lay, "half_alu_fma12", "wrong_value", False, good)
+    check("G10b a different-but-coherent model is NOT scored `correct`",
+          alt_cls[0] == "coherent_alt_model" and "a*b+c" in alt_cls[1], str(alt_cls))
+
     # G7 -- the program fits and is even-length for every (seeds, layout).
     sizes = {}
     for sid in ("A", "B"):
@@ -174,8 +230,8 @@ def main():
             plan = H.seed_plan(sid, lay)
             blk = M.anchor_bytes("half_alu_fma12") + H.marker_chain(plan["lay"])
             body = b"".join([b"".join(H.seed_instrs(plan))])
-            prog = H.synth_program(plan, blk, 1400)
-            sizes["%s/%s" % (sid, lay)] = len(prog)
+            prog, boff = H.synth_program(plan, blk, 1400)
+            sizes["%s/%s" % (sid, lay)] = (len(prog), boff)
     check("G7 program synthesizes for all 4 (seed,layout)", len(sizes) == 4, str(sizes))
 
     # G8 -- SafePersistRunner reports a truncated response as MALFORMED, never a hang.

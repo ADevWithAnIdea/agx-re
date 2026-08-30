@@ -80,6 +80,24 @@ itself emit?* If any authored carrier compiles to `src_flag = 1`, the compiler d
 dimension the way EXP-0188's `if_push.scope` was demonstrated. If **no** kernel we can write emits
 `src_flag = 1`, that is itself a first-class result and is reported.
 
+> **CENSUS RESULT (pre-freeze, `raw/prefreeze/census.json`), and the amendment it forced.**
+> Across **50 authored carriers**, `shift_amt_move` is emitted at **6 boundary-aligned
+> occurrences** and **every one has `src_flag = 0`** — including both thread-invariant-amount
+> carriers, which compile to *byte-identical* `0b011c05` with the GPR-sourced one. Our own MSL
+> cannot make the compiler choose the other value.
+>
+> **But the same bit, at the same position, with the same 7+1 split and the same enum, exists on
+> the sibling descriptor `b_alu10_lo7` — and there the compiler emits BOTH values**: `src_flag = 1`
+> at `cvt_i64@46` and `cvt_i64@78`, `src_flag = 0` at `pc_tg@12`. That is the **positive control in
+> the same dimension** that `FIELD-SWEEP-PROTOCOL` §9 rule 1 demands, and it is added as a
+> `dimension`-role arm. It also yields a verdict for `b_alu10_lo7.src_flag` in its own right.
+>
+> **What each outcome now means, stated before the run:** if the `b_alu10_lo7` arm MOVES and the
+> `shift_amt_move` arms do not, the source-class bit is observable on this harness and inert on
+> this instruction — a real inertness result. If **neither** moves, the harness has not been shown
+> able to see the source-class dimension at all and **no inertness claim may be made**; the honest
+> verdict is `untested`, and the gate's rule 3 enforces that mechanically.
+
 ### 2.2 `irotate.operands` (bits 24..63, width 40)
 
 **Not an inertness problem — a stability and single-arm problem.** EXP-0189: *1276 values
@@ -175,6 +193,24 @@ tokenize as `ibitcount`. The census enumerates candidates across ~20 authored ke
 0x56 int-unary/convert, 0x22 rt/interp, 0x10 convert, 0x26 convert2, 0x07 logic), and for `b1` the
 **function/source descriptor** within it. Carriers are chosen to land on *different* `opsel` values
 where our own MSL can reach them.
+
+> **CENSUS RESULT (pre-freeze), and the amendment it forced.** With instruction-boundary
+> alignment required, **ZERO of the 50 authored carriers emit a boundary-aligned `iunary`.** Every
+> `byte0 == 0x27` instruction our compute MSL produces is claimed by a tighter descriptor
+> (`ibitcount`, `irotate`, `cvt_f2i`). EXP-0139 reported the same thing for 30 kernels of its own.
+> The apparent `iunary` hits in the first census pass were **interiors of longer instructions** —
+> a `b_alu10_lo7` at `cvt_i64@46` contains the bytes `27 11 00 02 …` — which is exactly the
+> "movement that is really a different instruction" failure, one step earlier.
+>
+> **So the fields are reached by SYNTHESIS, which is the sanctioned method** (`CLAUDE.md`,
+> "extrapolate, then test") and the one EXP-0139 used: byte+1 = `0x2d` with byte+2 = `0x22` is a
+> `byte0 == 0x27` 8-byte member that tokenizes as `iunary` (NOT `ibitcount`) and still computes.
+> An 8-byte `ibitcount` occurrence is rewritten **in place** into that form, keeping its operand
+> bytes, and the field is swept on top. **The arm's own baseline is the synthesized form with no
+> field mutation**, so if the synthesis does not compute on G17P the arm has no detection power and
+> the gate bars it. Verified offline against the pinned tokenizer: it is byte+2, not byte+1, that
+> decides `iunary` vs `ibitcount`, so the `b1` arm stays `iunary` across all 256 values and the
+> `opsel` arm leaves it at exactly 4 (`0x54..0x57`).
 
 **H5.** Both are live: dense 0..255 each, with movement.
 **Refuter:** no movement on any arm whose control fires.
@@ -289,7 +325,13 @@ Per arm, two pre-registered cases whose outcome is asserted in advance:
 3. **Detection power.** The arm's control must have moved in **both** runs, and the arm's
    falsifier must have failed the oracle in **both** runs. An arm failing either is barred from
    supporting a verdict of **any** kind, live or inert.
-4. **Baselines.** The arm-open and arm-close unmutated baselines must both be `ok`.
+4. **Baselines.** For an arm with **no prepatch**, the arm-open and arm-close unmutated
+   baselines must both be `ok`. For a **prepatched** arm — the synthesized `iunary` form (§2.5)
+   and the `src_flag` arms that move the source index (§2.1) — the program is *deliberately*
+   altered before the sweep, so `ok` is not the right test; the requirement is that the open and
+   close baselines be **identical to each other and identical across both runs**. Stability is
+   what a baseline is for. *(Amendment recorded in `PROGRESS.md`, pre-freeze, after the pilot
+   showed the prepatched arms' baselines are by design not `ok`.)*
 5. **Inertness requires a spanned dimension.** A `0 moved` verdict may only be recorded when
    ≥ 2 carriers **differ in the dimension named in §2** for that field and both pass rule 3.
    Otherwise the verdict is `STILL-UNDERPOWERED` → label `untested`. Never rounded up.
@@ -311,6 +353,20 @@ Underpowered → `untested`. `_instruction` under H8 → `hardware-run` only if 
 matched the *competing* host vector.
 
 ---
+
+## 6a. Pre-freeze census facts the arms are built from (calibration; no verdict cites them)
+
+`raw/prefreeze/census.json`, 50 carriers, all compiled, none dropped for a compile error.
+
+| fact | consequence |
+|---|---|
+| `shift_amt_move`: 6 boundary-aligned occurrences, `src_flag = 0` on all 6 | the compiler never chooses the other value; the same-dimension control moves to `b_alu10_lo7` |
+| `b_alu10_lo7.src_flag`: compiler emits **both** 0 and 1 | the positive control in the dimension (§2.1) |
+| `ibitcount`: 9 occurrences, `cache` compiled **0 on two and 1 on seven** | the result-routing dimension is spanned **by demonstration**, and both splice directions are testable |
+| `irotate`: 10 occurrences; byte-diff over rotate amounts {1,5,7,13,19,31} shows **byte+6 is the ONLY byte that moves**, at **byte+6 = 4·(32−K)** | an EXACT per-value host oracle for the amount sub-byte (§2.2) |
+| `cvt_f2i`: 9 occurrences spanning `mode` {0x54,0x56}, `cvtop` {0x96,0xac,0xb4}, `src_class` {2,3}, `dst` {0,4,6,8}; **`b9` = 0 in every one** | the dimensions EXP-0184 never varied, now spanned |
+| `cvt_f2i` length model: the pinned tokenizer's walk puts the next instruction at **+10**, with +8/+9 decoding only as spurious mid-instruction hits | the 10-byte model that makes `b9` a field is self-consistent |
+| `iunary`: **0 boundary-aligned occurrences in 50 carriers** | the fields are reached by synthesis (§2.5) |
 
 ## 7. Arms
 

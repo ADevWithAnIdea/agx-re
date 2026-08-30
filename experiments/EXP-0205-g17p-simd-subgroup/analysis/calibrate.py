@@ -41,6 +41,7 @@ WORK = EXP / "work"
 
 TARGETS = {
     "sb_ballot": ("simd_ballot", ["pred", "cache", "psrc", "dst"]),
+    "sb_ballot2": ("simd_ballot", ["pred", "cache", "psrc", "dst"]),
     "sb_active": ("simd_ballot", ["pred", "cache", "psrc", "dst"]),
     "sb_reuse":  ("simd_ballot", ["pred", "cache", "psrc", "dst"]),
     "sr_sum":    ("simd_reduce", ["op", "dtype", "opcls", "scope", "src", "dst", "cache"]),
@@ -130,10 +131,17 @@ def main():
         print(json.dumps({name: {k: v for k, v in rec.items()
                                  if k not in ("main_hex",)}}, indent=1))
 
+    # raw/ is APPEND-ONLY. A second calibration pass writes a NEW file; the
+    # first pass is never overwritten, even though it is pre-freeze.
     dest = EXP / "raw" / "prefreeze"
     dest.mkdir(parents=True, exist_ok=True)
-    (dest / "calibration.json").write_text(json.dumps(out, indent=1))
-    print("wrote", dest / "calibration.json")
+    tag = sys.argv[1] if len(sys.argv) > 1 else "calibration"
+    f = dest / ("%s.json" % tag)
+    if f.exists():
+        sys.stderr.write("REFUSING: %s exists; raw/ is append-only.\n" % f)
+        return 2
+    f.write_text(json.dumps(out, indent=1))
+    print("wrote", f)
     return 0
 
 

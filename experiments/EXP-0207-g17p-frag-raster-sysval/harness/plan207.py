@@ -21,6 +21,9 @@ SENT_BASE = 0x5A5A0000
 SR_BIAS = 1000
 CGRID = 64
 CTG = 64
+# Per-thread read-back words.  1 for the single-slot carriers; 17 for the
+# register-dump carrier (16 unique codewords + the system value).
+OUT_WORDS_DEFAULT = 1
 
 # Fragment/vertex uniform (fragment buffer 0) and vertex uniform (vertex buffer 0).
 SRC = [0.125, 0.375, 0.625, 0.875]
@@ -274,6 +277,17 @@ ARMS = [
          why="HIGH REGISTER PRESSURE: sixteen values live across a device load, so the "
              "compiler's own destination for the system-value read may already sit "
              "above r15 and 0 becomes an OFF-baseline dst_hi.  Measured in the census."),
+    dict(arm="sr_dump", stage=C, kind=C, kernel=SR_KERNEL, func="k_sr_dump",
+         grid=CGRID, tg=CTG, ins={1: "hipress"}, out_words=17, instr="get_sr",
+         anchor=("sr", 130), fields=["form", "dst_hi"], oracle="sr_compute_dump",
+         sr_set=SR_SET,
+         why="AMENDMENT 3, the SECOND DISJOINT READBACK PLAN required by "
+             "RE_EXPERIMENT_PROCESS_CORRECTIONS section 6: sixteen UNIQUE CODEWORDS held "
+             "live and ALL of them stored beside the system value, at an index derived "
+             "from the thread id and never from a field under test.  A single-slot "
+             "read-back cannot distinguish 'the write moved somewhere we do not read' "
+             "from 'the write did not move'; this one can, because a relocated write that "
+             "lands on a live register clobbers a named codeword."),
     dict(arm="sr_f", stage=R, kind=R, kernel=SR_KERNEL, vs="v_sr", fs="f_sr",
          W=8, H=8, nrt=1, samples=1, fmt=125, blend="none", depth=0, outbuf=256,
          clear=CLEAR_F, instr="get_sr", anchor=("sr", 160),
@@ -309,6 +323,33 @@ ARMS = [
          why="a release/acquire handoff: a broken release makes the readers see the "
              "pre-publication payload, which is a different host-computable constant"),
 
+    # AMENDMENT 2: the compiler emits NO `dev_scoreboard_fence` in either fence
+    # carrier (census02: `occ_absent(0 of 0)`), reproducing EXP-0141's finding on
+    # a far stronger carrier -- divergent device atomics plus a device-scope
+    # barrier.  What it DOES emit is the 4-byte `scoreboard_fence` `07 02 00 00`
+    # at offset 34 of k_fence_at, immediately before the divergent atomics.
+    # `dev_scoreboard_fence` is `80 02 00 <scope_flag>`, the SAME LENGTH and the
+    # documented byte0 sibling (high bit = wider memory/device scope).  So the
+    # op is synthesised into that exact position -- which, unlike EXP-0141's
+    # load/ALU/store program, is a fence site with an ordering observable -- and
+    # the arm carries a DETECTION-POWER probe on a different instruction: the
+    # threadgroup_barrier's own `mem_scope` (0x85 mem_device -> 0x41 mem_none).
+    # If that probe cannot move the observable, the carrier has no ordering
+    # sensitivity and NO verdict may be filed for this field.
+    dict(arm="fen_syn", stage=C, kind=C, kernel=FEN_KERNEL, func="k_fence_at",
+         grid=CGRID, tg=CTG, ins={1: "zeros"},
+         instr="dev_scoreboard_fence", anchor_instr="scoreboard_fence",
+         anchor=("patbytes", "070200"), pre_splice=[[0, 0x80]],
+         probe_other=[dict(mnemonic="threadgroup_barrier", field="mem_scope", value=0x41,
+                           why="DETECTION POWER, and the whole arm turns on it: drop the "
+                               "device-scope barrier to mem_none.  If the observable does "
+                               "not move, this carrier cannot see a memory-ordering change "
+                               "and no scope_flag verdict may be filed.")],
+         fields=["scope_flag"], oracle="fence",
+         why="SYNTHESISED into the compiler's own 4-byte fence slot before the divergent "
+             "atomics.  EXP-0141 synthesised the same op into a program with no ordering "
+             "observable and said so; this one has one."),
+
     # ------------------------------------------- mesh_out_src.sel -------------
     dict(arm="me_w2", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
          mesh="mesh_wide2", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
@@ -324,6 +365,26 @@ ARMS = [
          why="the same geometry with per-vertex and per-primitive payload slots that "
              "differ by two orders of magnitude, so a re-selected source is an "
              "unmistakable colour change"),
+    dict(arm="me_p1", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         mesh="mesh_wideP1", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
+         tgobj=1, tgmesh=12, grid=1,
+         instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
+         why="AMENDMENT 1: minimal delta from the walk-confirmed mesh_wide -- ONLY the "
+             "position expression changes, every payload assignment is byte-for-byte "
+             "as mesh_wide has it.  mesh_wide2/3 rewrote too much at once and emitted "
+             "no mesh_out_src at all (census01)."),
+    dict(arm="me_p2", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         mesh="mesh_wideP2", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
+         tgobj=1, tgmesh=12, grid=1,
+         instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
+         why="AMENDMENT 1: the same minimal delta with a quadratic y so the vertices "
+             "stop being collinear, keeping the x expression's shape"),
+    dict(arm="me_p3", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         mesh="mesh_wideP3", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
+         tgobj=1, tgmesh=12, grid=1,
+         instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
+         why="AMENDMENT 1: a third minimal delta -- per-corner constants selected by "
+             "lane%3, the least arithmetic of the three"),
     dict(arm="me_w1", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
          mesh="mesh_wide", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,

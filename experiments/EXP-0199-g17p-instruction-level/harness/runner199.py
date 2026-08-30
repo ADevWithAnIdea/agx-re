@@ -185,6 +185,16 @@ class RenderRunner(_Child):
             out["raw"].append(ln)
             if ln.startswith("STATUS "):
                 out["status"] = ln.split(None, 1)[1]
+            elif ln.startswith("ACTUAL "):
+                # GATE A: the bytes actually present in the dispatched file.
+                q = ln.split(None, 2)
+                if len(q) == 3:
+                    try:
+                        out.setdefault("actual", {})[int(q[1])] = bytes.fromhex(q[2])
+                    except ValueError:
+                        out["status"] = "MALFORMED"
+                        out["error"] = "unparseable ACTUAL payload"
+                        return out
             elif ln.startswith("SENTINEL "):
                 out["sentinel"] = ln.split(None, 1)[1]
             elif ln.startswith("ERRDOM "):
@@ -263,6 +273,16 @@ class ComputeRunner(_Child):
             out["raw"].append(ln)
             if ln.startswith("STATUS "):
                 out["status"] = ln.split(None, 1)[1]
+            elif ln.startswith("ACTUAL "):
+                # GATE A: the bytes actually present in the dispatched file.
+                q = ln.split(None, 2)
+                if len(q) == 3:
+                    try:
+                        out.setdefault("actual", {})[int(q[1])] = bytes.fromhex(q[2])
+                    except ValueError:
+                        out["status"] = "MALFORMED"
+                        out["error"] = "unparseable ACTUAL payload"
+                        return out
             elif ln.startswith("SENTINEL "):
                 out["sentinel"] = ln.split(None, 1)[1]
             elif ln.startswith("OUT "):

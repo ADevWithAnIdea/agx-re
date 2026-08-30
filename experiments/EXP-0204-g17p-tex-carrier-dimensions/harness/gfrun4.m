@@ -120,6 +120,11 @@ typedef struct { int idx; unsigned n; unsigned *vals; } BufU32Spec;
 //  * READBACK_POISON pre-fills every host read-back buffer, so a getBytes that
 //    silently does not write is reported as poison rather than as zeros.
 static unsigned long gReqSeq = 0;
+// GATE A ledger scratch: the ACTUAL spliced bytes re-read from the dispatched
+// file, and an FNV-1a 64 hash of that whole file.
+static char gActual[4096];
+static int gActualLen = 0;
+static unsigned long long gProgHash = 0;
 static const unsigned char READBACK_POISON[4] = {0xEF, 0xBE, 0xAD, 0xDE}; // 0xDEADBEEF LE
 
 static void poison(unsigned char *p, size_t n) {
@@ -377,6 +382,28 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
                 return 1;
             }
         }
+        // GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS sec.3): report the ACTUAL
+        // bytes present in the program that is about to be dispatched, read back
+        // through a SEPARATE filesystem read, plus a hash of the whole program.
+        // The caller decodes these independently and asserts
+        //   requested field value == value decoded from actual dispatched bytes
+        // before drawing any hardware conclusion.  A symmetric assemble/
+        // disassemble round trip is NOT this gate.
+        gActualLen = 0;
+        for (int i = 0; i < nspl && gActualLen + 64 < (int)sizeof(gActual); i++) {
+            gActualLen += snprintf(gActual + gActualLen,
+                                   sizeof(gActual) - gActualLen, "%s%zu=",
+                                   i ? "," : "", spl[i].off);
+            for (size_t k = 0; k < spl[i].len && gActualLen + 3 < (int)sizeof(gActual); k++)
+                gActualLen += snprintf(gActual + gActualLen,
+                                       sizeof(gActual) - gActualLen, "%02x",
+                                       rp[spl[i].off + k]);
+        }
+        gProgHash = 1469598103934665603ULL;   // FNV-1a 64 over the dispatched file
+        {
+            const unsigned char *q = rp; size_t n = [rb length];
+            for (size_t k = 0; k < n; k++) { gProgHash ^= q[k]; gProgHash *= 1099511628211ULL; }
+        }
     }
 
     // 2. Fresh MTLLibrary from the SPLICED archive's own bytes every request.
@@ -542,6 +569,8 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
     if (rid) printf("REQ %s\n", rid);
     printf("STATUS OK\n");
     printf("SENTINEL OK %d\n", nspl);
+    printf("ACTUAL %s\n", gActualLen ? gActual : "-");
+    printf("PROGHASH %016llx\n", gProgHash);
     size_t bpp = bytesPerPixel(gColorFmt);
     size_t rowBytes = bpp * (size_t)gW;
     unsigned char *px = malloc(rowBytes * (size_t)gH);

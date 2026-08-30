@@ -49,3 +49,45 @@ Consequent design change (still pre-freeze): add `sb_ballot2`, a second ballot
 carrier with a different predicate mask, so that any movement under `pred` can
 be attributed — a result that still tracks the predicate is ballot-like, one
 that is 0xFFFFFFFF on both masks is active-mask-like.
+
+## 2026-08-30 ~12:20 UTC — gate self-test 13/13 offline, arms frozen, contract frozen
+`analysis/gate_selftest.py` passes 13/13 with **no device**: it proves the gate
+can return "no" on each trap paid for elsewhere this week — a width-1 field DOES
+promote (pitfall 5b), a fault is NOT movement, an arm with no detection power is
+UNDERPOWERED rather than inert, inertness is still *reachable* when the control
+fires, aliased encodings are refused, MALFORMED is excluded, and
+moved(3) < 2*disagree(2) does not promote.
+
+`analysis/gen_arms.py` on the neo: **35 arms, no refusals**, every arm's values
+producing `distinct_encodings == len(values)` with every difference confined to
+the field's own span. `CAPTURE_CONTRACT.json` frozen at repo revision
+9bbc5d0b, 16 authored + 7 pinned blobs; `verify_remote.py` 22/22.
+
+## 2026-08-30 ~12:25 UTC — pilot01 (DECLARED PILOT, retained, never gated)
+77 sampled cases in 8.7 s. Three things it settled:
+
+1. **THE IN-DIMENSION CONTROL FIRES.** On `sb_reuse`, `dst=0` left out[0..31]
+   silently zero but moved out[32..63] to `0x6c8af35d + 3*v` — the ballot mask
+   landed in a register the LATER read consumes. Same on `sh_reuse`. So the
+   carrier demonstrably detects a change in the post-instruction content of the
+   source register, which is the dimension a cache/discard operand hint is
+   documented to control, and which no previous `cache` sweep had.
+2. **`simd_shuffle.cache` MOVED — the field is not inert.** On `sh_bc`
+   (baseline `cache=1`) and `sh_xor` (baseline `cache=1`), setting `cache=0`
+   changed every lane's result to `0x00003039` = 12345. Both carriers, same
+   value. Meanwhile `sh_reuse`, whose compiler-chosen baseline is `cache=0`,
+   is correct at `cache=0`. Pending the gated runs, this looks like the operand
+   PROVENANCE dimension EXP-0129 already found for a different field: our
+   shuffle source is seeded by a `device_load`, and the prior carriers that read
+   this bit INERT were not.
+3. **A CONTIGUOUS HAZARD at `dst` >= 192** on both `simd_ballot.dst` and
+   `simd_shuffle.dst`: 3/3 `CMDBUF_ERROR` / `ErrorHang` at dst=192, matching
+   EXP-0168's `frag_color_pack.dst` wall at 0xC0. AMENDMENT 1 (recorded in
+   `CAPTURE_CONTRACT.json` and `analysis/gen_arms.py`) trims the two `dst`
+   CONTROL arms to 0..191. Target fields are untouched: still dense, still no
+   abort path, still no hang budget.
+
+**Courtesy note (FIELD-SWEEP-PROTOCOL section 7).** The gated runs sweep
+`simd_reduce.op` and `.dtype` densely over 256 values on four carriers each, and
+`simd_ballot`'s whole byte+2 over 256 values on four carriers. Those regions are
+not known to be safe. Contract cases per run: 3708.

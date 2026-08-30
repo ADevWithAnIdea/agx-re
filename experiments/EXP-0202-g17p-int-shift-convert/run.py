@@ -108,19 +108,31 @@ class CarrierRunner:
         v = (v & ~mask) | ((value & ((1 << width) - 1)) << start)
         return v.to_bytes(len(raw), "little")
 
-    def mutated_main(self, off, length, start, width, value):
+    def patched_main(self, patches):
+        """Apply an ordered list of {off,len,start,width,value} patches.
+
+        A PREPATCH is how an arm reaches an encoding the compiler never emits.
+        EXP-0139 established that no `iunary`-tokenizing instruction exists in 30
+        authored MSL kernels (our own census of 50 more agrees), so its fields can
+        only be reached by SYNTHESIS: rewrite an 8-byte `ibitcount` occurrence's
+        byte+1/byte+2 into the `27 2d 22` form that tokenizes as `iunary` and
+        still computes, then sweep the field on THAT. The arm's own baseline is
+        dispatched WITH the prepatch and WITHOUT the field mutation, so an arm
+        whose synthesized base does not reproduce the carrier's host oracle has no
+        detection power and is barred by the gate.
+        """
         m = bytearray(self.main)
-        if off is not None:
-            m[off:off + length] = self.patch_instr(
-                bytes(self.main[off:off + length]), start, width, value)
+        for p in patches:
+            if p.get("off") is None:
+                continue
+            o, ln = p["off"], p["len"]
+            m[o:o + ln] = self.patch_instr(bytes(m[o:o + ln]), p["start"],
+                                           p["width"], p["value"])
         return bytes(m)
 
-    def blob(self, off, length, start, width, value):
+    def blob_from_main(self, m):
         b = bytearray(self.base)
-        if off is None:
-            return bytes(b)
-        b[self.main_off + off:self.main_off + off + length] = self.patch_instr(
-            bytes(self.main[off:off + length]), start, width, value)
+        b[self.main_off:self.main_off + len(m)] = m
         return bytes(b)
 
     def submit(self, blob):
@@ -286,10 +298,11 @@ def main():
                                          "grid": cr.spec["grid"], "tg": cr.spec["tg"],
                                          "archive_sha256": hashlib.sha256(cr.base).hexdigest()})})
 
-        def baseline(tag):
+        def baseline(tag, prepatch=()):
             ora = {"class": "exact", "rule": "baseline", "vals": cr.spec["oracle"]}
+            mm = cr.patched_main(list(prepatch))
             oc, obs, m, st, sts, cls, inn = cr.measure(
-                cr.blob(None, 0, 0, 0, 0), ora, cr.spec["oracle"])
+                cr.blob_from_main(mm), ora, cr.spec["oracle"])
             emit(sweep, {"carrier": carrier, "arm": tag, "instr": "-",
                          "field": "_baseline", "value": -1,
                          "bytes": "", "token": None,
@@ -298,6 +311,7 @@ def main():
                          "statuses": sts, "fault_classes": cls,
                          "innocent_retries": inn, "role": "baseline",
                          "grid": cr.spec["grid"], "tg": cr.spec["tg"],
+                         "prepatch": list(prepatch),
                          "note": tag, "ts": time.time()})
             return oc
 
@@ -310,11 +324,14 @@ def main():
                 vals = vals[::args.limit_values]
             budget = int(a.get("hang_budget", 0))
             hangs = 0
-            baseline(a["arm"] + ":open")
+            pre = a.get("prepatch", [])
+            baseline(a["arm"] + ":open", pre)
             for n, v in enumerate(vals):
                 ora, expect = O.predict(a, carrier, v)
-                blob = cr.blob(off, ilen, start, width, v)
-                mm = cr.mutated_main(off, ilen, start, width, v)
+                mm = cr.patched_main(list(pre) + [
+                    {"off": off, "len": ilen, "start": start, "width": width,
+                     "value": v}])
+                blob = cr.blob_from_main(mm)
                 tok = L.token_at(mm, off)
                 oc, obs, m, st, sts, cls, inn = cr.measure(blob, ora, expect)
                 rec = {
@@ -329,6 +346,7 @@ def main():
                     "start": a["start"], "width": a["width"],
                     "grid": cr.spec["grid"], "tg": cr.spec["tg"],
                     "baseline_field_value": a.get("baseline_field_value"),
+                    "prepatch": pre, "sub": a.get("sub"),
                     "note": a.get("note", ""), "ts": time.time(),
                 }
                 emit(sweep, rec)
@@ -346,8 +364,8 @@ def main():
                                              % hangs, "ts": time.time()})
                         break
                 if n and n % BASELINE_EVERY == 0:
-                    baseline(a["arm"] + ":mid%d" % n)
-            baseline(a["arm"] + ":close")
+                    baseline(a["arm"] + ":mid%d" % n, pre)
+            baseline(a["arm"] + ":close", pre)
             print("[%6.1fs] %-10s %-34s %d values" %
                   (time.time() - t0, carrier, a["arm"], len(vals)), flush=True)
         cr.close()

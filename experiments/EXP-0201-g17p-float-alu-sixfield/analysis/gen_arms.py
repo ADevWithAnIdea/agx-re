@@ -54,6 +54,14 @@ TARGETS = {                       # carrier -> (mnemonic, [target fields])
     "cs_swap":   ("copysign", ["operands"]),
     "cs_alu":    ("copysign", ["operands"]),
     "cs_chain":  ("copysign", ["operands"]),
+    # AMENDMENT A -- adversarial-input twins (signed zero, inf, NaN, denormal,
+    # 2^24 rounding boundary), so the semantic map is not read off two
+    # well-behaved magnitude vectors.
+    "f3_fma_x":  ("falu3", ["op"]),
+    "f3e_sat_x": ("falu3_ext", ["op"]),
+    "f12_abs_x": ("falu3_srcmod12", ["opsel", "ctrl"]),
+    "cs_load_x": ("copysign", ["operands"]),
+    "cs_swap_x": ("copysign", ["operands"]),
 }
 
 # detection-power control at the SAME occurrence, on a field already established

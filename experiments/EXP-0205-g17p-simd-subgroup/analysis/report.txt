@@ -1,0 +1,219 @@
+==============================================================================
+EXP-0205 derived report   runs: raw/g17p_20260830_run01 , raw/g17p_20260830_run02
+==============================================================================
+SIMD WIDTH run01: measured [32] ; simdgroup ids [0] ; lanes 32
+SIMD WIDTH run02: measured [32] ; simdgroup ids [0] ; lanes 32
+
+--- OUTCOME CENSUS (both runs, all roles) ---
+   unpredicted            4000
+   ok                     2374
+   silent_zero            1050
+   wrong_value            176
+   carrier_ready          22
+   not_written            8
+   non-clean cases: 0
+
+--- WHICH BITS OF EACH TARGET FIELD ARE ACTUALLY DECODED ---
+A bit is INERT-WITHIN-FIELD if, for EVERY swept value v, the observed
+vector at v equals the vector at v XOR (1<<b), in BOTH runs.
+   sb_active#simd_ballot.cache      live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_active#simd_ballot.pred       live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_ballot#simd_ballot.cache      live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_ballot#simd_ballot.pred       live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_ballot2#simd_ballot.cache     live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_ballot2#simd_ballot.pred      live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_reuse#simd_ballot.cache       live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_reuse#simd_ballot.pred        live bits [] | inert-within-field [0, 1, 2, 3]
+   sr_fsum#simd_reduce.dtype        live bits [0, 1, 2, 3, 5] | inert-within-field [4, 6, 7]
+   sr_fsum#simd_reduce.op           live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_max#simd_reduce.dtype         live bits [0, 3] | inert-within-field [1, 2, 4, 5, 6, 7]
+   sr_max#simd_reduce.op            live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_scan#simd_reduce.dtype        live bits [0, 1, 3] | inert-within-field [2, 4, 5, 6, 7]
+   sr_scan#simd_reduce.op           live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_sum#simd_reduce.dtype         live bits [0, 3] | inert-within-field [1, 2, 4, 5, 6, 7]
+   sr_sum#simd_reduce.op            live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+
+--- PER-VALUE SEMANTICS, low 16 values of each reduce arm ---
+   sr_fsum#simd_reduce.dtype (baseline dtype=18)
+      v=0   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=1   unpredicted   0x3fc0d900     (unidentified)
+      v=2   unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=3   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=4   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=5   unpredicted   0x3fc05900     (unidentified)
+      v=6   unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=7   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=8   unpredicted   0x80000000     (unidentified)
+      v=9   unpredicted   0x3fc05900     (unidentified)
+      v=10  unpredicted   0xc32c0000     (unidentified)
+      v=11  unpredicted   0x3fc08000     (unidentified)
+      v=12  unpredicted   0x80000000     (unidentified)
+      v=13  unpredicted   0x3fc0d900     (unidentified)
+      v=14  unpredicted   0xc32c0000     (unidentified)
+      v=15  unpredicted   0x3fc08000     (unidentified)
+   sr_fsum#simd_reduce.op (baseline op=6)
+      v=0   unpredicted   0x0001c500     (unidentified)
+      v=1   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=2   unpredicted   0x0001c500     (unidentified)
+      v=3   unpredicted   0x0001c500     (unidentified)
+      v=4   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=5   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=6   ok            0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=7   wrong_value   0x0001c500     (unidentified)
+      v=8   unpredicted   0x0001c500     (unidentified)
+      v=9   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=10  unpredicted   0x0001c500     (unidentified)
+      v=11  unpredicted   0x0001c500     (unidentified)
+      v=12  unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=13  silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=14  unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=15  unpredicted   0x0001c500     (unidentified)
+   sr_max#simd_reduce.dtype (baseline dtype=7)
+      v=0   unpredicted   0x0001c500     (unidentified)
+      v=1   unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=2   unpredicted   0x0001c500     (unidentified)
+      v=3   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=4   unpredicted   0x0001c500     (unidentified)
+      v=5   unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=6   unpredicted   0x0001c500     (unidentified)
+      v=7   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=8   unpredicted   0x80000000     (unidentified)
+      v=9   wrong_value   0x80000000     int:smax:excl
+      v=10  unpredicted   0x80000000     (unidentified)
+      v=11  ok            0x80000000     int:smax:excl
+      v=12  unpredicted   0x80000000     (unidentified)
+      v=13  unpredicted   0x80000000     int:smax:excl
+      v=14  unpredicted   0x80000000     (unidentified)
+      v=15  unpredicted   0x80000000     int:smax:excl
+   sr_max#simd_reduce.op (baseline op=2)
+      v=0   wrong_value   0x00000000     int:ior:excl
+      v=1   ok            0x00000c14     int:isum:reduce
+      v=2   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=3   wrong_value   0x00000000     int:umax:excl
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00007e00     (unidentified)
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0x00000000     int:ior:excl
+      v=9   unpredicted   0x00000c14     int:isum:reduce
+      v=10  unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=11  unpredicted   0x00000000     int:umax:excl
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00007e00     (unidentified)
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+   sr_scan#simd_reduce.dtype (baseline dtype=9)
+      v=0   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=1   unpredicted   0x00000c17     (unidentified)
+      v=2   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=3   ok            0x00000c14     int:isum:reduce
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000c17     (unidentified)
+      v=6   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=7   ok            0x00000c14     int:isum:reduce
+      v=8   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=9   ok            0x00000003     carrier_baseline,int:isum:incl
+      v=10  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=11  ok            0x00000000     flt:f32sum:excl,int:isum:excl
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     carrier_baseline,int:isum:incl
+      v=14  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=15  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+   sr_scan#simd_reduce.op (baseline op=1)
+      v=0   wrong_value   0x00000002     (unidentified)
+      v=1   ok            0x00000003     carrier_baseline,int:isum:incl
+      v=2   wrong_value   0x80000003     (unidentified)
+      v=3   wrong_value   0xffffff03     (unidentified)
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0x00000002     (unidentified)
+      v=9   unpredicted   0x00000003     carrier_baseline,int:isum:incl
+      v=10  unpredicted   0x80000003     (unidentified)
+      v=11  unpredicted   0xffffff03     (unidentified)
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+   sr_sum#simd_reduce.dtype (baseline dtype=3)
+      v=0   unpredicted   0x0038a000     (unidentified)
+      v=1   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=2   unpredicted   0x0038a000     (unidentified)
+      v=3   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=4   unpredicted   0x0038a000     (unidentified)
+      v=5   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=6   unpredicted   0x0038a000     (unidentified)
+      v=7   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=8   unpredicted   0x00000000     (unidentified)
+      v=9   wrong_value   0x00000000     flt:f32sum:excl,int:isum:excl
+      v=10  unpredicted   0x00000000     (unidentified)
+      v=11  ok            0x00000000     flt:f32sum:excl,int:isum:excl
+      v=12  unpredicted   0x00000000     (unidentified)
+      v=13  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+      v=14  unpredicted   0x00000000     (unidentified)
+      v=15  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+   sr_sum#simd_reduce.op (baseline op=1)
+      v=0   ok            0xffffffff     all_ones,int:ior:reduce
+      v=1   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=2   ok            0x000000d5     flt:fmax:reduce,int:smax:reduce
+      v=3   ok            0xffffff00     flt:f32prod:reduce,flt:f32sum:reduce,int:smin:reduce,int:umax:reduce
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00007e00     (unidentified)
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0xffffffff     all_ones,int:ior:reduce
+      v=9   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=10  unpredicted   0x000000d5     flt:fmax:reduce,int:smax:reduce
+      v=11  unpredicted   0xffffff00     flt:f32prod:reduce,flt:f32sum:reduce,int:smin:reduce,int:umax:reduce
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00007e00     (unidentified)
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+
+--- simd_shuffle.dir and .cache, every value on every arm ---
+   sh_bc#simd_shuffle.cache         v=0 base=1 wrong_value  0x00003039   (unidentified)
+   sh_bc#simd_shuffle.cache         v=1 base=1 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_bc#simd_shuffle.dir           v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_bc#simd_shuffle.dir           v=1 base=0 ok           0x00000429   xor:mask5
+   sh_reuse#simd_shuffle.cache      v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.cache      v=1 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.dir        v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.dir        v=1 base=0 ok           0x00000429   xor:mask5
+   sh_xor#simd_shuffle.cache        v=0 base=1 wrong_value  0x00003039   (unidentified)
+   sh_xor#simd_shuffle.cache        v=1 base=1 ok           0x00000429   carrier_baseline,xor:mask5
+   sh_xor#simd_shuffle.dir          v=0 base=1 ok           0x00000429   bcast:lane5
+   sh_xor#simd_shuffle.dir          v=1 base=1 ok           0x00000429   carrier_baseline,xor:mask5
+
+--- H1: does any `pred` value select the active-thread mask? ---
+   sb_active#simd_ballot.pred       distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0xffffffff
+   sb_ballot#simd_ballot.pred       distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x6c8af35d
+   sb_ballot2#simd_ballot.pred      distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x35d6c8af
+   sb_reuse#simd_ballot.pred        distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x6c8af35d
+   attribution: sb_ballot head 0x6c8af35d vs sb_ballot2 head 0x35d6c8af -> the result TRACKS the predicate mask, so the instruction is computing ballot(predicate) at pred=0 on both.
+
+--- GPUTIME_NS per target arm (the only observable a register-cache
+    RETENTION hint could still move, and one this method cannot
+    resolve: reported as an observation, never as a gate) ---
+   sb_active#simd_ballot.cache      n=256  min=1416    med=1500    max=1583    stdev=27.0
+   sb_active#simd_ballot.pred       n=16   min=1499    med=1500    max=1500    stdev=0.4
+   sb_ballot#simd_ballot.cache      n=256  min=1416    med=1500    max=1541    stdev=32.4
+   sb_ballot#simd_ballot.pred       n=16   min=1458    med=1500    max=1500    stdev=10.1
+   sb_ballot2#simd_ballot.cache     n=256  min=1375    med=1500    max=2125    stdev=54.1
+   sb_ballot2#simd_ballot.pred      n=16   min=1416    med=1500    max=1500    stdev=33.1
+   sb_reuse#simd_ballot.cache       n=256  min=1749    med=1875    max=3000    stdev=218.8
+   sb_reuse#simd_ballot.pred        n=16   min=1749    med=2208    max=2458    stdev=273.9
+   sh_bc#simd_shuffle.cache         n=2    min=1416    med=1458    max=1500    stdev=42.0
+   sh_bc#simd_shuffle.dir           n=2    min=1499    med=1499    max=1500    stdev=0.5
+   sh_reuse#simd_shuffle.cache      n=2    min=1833    med=1853    max=1874    stdev=20.5
+   sh_reuse#simd_shuffle.dir        n=2    min=1833    med=1854    max=1875    stdev=21.0
+   sh_xor#simd_shuffle.cache        n=2    min=1541    med=1562    max=1583    stdev=21.0
+   sh_xor#simd_shuffle.dir          n=2    min=1416    med=1458    max=1500    stdev=42.0
+   sr_fsum#simd_reduce.dtype        n=256  min=1458    med=1708    max=2166    stdev=65.8
+   sr_fsum#simd_reduce.op           n=256  min=1624    med=1708    max=2125    stdev=51.9
+   sr_max#simd_reduce.dtype         n=256  min=1249    med=1500    max=2458    stdev=151.8
+   sr_max#simd_reduce.op            n=256  min=1375    med=1541    max=2291    stdev=148.3
+   sr_scan#simd_reduce.dtype        n=256  min=1249    med=1500    max=2374    stdev=156.5
+   sr_scan#simd_reduce.op           n=256  min=1416    med=1500    max=27782166 stdev=1732893.9
+   sr_sum#simd_reduce.dtype         n=256  min=1416    med=1749    max=6500    stdev=335.8
+   sr_sum#simd_reduce.op            n=256  min=1416    med=1500    max=2375    stdev=126.6

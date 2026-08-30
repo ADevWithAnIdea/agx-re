@@ -97,12 +97,27 @@ def fma12_predict(pre, blk, lay, model=FMA12_PRIMARY):
     _apply_markers(post, lay)
     fits = [n for n, f in FMA12_MODELS.items() if to_f16(f(a, b, c))[0] == res]
     return {"post": post, "result16": res, "model": model, "alt2r": alt,
-            "dst": d, "a": ab, "b": bb, "c": cb,
+            "dst": d, "dst_half": 0, "release_collision": False,
+            "a": ab, "b": bb, "c": cb,
             "unseeded": bool(a_un or b_un or c_un),
             "subnormal": fl["subnormal"], "overflow": fl["overflow"], "nan": fl["nan"],
             "undecidable": ("dst_overwritten_by_infrastructure"
                             if d in lay.undecidable_dst else None),
             "model_fits_offline": fits}
+
+
+def _release(post, blk, descs):
+    """The half-ALU families ZERO the half-lane a source descriptor names when the
+    operation's opflags request a source release.  `half_pack`'s byte+2 = 0x18 carries
+    opflags 3 and MEASURED (pilot01, 80/80) releases BOTH named source lanes; the 12-byte
+    fma form's byte+2 = 0x06 carries opflags 0 and releases nothing.  Which lane is zeroed
+    depends on the descriptor, so for `half_pack` this makes the oracle MORE discriminating,
+    not less."""
+    for desc in descs:
+        r, h = H.hreg(desc)
+        if r < H.N_REGS:
+            post[r] = post[r] & (0x0000FFFF if h else 0xFFFF0000)
+    return post
 
 
 def halfpack_predict(pre, blk, lay, model=HP_PRIMARY):
@@ -111,7 +126,8 @@ def halfpack_predict(pre, blk, lay, model=HP_PRIMARY):
     Ab, A_un = H.hval(pre, blk[3])
     B, A = v16(Bb), v16(Ab)
     m = HP_MODELS[model]
-    post = list(pre)
+    post = _release(list(pre), blk, (blk[1], blk[3]))
+    collision = (H.hreg(blk[1])[0] == d) or (H.hreg(blk[3])[0] == d)
     if m["kind"] == "half":
         res, fl = to_f16(m["f"](B, A))
         if m["half"]:
@@ -125,7 +141,9 @@ def halfpack_predict(pre, blk, lay, model=HP_PRIMARY):
         post[d] = res
     _apply_markers(post, lay)
     return {"post": post, "result16": res, "model": model, "alt2r": res,
-            "dst": d, "a": Bb, "b": Ab, "c": None,
+            "dst": d, "dst_half": (m["half"] if m["kind"] == "half" else None),
+            "release_collision": collision,
+            "a": Bb, "b": Ab, "c": None,
             "unseeded": bool(A_un or B_un),
             "subnormal": fl["subnormal"], "overflow": fl["overflow"], "nan": fl["nan"],
             "undecidable": ("dst_overwritten_by_infrastructure"
@@ -138,7 +156,8 @@ def null_predict(pre, lay):
     post = list(pre)
     _apply_markers(post, lay)
     return {"post": post, "result16": None, "model": "null", "alt2r": None,
-            "dst": None, "a": None, "b": None, "c": None, "unseeded": False,
+            "dst": None, "dst_half": None, "release_collision": False,
+            "a": None, "b": None, "c": None, "unseeded": False,
             "subnormal": False, "overflow": False, "nan": False,
             "undecidable": None, "model_fits_offline": None}
 
@@ -155,3 +174,47 @@ def hp_model_fits(pre, post, blk, lay):
 
 def digest(vec):
     return "".join("%08x" % (w & 0xFFFFFFFF) for w in vec)
+
+
+# --------------------------------------------------------------------------
+# Gate C bucket classification.  A per-case semantic class over the FROZEN competing model
+# set, distinguishing the five buckets RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 3 Gate C
+# requires: correct effect / a different but COHERENT effect / silent-zero-no-write /
+# faulted-or-rejected / invalid measurement or contamination.
+#
+# "A difference from baseline is not a semantic oracle."  So `coherent_alt` is reported
+# separately from `correct`, and `unexplained` is a real bucket that this classifier is
+# allowed to return -- it is not a residual that gets rounded into a pass.
+# --------------------------------------------------------------------------
+def classify_semantics(o, blk, lay, instr, outcome, victim, orc):
+    if outcome == "measurement_failed":
+        return "measurement_failure", []
+    if victim:
+        return "contaminated", []
+    if outcome in ("fault", "hang"):
+        return "faulted_or_rejected", []
+    if outcome in ("undecodable", "carrier_dead", "invalid_run") or o is None:
+        return "invalid_measurement", []
+    if orc is not None and orc.get("undecidable"):
+        return "carrier_undecidable", []
+    pre, post = o["pre"], o["post"]
+    if orc is not None and post == orc["post"]:
+        return "correct", [orc["model"]]
+    fits = []
+    if instr == "half_alu_fma12":
+        for name in FMA12_MODELS:
+            if fma12_predict(pre, blk, lay, name)["post"] == post:
+                fits.append(name)
+    else:
+        for name in HP_MODELS:
+            if halfpack_predict(pre, blk, lay, name)["post"] == post:
+                fits.append(name)
+    if fits:
+        return "coherent_alt_model", fits
+    if post == null_predict(pre, lay)["post"]:
+        return "no_write", []
+    if orc is not None and orc.get("dst") is not None:
+        d, h = orc["dst"], (orc.get("dst_half") or 0)
+        if H.lane(post[d], h) == 0 and H.lane(pre[d], h) != 0:
+            return "silent_zero", []
+    return "unexplained", []

@@ -1,0 +1,197 @@
+{
+ "_doc": "EXP-0207 FROZEN capture contract. Frozen before any build or device time. Captures are gated on THESE authored blob hashes, never on live HEAD -- sibling experiments land continuously (SUBAGENT_BRIEF / EXP-0082).",
+ "amendments": [
+  {
+   "before_any_gated_capture": true,
+   "n": 1,
+   "utc": "2026-08-30T19:18:09Z",
+   "what": "three census-measured corrections: interpolant<> is fragment-only; MSL declares only memory_order_relaxed; mesh_wide2/3 emit no mesh_out_src so three minimal-delta mesh carriers were added. Superseded contract kept at raw/prefreeze/CAPTURE_CONTRACT.v1.json; census at raw/prefreeze/census01/."
+  },
+  {
+   "before_any_gated_capture": true,
+   "n": 2,
+   "utc": "2026-08-30T19:21:16Z",
+   "what": "census02: no carrier emits dev_scoreboard_fence, so it is PRE-SPLICED into the compiler's own 4-byte scoreboard_fence slot (same length, documented byte0 sibling) with a detection-power probe on the barrier's mem_scope that gates whether any verdict may be filed; mesh_wideP2 emits mesh_out_src with non-degenerate geometry; f_dual fuses to ONE store; f_mask emits no frag_color_store and does not tokenize."
+  }
+ ],
+ "authored_blobs_sha256": {
+  "PRE_REGISTRATION.md": "023cb52a80e2973fe7d4bd03242d509ea190e1c06d8068289e118d5bb3ccab21",
+  "analysis/census.json": "d3ea24ce97e971fecd04b0ac65b557c439f6da97b803573711fae8d8c05cd4c0",
+  "analysis/census.py": "dac1f1576fa40c68ba791d603dc28cc9f8a075e6e424c268fe17009003c61e42",
+  "analysis/covary.json": "ca940be9781a87b815d6e90c4d063705bf30076694bdf1b997a64389d967fa95",
+  "analysis/covary.py": "29945500d60abc624cd296e34756fce8b93fda110c8e2c8ffbd090dee86f527c",
+  "analysis/verdicts.py": "af1457c5c6f17a86bac87982cd80c3a3d9ae9226ee3ac7f212696bba76d21f26",
+  "harness/meshsweep207.m": "4ee7ff9a3b0a752c2d7bb33b19dd031b418f1052d1875901b7dcdc8c9bc69424",
+  "harness/pinned207.py": "20a07b4badfcf5c2059fdfd1dd41c9672cb41c0fa635db9cc58ff9109c318a0b",
+  "harness/plan207.py": "fb524214d9683e87ecce1b281ecefaf3e05de94a85d24ebff24a67913cf3917b",
+  "harness/rendersweep207.m": "cdbe8c12f9c6fd494a53e0df3884ed308b4b1a6ed4f9c0ecb3a2bdfb17d8c4e8",
+  "harness/rsdrv.py": "4cb2e9d07f2d809b262b6236982fea15e216ce3698f4cb4541deab9e4a84ae82",
+  "harness/run207.py": "23ac4ff834353a4ad5d08480a249c2374c2ef8d382d07bbc28b0bac51f48a402",
+  "harness/saferunner207.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
+  "harness/shdump207.m": "8ced9dc3ac4ff5bfd4347f248d1bd94ee60f5ba9746b8eb3ba4b9267bdf72412",
+  "harness/shdump_mesh207.m": "9193ea91c779132376392a1545e965c6e8c32004dea8f94d86e4a249c177e7a7",
+  "harness/sync.sh": "d70aecbdbef5b810d5387c788dfba5b008924e21ff715089dc6df479f17d9cb6",
+  "harness/verify_remote.py": "507474a03d34c6848e7cdecca8674d6b2773f3a805855039b9be0dd9cecbfa93",
+  "kernels/k_fence207.metal": "6f5a2faad0fe378a394c6455ca9f2a9e6be8d816909f7961d322e4a1ed163872",
+  "kernels/k_frag207.metal": "5db3b203ba05b9ab78dd4a53f23bd8ac84a55a8f705dcfd4be15a683f56f3abc",
+  "kernels/k_mesh207.metal": "e4beca080668638820a06626fccc66c30951320d3bf90162c2481dc53ea8a114",
+  "kernels/k_sr207.metal": "980024149912e028c53980d27f0a3bde8ce509182bbc9c46b5c3bc3cb359e6ad",
+  "kernels/k_vtx207.metal": "af07a575a5fc1056f7d535596593c40919d2506c0c24e030742922b7ad6f5bcf",
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "pinned/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "pinned/mesh_extract.py": "4a48fd421f03c5c341d48ad2ec869d71de145c90cf97a04ec2c17919ee242e13"
+ },
+ "environment": {
+  "build": "clang -fobjc-arc -framework Metal -framework Foundation",
+  "remote_clang": "/usr/bin/clang (21.0.0)",
+  "remote_python": "3.9.6"
+ },
+ "experiment": "EXP-0207-g17p-frag-raster-sysval",
+ "fields_under_test": [
+  {
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "oracle_kind": "structural_partition",
+   "plan": "256 dense per arm",
+   "start": 16,
+   "width": 8
+  },
+  {
+   "field": "b9",
+   "instr": "iter",
+   "oracle_kind": "structural_partition",
+   "plan": "256 dense per arm",
+   "start": 72,
+   "width": 8
+  },
+  {
+   "field": "operand",
+   "instr": "vtx_coord_xform",
+   "note": "NO semantic oracle is authored or claimed: clean-room rule 5 leaves the coordinate-select sequence unreconstructed. The gate for this field is V>1 distinct VALID payloads with hard outcomes counted separately.",
+   "oracle_kind": "baseline_equality",
+   "plan": "per-byte dense 5x256 + 58 structured whole-field values",
+   "start": 40,
+   "width": 40
+  },
+  {
+   "field": "form",
+   "instr": "get_sr",
+   "oracle_kind": "sr_value",
+   "plan": "2 of 2 values at the baseline selector, plus the joint form x sr_sel map over the documented selector set in three stages",
+   "start": 3,
+   "width": 1
+  },
+  {
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "oracle_kind": "dst_routing",
+   "plan": "8 of 8 values on 5 arms across 3 stages; hangs dispatched and recorded (rule 3c: no per-field budget)",
+   "start": 29,
+   "width": 3
+  },
+  {
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "oracle_kind": "structural_partition",
+   "plan": "256 dense per mesh arm",
+   "start": 8,
+   "width": 8
+  },
+  {
+   "field": "scope_flag",
+   "instr": "dev_scoreboard_fence",
+   "oracle_kind": "ordering",
+   "plan": "256 dense on any arm whose fence-neutralising control fires",
+   "start": 24,
+   "width": 8
+  }
+ ],
+ "frozen_utc": "2026-08-30T19:15:00Z",
+ "frozen_utc_v2": "2026-08-30T19:18:09Z",
+ "frozen_utc_v3": "2026-08-30T19:21:16Z",
+ "gate": {
+  "R1": "two gated runs whose pinned hashes equal this contract",
+  "R2": "cross-run agreement >= 99% per value",
+  "R3": "moved >= 2.0 * disagree AND moved > 0  (NOT 2.0*max(disagree,1))",
+  "R4": "V > 1 distinct VALID payloads; hard outcomes counted separately",
+  "R5": "self-test asserts a width-1 field with 1 move / 0 disagreements PASSES",
+  "R6": "an INERT verdict requires a control record that MOVED on that same arm",
+  "R7": "moving cells must still decode as the same instruction",
+  "R8": "analysis/covary.py: the observable is not selected by the field under test",
+  "implemented_by": "analysis/verdicts.py"
+ },
+ "instruments": {
+  "fault_classification": "the OS error string is recorded on every non-ok case; InnocentVictim / 'Ignored (for causing prior' are collateral, retried in place, never scored as faults",
+  "integrity_sentinel": "0x5A5A0000 + index, written by a device_store the instruction under test cannot name",
+  "poison_u32": "0xDEADBEEF"
+ },
+ "pinned_inputs_sha256": {
+  "agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "mesh_extract.py": "4a48fd421f03c5c341d48ad2ec869d71de145c90cf97a04ec2c17919ee242e13"
+ },
+ "raw_schema": {
+  "file": "raw/<run_id>/sweep.jsonl",
+  "hard_outcomes": [
+   "fault",
+   "hang",
+   "no_draw",
+   "no_dispatch",
+   "undecodable",
+   "not_written",
+   "invalid_run",
+   "measurement_failed"
+  ],
+  "kinds": [
+   "arm_meta",
+   "arm_not_attempted",
+   "arm_error",
+   "baseline",
+   "calibration",
+   "ladder",
+   "power_probe",
+   "power_probe_absent",
+   "sensitivity",
+   "case",
+   "arm_done",
+   "arm_stopped_unrecoverable",
+   "run_stopped"
+  ],
+  "outcomes": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable",
+   "no_draw",
+   "no_dispatch",
+   "not_written",
+   "invalid_run",
+   "measurement_failed"
+  ],
+  "payloads": "raw/<run_id>/payloads.jsonl"
+ },
+ "repo_dirty_at_preregistration": true,
+ "repo_revision_at_preregistration": "f59821fe5e896b09a1bd33b41e7a9f1b7df6b4b4",
+ "target": {
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "device": "Apple A18 Pro",
+  "gpu": "AGXAcceleratorG17P",
+  "host": "192.168.170.254",
+  "metal_family": "Apple9",
+  "note": "nothing runs on the M4; it is the repo host and analysis machine only",
+  "os": "macOS 26.6",
+  "user": "user"
+ },
+ "timeouts": {
+  "build_s": 180,
+  "global_hang_circuit_breaker": 400,
+  "health_recovery_s": 40,
+  "max_consecutive_unrecovered": 5,
+  "per_request_s": 10.0
+ }
+}

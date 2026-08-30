@@ -61,7 +61,16 @@ static long gGrid = 32, gTG = 32;
 static unsigned long gReqSeq = 0;
 static int gInIdx[16]; static NSData *gInData[16]; static int gNIn = 0;
 static int gOutIdx[16]; static long gOutSz[16]; static int gNOut = 0;
+// GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS sec.3): the ACTUAL-BYTE LEDGER.
+// gLedger* names a window of the FINAL DISPATCHED FILE.  After the splices are
+// written and the file is re-read from disk, those bytes are printed verbatim as
+// `ACTUAL <off> <hex>`.  They are the bytes handed to newLibraryWithURL:, so the
+// driver can decode the value that was really dispatched and assert it equals the
+// value that was requested -- which a symmetric assemble/disassemble round trip
+// cannot do.
+static long gLedgerOff[8]; static long gLedgerLen[8]; static int gNLedger = 0;
 
+static BOOL gLedgerEmitted = NO;
 static void printHex(const char *tag, int idx, const unsigned char *p, size_t n) {
     static const char H[] = "0123456789abcdef";
     printf("%s %d ", tag, idx);
@@ -70,7 +79,7 @@ static void printHex(const char *tag, int idx, const unsigned char *p, size_t n)
 }
 
 static void respond_fail(const char *rid, const char *status, const char *msg, NSError *err) {
-    if (rid) printf("REQ %s\n", rid);
+    if (rid && !gLedgerEmitted) printf("REQ %s\n", rid);
     printf("STATUS %s\n", status);
     if (err) {
         NSString *d = [[err localizedDescription] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
@@ -83,6 +92,7 @@ static void respond_fail(const char *rid, const char *status, const char *msg, N
 
 static int doRun(const char *rid, SpliceSpec *spl, int nspl) {
   @autoreleasepool {
+    gLedgerEmitted = NO;
     NSError *err = nil;
 
     NSMutableData *patched = [gBaseArchive mutableCopy];
@@ -116,6 +126,12 @@ static int doRun(const char *rid, SpliceSpec *spl, int nspl) {
                 return 1;
             }
         }
+        if (rid) printf("REQ %s\n", rid);
+        for (int i = 0; i < gNLedger; i++) {
+            if ((size_t)(gLedgerOff[i] + gLedgerLen[i]) > [rb length]) continue;
+            printHex("ACTUAL", (int)gLedgerOff[i], rp + gLedgerOff[i], (size_t)gLedgerLen[i]);
+        }
+        gLedgerEmitted = (rid != NULL);
     }
 
     id<MTLLibrary> lib = [gDev newLibraryWithURL:aurl error:&err];
@@ -171,7 +187,7 @@ static int doRun(const char *rid, SpliceSpec *spl, int nspl) {
         return 1;
     }
 
-    if (rid) printf("REQ %s\n", rid);
+    if (rid && !gLedgerEmitted) printf("REQ %s\n", rid);
     printf("STATUS OK\n");
     printf("SENTINEL OK %d\n", nspl);
     printf("GPUTIME_NS %llu\n",
@@ -211,13 +227,14 @@ cleanup:
     for (int i = 0; i < n; i++) free(spl[i].bytes);
 }
 
-enum { O_SRC = 256, O_FN, O_ARCH, O_SCRATCH, O_GRID, O_TG, O_IN, O_OUT, O_NOFM, O_PERSIST };
+enum { O_SRC = 256, O_FN, O_ARCH, O_SCRATCH, O_GRID, O_TG, O_IN, O_OUT, O_NOFM, O_PERSIST, O_LEDGER };
 static struct option L[] = {
     {"source", required_argument, 0, O_SRC}, {"function", required_argument, 0, O_FN},
     {"archive", required_argument, 0, O_ARCH}, {"scratch", required_argument, 0, O_SCRATCH},
     {"grid", required_argument, 0, O_GRID}, {"tg", required_argument, 0, O_TG},
     {"in", required_argument, 0, O_IN}, {"out", required_argument, 0, O_OUT},
     {"no-fast-math", no_argument, 0, O_NOFM}, {"persist", no_argument, 0, O_PERSIST},
+    {"ledger", required_argument, 0, O_LEDGER},
     {0, 0, 0, 0}
 };
 
@@ -235,6 +252,9 @@ int main(int argc, char *argv[]) { @autoreleasepool {
         case O_TG: gTG = strtol(optarg, NULL, 0); break;
         case O_NOFM: gFastMath = NO; break;
         case O_PERSIST: persist = YES; break;
+        case O_LEDGER: { char *c2 = strchr(optarg, ':'); if (!c2) return 2; *c2 = 0;
+                         gLedgerOff[gNLedger] = strtol(optarg, NULL, 0);
+                         gLedgerLen[gNLedger] = strtol(c2 + 1, NULL, 0); gNLedger++; break; }
         case O_IN: { char *eq = strchr(optarg, '='); if (!eq) return 2; *eq = 0;
                      gInIdx[gNIn] = (int)strtol(optarg, NULL, 0);
                      gInData[gNIn] = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:eq + 1]];

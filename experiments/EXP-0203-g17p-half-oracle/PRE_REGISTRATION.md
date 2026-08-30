@@ -370,3 +370,91 @@ Apple binary introspection: NONE
 Reproduction: README.md -> Reproduction
 Evidence: raw/pilot01, raw/g17p_run01, raw/g17p_run02
 ```
+
+---
+
+## Amendment 01 — 2026-08-30, BEFORE any run directory existed
+
+Prompted by the orchestrator's standing instruction to run `tools/agx-isa/wave_audit.py`
+(the arrival gate) against this experiment before reporting. Reading that tool changed one
+frozen parameter, and the change is recorded here rather than made silently.
+
+**What changed.** §5.5 pre-registered two gated runs, `g17p_run01` forward and `g17p_run02`
+in **reverse** case order. It now pre-registers **three**:
+
+| run | order | role |
+|---|---|---|
+| `g17p_run01` | forward | primary gated run |
+| `g17p_run02` | forward | primary gated run — the cross-run pair for G2/G3/G5 |
+| `g17p_run03` | **reverse** | the order-artefact control, compared against `run01` |
+
+**Why.** `wave_audit.py` keys observations by **`value` alone** (`runs[run][value] = ...`),
+and compares the two lexicographically first run directories. This matrix dispatches each
+`dst` value in **four arms** and each `ext` value at **eight byte positions**, so within one
+run that dict retains whichever record came last in file order. With `run02` reversed, "last"
+would be a *different arm* in each run and the tool would report **0% cross-run agreement for
+a perfectly clean sweep** — the same shape of artefact this experiment exists to remove.
+Two forward runs make the tool's aggregate view honest; the reverse-order control is not
+dropped, it moves to `run03`, and this experiment's own gate (which keys by
+`(arm, field, value, byte_index)`) reports **both** pairings.
+
+**What did not change.** The case matrix, its sha256, the oracle, the falsifiers, the
+controls, the outcome domain, the timeouts, and G1..G7 are all unchanged. No run had been
+executed when this amendment was written; `raw/` contained only `FREEZE_MARKER.txt`.
+
+---
+
+## Amendment 02 — 2026-08-30, after `pilot01`, before any GATED run
+
+`pilot01` is the run this contract designated to **admit or reject each arm and to select
+the `half_pack` model from the frozen candidate list** (§4.2, §5.5). It did both, and it
+refuted something no candidate expressed. Recorded here rather than folded in silently.
+
+### What the pilot established (`raw/pilot01`, 752 cases, 0 faults, 0 hangs)
+
+* **All eight arms are ADMISSIBLE.** Every anchor: `seed_ok`, the frozen seed-adequacy
+  predicate TRUE **on the on-hardware pre-dump**, all four length markers surviving, status OK.
+* **The pre-registered `half_alu_fma12` oracle reproduces on a fresh carrier**: the anchor
+  matched in all six fma12 arms, `__ctl_live_srcA` matched **8/8 with 8 distinct observed
+  payloads** in every arm, and `__ctl_unseeded` matched **3/3**, so §4.4's
+  unseeded-reads-zero carrier property holds.
+* **Every falsifier fired**: `__fals_F1_null`, `__fals_F2_opsel` / `__fals_F3_hp_opsel` and
+  `__fals_F4_dstshift` were all oracle NON-matches, and the null block additionally MATCHED
+  the independent null prediction (`null_match` TRUE) — a two-sided confirmation that the
+  criterion can say "no" and that it says "no" for the right reason.
+
+### The model correction
+
+The seven frozen `half_pack` candidates all failed, **for a reason none of them could
+express**: the instruction **releases (zeroes) both named source half-lanes**. Its
+arithmetic member was nonetheless exactly right. With the release added, the model
+
+> `r[byte0>>4].hi = fp16_rn( h(byte+1) + h(byte+3) )`, low half preserved,
+> **and both named source half-lanes zeroed**
+
+reproduces **80/80** of the pilot's half_pack observations (86/86 including the unseeded
+control), where every candidate without the release scored 2/80. The release is the
+documented opflags-3 source-release of this family: `half_pack`'s byte+2 = 0x18 carries
+opflags 3, and the 12-byte fma form's byte+2 = 0x06 carries opflags 0 and releases nothing —
+which is why the fma12 oracle needed no change.
+
+**Why this is a selection and not a fit.** The discriminating part — which half-lane each
+descriptor names and what fp16 value results — was pre-registered and is unchanged. What the
+pilot added is a side effect that is *itself keyed by the field under test* (which lane is
+zeroed depends on the descriptor's value), so the corrected oracle is **more** discriminating,
+not less. It is verified on three fresh gated runs that had not been executed when this
+amendment was written.
+
+### Also added, and why
+
+* `released_lanes` — a pure OBSERVATION on every case (lanes non-zero before the block and
+  zero after, excluding markers and the index register). Recorded whatever the oracle models,
+  so a release behaviour is visible in raw rather than only inside a pass/fail bit.
+* `oracle_result_match` — did the destination lane alone carry the predicted value.
+  **Strictly weaker than `oracle_match` and never used as the promotion gate**; it exists so
+  the ARITHMETIC can be judged separately from side effects, which is the only way the `ext`
+  byte-by-byte analysis can say anything at all (mutating byte+4 changes modifiers whose side
+  effects the frozen arithmetic model deliberately does not predict).
+
+Unchanged: the case matrix and its sha256 `d34b2f12…`, the field spans, the falsifiers, the
+controls, the outcome domain, the timeouts, G1..G7, and the forced `untested` label on `ext`.

@@ -85,6 +85,15 @@ def main():
     nc = set(json.load(open(os.path.join(
         ROOT, "experiments/EXP-0196-note-integrity-audit/work/not_checked.json"))))
     out = {}
+
+    def N(nt, rx, n=1):
+        """Claimed numbers parsed OUT OF THE NOTE, so a changed note changes the
+        verdict (analysis/negative_control.py)."""
+        mo = re.search(rx, nt)
+        if not mo:
+            return None if n == 1 else (None,) * n
+        return int(mo.group(1), 0) if n == 1 else tuple(int(g, 0) for g in mo.groups())
+
     for k in sorted(nc):
         m, f = k.split(".", 1)
         r = val["instructions"][m][f]
@@ -100,15 +109,25 @@ def main():
                                    "byte+1_histogram": dict(b1)},
                            "ok": (len(A) > 0 and len(B) > 0 and len(rmw) > 0
                                   and set(b1) == {"11"})})
+        pairs = dict((int(a), int(b)) for a, b in
+                     re.findall(r"(\d+) -> a\[\d+\]\s*=\s*(\d+)", note))
         if "proven at all four constructible indices" in note:
             claims.append({"claim": "C2_four_indices",
-                           "claimed": want,
+                           "claimed": pairs or want,
                            "raw": {str(i): seen.get(i, [])[:2] for i in want},
                            "all_four_found_with_reader_zeroed": idx_ok,
-                           "ok": all(idx_ok.values())})
-        if "only two addendum cases whose acceptance disagreed" in note:
-            claims.append({"claim": "C3_two_acceptance_disagreements",
-                           "claimed": {"n": 2, "byte+6": ["0x30", "0x31"]},
+                           "ok": (pairs == want and all(idx_ok.values()))})
+        mo = re.search(r"byte\+6 values (0x[0-9a-f]{2}) and (0x[0-9a-f]{2}) restore the "
+                       r"BASELINE operand instead of selecting index (\d+)/(\d+), and they "
+                       r"are the only (\w+) addendum cases whose acceptance disagreed", note)
+        if mo:
+            WORDNUM = {"one": 1, "two": 2, "three": 3, "four": 4}
+            cvals = sorted(int(mo.group(1), 0), ) if False else sorted(
+                [int(mo.group(1), 0), int(mo.group(2), 0)])
+            cn = WORDNUM.get(mo.group(5), -1)
+            claims.append({"claim": "C3_acceptance_disagreements",
+                           "claimed": {"n": cn, "byte+6": [mo.group(1), mo.group(2)],
+                                       "indices": [int(mo.group(3)), int(mo.group(4))]},
                            "raw": {"addendum_common_cases": len(both),
                                    "acceptance_disagreements": len(acc_dis),
                                    "which": [{"arm": x[0], "value": "0x%02x" % x[2],
@@ -117,8 +136,10 @@ def main():
                                              for x in acc_dis],
                                    "exact_outcome_disagreements": len(exact_dis),
                                    "match_flag_disagreements": len(match_dis)},
-                           "ok": (len(acc_dis) == 2
-                                  and sorted(x[2] for x in acc_dis) == [0x30, 0x31])})
+                           "ok": (len(acc_dis) == cn
+                                  and sorted(x[2] for x in acc_dis) == cvals
+                                  and [(0x80 >> 7) | ((v & 0x3F) << 1) for v in cvals]
+                                      == [int(mo.group(3)), int(mo.group(4))])})
         if "operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1)" in note:
             claims.append({"claim": "C2b_index_model_reaches_index_3",
                            "claimed": "model reaches index 3 (a[3]=3007)",

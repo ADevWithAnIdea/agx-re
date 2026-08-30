@@ -166,10 +166,46 @@ def _deriv2(px, py):
             h0[0] * 1000.0 + h1[1]]
 
 
+# ---- the texture-write carriers -----------------------------------------
+# buffer(0) = carriers.BUF_TEX, so colour0 = (11,12,13,14), colour1 =
+# (21,22,23,24), colour2 = (31,32,33,34) and in[6]*in[7] = 42.  Every write
+# carrier returns float4(c0.x, c1.x, c2.x, 42) except twdyn.
+C0 = [11.0, 12.0, 13.0, 14.0]
+C1 = [21.0, 22.0, 23.0, 24.0]
+C2 = [31.0, 32.0, 33.0, 34.0]
+DRAW = [51.0, 52.0, 53.0, 54.0]        # buffer(1) lane 1, the contiguous vec4
+TEXW_RESET = [-1.0, -2.0, -3.0, -4.0]  # gfrun4.m resets every writable 2D texel
+
+
+def _tw_pix(px, py):
+    return [C0[0], C1[0], C2[0], 42.0]
+
+
+def _twdyn_pix(px, py):
+    uv = affine(0.0, 2.0, 4.0)          # o.uv.x = f*2
+    uvx = uv[0] * (px + 0.5) + uv[1] * (py + 0.5) + uv[2]
+    return [DRAW[0], C0[0] + uvx, float(px & 7), 42.0]
+
+
 BASELINE_PIX = {
     "msfilt": _msfilt, "msfixl": _msfixl, "msgath": _msgath,
     "msread": _msread, "mscmp": _mscmp, "mslodq": _mslodq,
     "deriv": _deriv, "deriv2": _deriv2,
+    "twmip": _tw_pix, "twbuf": _tw_pix, "twcube": _tw_pix, "twcomp": _tw_pix,
+    "twdyn": _twdyn_pix,
+}
+
+# Exact predicted contents of the plain 2D writable texture [[texture(1)]],
+# read back by the harness as surface TEXW, at the probe texels.  Each entry is
+# {(x,y): expected float4}; every OTHER probe texel must still hold the reset
+# sentinel, which is what makes "wrote elsewhere" and "did not write" separable.
+# twdyn is deliberately absent: its coordinates are per-fragment dynamic, so the
+# final texel content depends on rasterisation order and is NOT predicted here.
+BASELINE_TEXW = {
+    "twmip":  {(3, 2): C0},     # w2.write(c0, uint2(3,2))
+    "twbuf":  {(1, 0): C0},     # w2.write(c0, uint2(1,0))
+    "twcube": {(7, 6): C0},     # w2.write(c0, uint2(7,6))
+    "twcomp": {(5, 4): C2},     # w2.write(c2, uint2(5,4))
 }
 
 # db.json's own enum for tex_sample.mode, and the operation class each names.
@@ -249,28 +285,265 @@ def predicted_pixels(carrier, probes):
     return out
 
 
-def baseline_agrees(carrier, probes, observed_probe, tol=0.05):
+def predicted_texw(carrier, texels):
+    """Exact predicted TEXW contents at the probe texels, or None."""
+    m = BASELINE_TEXW.get(carrier)
+    if m is None:
+        return None
+    return {f"{x},{y}": list(m.get((x, y), TEXW_RESET)) for (x, y) in texels}
+
+
+def baseline_agrees(carrier, probes, observed_probe, tol=0.05, texels=None):
     """Does the OBSERVED baseline match the host prediction?  Returns
-    (n_checked, n_agree, detail).  Channels predicted None are not scored."""
-    pred = predicted_pixels(carrier, probes)
-    if pred is None or not observed_probe:
-        return 0, 0, {}
-    got = observed_probe.get("PIX0")
-    if not got:
+    (n_checked, n_agree, detail).  Channels predicted None are not scored.
+
+    Checks the colour attachment (PIX0) and, for the write carriers whose
+    destination texels are compile-time constants, the written texture (TEXW)."""
+    if not observed_probe:
         return 0, 0, {}
     n = ok = 0
     detail = {}
-    for k, (x, y) in enumerate(probes):
-        if k >= len(got):
-            break
-        p = pred[f"{x},{y}"]
-        g = got[k]
-        for c in range(4):
-            if p[c] is None:
-                continue
-            n += 1
-            good = abs(float(g[c]) - float(p[c])) <= max(tol, abs(p[c]) * 1e-5)
-            ok += 1 if good else 0
-            if not good:
-                detail[f"{x},{y}.{c}"] = [g[c], p[c]]
+    pred = predicted_pixels(carrier, probes)
+    got = observed_probe.get("PIX0")
+    if pred is not None and got:
+        for k, (x, y) in enumerate(probes):
+            if k >= len(got):
+                break
+            p = pred[f"{x},{y}"]
+            g = got[k]
+            for c in range(4):
+                if p[c] is None:
+                    continue
+                n += 1
+                good = abs(float(g[c]) - float(p[c])) <= max(tol, abs(p[c]) * 1e-5)
+                ok += 1 if good else 0
+                if not good:
+                    detail[f"PIX0:{x},{y}.{c}"] = [g[c], p[c]]
+    tpred = predicted_texw(carrier, texels or [])
+    tgot = observed_probe.get("TEXW")
+    if tpred is not None and tgot:
+        for k, (x, y) in enumerate(texels or []):
+            if k >= len(tgot):
+                break
+            p = tpred[f"{x},{y}"]
+            g = tgot[k]
+            for c in range(4):
+                n += 1
+                good = abs(float(g[c]) - float(p[c])) <= max(tol, abs(p[c]) * 1e-5)
+                ok += 1 if good else 0
+                if not good:
+                    detail[f"TEXW:{x},{y}.{c}"] = [g[c], p[c]]
     return n, ok, detail
+
+
+# ==========================================================================
+# GATE C -- an INDEPENDENT SEMANTIC PREDICTOR.
+#
+# RE_EXPERIMENT_PROCESS_CORRECTIONS sec.3 Gate C: "A difference from baseline is
+# not a semantic oracle."  The predictor below is independent of the GPU result
+# and distinguishes the five buckets the gate names:
+#     correct  |  coherent_other  |  silent_zero / no_write  |  fault/hang  |
+#     measurement_failure / contaminated
+# plus `unchanged` (the observation is exactly the baseline, a legitimate and
+# distinct outcome for a value that turns out inert) and `unmodelled` (status OK
+# but the observation matches nothing the model can name -- which is a REFUTATION
+# of the model, not a pass).
+#
+# `sem_checked` counts only cases where the model made a DEFINITE prediction.
+# sec.2: `sem_checked == 0` can never produce `hardware-run`.
+# ==========================================================================
+
+SAMPLE_CANDIDATES = {
+    # carrier -> {class name: f(px,py) -> predicted channel-0 value, or None}
+    # `filtered`  : bilinear level-0 value at the carrier's own coordinate
+    # `nearest`   : an unfiltered level-0 texel at that coordinate (either of the
+    #               two texels the corner sits between -- the tie is not ours to
+    #               break, so both are accepted as the same class)
+    # `lod`       : the implicit LOD for the carrier's own coordinate gradient
+    "msfilt": {"filtered": lambda x, y: [_bilinear_ramp(x + 1.0, y + 1.0, 0)],
+               "nearest":  lambda x, y: [float(x) + 100.0 * y,
+                                         float(x + 1) + 100.0 * y,
+                                         float(x) + 100.0 * (y + 1),
+                                         float(x + 1) + 100.0 * (y + 1)],
+               "lod":      lambda x, y: [0.0]},
+    "msfixl": {"filtered": lambda x, y: [_bilinear_ramp(x + 1.0, y + 1.0, 0)],
+               "nearest":  lambda x, y: [float(x) + 100.0 * y,
+                                         float(x + 1) + 100.0 * y,
+                                         float(x) + 100.0 * (y + 1),
+                                         float(x + 1) + 100.0 * (y + 1)],
+               "lod":      lambda x, y: [0.0]},
+    "msgath": {"gather":   lambda x, y: [float(x) + 100.0 * (y + 1)],
+               "filtered": lambda x, y: [_bilinear_ramp(x + 1.0, y + 1.0, 0)],
+               "lod":      lambda x, y: [0.0]},
+    "msread": {"read":     lambda x, y: [float(x & 7) + 100.0 * float(y & 7)],
+               "lod":      lambda x, y: [0.0]},
+    "mscmp":  {"compare":  lambda x, y: [0.0, 0.25, 0.5, 0.75, 1.0],
+               "lod":      lambda x, y: [0.0]},
+    "mslodq": {"lod":      lambda x, y: [2.0],
+               "filtered": lambda x, y: None},   # texel-shaped, not pinned
+}
+# db.json's mode enum -> the class name this model expects the occurrence to take.
+MODE_TO_CLASS = {0x00: ("gather", "read", "compare"), 0x10: ("filtered",),
+                 0x20: ("lod",)}
+
+
+def _near(a, b, tol=0.05):
+    return abs(float(a) - float(b)) <= max(tol, abs(float(b)) * 1e-5)
+
+
+def semantic_sample(carrier, probes, obs, base_obs, value, baseline_value):
+    """Classify ONE spliced tex_sample.mode case into a Gate-C bucket."""
+    st = obs.get("status")
+    if st == "MALFORMED":
+        return {"bucket": "measurement_failure", "checked": False}
+    if st == "HANG":
+        return {"bucket": "hang", "checked": True}
+    if st in ("FOREIGN_FAULT",) or obs.get("os_class") == "InnocentVictim":
+        return {"bucket": "contaminated", "checked": False}
+    if st != "OK":
+        return {"bucket": "fault", "checked": True}
+    if obs.get("status") == "POISON":
+        return {"bucket": "no_execution_poison", "checked": True}
+    if obs.get("hh") == base_obs.get("hh"):
+        return {"bucket": "unchanged", "checked": value in MODE_TO_CLASS,
+                "note": "identical to the arm's own baseline observation"}
+    got = (obs.get("probe") or {}).get("PIX0")
+    cand = SAMPLE_CANDIDATES.get(carrier, {})
+    if not got or not cand:
+        return {"bucket": "unmodelled", "checked": False}
+    want = MODE_TO_CLASS.get(value)
+    matched = set()
+    allzero = True
+    n = 0
+    for k, (x, y) in enumerate(probes):
+        if k >= len(got) or not covered(x, y):
+            continue
+        v = float(got[k][0])
+        n += 1
+        if abs(v) > 1e-6:
+            allzero = False
+        for cname, fn in cand.items():
+            vals = fn(x, y)
+            if vals is None:
+                continue
+            if any(_near(v, t) for t in vals):
+                matched.add(cname)
+    if n == 0:
+        return {"bucket": "unmodelled", "checked": False}
+    if allzero:
+        return {"bucket": "silent_zero", "checked": value in MODE_TO_CLASS}
+    if want and matched & set(want):
+        return {"bucket": "correct", "checked": True,
+                "matched_class": sorted(matched)}
+    if matched:
+        return {"bucket": "coherent_other", "checked": bool(want),
+                "matched_class": sorted(matched)}
+    return {"bucket": "unmodelled", "checked": bool(want)}
+
+
+# ---- tex_write: the semantic question is WHERE the write landed ------------
+# gfrun4.m's reset sentinels, by surface prefix.
+WRITE_RESET = {
+    "TEXW":  [-1.0, -2.0, -3.0, -4.0],
+    "TEXWA": [-1.0, -2.0, -3.0, -4.0],
+    "TEXWM": None,       # level-distinct: (-1-L, -2-L, -3-L, -4-L)
+    "TEXWC": None,       # face-distinct:  (-1-f, -2-f, -3-f, -4-f)
+    "TEXWB": [-11.0, -12.0, -13.0, -14.0],
+    "TEXWR": [-21.0],
+    "TEXWG": [-31.0, -32.0],
+}
+WRITE_DATA = {"C0": C0, "C1": C1, "C2": C2, "DRAW": DRAW}
+
+
+def _surface_reset(tag):
+    if tag.startswith("TEXWM"):
+        L = int(tag[5:] or 0)
+        return [-1.0 - L, -2.0 - L, -3.0 - L, -4.0 - L]
+    if tag.startswith("TEXWC"):
+        f = int(tag[5:] or 0)
+        return [-1.0 - f, -2.0 - f, -3.0 - f, -4.0 - f]
+    for k in ("TEXWA", "TEXWB", "TEXWR", "TEXWG", "TEXW"):
+        if tag.startswith(k):
+            return WRITE_RESET[k]
+    return None
+
+
+def _write_state(probe):
+    """Compact, host-computed description of every probed write surface:
+    per texel, one of `reset` / `C0` / `C1` / `C2` / `DRAW` / `other`."""
+    out = {}
+    for tag, vals in sorted((probe or {}).items()):
+        if not tag.startswith("TEXW"):
+            continue
+        rst = _surface_reset(tag)
+        row = []
+        for v in vals:
+            vv = v if isinstance(v, list) else [v]
+            name = "other"
+            if rst is not None and len(vv) <= len(rst) and \
+                    all(_near(vv[i], rst[i]) for i in range(len(vv))):
+                name = "reset"
+            else:
+                for dn, dv in WRITE_DATA.items():
+                    if all(_near(vv[i], dv[i]) for i in range(len(vv))):
+                        name = dn
+                        break
+            row.append(name)
+        out[tag] = row
+    return out
+
+
+def semantic_write(carrier, obs, base_obs, value, baseline_value, field):
+    """Classify ONE spliced tex_write.{amode,rsv11} case into a Gate-C bucket.
+
+    The question a texture store's address/format descriptor answers is WHERE the
+    write landed and WITH WHAT, so the predictor is the per-surface, per-texel
+    state map above, compared against the arm's own host-VALIDATED baseline map."""
+    st = obs.get("status")
+    if st == "MALFORMED":
+        return {"bucket": "measurement_failure", "checked": False}
+    if st == "HANG":
+        return {"bucket": "hang", "checked": True}
+    if st in ("FOREIGN_FAULT",) or obs.get("os_class") == "InnocentVictim":
+        return {"bucket": "contaminated", "checked": False}
+    if st != "OK":
+        return {"bucket": "fault", "checked": True}
+    now = _write_state(obs.get("probe"))
+    was = _write_state(base_obs.get("probe"))
+    if not now or not was:
+        return {"bucket": "unmodelled", "checked": False}
+    if now == was:
+        return {"bucket": "correct_all_writes_landed", "checked": True,
+                "state": now}
+    lost, moved, wrong = [], [], []
+    for tag in sorted(set(was) | set(now)):
+        a, b = was.get(tag, []), now.get(tag, [])
+        for i in range(max(len(a), len(b))):
+            x = a[i] if i < len(a) else "?"
+            y = b[i] if i < len(b) else "?"
+            if x == y:
+                continue
+            if x != "reset" and y == "reset":
+                lost.append(f"{tag}[{i}]:{x}->reset")
+            elif x == "reset" and y != "reset":
+                moved.append(f"{tag}[{i}]:reset->{y}")
+            else:
+                wrong.append(f"{tag}[{i}]:{x}->{y}")
+    if lost and not moved and not wrong:
+        return {"bucket": "write_suppressed", "checked": True, "detail": lost}
+    if moved and not lost and not wrong:
+        return {"bucket": "write_relocated", "checked": True, "detail": moved}
+    return {"bucket": "write_data_changed", "checked": True,
+            "detail": (lost + moved + wrong)[:8]}
+
+
+def semantic_check(mnemonic, field, carrier, probes, obs, base_obs, value,
+                   baseline_value):
+    if mnemonic == "tex_sample" and field == "mode":
+        return semantic_sample(carrier, probes, obs, base_obs, value, baseline_value)
+    if mnemonic == "tex_write":
+        return semantic_write(carrier, obs, base_obs, value, baseline_value, field)
+    # tex_deriv.dstsrc: NO semantic model is pre-registered.  Gate C therefore
+    # caps it at `live; role unknown` and `sem_checked` stays 0 for it, which by
+    # sec.2 makes `hardware-run` unreachable.  Stated here rather than faked.
+    return {"bucket": "no_model", "checked": False}

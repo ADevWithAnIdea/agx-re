@@ -47,15 +47,30 @@ constant uint SENT_BASE = 0x5A5A0000u;
 // ---------------------------------------------------------------- vertex ----
 // One full-screen triangle, built from an indexed constant array so the vertex
 // program is the same shape across every fragment carrier in this file.
-static float2 fs_tri(uint vid) {
+//
+// NON-AFFINE BY CONSTRUCTION (RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 5,
+// Phase 3): each corner carries a DIFFERENT w, so perspective-correct
+// interpolation is a rational function of screen position while linear
+// interpolation is affine.  With w == 1 everywhere the two are the SAME
+// function and every competing interpolation model -- centre, centroid, sample,
+// perspective, no-perspective -- produces identical numbers, which would make an
+// interpolation-location field indistinguishable no matter how it is swept.
+// fs_tri returns clip-space xy ALREADY MULTIPLIED by w, so pos.xy/pos.w is the
+// intended NDC and the triangle still covers the whole 8x8 target.
+constant float FS_W[3] = { 1.0f, 2.5f, 0.625f };
+static float2 fs_ndc(uint vid) {
     float2 p[3] = { float2(-1.0, -1.0), float2(3.0, -1.0), float2(-1.0, 3.0) };
     return p[vid];
+}
+static float4 fs_tri4(uint vid) {
+    float w = FS_W[vid];
+    return float4(fs_ndc(vid) * w, 0.0f, w);
 }
 
 struct VPlain { float4 pos [[position]]; float4 vc; };
 vertex VPlain v_plain(uint vid [[vertex_id]], constant float4 &vp [[buffer(0)]]) {
     VPlain o;
-    o.pos = float4(fs_tri(vid), 0.0, 1.0);
+    o.pos = fs_tri4(vid);
     o.vc  = vp * float(vid + 1u) + float4(0.25, 0.5, 0.75, 1.0);
     return o;
 }
@@ -73,7 +88,7 @@ struct VLoc {
 vertex VLoc v_loc(uint vid [[vertex_id]]) {
     float f = float(vid);
     VLoc o;
-    o.pos = float4(fs_tri(vid), 0.0, 1.0);
+    o.pos = fs_tri4(vid);
     o.a = 3000.0f * f;
     o.b = 1700.0f - 900.0f * f * f;
     o.c = 40.0f + 610.0f * f;
@@ -82,7 +97,17 @@ vertex VLoc v_loc(uint vid [[vertex_id]]) {
 }
 
 // Pull-model varyings, for interpolate_at_sample with a dynamic index.
+// The `interpolant<>` type is legal ONLY in the FRAGMENT stage_in struct -- a
+// vertex function may not return it ("invalid return type ... field of illegal
+// type __metal_interpolant_t", recorded in raw/prefreeze/census01).  So the
+// vertex side declares plain floats and the fragment side re-declares the same
+// slots as interpolants, which is the same shape EXP-0163's k_atoff1 uses.
 struct VPull {
+    float4 pos [[position]];
+    float p0;
+    float p1;
+};
+struct FPull {
     float4 pos [[position]];
     interpolant<float, interpolation::perspective> p0;
     interpolant<float, interpolation::no_perspective> p1;
@@ -90,9 +115,9 @@ struct VPull {
 vertex VPull v_pull(uint vid [[vertex_id]]) {
     float f = float(vid);
     VPull o;
-    o.pos = float4(fs_tri(vid), 0.0, 1.0);
-    o.p0 = interpolant<float, interpolation::perspective>(2500.0f * f - 30.0f);
-    o.p1 = interpolant<float, interpolation::no_perspective>(90.0f + 1450.0f * f * f);
+    o.pos = fs_tri4(vid);
+    o.p0 = 2500.0f * f - 30.0f;
+    o.p1 = 90.0f + 1450.0f * f * f;
     return o;
 }
 
@@ -184,7 +209,7 @@ fragment float4 f_ps(VLoc in [[stage_in]], uint sid [[sample_id]],
 }
 
 // Pull model with a DYNAMIC sample index: interpolate_at_sample(sid).
-fragment float4 f_atsamp(VPull in [[stage_in]], uint sid [[sample_id]],
+fragment float4 f_atsamp(FPull in [[stage_in]], uint sid [[sample_id]],
                          device float4 *out [[buffer(1)]]) {
     uint x = uint(in.pos.x), y = uint(in.pos.y);
     float q0 = in.p0.interpolate_at_sample(sid);

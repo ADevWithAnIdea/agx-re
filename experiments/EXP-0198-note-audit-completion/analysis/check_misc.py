@@ -29,6 +29,15 @@ def note(k):
     return val["instructions"][m][f].get("note") or ""
 
 
+def N(k, rx, n=1):
+    """Claimed numbers parsed OUT OF THE NOTE, never transcribed by hand, so a
+    changed note changes the verdict (analysis/negative_control.py)."""
+    mo = re.search(rx, note(k))
+    if not mo:
+        return None if n == 1 else (None,) * n
+    return int(mo.group(1), 0) if n == 1 else tuple(int(g, 0) for g in mo.groups())
+
+
 def add(k, claims):
     m, f = k.split(".", 1)
     lim = [c for c in claims if c["ok"] is None]
@@ -71,15 +80,18 @@ for run, recs in R161.items():
                                     "rule_v_and_0x7f_eq_3":
                                         ok == [v for v in range(256) if (v & 0x7F) == 3],
                                     "released_map_fit": "%d/%d" % (fits, tot)}
+cg_n, cg_d = N("carry_gen.srcB", r"\(v & 0x7F\) == 0x03 \((\d+) of (\d+) values\)", 2)
+cg_f, cg_t = N("carry_gen.srcB", r"reg=\(v>>1\)&0x3F, fit (\d+)/(\d+)", 2)
 add("carry_gen.srcB", [
-    {"claim": "accepted set fits (v & 0x7F) == 0x03, 2 of 256, on both arms",
-     "raw": cg,
-     "ok": all(v["rule_v_and_0x7f_eq_3"] and len(v["accepted"]) == 2 and v["n"] == 256
-               for v in cg.values())},
-    {"claim": "A_CARRY_SYNTH.srcB released register map reg=(v>>1)&0x3F, fit 22/22",
+    {"claim": "accepted set fits (v & 0x7F) == 0x03, N of M, on both arms",
+     "claimed": [cg_n, cg_d], "raw": cg,
+     "ok": all(v["rule_v_and_0x7f_eq_3"] and len(v["accepted"]) == cg_n
+               and v["n"] == cg_d for v in cg.values())},
+    {"claim": "A_CARRY_SYNTH.srcB released register map reg=(v>>1)&0x3F, fit N/M",
+     "claimed": [cg_f, cg_t],
      "raw": {k: v["released_map_fit"] for k, v in cg.items() if "SYNTH" in k},
-     "ok": all(v["released_map_fit"] == "22/22"
-               for k, v in cg.items() if "SYNTH" in k)}])
+     "ok": (cg_f == cg_t and all(v["released_map_fit"] == "%d/%d" % (cg_f, cg_t)
+                                 for k, v in cg.items() if "SYNTH" in k))}])
 
 # ---------------------------------------------------- falu2_ext.srcB_neg
 A, B = "6901040501000080", "6901040501080080"
@@ -99,22 +111,37 @@ for run in ("m4_20260828_run01", "m4_20260828_run05", "m4_20260828_run06"):
                       "expect_match": v[0].get("expect_match")}]
                  for h, v in hits.items()}
 add("falu2_ext.srcB_neg", [
-    {"claim": "the two byte strings differ in EXACTLY ONE BIT, bit 43",
+    {"claim": "the two byte strings differ in EXACTLY ONE BIT, bit N",
+     "claimed": N("falu2_ext.srcB_neg", r"differ in EXACTLY ONE BIT, bit (\d+)"),
      "raw": {"xor": hex(d), "popcount": bin(d).count("1"), "bit": d.bit_length() - 1},
-     "ok": (bin(d).count("1") == 1 and d.bit_length() - 1 == 43)},
-    {"claim": "db.json models srcB_neg at start=43 width=1", "raw": span,
-     "ok": span == [(43, 1)]},
-    {"claim": "w0 moves 8.0 -> 2.0 with both sentinels holding, identical in all three runs",
+     "ok": (bin(d).count("1") == 1
+            and d.bit_length() - 1 == N("falu2_ext.srcB_neg",
+                                        r"differ in EXACTLY ONE BIT, bit (\d+)"))},
+    {"claim": "db.json models srcB_neg at the start/width the note states",
+     "claimed": N("falu2_ext.srcB_neg", r"\(start=(\d+),width=(\d+)\)", 2),
+     "raw": span,
+     "ok": span == [N("falu2_ext.srcB_neg", r"\(start=(\d+),width=(\d+)\)", 2)]},
+    {"claim": "w0 moves X -> Y with both sentinels holding, identical in all three runs",
+     "claimed": re.search(r"`w0` moves ([\d.]+) -> ([\d.]+)",
+                          note("falu2_ext.srcB_neg")).groups(),
      "raw": runs,
-     "ok": all(runs[r][A][0]["observed"]["w0"] == 8.0
-               and runs[r][B][0]["observed"]["w0"] == 2.0
+     "ok": all(runs[r][A][0]["observed"]["w0"] == float(
+                   re.search(r"`w0` moves ([\d.]+) -> ([\d.]+)",
+                             note("falu2_ext.srcB_neg")).group(1))
+               and runs[r][B][0]["observed"]["w0"] == float(
+                   re.search(r"`w0` moves ([\d.]+) -> ([\d.]+)",
+                             note("falu2_ext.srcB_neg")).group(2))
                and runs[r][A][0]["observed"]["w4"] == runs[r][B][0]["observed"]["w4"]
                and runs[r][A][0]["observed"]["w8"] == runs[r][B][0]["observed"]["w8"]
                for r in runs)},
     {"claim": "the host oracle PREDICTED 8.0 AND 2.0 SEPARATELY and matched both",
      "raw": {r: {h: runs[r][h][0]["oracle"] for h in runs[r]} for r in runs},
-     "ok": all(runs[r][A][0]["oracle"] == {"w0": 8.0}
-               and runs[r][B][0]["oracle"] == {"w0": 2.0}
+     "ok": all(runs[r][A][0]["oracle"] == {"w0": float(
+                   re.search(r"PREDICTED ([\d.]+) AND ([\d.]+) SEPARATELY",
+                             note("falu2_ext.srcB_neg")).group(1))}
+               and runs[r][B][0]["oracle"] == {"w0": float(
+                   re.search(r"PREDICTED ([\d.]+) AND ([\d.]+) SEPARATELY",
+                             note("falu2_ext.srcB_neg")).group(2))}
                and runs[r][A][0]["match"] and runs[r][B][0]["match"] for r in runs)}])
 
 # --------------------------------------------------------------- funary.mod
@@ -177,19 +204,32 @@ add("if_push.scope", [
              "carriers": sorted({v["carrier"] for v in arms.values()}),
              "baseline_field_values": sorted({v["baseline_field"] for v in arms.values()}),
              "all_controls_fired": all(v["control"]["fired"] for v in arms.values())},
-     "ok": (len(arms) == 10 and {v["moved"] for v in arms.values()} == {0}
-            and len({v["carrier"] for v in arms.values()}) == 2
-            and len({v["baseline_field"] for v in arms.values()}) == 1
-            and all(v["control"]["fired"] for v in arms.values()))},
-    {"claim": "0/256 across 10 occurrences",
+     "claimed": N("if_push.scope",
+                  r"(\d+) of (\d+) arms moved, on (\d+) carriers with (\d+) distinct "
+                  r"baseline field values", 4),
+     "ok": (lambda c: (len(arms) == c[1] and {v["moved"] for v in arms.values()} == {c[0]}
+                       and len({v["carrier"] for v in arms.values()}) == c[2]
+                       and len({v["baseline_field"] for v in arms.values()}) == c[3]
+                       and all(v["control"]["fired"] for v in arms.values())))(
+             N("if_push.scope",
+               r"(\d+) of (\d+) arms moved, on (\d+) carriers with (\d+) distinct "
+               r"baseline field values", 4))},
+    {"claim": "N/M across K occurrences",
+     "claimed": N("if_push.scope", r"measured (\d+)/(\d+) across (\d+) occurrences", 3),
      "raw": sorted({v["values_dispatched"] for v in arms.values()}),
-     "ok": {v["values_dispatched"] for v in arms.values()} == {256}},
+     "ok": (lambda c: {v["values_dispatched"] for v in arms.values()} == {c[1]}
+                      and len(arms) == c[2])(
+             N("if_push.scope", r"measured (\d+)/(\d+) across (\d+) occurrences", 3))},
     {"claim": "six loop carriers all emit scope_kind == 0x1a, four emit both 0x54 and 0x56; "
               "at four 0x1a occurrences 0x00 and 0x54 FAULT while 0x56 and 0xFF are correct; "
               "never reached a gated pair",
      "raw": {"carriers": f0188["carriers"], "values_dispatched": f0188["values_dispatched"],
              "note": f0188["note"], "verdict": f0188["verdict"]},
-     "ok": (len(f0188["carriers"]) == 6
+     "claimed_carriers": re.search(r"(\w+) loop carriers all emit",
+                                   note("if_push.scope")).group(1),
+     "ok": (len(f0188["carriers"]) == {"six": 6, "five": 5, "four": 4}.get(
+                re.search(r"(\w+) loop carriers all emit",
+                          note("if_push.scope")).group(1), -1)
             and "all six carriers emit scope_kind 0x1a" in f0188["note"]
             and "four emit both 0x54 and 0x56" in f0188["note"]
             and "0x00 and 0x54 fault; 0x56 and 0xFF correct" in f0188["note"]
@@ -230,7 +270,12 @@ add("irotate._instruction", [
      "raw": {"arms": len(irot), "encodable_values":
              sorted({tuple(v["encodable_values"]) for v in irot.values()}),
              "arms_with_exactly_one_legal_value_moving": asym},
-     "ok": (len(asym) == 3
+     "claimed_arms": {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}.get(
+         re.search(r"ASYMMETRIC over its two legal values on (\w+) arms",
+                   note("irotate._instruction")).group(1), -1),
+     "ok": (len(asym) == {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}.get(
+                re.search(r"ASYMMETRIC over its two legal values on (\w+) arms",
+                          note("irotate._instruction")).group(1), -1)
             and all(v["encodable_values"] == [84, 86] for v in irot.values()))}])
 
 # frag_depth_store / n2_op6: db.json quotes
@@ -288,12 +333,20 @@ four = [v for run in loc for c, v in loc[run].items() if "cent4" in c]
 add("iter_at._instruction", [
     {"claim": "loc separated BY VALUE: 0/256 at one sample, 128/256 at four",
      "raw": loc,
-     "ok": bool(one) and bool(four)
-           and all(v["moved"] == 0 and v["n"] == 256 for v in one)
-           and all(v["moved"] == 128 and v["n"] == 256 for v in four)},
-    {"claim": "10,398 dispatch records but only 10 carry an oracle (0.1%)",
+     "claimed": N("iter_at._instruction",
+                  r"(\d+)/(\d+) at one sample, (\d+)/(\d+) at four", 4),
+     "ok": (lambda c: bool(one) and bool(four)
+                      and all(v["moved"] == c[0] and v["n"] == c[1] for v in one)
+                      and all(v["moved"] == c[2] and v["n"] == c[3] for v in four))(
+             N("iter_at._instruction",
+               r"(\d+)/(\d+) at one sample, (\d+)/(\d+) at four", 4))},
+    {"claim": "N dispatch records but only M carry an oracle",
+     "claimed": re.search(r"There are ([\d,]+) dispatch records but only (\d+) carry an "
+                          r"oracle", note("iter_at._instruction")).groups(),
      "raw": ia,
-     "ok": (ia["n"] == 10398 and ia["oracle"] == 10)},
+     "ok": (lambda c: ia["n"] == int(c[0].replace(",", "")) and ia["oracle"] == int(c[1]))(
+             re.search(r"There are ([\d,]+) dispatch records but only (\d+) carry an "
+                       r"oracle", note("iter_at._instruction")).groups())},
     {"claim": "All six field rows are emitter-grade",
      "raw": {f["name"]: val["instructions"]["iter_at"][f["name"]]["label"]
              for i in db["instructions"] if i["mnemonic"] == "iter_at" for f in i["fields"]},
@@ -309,9 +362,11 @@ for run in ("g17p_20260829_run03", "g17p_20260829_run04"):
         if r.get("instr") == "iter_flat" and str(r.get("field", "")).startswith("_"):
             ifb[r["outcome"]] += 1
 add("iter_flat._instruction", [
-    {"claim": "EXP-0155 reproduced its baselines on G17P 23/23",
+    {"claim": "EXP-0155 reproduced its baselines on G17P N/M",
+     "claimed": N("iter_flat._instruction", r"baselines on G17P (\d+)/(\d+)", 2),
      "raw": dict(ifb),
-     "ok": (sum(ifb.values()) == 23 and set(ifb) == {"ok"})}])
+     "ok": (lambda c: c[0] == c[1] and sum(ifb.values()) == c[1] and set(ifb) == {"ok"})(
+             N("iter_flat._instruction", r"baselines on G17P (\d+)/(\d+)", 2))}])
 
 # mov_imm / psel / uniform_mov
 sv = open(os.path.join(EXPS, "EXP-0031-sr-abi", "raw",
@@ -327,12 +382,17 @@ add("mov_imm._instruction", [
                        if "splice off5" in l]},
      "ok": all(s in sv for s in ("0x20->0x21 : [33]x8", "0x20->0x40 : [64]x8",
                                  "0x20->0x11 : [17]x8"))},
-    {"claim": "EXP-0167 ran 196,114 assembler-GENERATED mov_imm instances whose "
+    {"claim": "EXP-0167 ran N assembler-GENERATED mov_imm instances whose "
               "01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs",
      "raw": {"mov_imm_assemble_calls": adc["mnemonics_used"]["mov_imm"],
              "iso01_iso02_byte_identical": iso[0] == iso[1],
              "n_cases": adc["n_cases"]},
-     "ok": (adc["mnemonics_used"]["mov_imm"] == 196114 and iso[0] == iso[1])},
+     "claimed": re.search(r"ran ([\d,]+) assembler-GENERATED mov_imm instances",
+                          note("mov_imm._instruction")).group(1),
+     "ok": (adc["mnemonics_used"]["mov_imm"] == int(
+                re.search(r"ran ([\d,]+) assembler-GENERATED mov_imm instances",
+                          note("mov_imm._instruction")).group(1).replace(",", ""))
+            and iso[0] == iso[1])},
     {"claim": "'inside 233 zero-copied programs'",
      "raw": {"EXP-0167 RESULTS.md": "233 of 237 zero-copied programs matched",
              "reading": "233 is zero_copied_AND_matched; 237 were zero-copied. The note "
@@ -349,10 +409,16 @@ add("uniform_mov._instruction", [
              "distinct_bytes": f168["coverage"]["distinct_bytes"],
              "agree_pct": sorted({p["agree_pct"] for a in f168["per_arm"].values()
                                   for p in a["pairs"].values()})},
-     "ok": (f168["moved_total"] == 214
-            and f168["coverage"]["distinct_bytes"] == 224
-            and {p["agree_pct"] for a in f168["per_arm"].values()
-                 for p in a["pairs"].values()} == {100.0})},
+     "claimed": re.search(r"\((\d+) movements, (\d+) distinct byte strings, "
+                          r"([\d.]+)% agreement\)",
+                          note("uniform_mov._instruction")).groups(),
+     "ok": (lambda c: f168["moved_total"] == int(c[0])
+                      and f168["coverage"]["distinct_bytes"] == int(c[1])
+                      and {p["agree_pct"] for a in f168["per_arm"].values()
+                           for p in a["pairs"].values()} == {float(c[2])})(
+             re.search(r"\((\d+) movements, (\d+) distinct byte strings, "
+                       r"([\d.]+)% agreement\)",
+                       note("uniform_mov._instruction")).groups())},
     {"claim": "EXP-0140: 128 of 128 immediate-region usrc values matched and 8 of 8 "
               "mapped uniform indices returned the bound magic constant",
      "raw": {"see": "analysis/check_0140.json :: uniform_mov.usrc (SUPPORTED, after the "

@@ -230,6 +230,10 @@ class RenderRunner(_Child):
                 out["status"] = ln.split(None, 1)[1]
             elif ln.startswith("SENTINEL "):
                 out["sentinel"] = ln.split(None, 1)[1]
+            elif ln.startswith("ACTUAL "):
+                out["actual"] = ln.split(None, 1)[1]
+            elif ln.startswith("PROGHASH "):
+                out["proghash"] = ln.split(None, 1)[1]
             elif ln.startswith("ERRDOM "):
                 out["errdom"] = ln.split(None, 1)[1]
             elif ln.startswith("ERROR "):

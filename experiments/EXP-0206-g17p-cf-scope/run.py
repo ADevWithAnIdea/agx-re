@@ -82,10 +82,16 @@ def is_innocent(resp):
 # Hard outcomes are counted and reported but are NEVER movement: a gate that
 # separates `ok` from `fault` counts a GPU fault as evidence, which is exactly the
 # defect that withdrew `ret_luse.linkmode`.
+# `not_written` is DELIBERATELY ABSENT. It is only ever reached with the INTEGRITY
+# SENTINEL PRESENT, so it means "the program ran, wrote the sentinel, and wrote no
+# value words" -- a valid execution with a highly informative payload, and exactly
+# how a MID-PROGRAM TERMINATOR announces itself (pilot p01: a synthesized `stop`
+# over the optional frame marker gives sentinel + 32 poison words). Scoring it as a
+# hard outcome would delete the one observation the termination-dimension positive
+# control exists to make. `invalid_run` -- sentinel MISSING -- stays hard.
 HARD_CLASS = {
     "fault": "fault",
     "hang": "hang",
-    "not_written": "no_draw",
     "invalid_run": "no_draw",
     "measurement_failure": "MALFORMED",
     "nondeterministic": "fault",

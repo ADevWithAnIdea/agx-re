@@ -1,0 +1,215 @@
+{
+ "_doc": "EXP-0207 rule R8: the observable must not CO-VARY with the field under test.\n\nEXP-0140 swept `uniform_mov.dst` while building its read-back as\n`device_store(data_reg = D)` where D *was* the swept dst.  Field and observable\nmoved together, so a CORRECT hardware result was a constant observed vector BY\nCONSTRUCTION and \"16 values, 0 moved\" was the PASSING outcome of a test that\ncould not return anything else.\n\nThis check is structural and needs no device.  For each arm it asserts that the\nread-back path is not selected, indexed or addressed by the field under test.\n\n  python3 analysis/covary.py\n",
+ "rows": [
+  {
+   "arm": "sm_dual",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_dual1",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_blend",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_samp",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_mask",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_u32",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_depth",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "sm_r8",
+   "field": "store_mode",
+   "instr": "frag_color_store",
+   "not_covariant_because": "store_mode is byte+2 of the colour store.  The sentinel is written by a DIFFERENT instruction (a device_store to buffer(1)) that the swept bytes do not touch, and the attachment identity is fixed by the render pass, not by any field of this instruction.",
+   "observable": "colour attachment bytes + a device-buffer coverage sentinel written by a separate device_store the fragment issues itself"
+  },
+  {
+   "arm": "it_ps4",
+   "field": "b9",
+   "instr": "iter",
+   "not_covariant_because": "the read-back index is (y*W+x)*4+sample_id, computed from [[position]] and [[sample_id]], neither of which is produced by the swept `iter`.  The swept instruction supplies a VALUE, never the address it is stored at.",
+   "observable": "per-sample interpolated values in a device buffer indexed by (pixel, sample_id)"
+  },
+  {
+   "arm": "it_ps4b",
+   "field": "b9",
+   "instr": "iter",
+   "not_covariant_because": "the read-back index is (y*W+x)*4+sample_id, computed from [[position]] and [[sample_id]], neither of which is produced by the swept `iter`.  The swept instruction supplies a VALUE, never the address it is stored at.",
+   "observable": "per-sample interpolated values in a device buffer indexed by (pixel, sample_id)"
+  },
+  {
+   "arm": "it_ps1",
+   "field": "b9",
+   "instr": "iter",
+   "not_covariant_because": "the read-back index is (y*W+x)*4+sample_id, computed from [[position]] and [[sample_id]], neither of which is produced by the swept `iter`.  The swept instruction supplies a VALUE, never the address it is stored at.",
+   "observable": "per-sample interpolated values in a device buffer indexed by (pixel, sample_id)"
+  },
+  {
+   "arm": "it_atsamp",
+   "field": "b9",
+   "instr": "iter",
+   "not_covariant_because": "the read-back index is (y*W+x)*4+sample_id, computed from [[position]] and [[sample_id]], neither of which is produced by the swept `iter`.  The swept instruction supplies a VALUE, never the address it is stored at.",
+   "observable": "per-sample interpolated values in a device buffer indexed by (pixel, sample_id)"
+  },
+  {
+   "arm": "vx_multi",
+   "field": "operand",
+   "instr": "vtx_coord_xform",
+   "not_covariant_because": "the observable is the rasterised frame; the vertex instruction under test cannot name the fragment stage's store address.",
+   "observable": "16x16 attachment bytes + a per-pixel coverage sentinel"
+  },
+  {
+   "arm": "vx_wide",
+   "field": "operand",
+   "instr": "vtx_coord_xform",
+   "not_covariant_because": "the observable is the rasterised frame; the vertex instruction under test cannot name the fragment stage's store address.",
+   "observable": "16x16 attachment bytes + a per-pixel coverage sentinel"
+  },
+  {
+   "arm": "vx_pos2",
+   "field": "operand",
+   "instr": "vtx_coord_xform",
+   "not_covariant_because": "the observable is the rasterised frame; the vertex instruction under test cannot name the fragment stage's store address.",
+   "observable": "16x16 attachment bytes + a per-pixel coverage sentinel"
+  },
+  {
+   "arm": "sr_c",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_c",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_hi",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_hi",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_f",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_f",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_f2",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_f2",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_v",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_v",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "fen_at",
+   "field": "scope_flag",
+   "instr": "dev_scoreboard_fence",
+   "not_covariant_because": "the fence has no operands; the observable is produced by other instructions entirely.",
+   "observable": "a device-atomic reduction with a host-computable correct answer"
+  },
+  {
+   "arm": "fen_rel",
+   "field": "scope_flag",
+   "instr": "dev_scoreboard_fence",
+   "not_covariant_because": "the fence has no operands; the observable is produced by other instructions entirely.",
+   "observable": "a device-atomic reduction with a host-computable correct answer"
+  },
+  {
+   "arm": "me_w2",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  },
+  {
+   "arm": "me_w3",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  },
+  {
+   "arm": "me_w1",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  }
+ ]
+}

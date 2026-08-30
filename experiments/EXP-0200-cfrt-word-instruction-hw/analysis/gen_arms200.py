@@ -77,8 +77,12 @@ import carriers200 as C          # noqa: E402
 import locate200 as L            # noqa: E402
 import words200 as W             # noqa: E402
 
-RULER_HOLES_PER_CARRIER = 2
-TRANSPARENCY_HOLES_PER_MNEMONIC = 2
+# AMENDMENT A2 (pre-freeze; PRE_REGISTRATION.md 12). Raised from 2/2 after the
+# hole probe admitted ruler holes on only 3 of 10 carriers. Raising a cap takes
+# MORE of the same mechanically-ordered admitted list -- it never changes the
+# ordering, the admission test, or the gate -- so it cannot shop for an outcome.
+RULER_HOLES_PER_CARRIER = 6
+TRANSPARENCY_HOLES_PER_MNEMONIC = 4
 
 # Frozen. Four of these (0x04, 0x05, 0x44, 0x45) satisfy EXP-0187's hazard
 # predicate and eight do not; 0x22 and 0x42 are the two values the compiler

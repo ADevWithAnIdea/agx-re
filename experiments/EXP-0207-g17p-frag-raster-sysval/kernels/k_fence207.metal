@@ -46,7 +46,14 @@ kernel void k_fence_at(device uint *out [[buffer(0)]],
     out[tid] = a0 * 1000u + a1;
 }
 
-// k_fence_rel: a release/acquire handoff.  Lane 0 publishes a payload and then
+// MEASURED API FACT (raw/prefreeze/census01): MSL on this toolchain declares
+// ONLY `memory_order_relaxed`.  `memory_order_release` and `memory_order_acquire`
+// do not exist as identifiers, so ordering in MSL comes from BARRIERS, never from
+// an atomic's own memory order.  Both kernels below therefore use relaxed atomics
+// plus `threadgroup_barrier(mem_flags::mem_device)`, which is exactly the
+// construct db.json says the compiler decorates with this fence.
+//
+// k_fence_rel: a publish/consume handoff.  Lane 0 publishes a payload and then
 // releases a flag; every other lane acquires the flag and reads the payload back.
 // The correct answer is again a host-computable constant; a broken release makes
 // the readers see the pre-publication value.
@@ -60,10 +67,10 @@ kernel void k_fence_rel(device uint *out [[buffer(0)]],
     sent[tid] = SENT_BASE + tid;
     if (lane == 0u) {
         for (uint i = 0; i < 8u; ++i) payload[i] = 0x1234u + i;
-        atomic_store_explicit(&flag[0], 1u, memory_order_release);
+        atomic_store_explicit(&flag[0], 1u, memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_device);
-    uint f = atomic_load_explicit(&flag[0], memory_order_acquire);
+    uint f = atomic_load_explicit(&flag[0], memory_order_relaxed);
     uint s = 0u;
     if (f != 0u) { for (uint i = 0; i < 8u; ++i) s += payload[i]; }
     out[tid] = s + f;

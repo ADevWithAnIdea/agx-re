@@ -365,19 +365,25 @@ PRE_SCRATCH = {"HI": 12, "LO": 4}
 def synth_program(plan, block, region_len):
     """seeds -> PRE sentinel (scratch restored) -> PRE-DUMP of all 16 GPRs
     -> [block: instruction under test + 4 length markers] -> POST-DUMP of all 16 GPRs
-    -> POST sentinel (register re-materialized at that moment) -> stop, padded."""
+    -> POST sentinel (register re-materialized at that moment) -> stop, padded.
+
+    Returns (program_bytes, block_offset).  The offset is what Gate A's actual-byte ledger
+    needs: it is where the instruction under test really lands inside the program that is
+    written to disk and handed to the GPU, so the bytes can be read BACK from that artifact
+    rather than assumed from the request."""
     lay = plan["lay"]
     scratch = PRE_SCRATCH[lay.name]
     ins = seed_instrs(plan)
     ins += [mov_imm(scratch, SENT_PRE), store_word(lay, W_PRE_SENT, scratch)]
     ins += reseed_one(plan, scratch)
     ins += dump(lay, W_PRE_REGS)
+    block_off = sum(len(x) for x in ins)
     ins.append(block)
     ins += dump(lay, W_POST_REGS)
     sent_reg = scratch
     ins += [mov_imm(sent_reg, SENT_POST), store_word(lay, W_POST_SENT, sent_reg)]
     ins.append(stop())
-    return build_program(ins, region_len, pad_reg=lay.R_ZERO)
+    return build_program(ins, region_len, pad_reg=lay.R_ZERO), block_off
 
 
 # --------------------------------------------------------------------------

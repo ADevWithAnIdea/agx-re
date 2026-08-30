@@ -296,3 +296,42 @@ field whose whole open question is stability — is only promoted from a QUIET p
 - `cubearray_coord_const.b3` cannot be promoted by this experiment under any outcome (§3 H5).
 - An inert reading on carriers that do not span the named dimension is a carrier failure and is
   reported as UNREACHED, not as an inert field.
+
+---
+
+## 14. AMENDMENT LOG — every change made after the freeze, and when
+
+All five amendments below were made **during pre-freeze calibration, before any gated run
+existed**. `CAPTURE_CONTRACT.json` records both `source_hashes` (at freeze) and
+`source_hashes_at_run` (after these amendments), so the difference is auditable rather than
+silent. **None of them touches a hypothesis, a refuter, the promotion gate, the coverage, the
+timeouts, or the raw schema.**
+
+| # | file | what | why |
+|---|---|---|---|
+| A1 | `kernels/k_mscmp.metal` | the two compare samplers moved from `coord::pixel` to `coord::normalized`, and the coordinate is normalised to match | Metal **refuses to compile** a sampler that combines `coord::pixel` with a `compare_func`. The carrier could not be built at all; the fix is the smallest one that keeps the depth-compare operation class. Recorded in `raw/prefreeze/census_run1.json` as a build failure. |
+| A2 | `harness/gfrun4.m` | cube-face `replaceRegion:` gained `bytesPerImage:` | compile error; no behavioural choice involved. |
+| A3 | `analysis/census.py` | added `locate()` — the tokenize-prefix-then-anchored-scan rule, **byte-identical in wording and behaviour to `run.py::locate`** | forward tokenization stops early on eight of the thirteen carriers, so the census reported *no* `tex_sample`/`tex_write` occurrence where the run would later have found one. Having the census and the run disagree about occurrence indices is the exact failure EXP-0172 caught and refused arms over. |
+| A4 | `analysis/gen_arms.py` | the arm-selection rule was written and refined (span carriers → span baseline values → span (carrier,value) pairs → round-robin fill) | §7 always said the arm list is generated from the census; this is that rule. Its first draft spent the whole `tex_write` budget on three carriers and dropped `twcomp` and `twdyn` — the two carriers that carry `rsv11`'s and the dynamic-coordinate dimension — which would have reproduced the very failure this experiment exists to avoid. |
+| A5 | `harness/oracle.py`, `run.py` | exact host-computed baseline predictions added for the five `tex_write` carriers (colour attachment **and** the written texels) | `work/smoke_smoke01` showed `checked=0` for every write arm: the baseline oracle was checking nothing on them, which is the constant-oracle failure §5 exists to prevent. |
+
+### Calibration outcome (`work/smoke_smoke01`, `work/smoke_smoke02` — calibration, not evidence)
+
+- **All 28 arms have detection power**, and every one has at least one moved control **in the
+  target field's own dimension**.
+- **The host-computed baseline oracle matches the hardware exactly on every arm**: 28/28 channels
+  for the sample carriers, 16/16 for the depth-compare carriers (whose nearest-filter channel is
+  deliberately not predicted), 52/52 for the four write carriers with constant destinations, 28/28
+  for the two dynamic-coordinate write arms, 28/28 for `k_deriv`.
+- **One known oracle tolerance, recorded rather than papered over:** `deriv2` agrees on 22/28 —
+  the six mismatches are all channel 3, the **half-precision** derivative pair, where the host
+  arithmetic is `float` (e.g. observed 333.98438 vs predicted 333.33333). The three `float`
+  channels agree exactly. Channel 3 of `deriv2` is therefore reported as *not host-validated*, and
+  no verdict rests on it.
+- **The pre-freeze census (`raw/prefreeze/census_run2.json`) confirms the carrier set spans the
+  dimension for `tex_sample.mode`**: the compiler itself chooses `mode = 0x10` on `msfilt`/`msfixl`,
+  `0x00` on `msgath`/`msread`/`mscmp`, and `0x20` on `mslodq`. **All three values db.json documents
+  appear as compiler-chosen baselines.** For `tex_write.amode` it chooses **both `0x54` and `0x55`**
+  (the latter on the last write of `twbuf` and `twcube`), which no prior experiment's arms contained.
+  For `tex_write.rsv11` it chooses **0 everywhere, including the 1-component R32Float and
+  2-component RG32Float destinations** — a first, negative, census-level result against H4.

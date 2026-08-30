@@ -316,3 +316,78 @@ Evidence: raw/<run_id>/sweep.jsonl (append-only), analysis/field_verdicts.json
 k_mesh187.metal`, which is **our own** committed MSL; it is cited as such and is not third-party.
 
 ## 10. Amendments
+
+### Amendment 1 — 2026-08-30, BEFORE any gated capture (census only)
+
+`raw/prefreeze/census01/` (the pre-freeze census, run into `work/` and copied to
+`raw/prefreeze/`) measured three things that change the carrier set. No gated run had
+occurred; `raw/prefreeze/CAPTURE_CONTRACT.v1.json` retains the superseded contract.
+
+1. **`interpolant<>` may not be a VERTEX return type** on this toolchain ("invalid return
+   type … field of illegal type `__metal_interpolant_t`"). The pull-model carrier is split
+   into a plain-float vertex struct and an `interpolant<>` fragment struct — the shape
+   EXP-0163's `k_atoff1` already uses. One compile error in the file had failed the whole
+   library, which is why all eight fragment arms reported a build failure.
+2. **MSL on this toolchain declares only `memory_order_relaxed`.** `memory_order_release`
+   and `memory_order_acquire` are undeclared identifiers. This is a *measured fact about
+   the API surface*, recorded as a result: ordering in MSL comes from barriers, never from
+   an atomic's own memory order. Both fence carriers now use relaxed atomics plus
+   `threadgroup_barrier(mem_flags::mem_device)` — which is exactly the construct `db.json`
+   says the compiler decorates with `dev_scoreboard_fence`.
+3. **`mesh_wide2` and `mesh_wide3` emit NO `mesh_out_src`, while `mesh_wide` emits exactly
+   one (`04 04`).** The rewrite changed too much at once. Three MINIMAL-DELTA carriers are
+   added (`mesh_wideP1/P2/P3`) that alter **only the position expression** and keep every
+   payload assignment byte-for-byte as `mesh_wide` has it, so a carrier that both emits the
+   op and covers pixels can be found by bisection. The original `mesh_wide` stays as the
+   census control; `mesh_wide2`/`mesh_wide3` stay as measured negatives.
+
+Also recorded from the same census, unchanged and not amended: `v_pos2` emits **no**
+`vtx_coord_xform` (`pattern_absent`) and is retained as a measured negative;
+`sr_c`'s compiled `dst_hi` is **1**, not 0, so that arm already carries the two-sided
+`dst_hi` baseline the plan hoped the high-pressure kernel would provide; and the compiler
+emits **both** `form` values by itself across the five `get_sr` carriers (0 on `sr_c`/`sr_hi`,
+1 on `sr_f`/`sr_f2`/`sr_v`) — the strongest available evidence that the carrier set can
+express that field.
+
+**Courtesy note (FIELD-SWEEP-PROTOCOL §7):** the `get_sr.dst_hi` sweep dispatches values 6
+and 7, which select registers ≥ 96 — the G17P region EXP-0155 measured as a hang across
+seven fields. Rule 3(c) forbids a per-value budget from leaving a contiguous hazard
+unmapped, so all 8 values are dispatched and hangs are recorded as results.
+
+### Amendment 2 — 2026-08-30, BEFORE any gated capture (census02, still work/ only)
+
+`raw/prefreeze/census02/` measured the carrier set again after Amendment 1. Four results,
+one of which changes the plan:
+
+1. **Neither fence carrier emits `dev_scoreboard_fence`** — `occ_absent(0 of 0)` on both,
+   reproducing EXP-0141's "no own-MSL kernel we could compile emits `80 02 00 xx`" on a far
+   stronger carrier (divergent device atomics **plus** a device-scope barrier). What
+   `k_fence_at` *does* emit is the 4-byte sibling `scoreboard_fence` `07 02 00 00` at offset
+   34, immediately before the divergent atomics, with a `threadgroup_barrier`
+   `07 04 54 85 08 00` (`mem_scope = 0x85 mem_device`) at offset 178.
+   **New arm `fen_syn`:** `dev_scoreboard_fence` is `80 02 00 <scope_flag>` — the same
+   length and the documented byte0 sibling of that op — so it is **pre-spliced** into that
+   exact slot and the sweep runs there. This is still a synthesis, and it is labelled one;
+   the difference from EXP-0141 is that the position is a fence site with an ordering
+   observable. The arm carries a **detection-power probe on a different instruction** — the
+   barrier's own `mem_scope`, 0x85 → 0x41 `mem_none`. **If that probe does not move the
+   observable, the carrier has no ordering sensitivity and no `scope_flag` verdict is
+   filed** (reported STILL-UNDERPOWERED with the null control as the measured proof).
+2. **`mesh_wideP2` emits `mesh_out_src` (`04 04` at offset 40, clean tokenization, followed
+   by the 14-byte `device_store` at 42) with non-degenerate geometry.** `me_p2` is the
+   sweepable mesh arm. `mesh_wideP1` and `mesh_wideP3` do not emit it (their leftover
+   carries `34 04 e7 02 54 …` — a *different* 2-byte source op at that slot), and are kept
+   as measured negatives that bound how the op is reached.
+3. **`f_dual` compiles to ONE `frag_color_store`, not two** — dual-source blending is fused
+   into the fragment program (the census shows `tile_read_mrt` + `falu_acc` + a single
+   store), which is the in-shader blend Apple TBDR does. `sm_dual1` (occurrence #1) is
+   therefore `arm_not_attempted (1 of 1)`, recorded, not swept.
+4. **`f_mask` (a `[[sample_mask]]` output) emits NO `frag_color_store` at all and does not
+   tokenize cleanly** (`<unknown>` plus a 20-byte leftover). That is a first-class negative:
+   the sample-mask path is a store shape this project's DB cannot yet decode. Recorded; not
+   swept.
+
+Also unchanged from census02 and worth stating because it is the single strongest fact
+about the `get_sr.form` carrier set: **the compiler emits both `form` values by itself** —
+0 on `sr_c`/`sr_hi`, 1 on `sr_f`/`sr_f2`/`sr_v` — and **`sr_c`'s compiled `dst_hi` is 1**, so
+the `dst_hi` sweep is two-sided on that arm without needing the high-pressure kernel.

@@ -26,6 +26,7 @@ from pathlib import Path
 EXP = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(EXP / "harness"))
 
+G7_MODE = "hardware"          # "hardware" (marker count) | "frozen" (marker count AND tok_instr)
 AGREE_MIN = 0.99
 ORACLE_MIN = 0.99
 INVALID = {"measurement_failed", "undecodable", "carrier_dead", "invalid_run"}
@@ -75,12 +76,34 @@ def ckey(rec):
     return (rec["value"], rec.get("byte_index"))
 
 
-def decidable(rec):
+def hw_identity_changed(rec, anchor_markers):
+    """G7, HARDWARE form: instruction identity is measured by how many of the four 2-byte
+    length markers survived, which is a property of the SILICON's consumed length.
+
+    The frozen text of G7 also required `tok_instr` to equal the anchor's, and that half is
+    a DEFECT: `tok_instr` is OUR OWN tokenizer's opinion, not an observation.  In these runs
+    every single dispatched value of `half_alu_fma12.dst` and `half_pack.dstlo` returned
+    `hw_markers == 4`, identical to its anchor -- the hardware consumed the same bytes for
+    all of them -- yet the tokenizer disagreed with itself on 4 and 11 values respectively
+    (`<unknown>`, `pad_operand`, `operand_word`, and in one case `half_pack` where the anchor
+    itself was `<unknown>` because of DEF-0154-1's byte+1 == 0x05 length gate).  Excluding
+    those is the mirror image of the trap FIELD-SWEEP-PROTOCOL names -- counting our own
+    disassembler as a hardware signal -- so `--g7 hardware` (the default) uses the marker
+    count alone and `--g7 frozen` reproduces the literal frozen conjunct.  Both numbers are
+    reported.  Every value the frozen form excluded was ALREADY `oracle_match: true`, so the
+    correction cannot manufacture a promotion out of failures."""
+    if G7_MODE == "frozen":
+        return bool(rec.get("identity_changed"))
+    mk = rec.get("hw_markers")
+    return (mk is not None and anchor_markers is not None and mk != anchor_markers)
+
+
+def decidable(rec, anchor_markers=None):
     if rec["outcome"] in INVALID:
         return False, rec["outcome"]
     if rec.get("victim"):
         return False, "victim"
-    if rec.get("identity_changed"):
+    if hw_identity_changed(rec, anchor_markers):
         return False, "identity_changed"
     orc = rec.get("oracle") or {}
     if orc.get("undecidable"):
@@ -115,17 +138,19 @@ def span_only_ok(recs):
 def arm_field_report(r1, r2, anch1, arm, field):
     a1 = {ckey(r): r for r in r1 if r["arm"] == arm and r["field"] == field}
     a2 = {ckey(r): r for r in r2 if r["arm"] == arm and r["field"] == field}
-    anchor_digest = dig_post((anch1.get(arm) or {}).get("observed"))
+    anchor_rec = anch1.get(arm) or {}
+    anchor_digest = dig_post(anchor_rec.get("observed"))
+    anchor_markers = anchor_rec.get("hw_markers")
     excl = collections.Counter()
     dec1, dec2 = {}, {}
     for k, r in a1.items():
-        ok, why = decidable(r)
+        ok, why = decidable(r, anchor_markers)
         if ok:
             dec1[k] = r
         else:
             excl["run1:%s" % why] += 1
     for k, r in a2.items():
-        ok, why = decidable(r)
+        ok, why = decidable(r, anchor_markers)
         if ok:
             dec2[k] = r
         else:
@@ -241,12 +266,17 @@ def main():
     ap.add_argument("run2")
     ap.add_argument("--out", default=str(EXP / "analysis" / "field_verdicts.json"))
     ap.add_argument("--evidence", default="EXP-0203")
+    ap.add_argument("--g7", choices=("hardware", "frozen"), default="hardware",
+                    help="hardware = surviving-marker count only (default); frozen = the "
+                         "literal frozen conjunct, which also compares OUR tokenizer's opinion")
     a = ap.parse_args()
+    global G7_MODE
+    G7_MODE = a.g7
     r1, an1 = load(a.run1)
     r2, an2 = load(a.run2)
     span_ok, span_bad = span_only_ok(r1)
 
-    verdicts, detail = {}, {"span_violations": span_bad,
+    verdicts, detail = {}, {"span_violations": span_bad, "g7_mode": a.g7,
                             "run1": str(a.run1), "run2": str(a.run2)}
     for instr, field, erange in TARGETS:
         arms = sorted({r["arm"] for r in r1 if r["instr"] == instr and r["field"] == field})

@@ -34,7 +34,9 @@ def catalogue(carrier):
 
     cat["all_zero"] = [0] * 32
     cat["all_ones"] = [C.M32] * 32
-    cat["identity_lane_input"] = [ins[t] & C.M32 for t in range(32)]
+    cat["identity_lane_input"] = [
+        (C.bits_f32(ins[t]) if spec["float_in"] else (int(ins[t]) & C.M32))
+        for t in range(32)]
 
     base = C.baseline_oracle(carrier)
     if base is not None:

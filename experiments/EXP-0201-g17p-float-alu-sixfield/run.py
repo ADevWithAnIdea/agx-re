@@ -30,6 +30,7 @@ import argparse
 import hashlib
 import json
 import os
+import random
 import subprocess
 import sys
 import time
@@ -45,6 +46,12 @@ import saferunner201 as SR       # noqa: E402
 
 PINNED = L.PINNED
 SafeRunner, _ = SR.make_classes(str(PINNED))
+
+DB_SHA = hashlib.sha256((PINNED / "db.json").read_bytes()).hexdigest()[:16]
+HARNESS_SHA = hashlib.sha256(
+    b"".join(sorted((HERE / "harness" / f).read_bytes()
+                    for f in ("carriers201.py", "models201.py", "locate201.py",
+                              "saferunner201.py")))).hexdigest()[:16]
 
 REQ_TIMEOUT = 8.0
 CONFIRM_ATTEMPTS = 3
@@ -126,6 +133,34 @@ class CarrierRunner:
         b[self.main_off + off:self.main_off + off + length] = self.patch_instr(
             bytes(self.main[off:off + length]), start, width, value)
         return bytes(b)
+
+    def ledger(self, blob, off, length, start, width, value, requested_bytes):
+        """GATE A -- the caller-to-ACTUAL-byte ledger.
+
+        `requested_bytes` is what we asked for. This re-extracts the instruction
+        from THE BLOB THAT IS ABOUT TO BE DISPATCHED, decodes the field value
+        back out of those actual bytes independently of the patch routine, and
+        records the program hash and offset. `ok` is the assertion
+        `requested value == value decoded from actual dispatched bytes`, and no
+        hardware conclusion may be drawn from a case where it is false.
+
+        This is the gate a symmetric assemble/disassemble round trip is NOT: a
+        requested bit an assembler cannot clear never appears here, because the
+        value is read back out of the dispatched program, not out of the
+        assembler's own model."""
+        a = off if off is None else self.main_off + off
+        actual = b"" if a is None else bytes(blob[a:a + length])
+        dec = None
+        if actual:
+            dec = (int.from_bytes(actual, "little") >> start) & ((1 << width) - 1)
+        return {"requested_value": value,
+                "requested_bytes": requested_bytes.hex() if requested_bytes else "",
+                "actual_bytes": actual.hex(),
+                "decoded_value": dec,
+                "ok": (dec == (value & ((1 << width) - 1))) if actual else False,
+                "program_sha256": hashlib.sha256(blob).hexdigest(),
+                "main_off": self.main_off, "instr_off": off,
+                "start": start, "width": width}
 
     def submit(self, blob):
         self.seq += 1
@@ -251,6 +286,7 @@ def env_report(run_dir, arms_path, run_id):
         "pinned_db_sha256": hashlib.sha256((PINNED / "db.json").read_bytes()).hexdigest(),
         "pinned_isadb_sha256": hashlib.sha256((PINNED / "isadb.py").read_bytes()).hexdigest(),
         "arms_sha256": hashlib.sha256(Path(arms_path).read_bytes()).hexdigest(),
+        "db_sha256_16": DB_SHA, "harness_sha256_16": HARNESS_SHA,
         "concurrent_gpu_procs": sh("bash", "-lc",
                                    "ps -Ao pid,comm | grep -E 'agxrun|rendersweep|gfrun|shdump'"
                                    " | grep -v grep | head -40"),
@@ -266,6 +302,12 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--carriers", default="")
     ap.add_argument("--limit-values", type=int, default=0)
+    ap.add_argument("--order", default="forward",
+                    choices=("forward", "reverse", "shuffle"),
+                    help="GATE E: a confirmation pair must run in reversed or "
+                         "shuffled case order, so an order-dependent artefact "
+                         "cannot masquerade as agreement.")
+    ap.add_argument("--seed", type=int, default=20260830)
     args = ap.parse_args()
 
     arms = json.loads(Path(args.arms).read_text())["arms"]
@@ -319,9 +361,13 @@ def main():
             off, ilen, start, width = a["off"], a["len"], a["start"], a["width"]
             bb = int.from_bytes(bytes.fromhex(a["baseline_bytes"]), "little")
             baseline_value = (bb >> start) & ((1 << width) - 1)
-            vals = a["values"]
+            vals = list(a["values"])
             if args.limit_values > 1:
                 vals = vals[::args.limit_values]
+            if args.order == "reverse":
+                vals = vals[::-1]
+            elif args.order == "shuffle":
+                random.Random(args.seed ^ hash(a["arm"]) & 0xFFFFFFFF).shuffle(vals)
             baseline(a["arm"] + ":open")
             for n, v in enumerate(vals):
                 pred = M.predict(a["instr"], a["field"], v, spec,
@@ -337,6 +383,8 @@ def main():
                     expect = spec["oracle"] if v == baseline_value else None
                 blob = cr.blob(off, ilen, start, width, v)
                 mm = cr.mutated_main(off, ilen, start, width, v)
+                led = cr.ledger(blob, off, ilen, start, width, v,
+                                mm[off:off + ilen])
                 tok = L.token_at(mm, off)
                 r = cr.measure(blob, expect)
                 emit(sweep, dict(
@@ -348,7 +396,9 @@ def main():
                             "predicted_token": pred["predicted_token"]},
                     role=a.get("role", "target"), occ=a.get("occ"),
                     off=off, instr_len=ilen, start=start, width=width,
-                    baseline_value=baseline_value,
+                    baseline_value=baseline_value, ledger=led,
+                    case_order=ncase, run_order=args.order,
+                    db_sha256=DB_SHA, harness_sha256=HARNESS_SHA,
                     note=a.get("note", ""), ts=time.time()))
                 ncase += 1
                 if n and n % BASELINE_EVERY == 0:

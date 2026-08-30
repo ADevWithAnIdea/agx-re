@@ -62,6 +62,35 @@ kernel void k_sr_hi(device uint *out [[buffer(0)]],
     out[tid]  = s + (lane + SR_BIAS) * 65536u;
 }
 
+// k_sr_dump: THE SECOND, DISJOINT READBACK PLAN for get_sr.dst_hi
+// (RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 6, "Sources and destinations":
+// seed all candidate sources with unique values and dump ALL architecturally
+// observable registers, not just one presumed destination; keep the
+// store/readback index FIXED while sweeping a destination).
+//
+// Sixteen values carrying UNIQUE CODEWORDS are kept live and every one of them
+// is stored, alongside the system value, at a FIXED index derived from the
+// thread id -- never from any field under test.  If relocating the system-value
+// write lands on a register that holds one of the codewords, the clobbered slot
+// is visible and says WHICH register was written; if it lands nowhere the
+// program reads, the system-value slot alone changes.  A single-slot read-back
+// (k_sr_c) cannot tell those two apart, which is the EXP-0168 failure this plan
+// exists to avoid.
+kernel void k_sr_dump(device uint *out [[buffer(0)]],
+                      device const uint *in [[buffer(1)]],
+                      device uint *sent [[buffer(4)]],
+                      uint tid [[thread_position_in_grid]],
+                      uint lane [[thread_index_in_simdgroup]])
+{
+    sent[tid] = SENT_BASE + tid;
+    uint v[16];
+    for (uint i = 0; i < 16u; ++i)
+        v[i] = in[tid * 16u + i] ^ (0xC0DE0000u + i * 0x1111u);
+    uint s = lane + SR_BIAS;
+    for (uint i = 0; i < 16u; ++i) out[tid * 17u + i] = v[i];
+    out[tid * 17u + 16u] = s;
+}
+
 // ------------------------------------------------------ fragment carriers ----
 
 struct SV { float4 pos [[position]]; };

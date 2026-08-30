@@ -172,10 +172,14 @@ def main():
             fn["%s|%s" % (run, arm)] = {"pairs": len(pairs), "identical": len(same)}
 
     # ---------- gen03 GENERATED encodings ---------------------------------
-    gen = [r for r in R["g17p_20260830_gen03"]]
-    gen_ok = [r for r in gen if r.get("outcome") == "ok"]
-    gen_info = {"records": len(gen), "ok": len(gen_ok),
-                "outcomes": dict(collections.Counter(r.get("outcome") for r in gen))}
+    # gen03 uses a DIFFERENT record schema: the per-case result is `verdict`, not
+    # `outcome`.  Reading `outcome` here returns None for every record and would make
+    # a "20/20 pass" claim look like 0/20.
+    gen = [r for r in R["g17p_20260830_gen03"] if r.get("gen") == "fspecial"]
+    gen_pass = [r for r in gen if r.get("verdict") == "pass"]
+    gen_info = {"fspecial_generated_records": len(gen), "pass": len(gen_pass),
+                "verdicts": dict(collections.Counter(r.get("verdict") for r in gen)),
+                "descs": sorted({r.get("desc") for r in gen})[:6]}
 
     # ---------- cited scripts exist ---------------------------------------
     cited = ["analysis/rederive_def1_fspecial.py", "analysis/def1_summary.py",
@@ -218,6 +222,14 @@ def main():
          "raw": danger,
          "ok": (danger["n_cases"] == dTot and danger["hang"] == dHang
                 and danger["victim_only"] == dVic and danger["worked"] == 0)},
+        {"claim": "N/N GENERATED `r_i = rsqrt(r_j)` encodings pass",
+         "claimed": N("fspecial.dst", r"(\d+)/(\d+) GENERATED `r_i = rsqrt\(r_j\)` "
+                                      r"encodings pass", 2),
+         "raw": gen_info,
+         "ok": (lambda c: c[0] == c[1] and gen_info["pass"] == c[0]
+                          and gen_info["fspecial_generated_records"] == c[1])(
+                 N("fspecial.dst", r"(\d+)/(\d+) GENERATED `r_i = rsqrt\(r_j\)` "
+                                   r"encodings pass", 2))},
         {"claim": "cited EXP-0165 scripts exist", "raw": exists,
          "ok": all(exists.values())}])
 
@@ -231,7 +243,13 @@ def main():
                         for r in GATED))},
         {"claim": "M/M where src != dst are released to zero", "claimed": sRel,
          "raw": {r: src_fit[r]["released_to_zero"] for r in GATED},
-         "ok": all(src_fit[r]["released_to_zero"] == sRel for r in GATED)}])
+         "ok": all(src_fit[r]["released_to_zero"] == sRel for r in GATED)},
+        {"claim": "N/N GENERATED encodings pass",
+         "claimed": N("fspecial.src", r"(\d+)/(\d+) GENERATED encodings pass", 2),
+         "raw": gen_info,
+         "ok": (lambda c: c[0] == c[1] and gen_info["pass"] == c[0]
+                          and gen_info["fspecial_generated_records"] == c[1])(
+                 N("fspecial.src", r"(\d+)/(\d+) GENERATED encodings pass", 2))}])
 
     ro, re_ = (N("fspecial.roundmode", r"(\d+)/(\d+) odd values all-NaN", 2),
                N("fspecial.roundmode", r"(\d+)/(\d+) even values bit-matching the baseline", 2))

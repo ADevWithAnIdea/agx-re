@@ -1,5 +1,40 @@
 {
  "abort_policy": "NO abort path: every value dispatches regardless of outcome. If TWO genuine hangs occur in one arm, that arm STOPS and is reported PARTIAL. macvdmtool is NEVER run; an unresponsive neo is reported BLOCKED.",
+ "amendments": [
+  {
+   "applies_before_any_run": true,
+   "change": "gated runs 2 -> 3; the reverse-order control moves from run02 to run03",
+   "id": "01",
+   "unchanged": [
+    "case matrix + sha256",
+    "oracle",
+    "falsifiers",
+    "controls",
+    "outcome domain",
+    "timeouts",
+    "G1..G7"
+   ],
+   "utc": "2026-08-30",
+   "why": "tools/agx-isa/wave_audit.py (the arrival gate) keys observations by `value` alone and compares the two lexicographically first run dirs; with four arms per value a reversed run02 would make a clean sweep read as 0% cross-run agreement in that tool. Both pairings are reported by this experiment's own gate."
+  },
+  {
+   "applies_before_any_gated_run": true,
+   "change": "half_pack oracle gains the measured source-lane RELEASE; records gain `released_lanes` (observation) and `oracle_result_match` (diagnostic, NOT a gate)",
+   "id": "02",
+   "unchanged": [
+    "case matrix + sha256",
+    "field spans",
+    "falsifiers",
+    "controls",
+    "outcome domain",
+    "timeouts",
+    "G1..G7",
+    "forced untested on ext"
+   ],
+   "utc": "2026-08-30T19:14:19Z",
+   "why": "pilot01 refuted all seven frozen half_pack candidates for a side effect none of them expressed; the arithmetic member was correct. The release is keyed by the field under test, so the corrected oracle is MORE discriminating."
+  }
+ ],
  "case_matrix": {
   "n_cases": 5296,
   "sha256": "d34b2f121afb6d1308bd30a749802593f41a8f63f5f41288b2b059f410ad8e00"
@@ -28,6 +63,7 @@
    "pack(B<<16|A)"
   ],
   "halfpack_model_primary": "hi=fp16(B+A) -> r[byte0>>4].hi, low half preserved",
+  "halfpack_model_selected_by_pilot": "hi=fp16(B+A) PLUS release (zero) of both named source half-lanes -- 80/80 on pilot01, where every release-free candidate scored 2/80. See PRE_REGISTRATION Amendment 02.",
   "precision": "binary64 evaluation, ONE rounding to binary16 RNE (fused). The two-rounding prediction is recorded per case as `alt2r`.",
   "subnormal_and_overflow": "flagged per case; a flush-to-zero result is a HARDWARE fact and is not charged against the field",
   "unseeded_registers": "predicted to read 0; verified per run by __ctl_unseeded"
@@ -97,14 +133,39 @@
  "runs": {
   "gated": [
    "g17p_run01",
-   "g17p_run02"
+   "g17p_run02",
+   "g17p_run03"
   ],
+  "order": {
+   "g17p_run01": "forward",
+   "g17p_run02": "forward",
+   "g17p_run03": "reverse"
+  },
   "pilot": [
    "pilot01"
   ],
   "reuse_policy": "run ids are NEVER reused or topped up; a partial capture is retained and a replacement takes a NEW id"
  },
  "source_sha256": {
+  "PRE_REGISTRATION.md": "2b0f39ccc80825ef7557e4417d0aae5af3499a6108fa0c2e6103db15b8312172",
+  "analysis/fit_model_offline.py": "fdc010456944d1244fa8070b8594425567416ec43930ab291a610f1c31f8e87d",
+  "analysis/verdicts.py": "722adcc41f9aaa966dd4536649dc37a72b1b6e7ac9f6ae916705173aa8765b31",
+  "harness/casematrix.py": "1cf84ffdc18f4dc9ab732c9a27b9e8a1d147610e6702aac4c56923de34042e73",
+  "harness/isa_helpers.py": "b68e3ee5bb31a806e4b6a2adee3b2988f4ac9d628b6a13390ebb028826a054a1",
+  "harness/oracle.py": "0526d8aa56b1201addc33efc86ebd9968d04593856d4375594eb6a8b31ed6176",
+  "harness/procsample.py": "1ea8940479b4a0fa8fb8f82022ed4dc873114ffa2ff6db0ec52e8b5c305fa09e",
+  "harness/run.py": "267436fd08bf4840a00fe4f409c22249762bf29d58de450be7d117c5234ef035",
+  "harness/saferunner.py": "050c1a772dc2511519e266b232c8e30d97dc59a49101d282ca8b935873e9c15d",
+  "harness/selftest.py": "cb25111c1cae525bbf4b4ec326693232fcf64c99daa4c732c5f2f4c64e814817",
+  "harness/verify_remote.py": "c461cb9e9a950e8dafd98738aab0054848126f47311a3460627b375d9e2b2942",
+  "kernels/carrier_a.metal": "5d1ec03cd87a461fa1aa685a1ef128d9a52837a76217d6cf08663ac62b136f84",
+  "kernels/carrier_b.metal": "943403b42053da9e5db134c11af8f6308c3e0a0ba533070b94cb8f6ccb7f8234",
+  "kernels/probes.metal": "8ab2e7577b0b5aec9f68822af65ebbe0b1f1bf2bed79aaab86910abb0857e102",
+  "work/frozen/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "work/frozen/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "work/stub/fakerunner.py": "495d7d62c3e2dfc50935fe21f0d913bccf47a37a14326831428c0c11087c1245"
+ },
+ "source_sha256_at_freeze": {
   "PRE_REGISTRATION.md": "17a550cf9e842c8663c2328b10e9c77084fe31c5f967f050521c2eed52329153",
   "analysis/fit_model_offline.py": "fdc010456944d1244fa8070b8594425567416ec43930ab291a610f1c31f8e87d",
   "analysis/verdicts.py": "722adcc41f9aaa966dd4536649dc37a72b1b6e7ac9f6ae916705173aa8765b31",

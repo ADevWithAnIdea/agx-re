@@ -148,11 +148,15 @@
     }
    },
    {
-    "claim": "C3_two_acceptance_disagreements",
+    "claim": "C3_acceptance_disagreements",
     "claimed": {
      "byte+6": [
       "0x30",
       "0x31"
+     ],
+     "indices": [
+      97,
+      99
      ],
      "n": 2
     },
@@ -442,11 +446,15 @@
     }
    },
    {
-    "claim": "C3_two_acceptance_disagreements",
+    "claim": "C3_acceptance_disagreements",
     "claimed": {
      "byte+6": [
       "0x30",
       "0x31"
+     ],
+     "indices": [
+      97,
+      99
      ],
      "n": 2
     },
@@ -474,7 +482,7 @@
    }
   ],
   "label": "hardware-run",
-  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x32 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22.",
+  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22.",
   "verdict": "SUPPORTED"
  },
  "atomic_rmw.oper_reg_lo": {

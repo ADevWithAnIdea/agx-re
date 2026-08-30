@@ -1,0 +1,218 @@
+{
+ "abort_path": "NONE. No hang budget (FIELD-SWEEP-PROTOCOL 3c).",
+ "amendments": [
+  {
+   "n": 1,
+   "utc": "2026-08-30T19:15:37Z",
+   "what": "Occurrence acceptance widened to allow a BOUNDED RESYNC past an instruction the pinned db.json cannot decode, and an explicit rejection of signature hits that lie INSIDE a decoded instruction.",
+   "why": "The pre-freeze census found that every NON-LEAF callee our compiler emits ends with the 6-byte word `ef 02 54 00 00 50`, which the pinned DB has no descriptor for, immediately before the non-leaf return `8f 12 54 00`. A pure linear walk dies just short of the ONLY occurrences in the corpus carrying linkmode 0x12 -- exactly the value the leaf-only carriers of the withdrawn `ret_luse.linkmode` measurement could never reach. Keeping the unamended rule would have silently reproduced that blind spot. Separately, `call` carries a literal 0x8f at byte+4, so every direct call produces a spurious `ret` signature hit four bytes in; those are now rejected explicitly."
+  },
+  {
+   "n": 2,
+   "utc": "2026-08-30T19:15:37Z",
+   "what": "Added target `stop.reserved@synth_mid`: a CONSTRUCTED mid-program stop, built by overwriting the optional 4-byte `frame_marker` with `0e 00 00 00`.",
+   "why": "H6 assumed a kernel with an out-of-line callee would place the callee after the main body's stop, giving a mid-program terminator for free. The census REFUTED that: the callee lives in its own symbol region and `follows_code` is False at all nine natural stops. Without a constructed one there is no positive control in the termination dimension at all, and FIELD-SWEEP-PROTOCOL section 9 would force UNRESOLVED by default rather than by measurement."
+  },
+  {
+   "n": 3,
+   "utc": "2026-08-30T19:15:37Z",
+   "what": "Carrier lists for `if_push.scope` and `pop_reconverge.scope` trimmed from six loop shapes to four, and `cl_atomic` added to `pop_reconverge.scope`.",
+   "why": "Device-time budget, plus a census finding: `cl_atomic`'s compiled pop is `0f 06 24 02 00 00` -- scope 0x24, the OTHER documented bank -- while every loop carrier emits 0x04, so the compiler itself spans the dimension across the amended set. The two dropped loop shapes add no dimension value the four retained ones do not already carry."
+  },
+  {
+   "n": 4,
+   "utc": "2026-08-30T19:15:37Z",
+   "what": "`not_written` reclassified from HARD to a VALID payload.",
+   "why": "Pilot p01 (calibration): the synthesized mid-program stop returns sentinel-present + all 32 value words still POISON. That is a valid execution with the most informative payload in the experiment -- it is HOW a terminator announces itself -- and scoring it hard would have deleted the very observation the termination-dimension positive control exists to make. `invalid_run` (sentinel MISSING) remains hard."
+  }
+ ],
+ "arms": {
+  "n_arms": 132,
+  "n_cases": 12173,
+  "n_no_occurrence": 0,
+  "sha256": "8fe0cc7bc58cebd1faa539c01f84b2d79583891c4b5fcdf6bdf855e272439778"
+ },
+ "calibration_not_citable": [
+  "raw/prefreeze/**",
+  "analysis/census.py",
+  "analysis/dump_walk.py",
+  "any --limit-values run",
+  "raw/*pilot*"
+ ],
+ "experiment": "EXP-0206",
+ "files": {
+  "PRE_REGISTRATION.md": {
+   "bytes": 19064,
+   "sha256": "54d65f61370b2bbab07661746cee131dfe653f312039e5c512c12617d5b3bd12"
+  },
+  "PROGRESS.md": {
+   "bytes": 1889,
+   "sha256": "a2f570e9baf425bb5045a57696e2f77d6ece97ad3ef48236b12f93ab34e7a523"
+  },
+  "analysis/census.py": {
+   "bytes": 6804,
+   "sha256": "ae70001308e055e02bf835f0fccb9cbf0836bdfb49effeebda51cd893377caee"
+  },
+  "analysis/dump_walk.py": {
+   "bytes": 1236,
+   "sha256": "0d67565b5340360d8dc55e095bb5f8de6dad03d961ad96dcd919edee778125c8"
+  },
+  "analysis/freeze_contract.py": {
+   "bytes": 9043,
+   "sha256": "a546807ecce7d423e8f503045506bcbcb81ceb092c08312ff60ef6f5b28ea5ba"
+  },
+  "analysis/gen_arms.py": {
+   "bytes": 11971,
+   "sha256": "02cb29c484a6a2ce2c3febd5034f310f2c3171e62650f96564b9278b15406050"
+  },
+  "analysis/targets206.py": {
+   "bytes": 15125,
+   "sha256": "c35a705a2701f2dbddf901ab28bb1475fb7398713943a12f169270f6c402d76b"
+  },
+  "harness/arms206.json": {
+   "bytes": 262680,
+   "sha256": "8fe0cc7bc58cebd1faa539c01f84b2d79583891c4b5fcdf6bdf855e272439778"
+  },
+  "harness/carriers206.py": {
+   "bytes": 8828,
+   "sha256": "9c8824dc5560df74cea0ac7dc280dac63473a0eb81c3ae582102a83f3fdced5c"
+  },
+  "harness/locate206.py": {
+   "bytes": 11765,
+   "sha256": "4cbe5cb0daae3d8372fcc6fbec8288e5e12cd1f949c7584a7e871c4ea88271d5"
+  },
+  "harness/saferunner206.py": {
+   "bytes": 10121,
+   "sha256": "ed4757cf87aa831f513633de8e411de223fcc397d842ad32b867148b0c4c929b"
+  },
+  "harness/sync.sh": {
+   "bytes": 2490,
+   "sha256": "cde9b2fa13654c55a11db0731c5f50c8041b6c7d896be38d50a3265bbebecf2d"
+  },
+  "harness/verify_remote.py": {
+   "bytes": 2475,
+   "sha256": "0e58c7689914c41c8671c60cb7e255fdda43b559a5b1178aa8adf0414d124587"
+  },
+  "kernels/k_cf206.metal": {
+   "bytes": 7125,
+   "sha256": "38e694d83c40d47b6f5b2702743a0ffd9f5eeb553dff35041d4de862b6855f11"
+  },
+  "kernels/k_cl206.metal": {
+   "bytes": 10172,
+   "sha256": "25fbc7d2a33f2b016f8949e3f35e1bc188a4b0db95e23f8b495a9e21ecb1ec09"
+  },
+  "pinned/agxparse.py": {
+   "bytes": 18730,
+   "sha256": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f"
+  },
+  "pinned/agxrun_persist.m": {
+   "bytes": 11492,
+   "sha256": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834"
+  },
+  "pinned/db.json": {
+   "bytes": 492322,
+   "sha256": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4"
+  },
+  "pinned/isadb.py": {
+   "bytes": 153544,
+   "sha256": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f"
+  },
+  "pinned/persistrun.py": {
+   "bytes": 8108,
+   "sha256": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8"
+  },
+  "pinned/shdump.m": {
+   "bytes": 8572,
+   "sha256": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+  },
+  "run.py": {
+   "bytes": 20584,
+   "sha256": "739624c06df022924573842ae1bc3f6dc01afa68f6e209fd9f7ed250b9d13089"
+  }
+ },
+ "frozen_utc": "2026-08-30T19:15:37Z",
+ "gated_runs": [
+  "g17p_20260830_run01",
+  "g17p_20260830_run02"
+ ],
+ "pilot_findings_calibration_only": {
+  "call.offset -8": "still correct: the target lands in the 8 bytes of pad before the callee and falls through. The FORWARD deltas are the ones expected to fire.",
+  "final stop byte0 -> 0x00": "ok, program still correct -- the FINAL stop is not a terminator on G17P, reconfirming EXP-0003/EXP-0010, so the termination control does NOT fire there",
+  "synthesized mid-program stop": "not_written (sentinel present, 32 words poison) -- a MID-PROGRAM stop DOES terminate; the control FIRES",
+  "throughput_s_per_case": 0.234
+ },
+ "raw_schema": {
+  "class": "the wave_audit.py HARD token when the case is a hard outcome, null otherwise. Hard outcomes are NEVER movement.",
+  "keys": [
+   "carrier",
+   "arm",
+   "key",
+   "region",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "token",
+   "observed",
+   "vals",
+   "oracle",
+   "match",
+   "prediction_ok",
+   "outcome",
+   "class",
+   "status",
+   "statuses",
+   "fault_classes",
+   "innocent_retries",
+   "gputime_ns",
+   "role",
+   "occ",
+   "occ_dim",
+   "off",
+   "instr_len",
+   "start",
+   "width",
+   "note",
+   "ts",
+   "synthesized"
+  ],
+  "observed": "{vh: sha256-12 of the 32 value words, sent: sentinel word, nunwritten: count of words still POISON, tail_ok: bool}. gputime_ns is DELIBERATELY NOT in `observed` -- it varies run to run and would manufacture movement from scheduling noise.",
+  "one_json_object_per_case_flushed_and_fsynced": true,
+  "outcome": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "not_written",
+   "wrong_value",
+   "fault",
+   "hang",
+   "invalid_run",
+   "nondeterministic",
+   "measurement_failure"
+  ],
+  "path": "raw/<run_id>/sweep.jsonl",
+  "vals": "the full 32-word vector, retained on EVERY non-matching case and on every baseline, so a deviation is fully reconstructible"
+ },
+ "repo_dirty": true,
+ "repo_revision_recorded_not_gated": "9bbc5d0b824935fcb131eae193b3868b45db6f14",
+ "retries": {
+  "canary_retries": 3,
+  "confirm_attempts": 3,
+  "innocent_retries": 3
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "device": "Apple A18 Pro / G17P",
+  "family": "Apple9",
+  "host": "192.168.170.254",
+  "os": "macOS 26.6 (25G5043d)",
+  "remote_dir": "~/agxre/EXP-0206"
+ },
+ "timeouts": {
+  "compile_s": 600,
+  "per_request_watchdog_s": 8.0,
+  "ssh_alarm_s": 900
+ }
+}

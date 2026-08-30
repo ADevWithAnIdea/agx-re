@@ -351,3 +351,39 @@ for anything. The amendment changes *where we look*, never *what counts*.
 `B3_VALUES`, and the whole of target 1. The contract is re-frozen as v2; v1 is
 retained at `raw/prefreeze/CAPTURE_CONTRACT.v1.json` and the pre-registration
 revision is carried forward verbatim.
+
+### A2 — hole caps raised from 2/2 to 6/4 (2026-08-30, still pre-freeze)
+
+**What changed.** `RULER_HOLES_PER_CARRIER` 2 → 6 and
+`TRANSPARENCY_HOLES_PER_MNEMONIC` 2 → 4 in `analysis/gen_arms200.py`.
+
+**Why, from the pre-freeze probe** (`raw/prefreeze/holeprobe01`, 159 records,
+which **no verdict may cite**). All ten carriers compiled, started, and returned
+their exact non-zero host oracle unmutated (12.5 / 122 / 111 / 22 / 18 / 30 /
+1 / 4 / 11 / 6, sentinel intact in every one). But the reachability control
+admitted ruler holes on only **three** carriers — `cw_trans` 6/37, `cw_bar` 3/4,
+`cw_mix` 1/2 — and **zero** on all four `intersection_query` carriers.
+
+The reason is measured, not guessed: the pinned tokenizer's walk stops at 60–62
+tokens on every RT program, so **every** ruler candidate it can produce lies in
+the first ~400 bytes of a 8 124–11 932-byte `_agc.main` — i.e. in the prologue,
+**before** the store of the integrity sentinel. A `stop` planted there halts the
+program before `out[1] = 7.5` is written, so the read-back is all-poison, which
+is exactly the "reported OK and wrote nothing" signature EXP-0160 saw 25 times
+and which cannot be told apart from a contaminated dispatch. `run200.py` scores
+it `invalid_run` and re-runs it, which is the correct conservative reading, and
+those holes are therefore barred. **That is a limitation of the instrument on RT
+carriers and it is reported as one, not worked around.**
+
+Raising a cap takes **more of the same mechanically-ordered admitted list**. It
+does not change the ordering (earliest first, non-overlapping), the admission
+test, or the gate, so it cannot shop for an outcome. After A2 the ruler arm has
+**9 admitted holes across 3 carriers**, which clears the gate's "≥ 2 holes in
+≥ 2 carriers" on its own.
+
+**Consequence to state plainly in RESULTS:** the ruler measures the four-byte
+candidates (`rtq_pred`, `n4_cf_word`, `n4_rt_word`) **in compute carriers**,
+because no RT ruler hole could be admitted. Length is a property of the decoder,
+but a context-dependent length rule would not be visible to this arm, and that
+limitation is recorded. The RT context is covered instead by the transparency
+arm, whose holes (offsets 966–10 234) sit well past the prologue.

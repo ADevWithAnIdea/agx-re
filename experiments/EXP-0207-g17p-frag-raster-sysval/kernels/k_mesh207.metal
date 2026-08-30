@@ -109,6 +109,78 @@ void mesh_wide3(tri_wide out, const object_data Payload &pl [[payload]],
     }
 }
 
+// MINIMAL-DELTA VARIANTS.  The census (raw/prefreeze/census01) measured that
+// mesh_wide2 and mesh_wide3 emit NO `mesh_out_src` at all, while mesh_wide --
+// whose geometry is degenerate -- emits exactly one.  That is a first-class
+// result about how fragile the op's emission is, and it says the earlier
+// rewrites changed too much at once.  These three change ONLY the position
+// expression, keeping every payload assignment byte-for-byte as mesh_wide has
+// it, so a carrier that both emits the op and covers pixels can be found by
+// bisection rather than by guessing.
+
+// P1: the same `float4(<float expr>, <float expr>, 0, 1)` shape, with the two
+// expressions chosen so the four triangles have real area and cover the frame.
+[[mesh, max_total_threads_per_threadgroup(12)]]
+void mesh_wideP1(tri_wide out, const object_data Payload &pl [[payload]],
+                 uint lane [[thread_index_in_threadgroup]]) {
+    if (lane == 0) out.set_primitive_count(4);
+    float f = float(lane) * 0.1f * pl.scale;
+    float ax = ((lane % 3u) == 1u) ? 0.9f : -0.9f;
+    float ay = ((lane % 3u) == 2u) ? 0.9f : -0.9f;
+    VWide v;
+    v.position = float4(ax + f * 0.01f, ay + f * 0.01f, 0.0, 1.0);
+    v.c0 = float4(f, 0, 0, 1); v.c1 = float4(0, f, 0, 1);
+    v.c2 = float4(0, 0, f, 1); v.n = float3(0, 0, 1); v.u = f;
+    out.set_vertex(lane, v); out.set_index(lane, uchar(lane));
+    if (lane < 4) {
+        PWide p; p.pnormal = float3(0, 0, 1);
+        p.pcolor = float4(float(lane), 0, 0, 1); p.pid = lane;
+        out.set_primitive(lane, p);
+    }
+}
+
+// P2: mesh_wide with ONLY the y expression changed (x untouched), so the
+// triangles stop being collinear with the smallest possible edit.
+[[mesh, max_total_threads_per_threadgroup(12)]]
+void mesh_wideP2(tri_wide out, const object_data Payload &pl [[payload]],
+                 uint lane [[thread_index_in_threadgroup]]) {
+    if (lane == 0) out.set_primitive_count(4);
+    float f = float(lane) * 0.1f * pl.scale;
+    VWide v;
+    v.position = float4(f * 4.0f - 1.5f, f * f * 30.0f - 1.2f, 0.0, 1.0);
+    v.c0 = float4(f, 0, 0, 1); v.c1 = float4(0, f, 0, 1);
+    v.c2 = float4(0, 0, f, 1); v.n = float3(0, 0, 1); v.u = f;
+    out.set_vertex(lane, v); out.set_index(lane, uchar(lane));
+    if (lane < 4) {
+        PWide p; p.pnormal = float3(0, 0, 1);
+        p.pcolor = float4(float(lane), 0, 0, 1); p.pid = lane;
+        out.set_primitive(lane, p);
+    }
+}
+
+// P3: mesh_wide verbatim except that ONE primitive count is used and the
+// positions are scaled up so the (still collinear) line becomes a wide fan --
+// the smallest edit that can put a covered pixel on screen without touching the
+// payload assignments at all.
+[[mesh, max_total_threads_per_threadgroup(12)]]
+void mesh_wideP3(tri_wide out, const object_data Payload &pl [[payload]],
+                 uint lane [[thread_index_in_threadgroup]]) {
+    if (lane == 0) out.set_primitive_count(4);
+    float f = float(lane) * 0.1f * pl.scale;
+    float g = (lane % 3u == 0u) ? -0.9f : ((lane % 3u == 1u) ? 0.9f : -0.9f);
+    float h = (lane % 3u == 2u) ? 0.9f : -0.9f;
+    VWide v;
+    v.position = float4(g, h * 2.0f - f, 0.0, 1.0);
+    v.c0 = float4(f, 0, 0, 1); v.c1 = float4(0, f, 0, 1);
+    v.c2 = float4(0, 0, f, 1); v.n = float3(0, 0, 1); v.u = f;
+    out.set_vertex(lane, v); out.set_index(lane, uchar(lane));
+    if (lane < 4) {
+        PWide p; p.pnormal = float3(0, 0, 1);
+        p.pcolor = float4(float(lane), 0, 0, 1); p.pid = lane;
+        out.set_primitive(lane, p);
+    }
+}
+
 struct FragInW { VWide v; PWide p; };
 fragment float4 frag_wide(FragInW in [[stage_in]]) {
     return in.v.c0 + in.p.pcolor * 0.5f

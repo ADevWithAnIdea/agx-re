@@ -99,6 +99,11 @@ typedef struct { int idx; unsigned n; unsigned *vals; } BufU32Spec;
 //  * READBACK_POISON pre-fills every host read-back buffer, so a getBytes that
 //    silently does not write is reported as poison rather than as zeros.
 static unsigned long gReqSeq = 0;
+// GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS sec.3): ACTUAL-BYTE LEDGER windows.
+// Printed from the file RE-READ FROM DISK after splicing, i.e. the exact bytes
+// handed to newLibraryWithURL:.  EXP-0199 amendment 01.
+static long gLedgerOff[8]; static long gLedgerLen[8]; static int gNLedger = 0;
+static BOOL gLedgerEmitted = NO;
 static const unsigned char READBACK_POISON[4] = {0xEF, 0xBE, 0xAD, 0xDE}; // 0xDEADBEEF LE
 
 static void poison(unsigned char *p, size_t n) {
@@ -221,7 +226,7 @@ static void printHex(const char *tag, const unsigned char *p, size_t n) {
 }
 
 static void respond_fail(const char *rid, const char *status, const char *msg, NSError *err) {
-    if (rid) printf("REQ %s\n", rid);
+    if (rid && !gLedgerEmitted) printf("REQ %s\n", rid);
     printf("STATUS %s\n", status);
     if (err) {
         NSString *d = [[err localizedDescription] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
@@ -238,6 +243,7 @@ static void respond_fail(const char *rid, const char *status, const char *msg, N
 // Execute one render with the given splices. Returns 0 on success.
 static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
   @autoreleasepool {
+    gLedgerEmitted = NO;
     NSError *err = nil;
 
     // 1. Patch a scratch copy of the base archive at raw byte offsets.
@@ -278,6 +284,13 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
                 return 1;
             }
         }
+        if (rid && gNLedger) printf("REQ %s\n", rid);
+        for (int i = 0; i < gNLedger; i++) {
+            if ((size_t)(gLedgerOff[i] + gLedgerLen[i]) > [rb length]) continue;
+            char t[32]; snprintf(t, sizeof t, "ACTUAL %ld", gLedgerOff[i]);
+            printHex(t, rp + gLedgerOff[i], (size_t)gLedgerLen[i]);
+        }
+        gLedgerEmitted = (rid != NULL) && gNLedger > 0;
     }
 
     // 2. Fresh MTLLibrary from the SPLICED archive's own bytes every request.
@@ -432,7 +445,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
         return 1;
     }
 
-    if (rid) printf("REQ %s\n", rid);
+    if (rid && !gLedgerEmitted) printf("REQ %s\n", rid);
     printf("STATUS OK\n");
     printf("SENTINEL OK %d\n", nspl);
     size_t bpp = bytesPerPixel(gColorFmt);
@@ -567,7 +580,8 @@ enum { O_SRC = 256, O_VTX, O_FRAG, O_ARCH, O_SCRATCH, O_CFMT, O_W, O_H, O_SAMPLE
        O_DEPTH, O_DEPTHCLEAR, O_DEPTHCMP, O_DEPTHWRITE, O_OCC, O_RTCOUNT, O_CLEAR,
        O_BUFU32, O_OUTBUF, O_SPLICE, O_PERSIST, O_NOFM, O_BUILD, O_RESOLVE,
        O_TEXSAMP, O_TEXWRITE, O_TEXEXTRA, O_TEXDEPTH,
-       /* EXP-0163 */ O_RTARRAY, O_TWARR, O_TW3D, O_TWHALF, O_TWUINT };
+       /* EXP-0163 */ O_RTARRAY, O_TWARR, O_TW3D, O_TWHALF, O_TWUINT,
+       /* EXP-0199 amendment 01 */ O_LEDGER };
 static struct option L[] = {
     {"source", required_argument, 0, O_SRC}, {"vertex", required_argument, 0, O_VTX},
     {"fragment", required_argument, 0, O_FRAG}, {"archive", required_argument, 0, O_ARCH},
@@ -586,6 +600,7 @@ static struct option L[] = {
     {"tex-write", required_argument, 0, O_TEXWRITE},
     {"tex-extra", no_argument, 0, O_TEXEXTRA},
     {"tex-depth", required_argument, 0, O_TEXDEPTH},
+    {"ledger", required_argument, 0, O_LEDGER},
     /* EXP-0163 */
     {"rt-array", required_argument, 0, O_RTARRAY},
     {"tex-write-arr", required_argument, 0, O_TWARR},
@@ -612,6 +627,9 @@ int main(int argc, char **argv) { @autoreleasepool {
         case O_H: gH = strtol(optarg, NULL, 0); break;
         case O_SAMPLES: gSamples = (int)strtol(optarg, NULL, 0); break;
         case O_DEPTH: gWantDepth = YES; break;
+        case O_LEDGER: { char *c2 = strchr(optarg, ':'); if (!c2) return 2; *c2 = 0;
+                         gLedgerOff[gNLedger] = strtol(optarg, NULL, 0);
+                         gLedgerLen[gNLedger] = strtol(c2 + 1, NULL, 0); gNLedger++; break; }
         case O_DEPTHCLEAR: gDepthClear = strtof(optarg, NULL); break;
         case O_DEPTHCMP: gDepthCompare = (int)strtol(optarg, NULL, 0); break;
         case O_DEPTHWRITE: gDepthWrite = strtol(optarg, NULL, 0) != 0; break;
