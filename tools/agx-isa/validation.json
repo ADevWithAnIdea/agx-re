@@ -6267,15 +6267,15 @@
    },
    "b6": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), 2 carriers",
+    "range": "0..255 dense on three carriers. Legal iff BIT 1 IS SET -- 128 of 256, so `encodable_range` is 128, not 256.",
     "target": "G17P",
     "evidence": [
      "EXP-0179"
     ],
-    "note": "",
+    "note": "CORRECTED BY THE EXPERIMENT ITSELF, 2026-08-30. EXP-0179 first reported `b6` INERT across 0..255 on both GENERATED carriers; its independent second method (arm S, mutating the real compiler-emitted call inside our own compiled `c_frame.metal`) shows BIT 1 IS LOAD-BEARING and must be set. The generated leaf callee is BLIND to that dimension -- the same failure shape as `ret.scoreboard`, and caught by a second method rather than by argument. An emitter must set bit 1. This is why a single carrier family, however dense the sweep, cannot establish inertness: FIELD-SWEEP-PROTOCOL requires carriers differing in the dimension the field controls, and two generated carriers that share a leaf callee do not differ in it.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
-    "encodable_range": 256
+    "encodable_range": 128
    },
    "offset": {
     "label": "isolated-byte-diff",

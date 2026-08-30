@@ -427,7 +427,14 @@ def main():
             def restart():
                 runner.restart()
 
-        recovery = {"restarts": 0, "retries": 0, "collateral": 0, "unrecovered": 0}
+        recovery = {"restarts": 0, "retries": 0, "collateral": 0, "unrecovered": 0,
+                    "consecutive_unrecovered": 0}
+        # NOT a hang budget (rule 3(c) forbids one, and this experiment has none).
+        # This is a HARNESS/DEVICE HEALTH stop: if the UNSPLICED carrier itself
+        # will not run after five consecutive full 40 s recovery cycles, the
+        # device or the child is gone and every later case would be a
+        # 40-second-per-case artefact rather than an observation.
+        MAX_CONSECUTIVE_UNRECOVERED = 5
         OWN_FAULT = "Caused GPU Hang Error"
         COLLATERAL = ("Discarded (victim", "Ignored (for causing prior")
 
@@ -473,7 +480,9 @@ def main():
             n = wait_for_health()
             if n < 0:
                 recovery["unrecovered"] += 1
+                recovery["consecutive_unrecovered"] += 1
                 return None, r, 99, 6
+            recovery["consecutive_unrecovered"] = 0
             g2, r2 = raw_case(arcpath, **kw)
             return g2, r2, n, 7
 
@@ -772,6 +781,16 @@ def main():
                 # 0x60) and `extmode` (v >= 0xFC) exactly, in the gated run,
                 # with no mapping pass. The only stop is a GLOBAL circuit
                 # breaker against a runaway.
+                if recovery["consecutive_unrecovered"] >= MAX_CONSECUTIVE_UNRECOVERED:
+                    emit({"kind": "arm_stopped_unrecoverable", "arm": arm["arm"],
+                          "field": fname, "recovery": recovery,
+                          "reason": "the UNSPLICED carrier failed to run after %d "
+                                    "consecutive full recovery cycles: the device or "
+                                    "the child is gone, so later cases would be "
+                                    "artefacts, not observations. This is a harness/"
+                                    "device health stop, NOT a hang budget."
+                                    % MAX_CONSECUTIVE_UNRECOVERED})
+                    break
                 if hangs_total >= hp["global_circuit_breaker"]:
                     emit({"kind": "run_stopped", "arm": arm["arm"], "field": fname,
                           "reason": "global circuit breaker %d hangs"
@@ -779,7 +798,8 @@ def main():
                           "hang_values": hang_values,
                           "contiguous": _contiguous(hang_values)})
                     break
-            if hangs_total >= hp["global_circuit_breaker"]:
+            if hangs_total >= hp["global_circuit_breaker"] or \
+               recovery["consecutive_unrecovered"] >= MAX_CONSECUTIVE_UNRECOVERED:
                 break
 
         emit({"kind": "arm_done", "arm": arm["arm"], "seconds": round(time.time() - t_arm, 1),

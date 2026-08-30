@@ -12,6 +12,19 @@
    "note": "Nothing had been dispatched when this was adopted; the experiment was still entirely offline.",
    "source": "coordinator message relaying two EXP-0179 findings",
    "utc": "2026-08-30"
+  },
+  {
+   "before_any_device_dispatch": true,
+   "changes": [
+    "harness/saferunner.py :: SafePersistRunner adopted; shared tools untouched",
+    "new outcome class measurement_failed for MALFORMED responses, with raw lines kept and exclusion from values_dispatched",
+    "post-hang quarantine with an unspliced health check and re-run of the affected span",
+    "dispatch geometry promoted to a pilot-checked carrier variable (grid=1/tg=1 vs grid=32/tg=32)"
+   ],
+   "id": "amendment_02",
+   "note": "Nothing had been dispatched when this was adopted; the experiment was still entirely offline.",
+   "source": "coordinator message relaying EXP-0178's persistrun reader-thread defect and its get_sr geometry root-cause",
+   "utc": "2026-08-30"
   }
  ],
  "arms": [
@@ -134,6 +147,28 @@
   "gate_stable_min_agree_pct": 99.0,
   "rt_ok": "RECORDED, NEVER CITED. A round trip is not an emitter gate (EXP-0170)."
  },
+ "geometry": {
+  "decision_rule": "if any ladder step's pass/fail or any falsifier's outcome differs between the two geometries, the arm is RE-BASED to the geometry in which the ladder passes, the difference is reported as a first-class result, and 00_arm_resolution.json records the geometry each arm actually ran at. If they agree, the gated pair runs at grid=1/tg=1 and RESULTS.md says the check was run and agreed.",
+  "gated_default": {
+   "grid": 1,
+   "tg": 1
+  },
+  "pilot_check": {
+   "geometries": [
+    {
+     "grid": 1,
+     "tg": 1
+    },
+    {
+     "grid": 32,
+     "tg": 32
+    }
+   ],
+   "record": "raw/pilot01/geometry.jsonl",
+   "scope": "anchor + full liveness ladder + all four falsifiers, per (arm,carrier)"
+  },
+  "why": "EXP-0178 root-caused EXP-0169's get_sr ladder failure as GEOMETRY, not the field: k_sr ran at grid=1/tg=1 where every reachable system value reads 0 (EXP-0169 casematrix.py:78). None of EXP-0180's 16 fields is a system-value read and the half ALU works on lanes WITHIN a register, so grid=1 is expected to be adequate -- but that is measured, not asserted."
+ },
  "pinned_isa": {
   "assert_at_run_start": true,
   "db_json_sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
@@ -177,7 +212,9 @@
    "attempts",
    "predict",
    "note",
-   "foreign"
+   "foreign",
+   "resp_raw",
+   "geometry"
   ],
   "observed": [
    "pre",
@@ -203,7 +240,8 @@
    "hang",
    "undecodable",
    "invalid_run",
-   "carrier_dead"
+   "carrier_dead",
+   "measurement_failed"
   ],
   "path": "raw/<run_id>/sweep.jsonl"
  },
@@ -211,6 +249,15 @@
   "gate_rule": "captures are validated against the AUTHORED BLOB HASHES below, never against live HEAD (SUBAGENT_BRIEF.md)",
   "revision_at_preregistration": "db7c3c957a8788b8589978a48c044b049dde2cc2",
   "worktree_dirty": true
+ },
+ "runner": {
+  "defect_worked_around": "persistrun.py starts a fresh reader thread per line and abandons it on timeout; the abandoned thread re-resolves self.proc at execution time and wakes on the REPLACEMENT child's stdout, racing the foreground reader. Truncated 'OUT 0 ' lines then raise ValueError in the shared parser. EXP-0178 pilot02: one genuine hang poisoned every later request including the unspliced health check and produced three consecutive FALSE hangs with restarts=99.",
+  "fix": "exactly one reader thread per child, bound to that child's lifetime, feeding a queue tagged with the owning process object; lines from a killed child are discarded",
+  "malformed_policy": "status MALFORMED -> outcome measurement_failed: a FAILURE TO MEASURE, not a measurement. Never hang, never fault, never ok, never movement, never inertness. Raw lines kept verbatim; retried up to 3x; still-failing cases are reported and EXCLUDED from values_dispatched so they cannot inflate coverage.",
+  "post_hang_quarantine": "after any hang the runner is restarted and the next case is preceded by an unspliced health check; if that check is not ok, every case since the hang is re-run. Counts reported in RESULTS.md.",
+  "shared_tool_modified": false,
+  "why": "EXP-0179 is running against tools/agxtest/persistrun.py; mutating it mid-run would break that experiment's reproducibility (FIELD-SWEEP-PROTOCOL section 7 courtesy).",
+  "wrapper": "harness/saferunner.py :: SafePersistRunner, adopted from EXP-0178's own harness/saferunner.py (our code, this project, cited in the file header)"
  },
  "runs": {
   "burn_rule": "A run found defective is retained IN FULL AND UNEDITED, its id is BURNED, and the replacement takes a NEW id. Never topped up, never reused, never deleted.",

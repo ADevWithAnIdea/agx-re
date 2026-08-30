@@ -192,3 +192,33 @@ dimension); the run-id burn rule.
 **Coordinator hold acknowledged. EXP-0179 has the device for a hang-candidate window. This
 experiment is QUIET — nothing dispatched, nothing to checkpoint.** Next milestone is the
 harness build, which is entirely offline.
+
+## M6 — 2026-08-30 — amendment 02 adopted before dispatch; still QUIET, still zero SSH
+
+Two items from the coordinator's EXP-0178 relay, both on this experiment's critical path:
+
+1. **`tools/agxtest/persistrun.py` can manufacture hangs.** One reader thread per *line*,
+   abandoned on timeout, re-resolving `self.proc` at execution time → after the first
+   watchdog timeout it races the replacement child's stdout, `OUT 0 ` comes back truncated,
+   and the shared parser raises. EXP-0178 saw one genuine hang produce **three consecutive
+   FALSE hangs with `restarts=99`**. This experiment pre-registers **no abort path and no
+   hang budget** and deliberately mutates length/identity bits, so desyncs and watchdog
+   timeouts are *expected by design* — a false-hang cascade could make me **withdraw rows for
+   a harness artefact**, the exact inverse of the defect that put them here.
+   → `harness/saferunner.py :: SafePersistRunner` (adopted from EXP-0178's own file, our
+   code, cited in the header): **one reader thread per child**, queue tagged by owner, lines
+   from a killed child discarded. **The shared tool is NOT modified** — EXP-0179 is running
+   against it. New outcome `measurement_failed`: a `MALFORMED` response is a *failure to
+   measure*, never `hang`/`fault`/`ok`, raw lines kept, retried 3×, and **excluded from
+   `values_dispatched`** so it cannot inflate coverage either. Post-hang quarantine: restart,
+   unspliced health check, and re-run everything since the hang if the check is not `ok`.
+
+2. **Geometry is a carrier variable.** EXP-0178 root-caused EXP-0169's `get_sr` ladder failure
+   as `grid=1/tg=1`, where every reachable system value reads 0 — the same "carrier cannot
+   express the question" class as my 25 rows. None of my 16 fields is a system-value read and
+   the half ALU works on lanes *within* a register, so `grid=1` should be adequate — **so the
+   pilot measures it instead of asserting it**: every (arm, carrier) runs its anchor, full
+   ladder and all four falsifiers at **both** `grid=1/tg=1` and `grid=32/tg=32`, recorded
+   side by side in `raw/pilot01/geometry.jsonl`, with a frozen re-basing rule.
+
+**Status: QUIET. Zero SSH to the neo. Nothing to checkpoint.** Holding for the clear.

@@ -369,6 +369,37 @@ declined rather than rounded up.
 
 ---
 
+## 7a. FIELD-SWEEP-PROTOCOL §3(d) — this experiment is structurally immune, and that is checked, not assumed
+
+Rule §3(d) was added on 2026-08-30: on the shared `persistrun.py`, **the first watchdog timeout
+can silently manufacture every "hang" after it**, because an abandoned reader thread wakes on
+the replacement child's stdout and races the foreground reader. EXP-0178's pilot recorded three
+consecutive false `hang`s with `restarts=99` from one benign case.
+
+**The precondition never occurred here.** Across **every** capture in this experiment — run01,
+run03, run04, splice01, splice02, both calibrations and all baselines, 10,484 recorded
+dispatch results:
+
+| | |
+|---|---|
+| status histogram | `OK` **9273**, `CMDBUF_ERROR` **1211** |
+| `HANG` observations | **0** |
+| `invalid_victim` | **0** |
+| malformed / `unpack` errors | **0** |
+| per-run `carrier_hangs`, `stopped_arms` | **0**, **none** |
+
+With zero watchdog timeouts there is no abandoned reader thread and no cascade to inherit, so
+no result above can be a §3(d) artefact. The 1211 `CMDBUF_ERROR`s are contained per-command-buffer
+faults with the OS fault-class string recorded on each — the great majority are `call.b5` bit 1,
+which faults by design.
+
+This also means the §3(c) contiguous-hazard machinery, which was pre-registered and built
+(`run.py --hang-tolerant`, `analyze.py`'s longest-contiguous-hang-run detector), **never had to
+fire**: the longest contiguous hang run is 0 on every field. It is left in place for the pending
+`O/F/N` arms, which are where hangs are actually expected.
+
+---
+
 ## 8. ARM S — the independent second method, and the one result it overturned
 
 `raw/g17p_20260830_splice01` (forward) and `splice02` (reverse), `analysis/splice_verdicts.json`.

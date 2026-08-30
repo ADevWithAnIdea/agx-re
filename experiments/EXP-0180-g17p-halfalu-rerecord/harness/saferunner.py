@@ -1,5 +1,30 @@
 #!/usr/bin/env python3
-"""EXP-0178 leak-free persistent-runner wrappers.
+"""EXP-0180 leak-free persistent-runner wrapper (compute half only).
+
+ADOPTED VERBATIM from our own `experiments/EXP-0178-g17p-sysval-tileread/harness/
+saferunner.py` (same project, same rules), minus its render half, which this
+experiment does not use. Its original header is preserved below.
+
+WHY EXP-0180 NEEDS IT (DEF-0178-1). This experiment pre-registers NO abort path
+and NO hang budget, and its `LEN` / `E8_*` / `F12_*` arms deliberately mutate
+LENGTH- and IDENTITY-selecting bits of a 6/8/10/12-byte polymorphic family, so
+instruction-stream desyncs -- and therefore watchdog timeouts -- are expected BY
+DESIGN. With the shared driver's abandoned-reader-thread defect, the FIRST
+genuine hang silently manufactures every hang after it. A false `hang` and a
+real inertness are indistinguishable in a summary, and this experiment's whole
+job is deciding whether 25 row-claims should be WITHDRAWN -- so a false-hang
+cascade would make it withdraw rows for a harness artefact, the exact inverse of
+the defect that put those rows in this state.
+
+`tools/agxtest/persistrun.py` is NOT modified: EXP-0179 is running against it
+concurrently (FIELD-SWEEP-PROTOCOL section 7 courtesy).
+
+A `MALFORMED` response maps to outcome `measurement_failed` in this experiment:
+a FAILURE TO MEASURE, never `hang`, never `fault`, never an observation. The raw
+lines are kept in the case record, the case is retried up to 3 times, and a case
+still failing is EXCLUDED from `values_dispatched` so it cannot inflate coverage.
+
+--- original EXP-0178 header follows ---
 
 DEFECT FOUND BY PILOT (2026-08-30, `work/pilot01` / `work/pilot02`, no gated
 dispatch had occurred). Both shared drivers -- `tools/agxtest/persistrun.py` and
@@ -114,7 +139,6 @@ import threading
 import time
 
 from persistrun import PersistRunner
-from rsdrv import RenderRunner
 
 
 class _Pumped:
@@ -229,18 +253,3 @@ class SafePersistRunner(_Pumped, PersistRunner):
             elif ln.startswith("DONE "):
                 break
         return resp
-
-class SafeRenderRunner(_Pumped, RenderRunner):
-    def _start(self):
-        cmd = [self.exe, "--source", self.source] + (["--fast-math"] if self.fast_math else [])
-        self.proc = subprocess.Popen(
-            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, text=True, bufsize=1, start_new_session=True)
-        self._install_pump()
-        ln = self._readline(60)
-        if not ln or not ln.startswith("READY"):
-            raise RuntimeError("rendersweep not READY: %r" % (ln,))
-        self.device = ln.split(None, 1)[1].strip()
-
-    def _readline(self, timeout):
-        return self._pumped_readline(timeout)

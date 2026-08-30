@@ -32,6 +32,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(EXP, "analysis"))
+sys.path.insert(0, os.path.join(EXP, "..", "..", "tools", "agxtest"))
 import pinned_isa                                              # noqa: E402
 import sweepplan as SP                                         # noqa: E402
 import verdicts as V                                           # noqa: E402
@@ -184,6 +185,52 @@ for arm in SP.ARMS:
         if k not in OWNED_ELSEWHERE:
             g8.append("%s marked foreign but nobody owns it" % k)
 check("G8 ruled/foreign split disjoint", not g8, "; ".join(g8))
+
+# ---------------------------------------------------------------- G9 --------
+# The runner fix, proved with NO device: harness/fakerunner.py speaks the same
+# line protocol and can emit the truncated `OUT 0` shape on demand. A malformed
+# response must come back as a MEASUREMENT FAILURE with the raw lines kept --
+# never as a crash and never as a `hang`.
+g9 = []
+try:
+    import subprocess as _sp
+    from saferunner import SafePersistRunner as _SPR
+
+    class _Stub(_SPR):
+        MODE = "--ok"
+
+        def _start(self):
+            self.proc = _sp.Popen(
+                [sys.executable, os.path.join(HERE, "fakerunner.py"), self.MODE],
+                stdin=_sp.PIPE, stdout=_sp.PIPE, stderr=_sp.PIPE,
+                text=True, bufsize=1, start_new_session=True)
+            self._install_pump()
+            ln = self._read_line(10)
+            if not ln or not ln.startswith("READY"):
+                raise RuntimeError("stub not READY: %r" % (ln,))
+            self.device = "stub"
+
+    for mode, want in (("--ok", ["OK", "OK", "OK"]),
+                       ("--truncate", ["OK", "MALFORMED", "MALFORMED"])):
+        _Stub.MODE = mode
+        r = _Stub(source="x", function="k", fast_math=False, agxrun_persist="x")
+        got = []
+        for _ in range(3):
+            resp = r.request(archive="A.bin", grid=64, tg=64,
+                             ins={0: "p.bin", 4: "p.bin"}, outs={0: 8, 4: 8},
+                             timeout=5)
+            got.append(resp["status"])
+            if resp["status"] == "MALFORMED" and not resp.get("raw"):
+                g9.append("%s: MALFORMED without the raw lines kept" % mode)
+            if resp["status"] == "HANG":
+                g9.append("%s: a malformed response was scored as a HANG" % mode)
+        r._kill()
+        if got != want:
+            g9.append("%s: got %r, want %r" % (mode, got, want))
+except Exception as e:                                         # noqa: BLE001
+    g9.append("stub harness failed: %s" % e)
+check("G9 malformed response is a measurement failure, not a hang", not g9,
+      "; ".join(g9))
 
 print()
 print("SELFTEST %s (%d failures)" % ("PASS" if not fails else "FAIL", len(fails)))

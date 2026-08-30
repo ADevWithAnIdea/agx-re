@@ -191,3 +191,19 @@ callee). Host oracle `k_chain(3,5) = 23.0f` exactly, over a 0xDEADBEEF-poisoned 
 `second_method_arm_S` per field and the corrected b6 semantics; `RESULTS.md` §3 and new §8.
 
 STILL PENDING THE EXCLUSIVE WINDOW: arms O, F (F3/F4/F6), N. ~400 cases, seconds of GPU time.
+
+## 2026-08-30 — STOPPED at the hang-prone boundary, as instructed
+Arms O, F(F3/F4/F6) and N are NOT dispatched. The orchestrator holds the exclusive window and
+has been messaged. Everything else is complete, pulled back, and analysed in this directory.
+Nothing is committed (the orchestrator owns commits); `docs/`, `PROVENANCE.md`,
+`tools/agx-isa/db.json` and `validation.json` were NOT touched.
+
+## 2026-08-30 — checked against the newly added FIELD-SWEEP-PROTOCOL rule 3(d)
+Rule 3(d) (the shared `persistrun.py` reader-thread bug: the FIRST watchdog timeout can
+silently manufacture every later "hang") landed while this experiment was running. **The
+precondition never occurred here**, and that is measured, not assumed: across all 10,484
+recorded dispatch results in every capture — run01/03/04, splice01/02, both calibrations, all
+baselines — the status histogram is `OK` 9273 / `CMDBUF_ERROR` 1211, with **0 HANG, 0
+invalid_victim, 0 malformed/unpack errors, 0 carrier_hangs, no stopped arms**. No result here
+can be a 3(d) artefact. Written up as `RESULTS.md` §7a. The 3(c) mapping-pass machinery was
+built and pre-registered but never had to fire; it stays in place for the pending O/F/N arms.

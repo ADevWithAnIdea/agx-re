@@ -459,3 +459,72 @@ expected result rather than discovered afterwards.
 
 Neither addition touches the field under test; both are recorded in `00_arm_resolution.json`
 and are constant across every case of a carrier, so neither can co-vary with a swept field.
+
+---
+
+## 12. AMENDMENT 02 — the shared runner can manufacture hangs, and geometry is a carrier variable
+
+Adopted 2026-08-30 on the coordinator's second EXP-0179/EXP-0178 relay, **still before any
+device dispatch**. Both items change the design and are mirrored in `CAPTURE_CONTRACT.json`.
+
+### 12a. A false `hang` and a real inertness look identical in a summary
+
+`tools/agxtest/persistrun.py` starts a **fresh reader thread per line** and abandons it on
+timeout; the abandoned thread re-resolves `self.proc` at execution time, so after the first
+watchdog timeout it wakes on the **replacement** child's stdout and races the foreground
+reader. Responses come back truncated (`OUT 0 ` with no hex), the shared parser raises
+`ValueError: not enough values to unpack`, and the run dies. In EXP-0178's `work/pilot02`
+**one genuine hang poisoned every later request including the unspliced health check, and
+three consecutive cases were recorded `hang` with `restarts=99` — all false.**
+
+This is squarely on this experiment's critical path: §9 pre-registers **no abort path and no
+hang budget**, and the `LEN`/`E8_*`/`F12_*` arms deliberately mutate length- and
+identity-selecting bits, so desyncs — and therefore watchdog timeouts — are *expected by
+design*. If one genuine hang manufactured a cascade of false ones, this experiment could
+**withdraw rows for a harness artefact** — the exact inverse of the defect that put them in
+this state.
+
+Adopted, frozen:
+
+* **`harness/saferunner.py`** — `SafePersistRunner`, adopted from EXP-0178's own
+  `harness/saferunner.py` (our code, this project, cited in the file header): **exactly one
+  reader thread per child**, bound to that child's lifetime, feeding a queue tagged with the
+  owning process object; lines from a killed child are **discarded**, never handed to the
+  wrong request.
+* **The shared tools are NOT modified.** `tools/agxtest/persistrun.py` stays exactly as it
+  is — EXP-0179 is running against it and mutating it mid-run would break that experiment's
+  reproducibility (`FIELD-SWEEP-PROTOCOL` §7 courtesy).
+* **New outcome class `measurement_failed`.** A response with `status == "MALFORMED"` — a
+  truncated or unparseable `OUT` line — is a **failure to measure, not a measurement**. It is
+  never `hang`, never `fault`, never `ok`, never movement, never inertness. The offending raw
+  lines are kept verbatim in the case record (`resp["raw"]`), the case is retried up to 3
+  times, and any case still `measurement_failed` after 3 attempts is reported as such and
+  **excluded from `values_dispatched`**, so it cannot inflate a coverage figure either.
+* **Post-hang quarantine.** After any `hang`, the runner is restarted and the **next** case
+  is preceded by an unspliced health check; if the health check does not return `ok`, every
+  case since the hang is re-run. `RESULTS.md` reports the count of hangs, health-check
+  failures, and re-run cases.
+
+### 12b. Dispatch geometry is a carrier variable, and it is checked rather than argued
+
+EXP-0178 root-caused EXP-0169's `get_sr` ladder failure: `k_sr` was lifted and run at
+**grid=1 / tg=1**, where every reachable system value reads `0`, so the ladder could not
+move. `casematrix.py:78` states that relaxation in EXP-0169's own source. That is the same
+class as these 25 rows — **a carrier that cannot express what is asked of it produces a null
+result indistinguishable from inertness.**
+
+None of this experiment's 16 fields is a system-value read, and the half-ALU operates on
+lanes *within* a register rather than across threads, so `grid=1 / tg=1` is expected to be
+adequate. **That expectation is measured, not asserted:**
+
+* Every (arm, carrier) runs its **anchor + full liveness ladder + the four falsifiers** at
+  **both** `grid=1, tg=1` and `grid=32, tg=32` (one full SIMD group) in the pilot, and the
+  two geometries' results are recorded side by side in `raw/pilot01/geometry.jsonl`.
+* **Frozen decision rule:** if any ladder step's pass/fail or any falsifier's outcome differs
+  between the two geometries, the arm is re-based to the geometry in which the ladder passes,
+  the difference is reported as a first-class result, and `00_arm_resolution.json` records
+  the geometry each arm actually ran at. If they agree, the gated pair runs at
+  `grid=1, tg=1` and `RESULTS.md` says the check was run and agreed.
+* At `tg=32` every thread executes identical code with identical seeds and writes the same
+  output words, so a *difference* between the geometries is itself evidence of lane- or
+  geometry-dependent behaviour in this family — a reportable hardware fact, not noise.
