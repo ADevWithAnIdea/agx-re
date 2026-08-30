@@ -702,36 +702,55 @@ have no `validation.json` slot to merge into until `db.json` models them.
 
 ---
 
-## 13. Two strengthening runs launched but not completed (disclosed)
+## 13. The §7A fault re-validation — PASSED; and one strengthening run still pending
 
-Two confirmation runs were launched and, at the time this document was written, were still
-**queued on the GPU lease** behind four other agents' own `§7A` re-validations:
+### 13.1 `revbf1` / `revbf2` — every bf16/half fault is REAL (complete)
 
-* **`jcn1` / `jcn2`** — `ADDENDUM-PREREG.md` §2: `jump_cond.cf_scope` and `.reserved` swept
-  densely at the **natural** offset under `n = 0`, where the branch is taken *and lands
-  correctly*, so inertness would mean "the program still computes its exact right answer"
-  rather than "the store did not run either way". This would **strengthen** the two
-  `jump_cond` scope verdicts; it cannot weaken them, because the poison-target sweeps that
-  produced them gated cleanly on their own (dense 0..255 at **two** independent targets,
-  identical accepted sets, liveness gate fired).
-* **`revbf1` / `revbf2`** — the `FIELD-SWEEP-PROTOCOL` §7A lease-confirmed re-validation of
-  the **154** cases the two free-running bf16/half captures both recorded as `fault`,
-  5 replicates each.
+`FIELD-SWEEP-PROTOCOL` §7A (added mid-experiment, after EXP-0153 found that majority-of-3
+plus cross-run agreement can still be defeated by sustained sibling load) requires every
+`fault`/`hang` verdict to be **confirmed inside the GPU lease** before promotion. The
+bf16/half captures ran **free and unleased**, so all **154** cases that *both* gated runs
+recorded as `fault` were re-dispatched under `~/agxre/gpulease.sh`, **5 replicates each,
+twice** (`raw/g17p-20260830-revbf1`, `revbf2`; forced `--replicates 5`, 0 hangs, 0 aborts).
 
-**No promoted verdict in this document depends on either run.** Every promotion rests on an
-**accepted-value set** that the two gated runs agree on case-for-case, and **no promotion
-rests on a `fault` classification** — a case that faults and a case that returns a wrong
-value are both simply "not accepted", and the two runs agreed on acceptance for 100 % of
-cases in every promoted arm. What §7A's re-validation would refine is the *descriptive*
-fault counts quoted in §1 and §6, not any label.
+| outcome pair across the two isolated runs | cases |
+|---|---:|
+| `fault` / `fault` (5 of 5 trials each) | **150** |
+| `fault` / `invalid_run` | 3 |
+| `invalid_run` / `fault` | 1 |
+| **became `ok`** | **0** |
 
-**To fold them in when they land** (the pairing is already wired up):
+**Zero of the 154 flipped to `ok`.** The four non-`fault`/`fault` cases are all
+`h2.h_alu_hi.b0` (`0x67`, `0xD7`, `0xE7`, `0xFE`); every one of them still shows `fault` on
+its first trial in the run that scored it `invalid_run`, and the `invalid_run` label there
+is the *integrity sentinel failing because the fault left the buffer unwritten* — not a
+value that works. The recorded OS fault classification is
+`kIOGPUCommandBufferCallbackErrorPageFault` (**a GPU address fault caused by our own
+encoding**), never `...ErrorInnocentVictim`, so these are not sibling contamination.
+
+**Consequence: nothing moves.** No accepted-value set changes, so no label, no rule and no
+emittability count in this document changes. The fault counts quoted in §1 and §6 are
+confirmed. This is the opposite of EXP-0153's experience — where four of five "reproducible"
+faults evaporated under isolation — and the difference is worth recording: those free-running
+bf16 captures were clean, and we now know that rather than assuming it.
+
+### 13.2 `jcn1` / `jcn2` — still queued (disclosed)
+
+`ADDENDUM-PREREG.md` §2: `jump_cond.cf_scope` and `.reserved` swept densely at the
+**natural** offset under `n = 0`, where the branch is taken *and lands correctly*, so
+inertness would mean "the program still computes its exact right answer" rather than "the
+store did not run either way". At the time of writing these two runs were still **queued on
+a heavily contended GPU lease** (eight `gpulease` waiters).
+
+This arm can only **strengthen** the two `jump_cond` scope verdicts; it cannot weaken them,
+because the poison-target sweeps that produced them gated cleanly on their own — dense
+0..255 at **two** independent targets, identical accepted sets in both runs, liveness gate
+fired. It is listed in §9 as the named limitation those verdicts carry.
+
+**To fold it in when it lands** (the pairing is already wired into `analysis/verdicts.py`):
 
 ```sh
-harness/sync.sh pull g17p-20260830-jcn1;   harness/sync.sh pull g17p-20260830-jcn2
-harness/sync.sh pull g17p-20260830-revbf1; harness/sync.sh pull g17p-20260830-revbf2
-python3 analysis/verdicts.py        # jcn1|jcn2 is already in PAIRS
-python3 analysis/field_verdicts.py
-python3 analysis/emittability.py
-python3 analysis/make_manifest.py
+harness/sync.sh pull g17p-20260830-jcn1; harness/sync.sh pull g17p-20260830-jcn2
+python3 analysis/verdicts.py && python3 analysis/field_verdicts.py
+python3 analysis/emittability.py && python3 analysis/make_manifest.py
 ```

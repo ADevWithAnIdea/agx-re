@@ -81,3 +81,14 @@ Timestamped milestone log. Written after every milestone so a kill costs at most
   Every number quoted in `RESULTS.md` was machine-checked against
   `analysis/gate_report.json`: **0 mismatches**.
   `db.json`, `validation.json`, `docs/`, `PROVENANCE.md` untouched; nothing committed.
+- **§7A FAULT RE-VALIDATION PASSED.** All **154** cases both free-running bf16/half captures
+  called `fault` were re-dispatched **inside the GPU lease, 5 replicates each, twice**
+  (`revbf1`/`revbf2`, 0 hangs). **150/154 confirmed `fault`/`fault` at 5-of-5; 0 became
+  `ok`.** The four exceptions are all `h2.h_alu_hi.b0` and still fault on their first trial
+  — their `invalid_run` label is the sentinel failing *because* the fault left the buffer
+  unwritten. Fault class is `kIOGPUCommandBufferCallbackErrorPageFault` (our own encoding),
+  never `...ErrorInnocentVictim`. **No label, rule or count in RESULTS.md changes.**
+  Contrast with EXP-0153, where 4 of 5 "reproducible" faults evaporated under isolation.
+- **STILL PENDING:** `jcn1`/`jcn2` (the `jump_cond` scope sweep at the natural offset)
+  remain queued behind eight `gpulease` waiters. Strengthening only; cannot weaken the
+  gated poison-target verdicts. Fold-in commands are in `RESULTS.md` §13.2.
