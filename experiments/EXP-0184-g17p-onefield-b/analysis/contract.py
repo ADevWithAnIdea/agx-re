@@ -35,16 +35,33 @@ def sha(p):
     return hashlib.sha256((EXP / p).read_bytes()).hexdigest()
 
 
+# The PRE-REGISTRATION revision, captured once by the v1 freeze and CARRIED
+# FORWARD verbatim by every later freeze. Re-reading live `HEAD` on a re-freeze
+# would silently relabel a sibling experiment's commit as this experiment's
+# pre-registration point -- which is exactly the failure SUBAGENT_BRIEF warns
+# about ("pin the revision at pre-registration; do not gate on live HEAD"), and
+# it DID happen here: v7 recorded 62faa47e, the commit in which EXP-0183 landed,
+# because the orchestrator committed continuously while this experiment ran.
+V1 = EXP / "raw" / "prefreeze" / "CAPTURE_CONTRACT.v1.json"
+
+
 def build():
     rev = subprocess.check_output(["git", "-C", str(EXP), "rev-parse", "HEAD"],
                                   text=True).strip()
     dirty = subprocess.check_output(["git", "-C", str(EXP), "status",
                                      "--porcelain"], text=True).strip()
+    prereg_rev, prereg_dirty = rev, len(dirty.splitlines())
+    if V1.exists():
+        v1 = json.loads(V1.read_text())
+        prereg_rev = v1["repo_revision_at_pre_registration"]
+        prereg_dirty = v1["repo_dirty_paths_at_pre_registration"]
     return {
+        "repo_revision_at_last_freeze": rev,
+        "repo_dirty_paths_at_last_freeze": len(dirty.splitlines()),
         "experiment": "EXP-0184-g17p-onefield-b",
         "frozen_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "repo_revision_at_pre_registration": rev,
-        "repo_dirty_paths_at_pre_registration": len(dirty.splitlines()),
+        "repo_revision_at_pre_registration": prereg_rev,
+        "repo_dirty_paths_at_pre_registration": prereg_dirty,
         "gate_note": "captures are compared against the RECORDED revision above, "
                      "never against live HEAD (SUBAGENT_BRIEF / EXP-0082)",
         "target": {"device": "Apple A18 Pro / G17P", "host": "users-MacBook-Neo.local",

@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 553,
+   "hardware-run": 555,
    "isolated-byte-diff": 83,
    "corpus-correlation": 74,
    "tokenization-only": 133,
-   "single-template-inference": 28,
+   "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 169
+   "untested": 165
   },
   "by_label_pct": {
-   "hardware-run": 53.2,
+   "hardware-run": 53.4,
    "isolated-byte-diff": 8.0,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
-   "single-template-inference": 2.7,
+   "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 16.2
+   "untested": 15.9
   },
-  "emittable_instructions": 54,
+  "emittable_instructions": 55,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -79,6 +79,7 @@
    "psel",
    "reg_move_cb",
    "ret_luse",
+   "rt_query_traverse",
    "rtq_state_move",
    "sel",
    "shift_amt_move",
@@ -92,7 +93,7 @@
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 118,
+  "decodable_not_yet_emittable": 117,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -103,7 +104,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 54
+  "emittable_of_emitter_relevant": 55
  },
  "instructions": {
   "falu2": {
@@ -2188,13 +2189,18 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "b9": {
-    "label": "untested",
-    "range": "byte+9: 256 of 256 values (dense 0..255)",
-    "target": "M4",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0184"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "0 of 5 arms moved, on 5 carriers with 1 distinct baseline field values, every arm's control firing",
+    "values_dispatched": 256,
+    "distinct_bytes": 1280,
+    "encodable_range": 256,
+    "start": 72,
+    "width": 8
    }
   },
   "cvt_i2f": {
@@ -3036,13 +3042,18 @@
     ]
    },
    "scope": {
-    "label": "untested",
+    "label": "single-template-inference",
     "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0184"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field values, every arm's control firing",
+    "values_dispatched": 256,
+    "distinct_bytes": 2560,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "scope_kind": {
     "label": "hardware-run",
@@ -8041,10 +8052,18 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0184"
+    ],
+    "note": "moved on 4 of the 10 arms that had detection power (56 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+    "values_dispatched": 16,
+    "distinct_bytes": 896,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "opA": {
     "label": "hardware-run",
@@ -10770,13 +10789,18 @@
     ]
    },
    "operands": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0184"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "moved on 2 of the 2 arms that had detection power (2 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "ibfe_mesh_attr": {

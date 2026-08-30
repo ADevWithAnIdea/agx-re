@@ -17,7 +17,9 @@ Two fields are proven inert on carrier sets that span the dimension they control
 `db.json` defects are recorded with evidence and **not** applied (`EXP-0183` owns that file).
 
 Read-only simulation against the live `validation.json` (`work/emitcheck/emittability_delta.json`):
-**60 → 62 emittable instructions.**
+**64 → 66 emittable instructions**, measured at repo `HEAD 62faa47e`. The absolute baseline moves
+continuously as sibling experiments land — it read **55** when this experiment's worklist was
+taken and **60** an hour later — so the durable claim is the **+2**, not the endpoint.
 
 | field | verdict | label | coverage (dispatched / distinct bytes / encodable) | cross-run |
 |---|---|---|---|---|

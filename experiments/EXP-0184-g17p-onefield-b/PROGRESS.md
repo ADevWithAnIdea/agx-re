@@ -82,3 +82,24 @@ BEFORE any build or device run.
 - Read-only emittability simulation (`work/emitcheck/emittability_delta.json`; `validation.json`
   is **not** edited here): **60 → 62 emittable, `copysign` and `rt_query_traverse` newly emittable.**
 - Three `db_defects` recorded in `analysis/field_verdicts.json`, none applied to `db.json`.
+
+## 2026-08-30 M4 — artifacts complete; one self-inflicted defect found and fixed
+
+- `RESULTS.md`, `manifest.json`, `analysis/{field_verdicts,partitions}.json` written; the whole
+  analysis chain re-run from `raw/` after the last code edit, so nothing is carried over.
+- Removed the regenerable compiled carrier archives that `sync.sh pullwork` had dragged back
+  (`work/census/*.bin`): no binary archive belongs in this tree. Nothing else in `work/` is binary.
+- Password scan: **`Password_1` appears in no file**; the four hits are the literal string
+  `SSHPASS=` in usage text.
+- **A defect in my own artifact, found at the last check and fixed:** `analysis/contract.py` read
+  live `git HEAD` on every re-freeze, so `CAPTURE_CONTRACT.v7` recorded
+  `repo_revision_at_pre_registration = 62faa47e` — the commit in which **EXP-0183** landed —
+  because the orchestrator commits continuously and swept this in-progress directory into three
+  sibling commits while the runs were going. That is precisely the failure SUBAGENT_BRIEF names
+  ("pin the revision at pre-registration; do not gate on live HEAD", which cost EXP-0082 a run).
+  The pre-registration revision is now carried forward verbatim from the retained
+  `CAPTURE_CONTRACT.v1.json` (`8b857847`, 9 dirty paths) and the live HEAD is recorded separately
+  as `repo_revision_at_last_freeze`. v1..v8 are all retained under `raw/prefreeze/`.
+- **Not committed** (the orchestrator owns that). No edit to `db.json`, `isadb.py`,
+  `validation.json`, `docs/`, `PROVENANCE.md`, `CLAUDE.md`, `CODEX.md`, or the neo's shared
+  `~/agxre/tools/`. `macvdmtool` never run. The neo answered every request; no wedge, no reboot.
