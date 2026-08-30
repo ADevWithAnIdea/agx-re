@@ -49,7 +49,10 @@ PINNED = L.PINNED
 SafeRunner, _SafeRunnerAS = SR.make_classes(str(PINNED))
 
 # ------------------------------------------------------------------- frozen
-REQ_TIMEOUT = 8.0            # seconds, compute carriers
+REQ_TIMEOUT = 8.0            # seconds, compute carriers (overridable per run by
+                             # --req-timeout; the value actually used is recorded
+                             # in env.json, so a capture never has to be trusted
+                             # about its own watchdog)
 CONFIRM_ATTEMPTS = 3         # majority-of-3 on any non-OK case
 INNOCENT_RETRIES = 3         # kIOGPUCommandBufferCallbackErrorInnocentVictim
 CANARY_RETRIES = 3           # a dispatch that wrote nothing is invalid, not zero
@@ -255,6 +258,10 @@ def env_report(run_dir, arms, run_id):
         "pinned_db_sha256": hashlib.sha256((PINNED / "db.json").read_bytes()).hexdigest(),
         "pinned_isadb_sha256": hashlib.sha256((PINNED / "isadb.py").read_bytes()).hexdigest(),
         "arms_sha256": hashlib.sha256(Path(arms).read_bytes()).hexdigest(),
+        "req_timeout_s": REQ_TIMEOUT,
+        "confirm_attempts": CONFIRM_ATTEMPTS,
+        "innocent_retries": INNOCENT_RETRIES,
+        "canary_retries": CANARY_RETRIES,
         "concurrent_gpu_procs": sh("bash", "-lc",
                                    "ps -Ao pid,comm | grep -E 'agxrun|rendersweep|gfrun|shdump' "
                                    "| grep -v grep | head -40"),
@@ -264,13 +271,17 @@ def env_report(run_dir, arms, run_id):
 
 
 def main():
+    global REQ_TIMEOUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
     ap.add_argument("--arms", default=str(HERE / "harness" / "arms188.json"))
     ap.add_argument("--only", default="")
     ap.add_argument("--limit-values", type=int, default=0,
                     help="pilot only: dispatch every Nth value")
+    ap.add_argument("--req-timeout", type=float, default=REQ_TIMEOUT,
+                    help="per-request watchdog, seconds (recorded in env.json)")
     args = ap.parse_args()
+    REQ_TIMEOUT = args.req_timeout
 
     arms = json.loads(Path(args.arms).read_text())["arms"]
     if args.only:

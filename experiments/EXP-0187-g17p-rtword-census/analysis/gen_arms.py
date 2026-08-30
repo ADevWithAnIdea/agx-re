@@ -55,6 +55,41 @@ EXP = HERE.parent
 sys.path.insert(0, str(EXP / "harness"))
 import locate187 as L        # noqa: E402
 
+# ---------------------------------------------------------------- AMENDMENT
+# SCOPE REDUCTION, amended 2026-08-30 AFTER the first gated attempt and BEFORE
+# the gated pair that carries the verdict. Recorded here rather than applied
+# silently.
+#
+# The first attempt (`raw/g17p_20260830_run01`, RETAINED as a partial, never
+# topped up and its id never reused) reached 184 records in 126 s and was killed
+# by the driving session's own 2-minute command timeout -- not by the device.
+# Its 180 completed cases are the reason for this amendment: **45 of them are
+# CMDBUF_ERROR faults**, so `n4_rt_word.dst` is emphatically not inert, and every
+# fault costs majority-of-3 re-dispatches. Measured cost is ~11 ms for a clean
+# case and ~2.5 s for a faulting one, i.e. ~0.64 s/case at the observed 25 %
+# fault rate -- 10 272 cases would be ~110 minutes PER RUN, and two gated runs do
+# not fit the remaining window.
+#
+# The reduction keeps the SPAN and drops the REDUNDANCY: ONE occurrence in each
+# of FOUR carriers chosen to differ in the dimension the field controls --
+# committed-phase triangle (`rq_mdist`), candidate-phase triangle (`rq_ccount`),
+# the bounding-box traversal path (`rq_bbox`), and the instancing path
+# (`rq_inst`, the ONLY carrier with baseline `dst = 0x22` and the ONLY one with a
+# same-program-point control). Every target arm keeps its FULL dense 256-value
+# range; nothing is sampled. Carrier controls are trimmed to the three
+# occurrences the pilot measured as firing (rtq0 / rtq6 / rtq7), because a
+# control only has to fire.
+#
+# What this costs, stated plainly: the inert-elsewhere claim now rests on 4
+# occurrences rather than 32, and the other 28 are UNSWEPT, not measured inert.
+GATED_SUBSET = {
+    "rq_mdist":  1306,   # committed distance, triangle path,  dst = 0x42
+    "rq_ccount": 2214,   # candidate count,    triangle path,  dst = 0x42
+    "rq_bbox":   1316,   # bounding-box traversal path,        dst = 0x42
+    "rq_inst":   1268,   # instancing path,    dst = 0x22, successor if_push
+}
+CARRIER_CONTROL_KEEP = {0, 6, 7}
+
 MNEMONIC = "n4_rt_word"
 FIELD = "dst"
 # EXP-M4-14 (A18) behaviour classes, minus the four HANG values.
@@ -80,6 +115,8 @@ def main():
                             "n_signature_hits": rec.get("n_occ", 0)})
             continue
         for i, h in enumerate(sorted(occ, key=lambda x: x["off"])):
+            if GATED_SUBSET and GATED_SUBSET.get(name) != h["off"]:
+                continue
             arms.append({
                 "group": "rq", "carrier": name, "instr": MNEMONIC, "field": FIELD,
                 "arm": "%s#%d/%s.%s" % (name, i, MNEMONIC, FIELD),
@@ -133,8 +170,12 @@ def main():
                     "note": "known-live field of the op at off+4; proves this "
                             "program point is executed and observable",
                 })
+        if GATED_SUBSET and name not in GATED_SUBSET:
+            continue
         for j, h in enumerate(sorted(rec.get("rtq_occurrences", []),
                                      key=lambda x: x["off"])):
+            if CARRIER_CONTROL_KEEP and j not in CARRIER_CONTROL_KEEP:
+                continue
             arms.append({
                 "group": "rq", "carrier": name, "instr": "rt_query_traverse",
                 "field": "opB",

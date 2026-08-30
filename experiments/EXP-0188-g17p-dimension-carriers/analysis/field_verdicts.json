@@ -1,0 +1,13 @@
+{
+ "_generated_by": "hand-written by the experiment because analysis/verdicts.py could not run: it requires TWO completed gated runs and the device became unreachable with the first of the pair in flight. Any later invocation of analysis/verdicts.py OVERWRITES this file, which is the intended behaviour.",
+ "_status": "BLOCKED -- no field promoted, every target keeps its current label",
+ "_runs": [],
+ "_gate": {"agree_min_pct": 99.0, "movement_rule": "moved >= 2*disagree AND moved >= 1", "measurement_failure_ceiling_pct": 1.0, "runs_required": 2, "runs_completed": 0},
+ "verdicts": {},
+ "db_defects": {
+  "if_push.scope_kind": {"defect": "enum incomplete", "observed_value_not_in_enum": 41, "hex": "0x29", "enum_in_db": [1, 5, 26, 33, 37], "evidence": "our own 3-deep memory-bounded nested-loop ladder kernels/k_cf188.metal:k_cf_nl3 emits it; raw/prefreeze/census.json (STRANDED, see raw/prefreeze/STRANDED_MANIFEST.md)", "action": "NOT APPLIED -- the orchestrator owns db.json"},
+  "if_push.scope": {"defect": "the 0x54/0x56 'nesting parity' note is a live semantic, not an annotation", "observation": "at all four scope_kind==0x1a (loop-iteration) pushes we could reach, the compiled value is 0x56 and splicing 0x54 raises a contained GPU fault; 0x00 also faults; 0x56 and 0xFF run correctly. Consistent with instruction bit 17 (the field's bit 1) being the live bit.", "evidence": "raw/prefreeze/haz01 (STRANDED); PRE-FREEZE CALIBRATION -- NOT a verdict", "action": "NOT APPLIED"},
+  "simd_shuffle.cache": {"defect": "EXP-0163 recorded byte+2 as 0x54 in every occurrence; our carriers emit BOTH 0x54 and 0x56", "observation": "cache = 0 and 1 both appear, at every divergence depth including zero, in kernels/k_sd188.metal", "evidence": "raw/prefreeze/census.json (STRANDED)", "action": "NOT APPLIED"},
+  "iadd2.b2_fmt": {"defect": "the field name asserts an operand-format role it does not have", "observation": "b2_fmt == 21 in all seven operand formats (16-bit, 32-bit signed, 32-bit unsigned, 64-bit register pair, inline-immediate srcB, uniform operand, ALU-consumed chain). 21<<2 == 0x54, the same byte+2 constant that if_push, jump, jump_cond, simd_shuffle and simd_ballot carry.", "evidence": "raw/prefreeze/census.json (STRANDED)", "action": "NOT APPLIED"}
+ }
+}

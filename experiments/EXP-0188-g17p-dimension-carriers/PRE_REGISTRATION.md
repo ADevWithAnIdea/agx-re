@@ -258,3 +258,40 @@ is a measurement and not a claim.
 ## 9. Amendments
 
 *(appended below, numbered and dated; superseded contracts retained in `raw/prefreeze/`)*
+
+**A1** (2026-08-30, pre-device) — contract frozen, 21 blobs.
+**A2** (2026-08-30, post-census, pre-gate) — `arms188.json` + `arms_hazprobe.json` frozen from the
+pre-freeze census; `run.py` gains `--req-timeout` (default unchanged at the frozen 8.0 s, value
+recorded in `env.json`); `analysis/hazard_probe.py` added as the named non-gated mapping pass
+sanctioned by FIELD-SWEEP-PROTOCOL 3(c).
+**A3** (2026-08-30) — gated pair re-scoped to `arms188_gated.json` (62 arms / 4086 cases) after the
+killed `run02` **measured** the loop-iteration `if_push` hazard at ~8 s per hang case. **No hang
+budget reinstated, no abort path added.**
+**A4** (2026-08-30) — `gen_gated_arms.py`, `partitions.py`, `arms188_gated.json` added to the hashed
+blob set.
+**A5** (2026-08-30) — the dense 256-value hazard map split out of the gated pair into a named
+non-gated mapping pass; the pair instead measures the two-class partition at **all four** hazardous
+occurrences. 62 arms / 3834 cases.
+**A6** (2026-08-30) — arm set split into `arms188_cf.json` (18 arms / 1440 cases) and
+`arms188_rest.json` (44 arms / 2394 cases) so the control-flow result could complete first after the
+`run06` compile stall. `run08` was in flight when the device wedged.
+
+## 10. What this pre-registration still has to answer (for the successor)
+
+Everything below is **built, frozen, hashed, and reproducible from this directory**; none of it is
+answered, because no gated pair completed.
+
+1. **`if_push.scope`, dense 0..255, at a `scope_kind == 0x1a` occurrence, twice.** The pre-freeze
+   hazard probe says 0x00 and 0x54 fault while 0x56 and 0xFF are correct at four such occurrences.
+   The dense map separates "bit 1 is the sole live bit" from the other rules consistent with four
+   points. Expect ~50 % of values to fault or hang on those arms: **size for ~8 s per hang case at a
+   2 s watchdog**, or run the four-value form (`arms188_cf.json` already contains it) for the gate and
+   the dense form as the separate mapping pass A5 specifies.
+2. **`simd_ballot.cache` dense 0..255 and `simd_shuffle.cache` both values**, on the five divergence
+   carriers — `arms188_rest.json`, never dispatched. Note the width-1 gate arithmetic
+   (`PRE_REGISTRATION.md` §6 rule 2).
+3. **`iadd2.b2_fmt` dense 0..63** on the seven operand formats — same file. The census already shows
+   the compiler never varies it across format, so the open question is inertness, not role.
+4. **The four declined fields** (`iter.b9`, `imageblock_store.b4`, `frag_color_store.store_mode`,
+   `vtx_out_pos.slot`) still need a fragment/vertex render harness before their dimension can be
+   expressed at all. That harness is the next experiment, not a sweep.

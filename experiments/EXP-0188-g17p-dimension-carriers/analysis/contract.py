@@ -31,10 +31,14 @@ BLOBS = ["PRE_REGISTRATION.md", "README.md", "run.py",
          "harness/sync.sh", "harness/verify_remote.py",
          "kernels/k_cf188.metal", "kernels/k_sd188.metal", "kernels/k_ia188.metal",
          "analysis/census.py", "analysis/gen_arms.py", "analysis/verdicts.py",
-         "analysis/contract.py",
+         "analysis/contract.py", "analysis/hazard_probe.py",
+         "analysis/gen_gated_arms.py", "analysis/partitions.py",
+         "analysis/split_arms.py",
          "pinned/db.json", "pinned/isadb.py", "pinned/agxparse.py",
          "pinned/persistrun.py", "pinned/shdump.m"]
-OPTIONAL = ["harness/arms188.json"]
+OPTIONAL = ["harness/arms188.json", "harness/arms_hazprobe.json",
+            "harness/arms188_gated.json", "harness/arms188_cf.json",
+            "harness/arms188_rest.json"]
 
 
 def sha(p):

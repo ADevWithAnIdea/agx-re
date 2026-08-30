@@ -52,6 +52,13 @@ sys.path.insert(0, str(EXP / "harness"))
 import locate188 as L        # noqa: E402
 import targets188 as T       # noqa: E402
 
+def _arms_path():
+    """The gated pair ran against the A3 re-scoped arm list where it exists; the
+    frozen `arms188.json` is never modified and remains the parent document."""
+    g = EXP / "harness" / "arms188_gated.json"
+    return g if g.exists() else (EXP / "harness" / "arms188.json")
+
+
 AGREE_MIN = 99.0
 MEAS_FAIL_MAX_PCT = 1.0
 MEASUREMENT_FAILURE = "measurement_failure"
@@ -145,7 +152,7 @@ def main():
         print(__doc__)
         return 2
     i1, i2 = index(load(sys.argv[1])), index(load(sys.argv[2]))
-    arms_doc = json.loads((EXP / "harness" / "arms188.json").read_text())
+    arms_doc = json.loads((_arms_path()).read_text())
     arms = {a["arm"]: a for a in arms_doc["arms"]}
     dims = {t["mnemonic"] + "." + t["field"]: t["dimension"] for t in T.TARGETS}
 

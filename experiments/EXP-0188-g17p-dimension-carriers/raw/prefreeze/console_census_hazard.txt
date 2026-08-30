@@ -1,0 +1,54 @@
+TRANSCRIBED FROM CONSOLE BY THE AGENT — NOT THE PRIMARY RAW.
+The primary raw is `~/agxre/EXP-0188/raw/prefreeze/{census.json,haz01/,pilot01/}` on the neo; see
+STRANDED_MANIFEST.md. This file exists so the observation survives the device becoming unreachable.
+No verdict may be computed from it.
+
+=== analysis/census.py (stdout) ===
+cf/cf_nl2      if_push        main=272    occ=3   aligned=3   scope=[84, 86] scope_kind=[26, 37]
+cf/cf_nl3      if_push        main=374    occ=4   aligned=4   scope=[84] scope_kind=[26, 37, 41]
+cf/cf_nlif     if_push        main=324    occ=3   aligned=3   scope=[84, 86] scope_kind=[26, 37]
+cf/cf_wbrk     if_push        main=272    occ=3   aligned=3   scope=[84, 86] scope_kind=[26, 37]
+cf/cf_ifnl     if_push        main=418    occ=6   aligned=6   scope=[84] scope_kind=[26, 33, 37]
+cf/cf_lcont    if_push        main=312    occ=3   aligned=3   scope=[84, 86] scope_kind=[26, 37]
+sdb/sd_flat    simd_ballot    main=148    occ=1   aligned=1   cache=[84]
+sdb/sd_n1      simd_ballot    main=158    occ=1   aligned=1   cache=[84]
+sdb/sd_n2      simd_ballot    main=606    occ=4   aligned=4   cache=[84]
+sdb/sd_n3      simd_ballot    main=1208   occ=8   aligned=8   cache=[84]
+sdb/sd_loop    simd_ballot    main=220    occ=1   aligned=1   cache=[84]
+sds/sd_flat    simd_shuffle   main=148    occ=2   aligned=2   cache=[0, 1]
+sds/sd_n1      simd_shuffle   main=158    occ=2   aligned=2   cache=[0, 1]
+sds/sd_n2      simd_shuffle   main=606    occ=8   aligned=8   cache=[0, 1]
+sds/sd_n3      simd_shuffle   main=1208   occ=16  aligned=16  cache=[0, 1]
+sds/sd_loop    simd_shuffle   main=220    occ=1   aligned=1   cache=[0]
+ia/ia_u32      iadd2          main=82     occ=1   aligned=1   b2_fmt=[21]
+ia/ia_s32      iadd2          main=82     occ=1   aligned=1   b2_fmt=[21]
+ia/ia_u16      iadd2          main=86     occ=1   aligned=1   b2_fmt=[21]
+ia/ia_u64      iadd2          main=104    occ=1   aligned=1   b2_fmt=[21]
+ia/ia_imm      iadd2          main=68     occ=1   aligned=1   b2_fmt=[21]
+ia/ia_uni      iadd2          main=82     occ=1   aligned=1   b2_fmt=[21]
+ia/ia_chain    iadd2          main=96     occ=2   aligned=2   b2_fmt=[21]
+
+=== analysis/gen_arms.py (stdout, first line) ===
+arms=108 cases=9734 dropped=0 -> harness/arms188.json
+
+=== hazard probe raw/prefreeze/haz01, 88 cases, 33.1 s, --req-timeout 1.0 (summary) ===
+outcome counter: {'ok': 130, 'fault': 8, 'carrier_ready': 6}
+(130 + 8 = 138 = 88 target cases + 44 open/mid/close baselines + 6 carrier-open baselines)
+
+per-occurrence, values 0x00 / 0x54 / 0x56 / 0xFF:
+cf/cf_nl2#0    fault  fault  ok  ok      <- scope_kind 0x1a, compiled scope 0x56
+cf/cf_nlif#0   fault  fault  ok  ok      <- scope_kind 0x1a
+cf/cf_wbrk#0   fault  fault  ok  ok      <- scope_kind 0x1a
+cf/cf_lcont#0  fault  fault  ok  ok      <- scope_kind 0x1a
+all 18 other occurrences:  ok  ok  ok  ok
+
+=== pre-freeze pilot raw/prefreeze/pilot01 (PARTIAL, killed) ===
+98 records: {'ok': 84, 'hang': 5, 'carrier_ready': 3, 'fault': 3, 'wrong_value': 3}
+cf/cf_nl2#0/if_push.scope at values 0,32,64,96,128,160,192,224 (all bit1-CLEAR):
+    3 fault + 5 hang, 0 ok
+cf/cf_nl2#1, cf_nl2#2, cf_nl3#0..#3 at the same eight values: 8 ok each
+control cf/*/if_push.scope_kind at value 0: `wrong_value` on cf_nl2#1, cf_nl3#0, cf_nl3#2 (FIRED);
+    `ok` on cf_nl2#0, cf_nl2#2, cf_nl3#1, cf_nl3#3
+
+=== killed run02 (--req-timeout 2.0), the cost measurement that re-scoped everything ===
+28 records in 70.9 s: {'ok': 14, 'hang': 7, 'fault': 6, 'carrier_ready': 1}  -> ~8 s per hang case

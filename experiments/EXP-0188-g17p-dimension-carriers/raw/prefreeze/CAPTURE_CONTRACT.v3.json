@@ -1,25 +1,19 @@
 {
  "abort_path": "NONE. No per-field or per-arm hang budget anywhere (FIELD-SWEEP-PROTOCOL 3c). Every value of every arm is dispatched.",
  "amendment": {
-  "n": 6,
-  "reason": "A7 (final, post-wedge): split_arms.py committed so the A6 arm split is reproducible (the two split files were generated on the device and lost with it, and are regenerated here). Contract re-frozen over the final PRE_REGISTRATION.md (amendment log + successor section) and the final analysis set. NO further device contact: the neo is wedged and recovery is the orchestrator's.",
-  "supersedes": "raw/prefreeze/CAPTURE_CONTRACT.v5.json"
+  "n": 3,
+  "reason": "A3: gated pair re-scoped to harness/arms188_gated.json (62 arms, 4086 cases) after the pre-freeze hazard probe and the killed run02 MEASURED the cost of the loop-iteration if_push hazard at ~8 s per hang case. NO hang budget is reinstated and there is still no abort path: one hazardous occurrence (cf_nl2#0) keeps the FULL dense 256-value map and the other three keep a four-value replication inside both gated runs, per FIELD-SWEEP-PROTOCOL 3(c). Clean if_push occurrences reduced to five spanning all four observed scope_kind values; SIMD carriers to one occurrence each (the carrier IS the dimension); iadd2 unchanged. Every dropped arm is listed with its reason in the file. Watchdog 1.2 s for the pair, recorded in env.json. Partial captures raw/prefreeze/pilot01, raw/g17p_20260830_run01 and raw/g17p_20260830_run02 are RETAINED as killed, never reused or topped up.",
+  "supersedes": "raw/prefreeze/CAPTURE_CONTRACT.v2.json"
  },
  "authored_sha256": {
-  "PRE_REGISTRATION.md": "0675b901eace451bb910c4409cd1c9f619e0762fd11c3d1205731635fa8b54ef",
+  "PRE_REGISTRATION.md": "0e343b4f9df5b36af8c379557b4559148431ee8346d86c7de4beea1372d26b79",
   "README.md": "4337d3869b88fc1b452429ad6eeedafa61f9afff6e46964dbe05d1b89f18d2b1",
   "analysis/census.py": "ae2d6ebdb7ff0082500b49c132e7b6f22392b324b58e787d12f88d516b2dcb50",
-  "analysis/contract.py": "1780cb34e1608981a10e497006c9d7e4808417d3c3b3f7f9dd7deb8fdc4e0b9b",
+  "analysis/contract.py": "e9b42683ec8798cf9017fb0c9040697cfd8d547ebfd1681464da0373249555c4",
   "analysis/gen_arms.py": "9193063c95d1b37942e504c1e833bb305c63616f9754b8bd6beb248951bd9d83",
-  "analysis/gen_gated_arms.py": "e03b6e5d11e6da1c31532ca1e447167c429e705a3d6606e7f54d7f44c28f9c8e",
   "analysis/hazard_probe.py": "3af16d735f914b0184a6a059519869e0d252af32cf7b4f09511254c9b7b656e6",
-  "analysis/partitions.py": "9933fec4bc32017615906b16d9f2abb9c62765ed35958cba42d9208a0c643ad4",
-  "analysis/split_arms.py": "b063b801195e269cf4355380b2608f7f07fbb1b8771f41dbe70550d613ed3c11",
   "analysis/verdicts.py": "2fbdf20b4c26dde2a21c31d13134a0670063eeb0304fa83ef966a6761cdfe4ac",
   "harness/arms188.json": "29deb0a1dd5a9cef2d77c69bcce428f0cc3c984cfd00fe6b19fd3b0b13f646f8",
-  "harness/arms188_cf.json": "268bafffd0221938ef7a1ffd0a981e0c3c66ece5185b8ec49aa1f8eec7d11ba8",
-  "harness/arms188_gated.json": "b9b57129e202e35a917e129dbf201f3493c71101913b41360804acddcc2543db",
-  "harness/arms188_rest.json": "fb71ee6591007c15ac55f617ba484e4cd77941de34e6505246eaa39fdd2baa05",
   "harness/arms_hazprobe.json": "5fc0dfa2a8a4aae13bcd8fad06386a017c23d6ab7a34417b01aa39eb7005339e",
   "harness/carriers188.py": "b36e7bc789ea5e7264fe7da9fe53f1d537fae4b6ac10a3a0737a8d39307a10b5",
   "harness/locate188.py": "163891b3deee3ce929504e3166b8be35a6d76e2a83bf8928723d17899aecf87e",
@@ -39,7 +33,7 @@
  },
  "concurrency": "UNLOCKED and concurrent with sibling experiments (FIELD-SWEEP-PROTOCOL section 7). No GPU lease exists. concurrent_gpu_procs is sampled into every run's env.json.",
  "experiment": "EXP-0188",
- "frozen_utc": "2026-08-30T14:46:24Z",
+ "frozen_utc": "2026-08-30T14:36:39Z",
  "gate": {
   "agree_min_pct": 99.0,
   "detection_power": "at least one control field of the SAME instruction at the SAME occurrence must move",
