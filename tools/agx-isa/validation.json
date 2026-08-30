@@ -1097,9 +1097,12 @@
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
+     "EXP-0139-m4-emit-ialu",
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
      "EXP-0171"
     ],
-    "note": "MOVED 252 of 256 on NAT:k_u32add@iadd2+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_u32add]; accept-set size 4 = [168, 172, 184, 188]; outcomes {\"fault\": 64, \"ok\": 4, \"wrong_value\": 188}",
+    "note": "MOVED 252 of 256 on NAT:k_u32add@iadd2+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_u32add]; accept-set size 4 = [168, 172, 184, 188]; outcomes {\"fault\": 64, \"ok\": 4, \"wrong_value\": 188} | EXP-0189 citation repair: the records supporting this row live in EXP-0139-m4-emit-ialu, EXP-0146-m4-emit-int-misc, EXP-0154-g17p-emit-alu; the original citation EXP-0171 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -1943,9 +1946,11 @@
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
+     "EXP-0139-m4-emit-ialu",
+     "EXP-0154-g17p-emit-alu",
      "EXP-0171"
     ],
-    "note": "MOVED 192 of 256 on NAT:k_bfe@ibfe+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s]; accept-set size 64; outcomes {\"ok\": 64, \"wrong_value\": 192}",
+    "note": "MOVED 192 of 256 on NAT:k_bfe@ibfe+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s]; accept-set size 64; outcomes {\"ok\": 64, \"wrong_value\": 192} | EXP-0189 citation repair: the records supporting this row live in EXP-0139-m4-emit-ialu, EXP-0154-g17p-emit-alu; the original citation EXP-0171 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -2414,10 +2419,11 @@
     "range": "byte0 HIGH nibble: all 16 values exercised, as the complete 0..255 byte0 raw-byte probe in B_ZEXT_SYNTH (run01 + run02, judged by the full 16-register architectural dump), plus 16 GENERATED encodings (gen01/gen02/gen03)",
     "target": "G17P",
     "evidence": [
+     "EXP-0146-m4-emit-int-misc",
      "EXP-0161",
      "EXP-0165"
     ],
-    "note": "NAME RE-POINTED BY DEF-0161-2: this entry now labels byte0's HIGH NIBBLE, the ONE register the instruction uses as both source and destination (r[n] = r[n] & 0xFFFF). db.json modelled that nibble as part of a fixed match (byte0 == 0x13) until EXP-0165. Measured: byte0 = 0xN3 narrows r[N] AND NOTHING ELSE for N = 0..10 -- 11/11 fits, 0 misfits, in both gated runs -- and N = 0xB..0xF execute as a NO-OP (no register changes at all), confirmed 4 independent times each. No byte0 whose LOW nibble is not 3 ever performs the narrow (all 16 low-nibble buckets checked). GENERATED: 11 of 16 `r[n] = r[n] & 0xFFFF` encodings pass a host-computed 16-register prediction; the 5 failures are exactly the no-op nibbles. ONE ANOMALY, recorded not smoothed: nibble 0x8 narrowed correctly in 4 of 5 observations and was a no-op once (gen03). The INERTNESS evidence that used to sit under this name (byte+1 bits 0-6) has moved to `mov_zext16.src_flag`, which now covers all of byte+1. (EXP-0165 analysis/rederive_def2_zext.py.)"
+    "note": "NAME RE-POINTED BY DEF-0161-2: this entry now labels byte0's HIGH NIBBLE, the ONE register the instruction uses as both source and destination (r[n] = r[n] & 0xFFFF). db.json modelled that nibble as part of a fixed match (byte0 == 0x13) until EXP-0165. Measured: byte0 = 0xN3 narrows r[N] AND NOTHING ELSE for N = 0..10 -- 11/11 fits, 0 misfits, in both gated runs -- and N = 0xB..0xF execute as a NO-OP (no register changes at all), confirmed 4 independent times each. No byte0 whose LOW nibble is not 3 ever performs the narrow (all 16 low-nibble buckets checked). GENERATED: 11 of 16 `r[n] = r[n] & 0xFFFF` encodings pass a host-computed 16-register prediction; the 5 failures are exactly the no-op nibbles. ONE ANOMALY, recorded not smoothed: nibble 0x8 narrowed correctly in 4 of 5 observations and was a no-op once (gen03). The INERTNESS evidence that used to sit under this name (byte+1 bits 0-6) has moved to `mov_zext16.src_flag`, which now covers all of byte+1. (EXP-0165 analysis/rederive_def2_zext.py.) | EXP-0189 citation repair: the records supporting this row live in EXP-0146-m4-emit-int-misc; the original citation EXP-0161, EXP-0165 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "src_flag": {
     "label": "hardware-run",
@@ -2514,9 +2520,11 @@
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
      "EXP-0171"
     ],
-    "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128}",
+    "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128} | EXP-0189 citation repair: the records supporting this row live in EXP-0146-m4-emit-int-misc, EXP-0154-g17p-emit-alu; the original citation EXP-0171 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -2578,9 +2586,11 @@
     "range": "8 of 8 sub-values, DENSE (8 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
      "EXP-0171"
     ],
-    "note": "MOVED 7 of 8 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (8 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [0]; outcomes {\"ok\": 1, \"silent_zero\": 7} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+    "note": "MOVED 7 of 8 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (8 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [0]; outcomes {\"ok\": 1, \"silent_zero\": 7} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'. | EXP-0189 citation repair: the records supporting this row live in EXP-0146-m4-emit-int-misc, EXP-0154-g17p-emit-alu; the original citation EXP-0171 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 8,
     "distinct_bytes": 8,
     "encodable_range": 8,
@@ -2755,9 +2765,12 @@
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
+     "EXP-0138-m4-emit-falu",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0161-g17p-carry-fspecial",
      "EXP-0171"
     ],
-    "note": "MOVED 255 of 256 on SYNTH:k_rsqrt@fspecial_est+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 2 admitted carriers [FRAME,SYNTH | k_rsqrt]; accept-set size 1 = [15]; outcomes {\"ok\": 1, \"silent_zero\": 124, \"wrong_value\": 131} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+    "note": "MOVED 255 of 256 on SYNTH:k_rsqrt@fspecial_est+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 2 admitted carriers [FRAME,SYNTH | k_rsqrt]; accept-set size 1 = [15]; outcomes {\"ok\": 1, \"silent_zero\": 124, \"wrong_value\": 131} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'. | EXP-0189 citation repair: the records supporting this row live in EXP-0138-m4-emit-falu, EXP-0154-g17p-emit-alu, EXP-0161-g17p-carry-fspecial; the original citation EXP-0171 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -2801,9 +2814,10 @@
     "evidence": [
      "EXP-0104",
      "EXP-0115",
+     "EXP-0139-m4-emit-ialu",
      "RT-ISA-FIX"
     ],
-    "note": "There is NO predicate register file to allocate: the compiler emits dst_pred=0 in 0/18+ compiled instances and any nonzero value silently corrupts the branch outcome. A driver must always emit 0."
+    "note": "There is NO predicate register file to allocate: the compiler emits dst_pred=0 in 0/18+ compiled instances and any nonzero value silently corrupts the branch outcome. A driver must always emit 0. | EXP-0189 citation repair: the records supporting this row live in EXP-0139-m4-emit-ialu; the original citation EXP-0104, EXP-0115, RT-ISA-FIX has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "srcA": {
     "label": "untested",
@@ -3174,10 +3188,11 @@
     "range": "0x00..0xFF EXHAUSTIVE: slots 1..30 return their own distinct bound buffer, slot 0 is anomalous, 31..127 read 0x00000000 with no fault, 128..255 mirror 0..127 byte-for-byte",
     "target": "M4",
     "evidence": [
+     "EXP-0010",
      "EXP-0083",
-     "EXP-0010"
+     "EXP-0141-m4-emit-mem"
     ],
-    "note": "31 base slots are simultaneously usable via the direct-binding API; that is a binding-path capacity, not proof of a hardware ceiling."
+    "note": "31 base slots are simultaneously usable via the direct-binding API; that is a binding-path capacity, not proof of a hardware ceiling. | EXP-0189 citation repair: the records supporting this row live in EXP-0141-m4-emit-mem; the original citation EXP-0083, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "index_reg": {
     "label": "hardware-run",
@@ -3239,9 +3254,10 @@
     "target": "M4",
     "evidence": [
      "EXP-0082",
-     "EXP-0100"
+     "EXP-0100",
+     "EXP-0141-m4-emit-mem"
     ],
-    "note": "Unsigned 11-bit, no internal holes. The LOAD offset unit is a FIXED 4 bytes, independent of elem_size (neither element units nor byte units)."
+    "note": "Unsigned 11-bit, no internal holes. The LOAD offset unit is a FIXED 4 bytes, independent of elem_size (neither element units nor byte units). | EXP-0189 citation repair: the records supporting this row live in EXP-0141-m4-emit-mem; the original citation EXP-0082, EXP-0100 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "ldform_hi11": {
     "label": "hardware-run",
@@ -3654,9 +3670,10 @@
     "target": "A18",
     "evidence": [
      "EXP-0003",
-     "EXP-0010"
+     "EXP-0010",
+     "EXP-0168-g17p-dst-resweep"
     ],
-    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000."
+    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-0003, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    }
   },
   "tex_sample": {
@@ -3703,8 +3720,10 @@
     "range": "companion+3 0xa4/0xac/0xb4/0xbc - bit2 = gather, bits[3:5] = gather component R/G/B/A, all four HW-validated",
     "target": "A18",
     "evidence": [
-     "EXP-0034"
-    ]
+     "EXP-0034",
+     "EXP-0172-g17p-onefield-tail"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0172-g17p-onefield-tail; the original citation EXP-0034 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "result_sel": {
     "label": "hardware-run",
@@ -3736,8 +3755,10 @@
     "evidence": [
      "EXP-0016",
      "EXP-0034",
+     "EXP-0172-g17p-onefield-tail",
      "EXP-M4-10"
-    ]
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0172-g17p-onefield-tail; the original citation EXP-0016, EXP-0034, EXP-M4-10 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "extra_coord": {
     "label": "hardware-run",
@@ -3753,10 +3774,11 @@
     "range": "upper nibble 0x0..0xF EXHAUSTIVE (16/16) plus 12 representative low-nibble values at both populated slots",
     "target": "M4",
     "evidence": [
+     "EXP-0016",
      "EXP-0114",
-     "EXP-0016"
+     "EXP-0172-g17p-onefield-tail"
     ],
-    "note": "RETRACTION: op+4 is NOT a stable per-texture binding index. Textures declared at MSL indices 5/50/100 produce op4 sequence [0,128,0] - it names a short-lived compiler-assigned register/uniform slot. Field is 4 bits (upper nibble); the lower nibble is PROVABLY INERT. All 14 unpopulated nibble values are a deterministic SILENT ZERO - never a fault, never an alias. The real 0..127 binding-index selector lives in a still-UNDECODED preceding pointer-load."
+    "note": "RETRACTION: op+4 is NOT a stable per-texture binding index. Textures declared at MSL indices 5/50/100 produce op4 sequence [0,128,0] - it names a short-lived compiler-assigned register/uniform slot. Field is 4 bits (upper nibble); the lower nibble is PROVABLY INERT. All 14 unpopulated nibble values are a deterministic SILENT ZERO - never a fault, never an alias. The real 0..127 binding-index selector lives in a still-UNDECODED preceding pointer-load. | EXP-0189 citation repair: the records supporting this row live in EXP-0172-g17p-onefield-tail; the original citation EXP-0114, EXP-0016 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "samp_slot_offset": {
     "label": "isolated-byte-diff",
@@ -3765,9 +3787,10 @@
     "evidence": [
      "EXP-0016",
      "EXP-0034",
-     "EXP-0106"
+     "EXP-0106",
+     "EXP-0172-g17p-onefield-tail"
     ],
-    "note": "Gather offset is a signed [-8,7] per-axis field, HW-confirmed affine and alias-free at all 12 boundary/corner points, and accepts a genuinely dynamic per-lane offset (EXP-0106)."
+    "note": "Gather offset is a signed [-8,7] per-axis field, HW-confirmed affine and alias-free at all 12 boundary/corner points, and accepts a genuinely dynamic per-lane offset (EXP-0106). | EXP-0189 citation repair: the records supporting this row live in EXP-0172-g17p-onefield-tail; the original citation EXP-0016, EXP-0034, EXP-0106 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "mode": {
     "label": "untested",
@@ -3979,9 +4002,10 @@
     "range": "0x92 = dfdx/X, 0x90 = dfdy/Y (2 of 256)",
     "target": "A18",
     "evidence": [
-     "EXP-0016"
+     "EXP-0016",
+     "EXP-0172-g17p-onefield-tail"
     ],
-    "note": "Fine-vs-coarse derivative decode is an open follow-up."
+    "note": "Fine-vs-coarse derivative decode is an open follow-up. | EXP-0189 citation repair: the records supporting this row live in EXP-0172-g17p-onefield-tail; the original citation EXP-0016 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "tail": {
     "label": "hardware-run",
@@ -4129,8 +4153,11 @@
     "target": "A18",
     "evidence": [
      "EXP-0018",
+     "EXP-0163-g17p-inert-liveness",
+     "EXP-0172-g17p-onefield-tail",
      "EXP-O2D"
-    ]
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness, EXP-0172-g17p-onefield-tail; the original citation EXP-0018, EXP-O2D has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "cache": {
     "label": "single-template-inference",
@@ -4179,9 +4206,11 @@
     "target": "M4",
     "evidence": [
      "EXP-0104",
-     "EXP-0115"
+     "EXP-0115",
+     "EXP-0163-g17p-inert-liveness",
+     "EXP-0172-g17p-onefield-tail"
     ],
-    "note": "Out-of-range behaviour is NOT uniform across the family and NOT a wraparound: dynamic simd_shuffle aliases idx>=32 as (idx & 0x1C); the STATIC single-instruction form instead returns a HARD ZERO; simd_shuffle_xor and quad_shuffle hard-zero in both forms."
+    "note": "Out-of-range behaviour is NOT uniform across the family and NOT a wraparound: dynamic simd_shuffle aliases idx>=32 as (idx & 0x1C); the STATIC single-instruction form instead returns a HARD ZERO; simd_shuffle_xor and quad_shuffle hard-zero in both forms. | EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness, EXP-0172-g17p-onefield-tail; the original citation EXP-0104, EXP-0115 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "rtype": {
     "label": "hardware-run",
@@ -4799,13 +4828,14 @@
   },
   "rt_intersect": {
    "_instruction": {
-    "label": "hardware-run",
+    "label": "corpus-correlation",
     "range": "6 known rays against a built acceleration structure returned correct t/prim/barycentrics; corrupting byte+1 0xea -> 0x00 hangs the GPU on the traverse op and perturbs the distance on the result-read op",
     "target": "A18",
     "evidence": [
      "EXP-0023",
      "RT-5-isa-tex-simd-mat-rt-frag-falsify"
-    ]
+    ],
+    "note": "EXP-0189 DOWNGRADE from `hardware-run`: every cited directory (EXP-0023-raytracing, RT-5-isa-tex-simd-mat-rt-frag-falsify) has NO per-value records for this descriptor, and no other directory contains bytes matching it. An emitter-grade INSTRUCTION label asserts the descriptor itself was established on hardware; nothing in the committed corpus supports that here."
    },
    "dst": {
     "label": "corpus-correlation",
@@ -5615,17 +5645,21 @@
     "range": "0x00 -> 0x02 (slot<<1): switched the interpolated output from color.x to color.y",
     "target": "A18",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0029",
+     "EXP-0163-g17p-inert-liveness"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness; the original citation EXP-0029 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "mode": {
     "label": "isolated-byte-diff",
     "range": "0x00 pixel-centre/linear, 0x02 centroid or per-sample, 0x04 perspective denominator (3 of 256)",
     "target": "A18",
     "evidence": [
-     "EXP-0029"
+     "EXP-0029",
+     "EXP-0155-g17p-emit-tex-frag",
+     "EXP-0163-g17p-inert-liveness"
     ],
-    "note": "Perspective-correct interpolation is a MULTI-INSTRUCTION lowering, not a mode bit."
+    "note": "Perspective-correct interpolation is a MULTI-INSTRUCTION lowering, not a mode bit. | EXP-0189 citation repair: the records supporting this row live in EXP-0155-g17p-emit-tex-frag, EXP-0163-g17p-inert-liveness; the original citation EXP-0029 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "loc": {
     "label": "hardware-run",
@@ -5792,8 +5826,10 @@
     "range": "byte+3 source colour GPR, splice-proven",
     "target": "A18",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0029",
+     "EXP-0163-g17p-inert-liveness"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness; the original citation EXP-0029 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "flags": {
     "label": "hardware-run",
@@ -5809,8 +5845,10 @@
     "range": "RT0=0x00, RT1=0x02, RT2=0x04 (rt<<1), splice-proven; MRT emits one store per target",
     "target": "A18",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0029",
+     "EXP-0163-g17p-inert-liveness"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness; the original citation EXP-0029 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "mask": {
     "label": "hardware-run",
@@ -6033,12 +6071,13 @@
   },
   "imageblock_load": {
    "_instruction": {
-    "label": "isolated-byte-diff",
+    "label": "corpus-correlation",
     "range": "explicit imageblock read/write executed end to end (a tile kernel overwrote an RGBA16F attachment)",
     "target": "A18",
     "evidence": [
      "EXP-O2D"
-    ]
+    ],
+    "note": "EXP-0189 DOWNGRADE from `isolated-byte-diff`: every cited directory (EXP-O2D-compute-frag-tail) has NO per-value records for this descriptor, and no other directory contains bytes matching it. An emitter-grade INSTRUCTION label asserts the descriptor itself was established on hardware; nothing in the committed corpus supports that here."
    },
    "dst": {
     "label": "untested",
@@ -6215,9 +6254,10 @@
     "range": "0x10, 0x40, 0x50, 0x60, 0xd0, 0xe0, 0xff swept on BOTH pack ops: 0x10 = component-0 only, 0x40 = component-1 only, 0x50/0xd0 = both, 0x60/0xe0 = both zeroed, 0xff = ILLEGAL, hard GPU fault",
     "target": "A18",
     "evidence": [
+     "EXP-0168-g17p-dst-resweep",
      "EXP-M4-14"
     ],
-    "note": "RETRACTION: the 24-bit fmt_word is NOT an inert attachment-format constant. byte+7 == 0xff hard-faults the GPU."
+    "note": "RETRACTION: the 24-bit fmt_word is NOT an inert attachment-format constant. byte+7 == 0xff hard-faults the GPU. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-M4-14 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "src_gate_select": {
     "label": "untested",
@@ -6415,8 +6455,10 @@
     "range": "4 distinct call distances; target = call_addr + 4 + offset",
     "target": "A18",
     "evidence": [
-     "EXP-0035"
-    ]
+     "EXP-0035",
+     "EXP-0179-g17p-call"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0179-g17p-call; the original citation EXP-0035 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "tail": {
     "label": "hardware-run",
@@ -6470,7 +6512,8 @@
     "target": "A18",
     "evidence": [
      "EXP-0035"
-    ]
+    ],
+    "note": "EXP-0189: every CITED directory (EXP-0035-function-abi) has no per-value records for this descriptor. Bytes matching it DO appear in EXP-0146-m4-emit-int-misc, so the claim is probably recoverable by re-citation rather than false -- but that is a successor re-derivation, not a relabel. Left as-is and flagged."
    },
    "b2": {
     "label": "tokenization-only",
@@ -6528,10 +6571,11 @@
     "range": "0..15 dense on the family's shared byte0 (EXP-0180 DSTNIB arm, two carriers, both gated runs, 16/16 identical), and 14 of 16 exercised IN THIS SIX-BYTE FORM in every one of 33,470 gated cases: the seed program's own half-adds are `[j<<4][h_B][opsel4][h_A][00][C0]` and nothing but byte0 names register j, so the per-case identity r_j.lo == fp16(h[byte+1] + h[byte+3]) re-proves the destination each time -- 228,690 checks per run, ZERO mismatches, both runs, j = 0..13. Values 14 and 15 are unobservable in that harness (R_ZERO pad register and R_IDX store index).",
     "target": "G17P",
     "evidence": [
+     "EXP-0138-m4-emit-falu",
      "EXP-0180",
      "EXP-0183"
     ],
-    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). The old row described byte+1, which is a SOURCE; its evidence is carried over to the new `srcA` row below, NOT to this one. COUNT CAVEAT, stated so the owner can choose: the 16-of-16 figure is from the DSTNIB arm, which varied this same byte0 on an 8-byte instance of the family; only 14 of 16 were dispatched in the 6-byte form itself. A conservative owner may prefer 14/14/16, which would set the THIN flag.",
+    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). The old row described byte+1, which is a SOURCE; its evidence is carried over to the new `srcA` row below, NOT to this one. COUNT CAVEAT, stated so the owner can choose: the 16-of-16 figure is from the DSTNIB arm, which varied this same byte0 on an 8-byte instance of the family; only 14 of 16 were dispatched in the 6-byte form itself. A conservative owner may prefer 14/14/16, which would set the THIN flag. | EXP-0189 citation repair: the records supporting this row live in EXP-0138-m4-emit-falu; the original citation EXP-0180, EXP-0183 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -7012,17 +7056,22 @@
     "range": "byte+3 source GPR (reg<<1), in-order 0,2,4,..,14 over r0..r7",
     "target": "A18",
     "evidence": [
-     "EXP-0037"
-    ]
+     "EXP-0037",
+     "EXP-0163-g17p-inert-liveness",
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness, EXP-0168-g17p-dst-resweep; the original citation EXP-0037 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "out_slot": {
     "label": "isolated-byte-diff",
     "range": "[[position]].xyzw = 0x00/0x20/0x40/0x60 (slots 0-3), user varyings 0x80/0xa0/0xc0/0xe0 (slots 4-7)",
     "target": "A18",
     "evidence": [
-     "EXP-0037"
+     "EXP-0037",
+     "EXP-0163-g17p-inert-liveness",
+     "EXP-0168-g17p-dst-resweep"
     ],
-    "note": "Position vs varying is the SLOT RANGE, not a distinct opcode."
+    "note": "Position vs varying is the SLOT RANGE, not a distinct opcode. | EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness, EXP-0168-g17p-dst-resweep; the original citation EXP-0037 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "out_slot_hi": {
     "label": "hardware-run",
@@ -7261,14 +7310,15 @@
   },
   "frame_prologue": {
    "_instruction": {
-    "label": "hardware-run",
+    "label": "corpus-correlation",
     "range": "non-leaf callee frame executed; every byte of the prologue swept",
     "target": "A18",
     "evidence": [
      "EXP-M4-14",
      "EXP-0038",
      "EXP-0035"
-    ]
+    ],
+    "note": "EXP-0189 DOWNGRADE from `hardware-run`: every cited directory (EXP-M4-14-a18-splice, EXP-0038-pack-carry-frame, EXP-0035-function-abi) has NO per-value records for this descriptor, and no other directory contains bytes matching it. An emitter-grade INSTRUCTION label asserts the descriptor itself was established on hardware; nothing in the committed corpus supports that here."
    },
    "subop": {
     "label": "untested",
@@ -7313,7 +7363,7 @@
      "EXP-M4-14",
      "EXP-0041"
     ],
-    "note": "EXP-0041 found this exact word ABSENT from all nine retained M4 own mains including 208-576 B declared scratch, so it is NOT a universal spill marker."
+    "note": "EXP-0041 found this exact word ABSENT from all nine retained M4 own mains including 208-576 B declared scratch, so it is NOT a universal spill marker. | EXP-0189: every CITED directory (EXP-M4-14-a18-splice, EXP-0041-scratch-helper-abi) has no per-value records for this descriptor. Bytes matching it DO appear in EXP-0156-g17p-emit-cf-mem, so the claim is probably recoverable by re-citation rather than false -- but that is a successor re-derivation, not a relabel. Left as-is and flagged."
    },
    "b1": {
     "label": "untested",
@@ -7438,14 +7488,15 @@
   },
   "link_save_restore": {
    "_instruction": {
-    "label": "hardware-run",
+    "label": "corpus-correlation",
     "range": "3-level-deep non-leaf call chain executed; in a RACE-FREE frame the op is a no-op fence and every payload field is inert, in a SPILLING frame (12 live temporaries) byte0 0x07 -> 0x00 corrupts the SAVE and HANGS the RESTORE",
     "target": "A18",
     "evidence": [
      "EXP-M4-14",
      "EXP-0035",
      "EXP-0038"
-    ]
+    ],
+    "note": "EXP-0189 DOWNGRADE from `hardware-run`: every cited directory (EXP-M4-14-a18-splice, EXP-0035-function-abi, EXP-0038-pack-carry-frame) has NO per-value records for this descriptor, and no other directory contains bytes matching it. An emitter-grade INSTRUCTION label asserts the descriptor itself was established on hardware; nothing in the committed corpus supports that here."
    },
    "b3": {
     "label": "untested",
@@ -8554,12 +8605,13 @@
   },
   "tex_addr_setup": {
    "_instruction": {
-    "label": "hardware-run",
+    "label": "corpus-correlation",
     "range": "explicit-level sample executed against a 4x4x3 mip texture (texel = 1000*L + 100*y + x) with every byte of the op swept",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ]
+    ],
+    "note": "EXP-0189 DOWNGRADE from `hardware-run`: every cited directory (EXP-M4-14-a18-splice) has NO per-value records for this descriptor, and no other directory contains bytes matching it. An emitter-grade INSTRUCTION label asserts the descriptor itself was established on hardware; nothing in the committed corpus supports that here."
    },
    "form": {
     "label": "untested",
@@ -11791,9 +11843,10 @@
     "range": "opsel_mod 0..7 exhaustive: 0 is the only clean value; 4 CORRUPTS an entirely unrelated, independently seeded register (r6) that a later reader then reads as zero; 1,2,3,5,6,7 give a locally contained 0.0 own-result",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0119",
+     "EXP-0138-m4-emit-falu"
     ],
-    "note": "A field this project's own tooling modelled as an innocuous `mod` byte is, for at least one value, an out-of-spec encoding with a blast radius WIDER than the instruction's own operands."
+    "note": "A field this project's own tooling modelled as an innocuous `mod` byte is, for at least one value, an out-of-spec encoding with a blast radius WIDER than the instruction's own operands. | EXP-0189 citation repair: the records supporting this row live in EXP-0138-m4-emit-falu; the original citation EXP-0119 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "opflags": {
     "label": "hardware-run",
@@ -11827,10 +11880,11 @@
     "range": "relative bit2 (absolute instruction bit 34) at {0,1}: outside a loop it runs STATUS OK (own result becomes 0.0, later reader unaffected); the SAME bit inside a loop produced a genuine GPU HANG in EXP-0089",
     "target": "M4",
     "evidence": [
+     "EXP-0089",
      "EXP-0119",
-     "EXP-0089"
+     "EXP-0138-m4-emit-falu"
     ],
-    "note": "The hang requires the loop context. One negative data point, not an exhaustive sweep of the interaction space."
+    "note": "The hang requires the loop context. One negative data point, not an exhaustive sweep of the interaction space. | EXP-0189 citation repair: the records supporting this row live in EXP-0138-m4-emit-falu; the original citation EXP-0119, EXP-0089 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "srcB_imm": {
     "label": "untested",
