@@ -3150,7 +3150,7 @@
      "EXP-0128",
      "EXP-0031"
     ],
-    "note": "WIDTH CORRECTED 8 -> 7 bits (EXP-0128). Values 128..255 SILENTLY ZERO. An emitter must range-check to 0..127; EXP-0031's original validation used only values < 128 so the 8-bit reading was never tested at the top."
+    "note": "WIDTH CORRECTED 8 -> 7 bits (EXP-0128). Values 128..255 DO NOT WRITE THE REGISTER AT ALL. An emitter must range-check to 0..127; EXP-0031's original validation used only values < 128 so the 8-bit reading was never tested at the top. [CORRECTED by EXP-0140: EXP-0128 reported a 'silent zero' only because its read-back buffer was zero-initialised. Against a 0xDEADBEEF-poisoned buffer the register keeps its previous value, and unpadded the instruction CONSUMES THE FOLLOWING 2-byte instruction. Bit 7 selects a different, longer instruction; it neither extends the immediate nor zeroes.]"
    },
    "imm_top": {
     "label": "hardware-run",
@@ -3159,7 +3159,7 @@
     "evidence": [
      "EXP-0128"
     ],
-    "note": "The inert 8th bit. Setting it does not add 128 to the immediate -- it silently zeroes the whole move. Combined with iadd2's N=0 self-read this produced two real GPU hangs in EXP-0128's pilot."
+    "note": "The inert 8th bit. Setting it does not add 128 to the immediate -- it do not write the register at alles the whole move. Combined with iadd2's N=0 self-read this produced two real GPU hangs in EXP-0128's pilot. [CORRECTED by EXP-0140: EXP-0128 reported a 'silent zero' only because its read-back buffer was zero-initialised. Against a 0xDEADBEEF-poisoned buffer the register keeps its previous value, and unpadded the instruction CONSUMES THE FOLLOWING 2-byte instruction. Bit 7 selects a different, longer instruction; it neither extends the immediate nor zeroes.]"
    }
   },
   "uniform_mov": {
