@@ -87,9 +87,24 @@ def report(expdir, mnem, field, spec):
     L = len({r.get("value") for r in use})
     orc = len({json.dumps(r.get("oracle"), sort_keys=True) for r in use})
     byt = len({r.get("bytes") for r in use if r.get("bytes")})
+    # DEF-0202-2 (found by EXP-0202 against this tool): the cross-run figure was
+    # wrong twice over. It pooled by `value` ACROSS arms -- and when a run uses
+    # reverse case order a different arm wins per run, so identical hardware
+    # reads as a disagreement -- and it compared `observed` verbatim, including
+    # `gputime_ns`, which never repeats. It reported 0-25% agreement on an
+    # experiment whose true figure is 0 disagreements on all nine fields.
+    VOLATILE = ("gputime_ns", "gpu_time_ns", "duration_ns", "timestamp", "elapsed_ns")
+
+    def stable(o):
+        if isinstance(o, dict):
+            return json.dumps({k: v for k, v in o.items() if k not in VOLATILE},
+                              sort_keys=True)
+        return json.dumps(o, sort_keys=True)
+
     runs = collections.defaultdict(dict)
     for r in valid:
-        runs[r["_run"]][r.get("value")] = json.dumps(r.get("observed"), sort_keys=True)
+        arm = r.get("arm") or r.get("carrier") or r.get("group") or ""
+        runs[r["_run"]][(arm, r.get("value"))] = stable(r.get("observed"))
     agree = "n/a (1 run)"
     rk = sorted(runs)
     if len(rk) >= 2:
@@ -106,7 +121,8 @@ def report(expdir, mnem, field, spec):
     print("       distinct encodings dispatched=%-5d %s" % (byt,
           "<-- ALIASED: fewer bytes than values" if byt and byt < L else ""))
     print("       hard outcomes (NOT movement): %s" % (dict(hard) or "none"))
-    print("       cross-run agreement: %s" % agree)
+    print("       cross-run agreement: %s  [keyed (arm,value); volatile timing fields excluded]"
+          % agree)
 
 
 def selftest():
@@ -129,7 +145,23 @@ def selftest():
     if is_hard(u) is None:
         print("SELFTEST FAIL: `undecodable` (our own disassembler) counted as movement")
         ok = False
+    # DEF-0202-2 regression: the same (arm, value) with only a timing field
+    # differing is NOT a disagreement, and two arms sharing a value are not
+    # comparable to each other.
+    a = {"w": 1, "gputime_ns": 111}
+    b = {"w": 1, "gputime_ns": 999}
+    if _stable_probe(a) != _stable_probe(b):
+        print("SELFTEST FAIL: a volatile timing field counts as a cross-run disagreement")
+        ok = False
+    if _stable_probe({"w": 1}) == _stable_probe({"w": 2}):
+        print("SELFTEST FAIL: a real payload difference is being masked")
+        ok = False
     return ok
+
+
+def _stable_probe(o):
+    VOLATILE = ("gputime_ns", "gpu_time_ns", "duration_ns", "timestamp", "elapsed_ns")
+    return json.dumps({k: v for k, v in o.items() if k not in VOLATILE}, sort_keys=True)
 
 
 def main():
