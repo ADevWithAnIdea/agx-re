@@ -2159,11 +2159,7 @@ def instr_length(buf, off=0):
     # iter op interpolates (EXP-0029). Memory-family opcode (low-nibble 7); byte+3 =
     # source GPR, byte+4 = destination output slot. 8 bytes. HW-splice-proven.
     if b0 == 0x57:
-        # EXP-0162 (G17P, HW): byte+1 bit1 selects the form -- 8-byte vertex
-        # vary_store sets it (615/615), the 6-byte fragment frag_sample_submit
-        # clears it (10/10). byte+2 does NOT discriminate and is 256/256 inert.
-        _b1 = buf[off + 1] if off + 1 < len(buf) else 0
-        return 8 if (_b1 & 0x02) else 6                       # vary_store (EXP-0037 HW)
+        return 8                       # vary_store (EXP-0037 HW)
     # ---- NON-LEAF FUNCTION FRAME PROLOGUE (byte0 0x6f, EXP-0038) --------------
     # Establishes the per-thread scratch frame a non-leaf callee uses to save its
     # link register around inner calls. `6f 03 04 00 00 20`. 6 bytes.
@@ -2492,12 +2488,9 @@ def assemble(mnemonic, fields):
     desc = _BY_MNEM[mnemonic]
     length = desc["length"]
     v = 0
-    # constant / match bits first. Track which bits the match CONTROLS (not just
-    # which it sets to 1) so a field/match overlap can be detected below.
-    match_bits_covered = 0
+    # constant / match bits first
     for (start, width, value) in desc["match"]:
         v |= (value & ((1 << width) - 1)) << start
-        match_bits_covered |= ((1 << width) - 1) << start
     # then the fields
     declared = {f["name"] for f in desc["fields"]}
     unknown = set(fields) - declared
@@ -2508,37 +2501,6 @@ def assemble(mnemonic, fields):
         mask = (1 << f["width"]) - 1
         if val & ~mask:
             raise ValueError(f"{mnemonic}.{f['name']}={val:#x} exceeds width {f['width']}")
-        # DEF-0170-1 (orchestrator, 2026-08-30): a `match` entry CONTROLS every bit
-        # it spans, pinning each to a value (zero bits included). So a field whose
-        # span overlaps its own descriptor's match is a DESCRIPTOR DEFECT, and
-        # silently resolving the conflict either way produces a wrong answer:
-        # OR-ing (the original code) left match-set bits stuck at 1 and silently
-        # UNDER-COVERED the sweep; clearing-then-OR-ing (the first fix) lets the
-        # field override the match and silently emits A DIFFERENT INSTRUCTION.
-        # 59 of db.json's fields overlap this way and 25 of them have ZERO free
-        # bits -- one legal value, so they are part of the match, not fields.
-        # Refuse instead: a loud error beats either silent wrong.
-        conflict = mask << f["start"]
-        pinned = conflict & match_bits_covered
-        if pinned and (val << f["start"]) & pinned != (v & pinned):
-            raise ValueError(
-                f"{mnemonic}.{f['name']}={val:#x} contradicts the descriptor's own "
-                f"match bits (mask {pinned:#x}): the match pins those bits, so this "
-                f"value would encode a different instruction. This is a db.json "
-                f"descriptor defect (DEF-0170-1); the field and match overlap.")
-        # CLEAR the field's span before OR-ing it (DEF-0166-1, EXP-0166).
-        # This used to be a bare `v |= ...`, which cannot clear a bit -- so any bit a
-        # `match` constant sets that also lies inside a field's span was STUCK AT 1 for
-        # every caller. 53 of db.json's fields overlap their own descriptor's match that
-        # way, and the effect is silent under-coverage rather than an error:
-        # `irotate.b2` could reach 32 of 256 values, `shift_amt_move.kind` 64 of 256,
-        # `iter.grp` and `iter_at.grp` 8 of 256 -- while a sweep driving them through
-        # assemble() counted 256 dispatched values and published "full 8-bit dense".
-        # Any experiment that built its bytes through this path under-covered its range.
-        # The cheap offline check is to count DISTINCT `bytes` in raw/, never the
-        # dispatched-value count. Sweeps that wrote bytes directly (e.g. EXP-0154) are
-        # unaffected -- their raw shows 256 distinct byte strings.
-        v &= ~(mask << f["start"])
         v |= (val & mask) << f["start"]
     return _bytes_from_int(v, length)
 

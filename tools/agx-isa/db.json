@@ -6874,7 +6874,8 @@
     }
    ],
    "semantics": "bfloat convert (8-byte). byte+1 = source width (0x03 float32, 0x02 float16); byte+6 = direction (0x40 = result bfloat: float->bfloat / half->bfloat; 0x80 = result half: bfloat->half). byte+4 == 0x01 marks a bfloat operand. 8-byte sibling of the 6-byte cvt_f2h_dst (byte+4 bit0 set = bfloat, so longer).",
-   "provenance": "byte-diff EXP-M4-13 (p_f2bf/p_h2bf/p_bf2h single-op MSL). f2h-vs-f2bf length split (byte+4 bit0) confirmed by direct byte-diff; direction byte+6 from h2bf(0x40) vs bf2h(0x80). Own-MSL bfloat()/half() constructs; not hardware-splice-validated."
+   "provenance": "byte-diff EXP-M4-13 (p_f2bf/p_h2bf/p_bf2h single-op MSL). f2h-vs-f2bf length split (byte+4 bit0) confirmed by direct byte-diff; direction byte+6 from h2bf(0x40) vs bf2h(0x80). Own-MSL bfloat()/half() constructs; not hardware-splice-validated.",
+   "note": "DEF-0170-1 (orchestrator, 2026-08-30): the field named `src` (byte+3) is FULLY PINNED by this descriptor's own match [[24,8,129]] -- it has exactly ONE legal value, so it CANNOT be the source operand selector its name implies. `fmt` (byte+4) is pinned the same way. The free fields are `dst`, `srcw`, `opsel`, `b5`, `dir` and `b7`, so if this instruction has a choosable source it is one of those -- `srcw` is the likeliest candidate and is currently typed `opcode`. NOT vetoed, because the source may simply be modelled under the wrong name rather than missing; but an implementer must not believe `src` selects the source. Same defect class as fspecial's swapped operands (DEF-0161-1) and imad's absent srcA (DEF-0160-6), both of which turned out to be real. Needs a sweep of `srcw` against a known source register to settle. See tools/agx-isa/match_overlap.json."
   },
   {
    "mnemonic": "bf_add_dst",

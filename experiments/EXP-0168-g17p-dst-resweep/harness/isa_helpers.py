@@ -86,14 +86,25 @@ N_REGS = 16
 # (EXP-0128: imm >= 128 does not write the register at all; imm7 == 12 does not
 # tokenize under the current length rule, so it is avoided). Chosen so that
 # a+b, a-b, a*b, min/max and "which register is this?" are uniquely decodable.
+# NO SEED MAY BE 0. `SEED_I[15]` was 0, and the prefreeze diagnostic
+# raw/prefreeze/diag_byte0.json measured that the reg_move forms 0x00/0x01/0x03
+# WRITE ZERO. A dst sweep therefore could not distinguish "dst=15 wrote 0 into
+# r15" from "dst=15 did nothing" -- the same class of by-construction blindness
+# as EXP-0140's co-varying oracle, in MY OWN seed table. 121 is distinct from
+# every other seed and inside mov_imm's HW-VALIDATED 0..127 range.
 SEED_I = {0: 10, 1: 21, 2: 34, 3: 47, 4: 58, 5: 65, 6: 71, 7: 83,
-          8: 94, 9: 101, 10: 113, 11: 119, 12: 125, 13: 127, 14: 3, 15: 0}
+          8: 94, 9: 101, 10: 113, 11: 119, 12: 125, 13: 127, 14: 3, 15: 121}
 
 # Distinct float seeds. Every value is an EXACT fixed point of the falu2i
 # minifloat immediate encoder (asserted at import time below).
+# r14 MUST stay +0.0 -- it is the `+0.0` source every falu2i seed adds to.
+# r15 was also 0.0 and is not required to be, so it is given a distinct exact
+# minifloat value for the same reason SEED_I[15] changed. For kind="float" arms
+# dst=14 remains undecidable when the instruction writes +0.0; that is a
+# recorded limit of the float carrier, and the int carrier covers r14.
 SEED_F = {0: 5.0, 1: 1.5, 2: 3.0, 3: 0.5, 4: 7.0, 5: 9.0, 6: 11.0, 7: 13.0,
           8: 0.25, 9: 18.0, 10: 22.0, 11: 26.0, 12: 30.0, 13: 0.75,
-          14: 0.0, 15: 0.0}
+          14: 0.0, 15: 2.5}
 
 SENT_PRE = 0x5A5A5A5A     # written to memory BEFORE the tested block
 SENT_POST = 111           # mov_imm-able POST sentinel (< 128)
@@ -325,6 +336,37 @@ def synth_program_midstop(kind, stop_bytes, carrier_len):
     instrs += pre_sentinel_instrs(kind)
     instrs.append(stop_bytes)
     instrs += dump_instrs()
+    instrs.append(stop())
+    return build_program(instrs, carrier_len)
+
+
+SENT_WITNESS = 77         # mov_imm-able post-stop witness (< 128)
+
+
+def synth_program_terminalstop(kind, stop_bytes, carrier_len):
+    """seeds -> PRE sentinel -> 16-register dump -> POST sentinel ->
+    [stop under test] -> POST-STOP WITNESS -> stop.
+
+    The stop under test is the program's REAL terminator: every word the
+    observable depends on has already been stored, so the register dump is
+    present in EVERY case and the field cannot express itself through the dump
+    at all. What it can express is whether anything AFTER it executes -- so a
+    witness write into `W_PROBE` follows it. Terminates (documented behaviour)
+    -> word 72 stays POISON. Fails to terminate -> word 72 == SENT_WITNESS.
+
+    WHY THIS FUNCTION EXISTS. Until the prefreeze smoke caught it, STOP/terminal
+    fell through to `synth_program()`, which places the block under test in the
+    BODY -- byte-for-byte the same program shape as `synth_program_midstop()`.
+    The two arms produced identical observations on hardware (whole dump poison,
+    POST poison) because they were ONE CARRIER. That is exactly the R2 violation
+    this experiment was built to expose in EXP-0155, occurring in my own harness.
+    """
+    instrs = seed_instrs(kind)
+    instrs += pre_sentinel_instrs(kind)
+    instrs += dump_instrs()
+    instrs.append(stop_bytes)
+    instrs.append(mov_imm(R_PROBE, SENT_WITNESS))
+    instrs.append(store_word(W_PROBE, R_PROBE))
     instrs.append(stop())
     return build_program(instrs, carrier_len)
 

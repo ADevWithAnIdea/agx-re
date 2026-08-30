@@ -34,3 +34,15 @@ Append-only. Timestamps are local (M4 repo host).
   8 UNDER-COVERED, 174 UNKNOWN. **F3 FIRED (<25 UNDER-COVERED).**
 - next: add per-field span unions + a dedicated audit of all 53 overlapping fields against
   observed span coverage, then Arm C.
+- **2026-08-30 M4** — Arm C complete (`analysis/roundtrip_idiom.py` → `roundtrip_idiom.json`,
+  160 hits over 1,419 python files; `analysis/roundtrip_blindspot.py` →
+  `roundtrip_blindspot.json`). **H6 CONFIRMED, F6 did not fire.** Decisive: the PRE-fix
+  OR-only `assemble()` was re-implemented locally and `tools/agx-isa/roundtrip_test.py`
+  re-run against it — **test (A) `asm(disasm(b))==b`: 173 cases, 0 failures. Test (B)
+  `disasm(asm(fields))==fields`: 37 cases, 0 failures, 9 of them touching one of the 53
+  overlapping fields, 0 that would have caught it.** The suite is not merely
+  theoretically blind; it demonstrably passes with the broken assembler.
+- **2026-08-30 M5** — session-limit restart. Re-oriented from committed files (not memory).
+  Coordinator adds **Scope 3 / Arm D**: EXP-0164's run-selection and placeholder handling.
+  Arm D is NOT in the frozen §3, so it goes in as a dated **AMENDMENT with its own
+  pre-registered thresholds, written before any Arm D number is computed.**

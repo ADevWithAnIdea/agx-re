@@ -1,0 +1,58 @@
+k_uni_each         len=48   leftover=0    get_sr@0 uniform_mov@4 iadd2@8 uniform_mov@18 uniform_mov@22 uniform_mov@26 device_store@30 stop@44
+k_uni_sum          len=26   leftover=0    get_sr@0 uniform_mov@4 device_store@8 stop@22
+k_bitcast          len=36   leftover=0    get_sr@0 device_load@4 device_store@18 stop@32
+k_packnorm2        len=46   leftover=0    get_sr@0 device_load@4 pack_convert@18 device_store@28 stop@42
+k_fadd             len=56   leftover=0    get_sr@0 device_load@4 device_load@18 falu2@32 device_store@38 stop@52
+k_faddi            len=42   leftover=0    get_sr@0 device_load@4 falu2i@18 device_store@24 stop@38
+k_sum              len=202  leftover=0    get_sr@0 iadd2@4 iadd2@14 iadd2@24 iadd2@34 device_load@44 iadd2@58 device_load@68 iadd2@82 device_load@92 device_load@106 device_load@120 falu2i@134 falu_acc@140 falu2@144 falu_acc@150 falu2@154 falu_acc@160 falu2@164 falu_acc@170 falu2@174 falu_acc@180 device_store@184 stop@198
+k_sum_reuse        len=266  leftover=0    get_sr@0 iadd2@4 iadd2@14 iadd2@24 iadd2@34 device_load@44 iadd2@58 device_load@68 iadd2@82 device_load@92 device_load@106 device_load@120 falu2i@134 falu_compact4@140 falu2_uni@144 falu2@150 falu2_uni@156 falu_compact4@162 falu2_uni@166 falu2@172 falu2_uni@178 falu_compact4@184 falu2_uni@188 falu2@194 falu2_uni@200 falu_compact4@206 falu2_uni@210 falu2@216 falu2_uni@222 falu_compact4@228 falu2_uni@232 iadd2@238 device_store@248 stop@262
+k_copysign         len=60   leftover=0    get_sr@0 device_load@4 device_load@18 n2_op6@32 copysign@38 device_store@42 stop@56
+k_copysign_rp      len=180  leftover=0    get_sr@0 iadd2@4 iadd2@14 iadd2@24 device_load@34 device_load@48 device_load@62 falu2@76 falu_compact4@82 falu_compact4@86 falu2@90 n2_op6@96 scoreboard_fence@102 falu2@106 falu_compact4@112 falu_compact4@116 falu_compact4@120 falu_acc@124 falu_acc@128 falu2_uni@132 falu_acc@138 falu3_srcmod12@142 operand_word@154 falu2_uni@156 device_store@162 stop@176
+k_f2h_standalone   len=42   leftover=0    get_sr@0 device_load@4 cvt_f2h@18 device_store@24 stop@38
+k_f2h_consumed     len=66   leftover=6    get_sr@0 device_load@4 device_load@18 cvt_f2h_dst@32 cvt_f2h@38 half_alu_fma12@44 n1_word@56 pad_operand@58 <unknown>@60
+k_f2i              len=46   leftover=0    get_sr@0 device_load@4 cvt_f2i@18 device_store@28 stop@42
+k_f2i_consumed     len=72   leftover=0    get_sr@0 device_load@4 device_load@18 cvt_f2i@32 imad@42 device_store@54 stop@68
+k_f2u              len=46   leftover=0    get_sr@0 device_load@4 cvt_f2i@18 device_store@28 stop@42
+k_pack_unorm2      len=46   leftover=0    get_sr@0 device_load@4 pack_convert@18 device_store@28 stop@42
+k_pack_snorm2      len=46   leftover=0    get_sr@0 device_load@4 pack_convert@18 device_store@28 stop@42
+k_pack_unorm4      len=56   leftover=0    get_sr@0 device_load@4 pack_convert@18 frag_color_pack@28 device_store@38 stop@52
+k_unpack_unorm2    len=44   leftover=0    get_sr@0 device_load@4 unpack_convert@18 device_store@26 stop@40
+k_unpack_snorm2    len=44   leftover=0    get_sr@0 device_load@4 unpack_convert@18 device_store@26 stop@40
+k_unpack_consumed  len=66   leftover=0    get_sr@0 device_load@4 device_load@18 unpack_convert@32 falu3@40 device_store@48 stop@62
+k_getsr            len=48   leftover=0    get_sr@0 get_sr@4 get_sr@8 mov_zext16@12 mov_zext16@16 iadd2@20 device_store@30 stop@44
+k_rot_var          len=98   leftover=0    get_sr@0 device_load@4 device_load@18 tex_coord_setup@32 ibfins@42 iadd2@54 ibfe@64 shift_amt_move@76 device_store@80 stop@94
+k_rot_uni          len=84   leftover=62   get_sr@0 device_load@4 n3_mov@18 <unknown>@22
+k_shl_var          len=72   leftover=0    get_sr@0 device_load@4 device_load@18 tex_coord_setup@32 ibfins@42 device_store@54 stop@68
+k_if_flat          len=140  leftover=0    get_sr@0 iadd2@4 iadd2@14 device_store@24 device_load@38 icmp_pred@52 if_push@58 iadd2@62 iadd2@72 device_store@82 pop_reconverge@96 iadd2@102 iadd2@112 device_store@122 stop@136
+k_if_nest2         len=234  leftover=0    get_sr@0 iadd2@4 iadd2@14 device_store@24 device_load@38 icmp_pred@52 if_push@58 jump_cond@62 iadd2@72 iadd2@82 icmp_pred@92 device_store@98 if_push@112 iadd2@116 iadd2@126 device_store@136 pop_reconverge@150 iadd2@156 iadd2@166 device_store@176 pop_reconverge@190 iadd2@196 iadd2@206 device_store@216 stop@230
+k_if_nest3         len=328  leftover=0    get_sr@0 iadd2@4 iadd2@14 device_store@24 device_load@38 icmp_pred@52 if_push@58 jump_cond@62 iadd2@72 iadd2@82 icmp_pred@92 device_store@98 if_push@112 jump_cond@116 iadd2@126 iadd2@136 icmp_pred@146 device_store@152 if_push@166 iadd2@170 iadd2@180 device_store@190 pop_reconverge@204 iadd2@210 iadd2@220 device_store@230 pop_reconverge@244 iadd2@250 iadd2@260 device_store@270 pop_reconverge@284 iadd2@290 iadd2@300 device_store@310 stop@324
+k_if_loop          len=204  leftover=0    get_sr@0 iadd2@4 iadd2@14 device_store@24 device_load@38 icmp_pred@52 if_push@58 jump_cond@62 iadd2@72 iadd2@82 iadd2@92 iadd2@102 iadd2@112 iadd2@122 device_store@132 device_store@146 pop_reconverge@160 iadd2@166 iadd2@176 device_store@186 stop@200
+k_atomic_lo        len=68   leftover=0    get_sr@0 device_load@4 tg_atomic_prep10@18 atomic_mem@28 mov_imm@42 falu_compact4@44 pad_operand@48 device_store@50 stop@64
+k_atomic_hi        len=658  leftover=0    get_sr@0 iadd2@4 iadd2@14 iadd2@24 device_load@34 iadd2@48 iadd2@58 iadd2@68 iadd2@78 device_load@88 device_load@102 device_load@116 device_load@130 device_load@144 tg_atomic_prep10@158 atomic_mem@168 mov_imm@182 falu_compact4@184 pad_operand@188 iadd2@190 iadd2@200 iadd2@210 iadd2@220 iadd2@230 iadd2@240 iadd2@250 iadd2@260 iadd2@270 iadd2@280 iadd2@290 iadd2@300 iadd2@310 iadd2@320 iadd2@330 iadd2@340 iadd2@350 iadd2@360 iadd2@370 iadd2@380 iadd2@390 iadd2@400 iadd2@410 iadd2@420 iadd2@430 iadd2@440 iadd2@450 iadd2@460 iadd2@470 iadd2@480 iadd2@490 iadd2@500 iadd2@510 iadd2@520 iadd2@530 iadd2@540 iadd2@550 iadd2@560 iadd2@570 iadd2@580 iadd2@590 iadd2@600 iadd2@610 iadd2@620 iadd2@630 device_store@640 stop@654
+k_atomic_min       len=68   leftover=0    get_sr@0 device_load@4 tg_atomic_prep10@18 atomic_mem@28 mov_imm@42 falu_compact4@44 pad_operand@48 device_store@50 stop@64
+k_matmac           len=202  leftover=0    get_sr@0 ibfe@4 b_alu10_lo7@16 tex_coord_setup@26 iadd2@36 ibfins@46 ibfins@58 ibfe@70 ibfe@82 iadd2@94 iadd2@104 iadd2@114 iadd2@124 device_load@134 device_load@148 matrix_mac@162 iadd2@174 device_store@184 stop@198
+
+wrote /Users/user/agxre/EXP-0168/work/anchors/anchor_report.json
+
+TARGET ANCHOR AVAILABILITY
+  uniform_mov      5 occurrence(s)  k_uni_each#0, k_uni_each#1, k_uni_each#2, k_uni_each#3, k_uni_sum#0
+  reg_move_c0      0 occurrence(s)  
+  reg_move_c1      0 occurrence(s)  
+  reg_move_c2var   0 occurrence(s)  
+  reg_move_c9      0 occurrence(s)  
+  reg_move_cb      0 occurrence(s)  
+  falu2            12 occurrence(s)  k_fadd#0, k_sum#0, k_sum#1, k_sum#2, k_sum#3, k_sum_reuse#0
+  falu2i           3 occurrence(s)  k_faddi#0, k_sum#0, k_sum_reuse#0
+  falu_acc         8 occurrence(s)  k_sum#0, k_sum#1, k_sum#2, k_sum#3, k_sum#4, k_copysign_rp#0
+  get_sr           35 occurrence(s)  k_uni_each#0, k_uni_sum#0, k_bitcast#0, k_packnorm2#0, k_fadd#0, k_faddi#0
+  copysign         1 occurrence(s)  k_copysign#0
+  cvt_f2h          2 occurrence(s)  k_f2h_standalone#0, k_f2h_consumed#0
+  cvt_f2i          3 occurrence(s)  k_f2i#0, k_f2i_consumed#0, k_f2u#0
+  pack_convert     4 occurrence(s)  k_packnorm2#0, k_pack_unorm2#0, k_pack_snorm2#0, k_pack_unorm4#0
+  unpack_convert   3 occurrence(s)  k_unpack_unorm2#0, k_unpack_snorm2#0, k_unpack_consumed#0
+  shift_amt_move   1 occurrence(s)  k_rot_var#0
+  mov_imm          3 occurrence(s)  k_atomic_lo#0, k_atomic_hi#0, k_atomic_min#0
+  stop             31 occurrence(s)  k_uni_each#0, k_uni_sum#0, k_bitcast#0, k_packnorm2#0, k_fadd#0, k_faddi#0
+  if_push          7 occurrence(s)  k_if_flat#0, k_if_nest2#0, k_if_nest2#1, k_if_nest3#0, k_if_nest3#1, k_if_nest3#2
+  atomic_mem       3 occurrence(s)  k_atomic_lo#0, k_atomic_hi#0, k_atomic_min#0
+  matrix_mac       1 occurrence(s)  k_matmac#0

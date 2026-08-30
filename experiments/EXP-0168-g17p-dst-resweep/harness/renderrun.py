@@ -307,7 +307,21 @@ def do_freeze(args):
             skipped.append({"carrier": name, "why": "build failed"})
             continue
         cfg = RC.CARRIERS[name]
+        dims = {cfg["family"]: cfg["carrier_dim"]}
         for mn, spec in RA.TARGETS.items():
+            fam = spec["family"]
+            cdim = dims.get(fam)
+            if cdim is None:
+                if not args.cross_family:
+                    skipped.append({"carrier": name, "mnemonic": mn,
+                                    "why": "carrier declares no dimension for "
+                                           "the %s family; an occurrence here "
+                                           "would add an arm but NOT a distinct "
+                                           "carrier, and its ladders live in "
+                                           "another stage. Enable with "
+                                           "--cross-family." % fam})
+                    continue
+                cdim = "secondary:" + cfg["carrier_dim"]
             stage = spec["stage"]
             st = e["stages"].get(stage, {})
             oc = st.get("occurrences", {}).get(mn)
@@ -320,7 +334,7 @@ def do_freeze(args):
             for hit in oc["hits"][:args.max_occ]:
                 # Ladder targets, located in the same stage of the same carrier.
                 ladders = []
-                for L in RA.LADDERS[cfg["family"]]:
+                for L in RA.LADDERS[fam]:
                     if L["mnemonic"] is None:
                         ladders.append({"id": L["id"], "kind": "data"})
                         continue
@@ -344,8 +358,8 @@ def do_freeze(args):
                 arms.append({
                     "arm": RA.arm_id(mn, name, stage, hit["occ"]),
                     "carrier": name, "stage": stage, "mnemonic": mn,
-                    "occ": hit["occ"], "family": cfg["family"],
-                    "carrier_dim": cfg["carrier_dim"],
+                    "occ": hit["occ"], "family": fam,
+                    "carrier_dim": cdim,
                     "fields": sorted(spec["fields"]),
                     "expect_hex": hit["hex"], "expect_off": hit["instr_off"],
                     "abs_off": hit["abs_off"], "length": hit["length"],
@@ -554,6 +568,7 @@ class Run:
         self.runners = {}
         self.summary = {}
         self.stop_all = False
+        self.bytemate_done = 0
         self.deadline = (time.time() + args.deadline_s) if args.deadline_s > 0 else None
 
     # -- emission: append + flush + fsync, EVERY case, never buffered ---------
@@ -658,7 +673,8 @@ class Run:
 
         self.run_ladders(arm, base, S)
         self.run_falsifiers(arm, base, S)
-        if self.args.bytemate:
+        if self.args.bytemate and self.bytemate_done < self.args.bytemate_arms:
+            self.bytemate_done += 1
             self.run_bytemate(arm, orig, base, S)
         if S["ladder_pass"] or not self.args.skip_powerless:
             self.run_sweeps(arm, orig, base, S)
@@ -693,7 +709,7 @@ class Run:
         name = arm["carrier"]
         cfg = RC.CARRIERS[name]
         order = {"none": 0, "low": 1, "medium": 2, "high": 3}
-        spec = {L["id"]: L for L in RA.LADDERS[cfg["family"]]}
+        spec = {L["id"]: L for L in RA.LADDERS[arm["family"]]}
         for fl in sorted(arm["ladders"], key=lambda x: order.get(
                 spec[x["id"]].get("hazard", "low"), 1)):
             L = spec[fl["id"]]
@@ -795,7 +811,8 @@ class Run:
                  value=value, bytes=bts,
                  byte_index=(L["raw_byte"] if "raw_byte" in L else None),
                  fstart=None, fwidth=None, ladder_occ=occ,
-                 hazard=L.get("hazard", "low"))
+                 hazard=L.get("hazard", "low"), note="", oracle=None,
+                 confirm=None)
         if skeleton:
             return r
         r.update(observed=observed, outcome=outcome, note=note, oracle=None,
@@ -811,13 +828,14 @@ class Run:
         for fl in arm["ladders"]:
             if fl["kind"] == "splice" and not fl.get("unavailable"):
                 byocc[fl["mnemonic"]] = fl["targets"][0]
-        for F in RA.FALSIFIERS[cfg["family"]]:
+        for F in RA.FALSIFIERS[arm["family"]]:
             rec = dict(instr=F["mnemonic"] or arm["mnemonic"], carrier=name,
                        arm=arm["arm"], carrier_dim=arm["carrier_dim"],
                        role="falsifier", field="%s:%s" % (F["id"], F["field"] or "-"),
                        value=(-1 if F["value"] is None else F["value"]),
-                       byte_index=None, fstart=None, fwidth=None,
-                       predict=F["predict"], hazard=F.get("hazard", "low"))
+                       byte_index=None, fstart=None, fwidth=None, bytes="",
+                       predict=F["predict"], hazard=F.get("hazard", "low"),
+                       note=F["note"][:400], oracle=None, confirm=None)
             if F["mnemonic"] is None:
                 ov = RC.buf0_override_bytes(cfg)
                 if ov is None:
@@ -937,7 +955,8 @@ class Run:
                        arm=arm["arm"], carrier_dim=arm["carrier_dim"],
                        role="bytemate", field="%s:mate" % key, value=v,
                        bytes=patched.hex(), byte_index=bm["raw_byte"],
-                       fstart=None, fwidth=None, hazard=bm["hazard"])
+                       fstart=None, fwidth=None, hazard=bm["hazard"],
+                       note="", oracle=None, confirm=None)
             obs, va, att, conf = self.dispatch_confirmed(
                 arm, [(arm["abs_off"], patched.hex())], rec=rec)
             hung = self._count_hang(arm, S, obs, conf)
@@ -993,7 +1012,9 @@ class Run:
                                      "%d -- arm refused rather than swept at a "
                                      "different field" % (w, meta["fwidth"])))
                 continue
-            vals = RA.coverage_for(w)
+            defer = RA.KNOWN_FAULT_VALUES.get((arm["mnemonic"], fname), {}) \
+                      .get("values", [])
+            vals = RA.coverage_for(w, defer)
             fh = moved = nok = nfault = 0
             swept = 0
             for v in vals:
@@ -1075,7 +1096,8 @@ class Run:
         r = dict(instr=arm["mnemonic"], carrier=arm["carrier"], arm=arm["arm"],
                  carrier_dim=arm["carrier_dim"], role="sweep", field=fname,
                  value=value, bytes=bts, byte_index=meta["byte_index"],
-                 fstart=meta["fstart"], fwidth=meta["fwidth"])
+                 fstart=meta["fstart"], fwidth=meta["fwidth"], note="",
+                 oracle=None, confirm=None)
         if skeleton:
             return r
         r.update(observed=observed, outcome=outcome, note=note, oracle=None,
@@ -1274,6 +1296,16 @@ def main():
     ap.add_argument("--skip-hazard", action="store_true",
                     help="skip every hazard=high ladder and byte-mate control")
     ap.add_argument("--no-bytemate", dest="bytemate", action="store_false")
+    ap.add_argument("--bytemate-arms", type=int, default=1,
+                    help="how many arms get the byte-mate control. It is the "
+                         "highest-hazard item in the plan (a decode-changing "
+                         "splice into the vertex stream, which EXP-0162 measured "
+                         "hanging), so it defaults to ONE arm.")
+    ap.add_argument("--cross-family", action="store_true",
+                    help="also sweep a target instruction on carriers that "
+                         "declare no dimension for it; such arms are labelled "
+                         "`secondary:` and never count toward the "
+                         "distinct-carrier bar")
     ap.add_argument("--skip-powerless", action="store_true",
                     help="do not dense-sweep an arm whose ladder failed")
     ap.set_defaults(bytemate=True)

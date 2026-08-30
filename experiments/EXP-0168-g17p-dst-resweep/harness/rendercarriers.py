@@ -157,6 +157,24 @@ def vtx_values_vec(u):
     return out
 
 
+def vtx_values_mix(u):
+    """r_vmix: twelve observables from MIXED-WIDTH varyings, in RT/channel order.
+
+        c0 = (h0, h1.x, h1.y, f0)                   = ( 1,  2,   4,    8)
+        c1 = (f1.x, f1.y, f2.x, f2.y)               = (16, 32,  64,  128)
+        c2 = (f2.z, f2.w, h0*1024, f0*1024)         = (256,512,1024, 8192)
+
+    The half-typed values are small integers, exact in binary16, so the oracle
+    does not depend on half rounding.  This is the ONLY carrier whose
+    ordinal -> byte-offset map is non-linear, which is what makes it the
+    discriminator for how `vtx_out_pos.slot` is indexed.
+    """
+    h0, h1x, h1y, f0 = f32(u[0]), f32(u[1]), f32(u[2]), f32(u[3])
+    return [h0, h1x, h1y, f0,
+            f32(u[0] * 16.0), f32(u[1] * 16.0), f32(u[0] * 64.0), f32(u[1] * 64.0),
+            f32(u[2] * 64.0), f32(u[3] * 64.0), f32(h0 * 1024.0), f32(f0 * 1024.0)]
+
+
 def vtx_values_chain(u):
     """r_vsrc: t0 = u.x ; t(k+1) = t(k)*1.5 + u.y.
 
@@ -263,6 +281,18 @@ CARRIERS = {
             "identifies the write itself as a confound if the writing carriers "
             "behave differently.",
         vtx_values="pow2", n_channels=8),
+    "r_vmix": dict(
+        family="vtx", kind="render", src="kernels/r_vmix.metal",
+        color_format=125, rt_count=3, samples=1, width=W, height=H,
+        buf0=VTX_U, buf0_alt=VTX_U_ALT, priority=1,
+        carrier_dim="MIXED-WIDTH varyings (half/half2/float/float2/float4)",
+        why="THE DISCRIMINATOR for how `slot` is indexed. Every other carrier "
+            "has uniform-width varyings, and for uniform widths "
+            "'ordinal scaled by 4' and 'byte offset into the output block' are "
+            "indistinguishable. Mixed widths make the ordinal->offset map "
+            "non-linear, so a dense slot sweep here separates the two readings "
+            "-- which no number of additional uniform-width carriers can do.",
+        vtx_values="mix", n_channels=12),
     "r_v4v": dict(
         family="vtx", kind="render", src="kernels/r_v4vec.metal",
         color_format=125, rt_count=4, samples=1, width=W, height=H,
@@ -467,6 +497,8 @@ def oracle(name, alt=False):
             vals = vtx_values_pow2(u)
         elif kind == "vec":
             vals = vtx_values_vec(u)
+        elif kind == "mix":
+            vals = vtx_values_mix(u)
         else:
             vals = vtx_values_chain(u)
         o = {}
@@ -584,10 +616,17 @@ def selftest():
     chk("pow2_alt", vtx_values_pow2(VTX_U_ALT), [3.0, 5.0, 9.0, 17.0, 48.0, 80.0, 144.0, 272.0])
     chk("vec", vtx_values_vec(VTX_U)[:8], [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
     chk("vec_hi", vtx_values_vec(VTX_U)[12:], [4096.0, 8192.0, 16384.0, 32768.0])
+    chk("mix", vtx_values_mix(VTX_U),
+        [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 8192.0])
+    chk("mix_alt", vtx_values_mix(VTX_U_ALT),
+        [3.0, 5.0, 9.0, 17.0, 48.0, 80.0, 192.0, 320.0, 576.0, 1088.0,
+         3072.0, 17408.0])
     chk("chain", vtx_values_chain(VTX_U),
         [1.0, 3.5, 7.25, 12.875, 21.3125, 33.96875, 52.953125, 81.4296875])
     # every vertex value must be distinct: that is what makes a subset-sum decodable
     for nm, vv in (("pow2", vtx_values_pow2(VTX_U)), ("vec", vtx_values_vec(VTX_U)),
+                   ("mix", vtx_values_mix(VTX_U)),
+                   ("mix_alt", vtx_values_mix(VTX_U_ALT)),
                    ("chain", vtx_values_chain(VTX_U))):
         if len(set(vv)) != len(vv):
             bad.append("%s: values not distinct" % nm)
@@ -626,6 +665,12 @@ def selftest():
             bad.append("half not exact: %r" % v)
     if len(set(FCPH)) != 4 or set(FCPH) & set(FCPH_ALT):
         bad.append("fcph: values not distinct / ladder overlaps baseline")
+    # r_vmix's half-typed lanes must be EXACT in binary16, or its oracle is not
+    # exact.  Asserted for both the baseline and the ladder uniform.
+    for u in (VTX_U, VTX_U_ALT):
+        for x in (u[0], u[1], u[2]):
+            if bits_f16(f16_bits(x)) != f32(x):
+                bad.append("r_vmix half lane not exact in binary16: %r" % x)
     # the carrier_dim contract: no two carriers in a family may share a dimension
     seen = {}
     for k, c in CARRIERS.items():

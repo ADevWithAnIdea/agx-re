@@ -42,3 +42,23 @@ Load-bearing corrections to the dispatch's premises (all verified from committed
    `falu2*`, `half_alu*`, `iunary`, `reg_move_*`, `bf_alu.opsel`, `icmp_pred.cond`,
    `get_sr.*`, `device_store.*`. My rows are disjoint from both. `icmp_pred` is *shared as
    an instruction* (disjoint fields) and is ranked last for that reason.
+
+## 2026-08-30 — M2 RESUMED after the session-limit kill
+Re-oriented from the committed files at `b44ffbc7` (not from memory): `PROGRESS.md`,
+`work/m1_findings.json`, `work/emit-worklist-regen.md`, `harness/{casematrix,isa_helpers}.py`,
+`kernels/{probes,carrier_dag}.metal`. What was MISSING and is being authored now:
+`PRE_REGISTRATION.md`, `CAPTURE_CONTRACT.json`, `README.md`, `harness/{anchors,sweeprun,run}.py`,
+`harness/sync.sh`, `analysis/{coverage,emit_verdicts}.py`, `work/frozen/`.
+
+Neo reachable (`26.6`, `Mac17,5`), `~/agxre/tools/{shdump,agxtest,agx-isa}` present,
+one sibling `agxrun_persist` running (EXP-0168/0169 sweeping — expected, unlocked).
+
+Worklist REGENERATED from live `tools/agx-isa`: headline is **40 emittable / 126 blocked / 166**
+(the copy in `work/emit-worklist-regen.md` says 44/122 and is STALE — superseded, kept as the
+record of what the pre-kill session saw). `dst` blocks 35 (EXP-0168's), `srcA` 17, `tail` 15.
+
+Blocking-field re-derivation against live `validation.json` (supersedes M1 finding 1 in one
+detail): `ilogic` is **5** fields from emittable — `lut_a_free` (corpus-correlation) + `z6`,
+`outmod`, `z8`, `z9` (all `untested`, withdrawn by EXP-0164). Arm B ranked by closure distance:
+`ibitcount.tail` (1), `bf_fma_dst.tail` (1), `fspecial_est.{srcA,subop}` (2),
+`iadd2.{srcA,b2_fmt}` (2), `bf_alu.{srcA,srcB,tail}` (3), `ibfe.{srcA,sign_ext,b2_bit0}` (3).

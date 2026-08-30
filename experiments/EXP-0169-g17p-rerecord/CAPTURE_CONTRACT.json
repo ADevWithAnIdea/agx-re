@@ -28,21 +28,57 @@
    "utc": "2026-08-30",
    "what": "analysis/recitation.py now also reports, per citation-recoverable field, the fraction of the field's ENCODABLE RANGE the passing arm actually dispatched.",
    "why": "Self-falsification of this experiment's own headline offline finding. EXP-0164's gate (stable_live) has NO coverage term -- THIN_COMMON=8 exists in audit.py but only sets an informational `thin_cross_run` flag and is never consulted by stable_live. So `RECOVERABLE-BY-CITATION` means 'clears EXP-0164's gate', NOT 'meets the docs/evidence-classification.md section 2 hardware-run RANGE bar'. Only 4 of the 12 clear it over the full encodable range; the other 8 clear it on as little as 2 of 64 values. Reporting the 12 without that column would have overstated them."
+  },
+  {
+   "id": "amendment_05",
+   "stale_hashes_corrected": {
+    "analysis/recitation.py": {
+     "hash_actual": "24c95b5eb79fc453a2676f451e4b76ef83ef276c7fa526cf65a9e1aaa8d28e45",
+     "hash_in_contract": "2887d87b6842d514cddb0d4d9484d8b2f7eae737a0bdc401498671c3e080dead"
+    },
+    "analysis/verdicts.py": {
+     "hash_actual": "f98768981f2d510a40d45f8fa777822ebda8e6f70cdd1a5f90aa8f88b49172a6",
+     "hash_in_contract": "805276a33bb8a5ed56d97921a32d92bd5536590a2d37bccebb32f1cea5b27040"
+    },
+    "harness/run.py": {
+     "hash_actual": "895134c9acc305eb2c623cc06befde813df62e82e15783885f5de4ad8864f71c",
+     "hash_in_contract": "2fd37eeccf4ae2a0acf14265c8304871d8ffb37fdc556ea841dc480a08b6ac75"
+    },
+    "harness/selftest.py": {
+     "hash_actual": "ea1577486275d915e1ab69995d51a213e74d2b2a6bbf7b6482394f68ff6fcb78",
+     "hash_in_contract": "db80d30cc575d740dac98cd91195772970203c6e366306e61af5cb9e5269fe28"
+    }
+   },
+   "touches": "the contract's own hash table. No case, encoding, carrier, oracle, poison, sentinel, ladder, coverage rule or promotion gate changes; the three .metal kernels and every other harness blob hash UNCHANGED.",
+   "utc": "2026-08-30",
+   "what": "Four entries of authored_sha256 are corrected to the hashes of the files that actually exist: analysis/recitation.py, analysis/verdicts.py, harness/run.py, harness/selftest.py. The stale-and-actual pairs are recorded verbatim in `stale_hashes_corrected` below so the discrepancy is auditable rather than erased.",
+   "why": "HONEST DISCLOSURE, found on resume. The M5 progress entry claims the contract was re-frozen over 18 blobs after the amendment_03/amendment_04 edits; it was not, for these four files. A session-limit kill landed between editing them and recomputing their hashes. The four hashes the contract named match NO git object -- they were an in-session version that was never committed -- so the named versions are unrecoverable and cannot be restored. The current files were verified to contain exactly the amendment-authorized changes and nothing else: recitation.py carries the amendment_04 coverage columns, verdicts.py carries the amendment_03 N-run per-field pairing, and harness/selftest.py still reports 0 failures.",
+   "why_this_is_not_a_post_hoc_repair": "The freeze exists to stop the harness being edited AFTER data is seen. At the moment of this correction raw/ contains exactly one file, its own README.md: ZERO device dispatches have occurred in this experiment, so no observation exists that these edits could have been fitted to. Had any capture existed, the correct action would have been a new experiment number, not this amendment."
+  },
+  {
+   "authority": "the PINNED snapshot, not live repo state. tools/agx-isa/db.json has itself already drifted on to 1062 fields under EXP-0165's concurrent edits; pinning is what makes this experiment reproducible.",
+   "id": "amendment_06",
+   "not_touched": "the neo's shared ~/agxre/tools/ is left exactly as it was: EXP-0168, EXP-0171 and EXP-0172 are sweeping against it concurrently and mutating it under them would be a courtesy violation of FIELD-SWEEP-PROTOCOL 7.",
+   "touches": "which db.json the hardware and the analysis are keyed to. No case, encoding, carrier, oracle, ladder, coverage rule or promotion gate changes.",
+   "utc": "2026-08-30",
+   "verified": "assemble/disassemble round-trip on falu2 and imm_encode/imm_decode against the pinned pair; harness/selftest.py still 0 failures; and anchors.py run on G17P BEFORE and AFTER the fix produced BYTE-IDENTICAL anchor_report.json and arm_resolution.json -- the difference is a field partition over the same bits, not a length rule, so no observation was affected. Both stale artefacts are retained: work/anchors_staledb_20260830/, work/frozen_neo_stale_20260830/.",
+   "what": "work/frozen/ is populated from the PINNED work/db.snapshot.json plus tools/agx-isa/isadb.py, and that pair is pushed to the neo at ~/agxre/EXP-0169/work/frozen/ so isa_helpers._find_isadb() resolves to it on BOTH sides. pinned_inputs_sha256 gains work/frozen/db.json and work/frozen/isadb.py.",
+   "why": "The neo's shared ~/agxre/tools/agx-isa/db.json is STALE: 1036 fields / 171 instructions against the pinned snapshot's 1060 / 172, with 65 field geometries differing -- three of them on falu2, this experiment's wave A primary descriptor. The stale copy predates EXP-0138's split of bits 40..42 into srcA_class (40,1) + srcB_class (41,2) and instead carries a single mod_lo (40,3). work/frozen did not exist on the neo, so _find_isadb() fell through to that stale copy. H4(a) tests EXP-0138's model AT srcB_class==1, a field name absent from the stale db, so raw_schema.field_is_a_db_field_name would have been violated and verdicts.field_geometry() would have keyed every falu2 verdict to mod_lo -- silently dropping two in-scope fields and inventing one out-of-scope field."
   }
  ],
  "authored_sha256": {
   "PRE_REGISTRATION.md": "a695ee8ee5e8e6af12f6f7b088436c8c1815a5fa0b52eee238e475f738da2a81",
   "README.md": "55b68c37d491cc044ea3ba96d70c575468c2968023b4b0d5577f473572e525a5",
   "analysis/collect_raw.py": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde",
-  "analysis/recitation.py": "2887d87b6842d514cddb0d4d9484d8b2f7eae737a0bdc401498671c3e080dead",
+  "analysis/recitation.py": "24c95b5eb79fc453a2676f451e4b76ef83ef276c7fa526cf65a9e1aaa8d28e45",
   "analysis/reindex_check.py": "7b51ff5124671897e3cff6d4bdd5af0aaf4adec07411ead0bb7cbe2edab31fc1",
-  "analysis/verdicts.py": "805276a33bb8a5ed56d97921a32d92bd5536590a2d37bccebb32f1cea5b27040",
+  "analysis/verdicts.py": "f98768981f2d510a40d45f8fa777822ebda8e6f70cdd1a5f90aa8f88b49172a6",
   "harness/anchors.py": "9970eb33cd914424530e69b76f69458a1e214f90129d740b25b759cff39af847",
   "harness/casematrix.py": "168646ff351ac6cdc8d19cf9ece7af1d990310df7366dbc58b5d63b4a9a14df3",
   "harness/isa_helpers.py": "a9d5a745473777c36aa1f58c92c1bf3e0627cab4bbb7892b88bb0146030e6535",
   "harness/procsample.py": "76513506031aebccc7250e46416dd36b2e3b7b2b214e7377775e194da183694d",
-  "harness/run.py": "2fd37eeccf4ae2a0acf14265c8304871d8ffb37fdc556ea841dc480a08b6ac75",
-  "harness/selftest.py": "db80d30cc575d740dac98cd91195772970203c6e366306e61af5cb9e5269fe28",
+  "harness/run.py": "895134c9acc305eb2c623cc06befde813df62e82e15783885f5de4ad8864f71c",
+  "harness/selftest.py": "ea1577486275d915e1ab69995d51a213e74d2b2a6bbf7b6482394f68ff6fcb78",
   "harness/smoke.py": "32c7b74a5636b5b9c980d5aa54cabeac1b0fda24dc0fb41920bdfd0aef3c4df5",
   "harness/sweeprun.py": "f8d696a73acafda789091af65c98ae27e24cbd77027c514fbc304791556636e0",
   "harness/sync.sh": "9581628b1d812f3679f7a3517f57d6ec1325409e44606f5d8be6fa381a991d99",
@@ -103,6 +139,8 @@
   "EXP-0164/analysis/collect_raw.py": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde",
   "EXP-0164/analysis/withhold_unverifiable.json": "79bfd5b986aae71d37de54e76293cbb5ae9554463019ecc1dd5e35f0fd7776cc",
   "work/db.snapshot.json": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+  "work/frozen/db.json": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+  "work/frozen/isadb.py": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
   "work/validation.snapshot.json": "c40195cd9f65d9176c5bc518ede1c171cf3904c26ba81f7b93dc2414b1ad7091"
  },
  "promotion_gate": {

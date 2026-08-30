@@ -1,0 +1,1213 @@
+{
+ "misses": [
+  {
+   "arm": "IUNARY",
+   "instr": "iunary",
+   "mode": "lift",
+   "why": "no liftable occurrence in any probe kernel"
+  },
+  {
+   "arm": "IUNARY",
+   "instr": "iunary",
+   "mode": "lift",
+   "why": "no liftable occurrence in any probe kernel"
+  },
+  {
+   "arm": "ICMP",
+   "instr": "icmp_pred",
+   "mode": "nat",
+   "why": "no liftable occurrence in any probe kernel"
+  }
+ ],
+ "steps": {
+  "S2": {
+   "C1_alu": {
+    "n_poison": 86,
+    "post_ok": true,
+    "pre_ok": true,
+    "region_len": 2412,
+    "regs": [
+     10,
+     21,
+     34,
+     47,
+     58,
+     65,
+     71,
+     83,
+     94,
+     101,
+     113,
+     119,
+     125,
+     127,
+     3,
+     0
+    ],
+    "status": "OK"
+   },
+   "C2_load": {
+    "n_poison": 86,
+    "post_ok": true,
+    "pre_ok": true,
+    "region_len": 2412,
+    "regs": [
+     0,
+     0,
+     0,
+     1075856452,
+     1076385109,
+     1076913766,
+     1077442423,
+     1077971080,
+     1078499737,
+     1079028394,
+     1079557051,
+     1080085708,
+     1080614365,
+     1081143022,
+     0,
+     0
+    ],
+    "status": "OK"
+   },
+   "C3_uni": {
+    "n_poison": 86,
+    "post_ok": true,
+    "pre_ok": true,
+    "region_len": 1246,
+    "regs": [
+     10,
+     21,
+     34,
+     47,
+     58,
+     65,
+     71,
+     83,
+     94,
+     101,
+     113,
+     119,
+     125,
+     127,
+     3,
+     0
+    ],
+    "status": "OK"
+   },
+   "C4_store": {
+    "n_poison": 8238,
+    "post_ok": true,
+    "pre_ok": true,
+    "region_len": 2412,
+    "regs": [
+     10,
+     21,
+     34,
+     47,
+     58,
+     65,
+     71,
+     83,
+     94,
+     101,
+     113,
+     119,
+     125,
+     127,
+     3,
+     0
+    ],
+    "status": "OK"
+   }
+  },
+  "S3": {
+   "idx_off_word_indices": null,
+   "idx_unit_words": null,
+   "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+   "status": "OK"
+  },
+  "S4": {
+   "BF_ALU@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 28 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 2 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "BF_ALU@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 28 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 2 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "DSTORE@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_extmode": {
+      "moved": true,
+      "note": "field extmode 0 -> 14 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_idx_off": {
+      "moved": true,
+      "note": "field idx_off 18 -> 19 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "DSTORE@C4_store": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_extmode": {
+      "moved": true,
+      "note": "field extmode 0 -> 14 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_idx_off": {
+      "moved": true,
+      "note": "field idx_off 18 -> 19 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcB_size": {
+      "moved": true,
+      "note": "field srcB_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcB_size": {
+      "moved": true,
+      "note": "field srcB_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcB_size": {
+      "moved": true,
+      "note": "field srcB_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2I@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2I@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "FALU2UNI@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 5 -> 6 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_reg": {
+      "moved": true,
+      "note": "field srcA_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA_size": {
+      "moved": true,
+      "note": "field srcA_size 1 -> 0 must move",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "GET_SR@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 1 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": false,
+      "note": "field form 1 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_sr_sel": {
+      "moved": false,
+      "note": "field sr_sel 160 -> 161 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "GET_SR@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": false,
+      "note": "",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 1 -> 5 must move",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": false,
+      "note": "field form 1 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_sr_sel": {
+      "moved": false,
+      "note": "field sr_sel 160 -> 161 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_ALU@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_ALU@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 4 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_EXT8@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": false,
+      "note": "",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 6 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_EXT8@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 6 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_FMA12@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": false,
+      "note": "",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": false,
+      "note": "field opsel 6 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "HALF_FMA12@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 2 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_opsel": {
+      "moved": true,
+      "note": "field opsel 6 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_srcA": {
+      "moved": true,
+      "note": "field srcA 3 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "IBITCOUNT@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": true,
+      "note": "field form 5 -> 6 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src": {
+      "moved": true,
+      "note": "field src 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "IBITCOUNT@C2_load": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 0 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": true,
+      "note": "field form 5 -> 6 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src": {
+      "moved": true,
+      "note": "field src 0 -> 7 must move",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C0@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C0@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C1@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": false,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C1@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "silent_zero",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": false,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C2VAR@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C2VAR@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": false,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C9@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": false,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": false,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": true,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_C9@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": false,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": false,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": false,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "ok",
+      "pass": false,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src_reg": {
+      "moved": true,
+      "note": "field src_reg 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_CB@C1_alu": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": true,
+      "note": "field form 11 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src": {
+      "moved": true,
+      "note": "field src 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   },
+   "RM_CB@C3_uni": {
+    "baseline_status": "OK",
+    "ladder_pass": true,
+    "steps": {
+     "__falsifier_byte0": {
+      "moved": true,
+      "note": "reg_move's read-back is documented to depend on the kernel's buffer signature (EXP-0087), so the two carriers differ in exactly that dimension",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "not_ok"
+     },
+     "__ladder_L_dst": {
+      "moved": true,
+      "note": "field dst 3 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_form": {
+      "moved": true,
+      "note": "field form 11 -> 5 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_known_move": {
+      "moved": true,
+      "note": "EXP-0140 HW-VALIDATED: byte+1=0xd5 byte+2=0x01 byte+3=0x08 writes 85 to the destination; if this does not move, the carrier cannot see a reg_move write at all",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     },
+     "__ladder_L_src": {
+      "moved": true,
+      "note": "field src 0 -> 7 must move",
+      "outcome": "wrong_value",
+      "pass": true,
+      "predict": "move"
+     }
+    }
+   }
+  },
+  "S5": {
+   "expected_word": 72,
+   "status": "OK",
+   "stray": [
+    [
+     72,
+     10
+    ]
+   ]
+  }
+ }
+}

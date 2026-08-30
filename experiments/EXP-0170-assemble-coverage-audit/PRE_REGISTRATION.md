@@ -208,3 +208,120 @@ No `git commit`. No edit to `tools/agx-isa/db.json`, `tools/agx-isa/validation.j
 `tools/agx-isa/isadb.py`, `work/merge_verdicts.py`, `docs/**`, `PROVENANCE.md`, or any file
 under another experiment's directory. No write anywhere outside
 `experiments/EXP-0170-assemble-coverage-audit/`. No device contact of any kind.
+
+---
+
+# AMENDMENT D — 2026-08-30, added after Arms A/B/C were computed
+
+**Frozen before any Arm D number, ratio, bucket, or field list was computed.** The
+coordinator added Scope 3 after a session limit ended the first sitting; Arms A/B/C are
+already reported above and are not touched by this amendment. Nothing below re-opens them.
+
+Additional pinned inputs (sha256 at amendment time):
+
+| file | sha256 |
+|---|---|
+| `experiments/EXP-0164-inert-audit/analysis/audit.py` | *(recorded in `manifest.json`)* |
+| `experiments/EXP-0164-inert-audit/analysis/audit.json` | *(recorded in `manifest.json`)* |
+| `experiments/EXP-0164-inert-audit/analysis/withhold_inert_single.json` | *(recorded in `manifest.json`)* |
+| `experiments/EXP-0164-inert-audit/analysis/withhold_unstable.json` | *(recorded in `manifest.json`)* |
+| `experiments/EXP-0164-inert-audit/analysis/withhold_unverifiable.json` | *(recorded in `manifest.json`)* |
+
+## D.1 Question
+
+`EXP-0164`'s `analysis/audit.py::cross_run()` (lines 78–80) chooses the pair of runs to
+score a field against by **"most distinct attributed values, ties broken alphabetically"**:
+
+```python
+order = sorted(runs.items(), key=lambda kv: (-kv[1]["n_values"], kv[0]))
+```
+
+Nothing in that key asks whether the source experiment still stands behind the run. And
+`collect_raw.py:42` treats only `CONTAM = {"invalid_run", "victim", "skipped"}` as
+contamination, so a record that was **never dispatched** but is stamped
+`outcome: "hang"` was scored as an observation.
+
+Two questions:
+
+- **D-i (selection).** For every field in EXP-0164's withheld sets, was its verdict computed
+  against runs the source experiment **retained as valid**, or against a partial / disowned /
+  quarantined capture, or one dominated by never-dispatched placeholders?
+- **D-ii (re-score).** Under the **unchanged** EXP-0164 gate, but with placeholders removed
+  and disowned runs excluded, which withheld fields re-score to `STABLE-LIVE`?
+
+## D.2 The placeholder rule, frozen (structural, not per-experiment-tuned)
+
+A raw record is a **placeholder** — i.e. **no dispatch ever happened**, so it carries no
+observation and must not contribute a signature — iff **any** of:
+
+| id | condition |
+|---|---|
+| **P1** | `str(rec["validity"]).lower()` starts with `skip` or equals `not_run` |
+| **P2** | `str(rec["status"]).strip().upper()` in `{"SKIPPED", "NOT_RUN"}` |
+| **P3** | `rec["attempts"]` is present, is a list, is **empty**, **and** `rec["observed"] is None` |
+| **P4** | key `skip_reason` present *(already CONTAM in `collect_raw.py`)* |
+| **P5** | `rec["outcome"]` in `{"skipped", "not_run", "not_written"}` *(P4/P5 partly already CONTAM)* |
+
+These are markers of *absence of dispatch* present in the record itself; none of them names an
+experiment, a run, or a field. They were chosen from a whole-corpus key/value census
+(4,719,822 records, 617 JSONL files) run **before** any Arm D verdict: `validity`
+takes exactly four values corpus-wide (`valid` 55,055; `skipped_after_hangs` 24,100;
+`invalid_run` 169; `not_run` 6), `status` is `SKIPPED` in 29,210 records, and 24,106 records
+carry an empty `attempts` list. **`outcome: "hang"` alone is NOT a placeholder marker** — a
+genuine hang is a real, reportable hardware observation, and the rule must not delete it.
+The rule is therefore conservative in the direction of *keeping* records.
+
+## D.3 Run eligibility, frozen
+
+A run is **ineligible** to score a field iff any of:
+
+| id | condition |
+|---|---|
+| **E1** | its raw run directory contains `PARTIAL.md`, `NOT_RUN.md`, `SCOPE.md`, `QUARANTINE*.md`, `BURNED*`, or `INVALID*` (EXP-0164 honoured **only** `PARTIAL.md`) |
+| **E2** | a committed `.md` in the source experiment's directory **explicitly disowns** the run id — states it backs no label, is retained-and-unused, is contaminated, or is superseded by a revalidation. **The quote and its `file:line` must be recorded in the output**; no run is called disowned without one. |
+| **E3** | the run id matches EXP-0164's own `NONGATED` regex `(prefreeze\|smoke\|pilot\|quarantine\|burned)` *(kept unchanged)* |
+| **E4** | after the D.2 filter the cell retains **fewer than 2 measured values** for this field — it cannot be a cross-run partner under EXP-0164's own `MIN_COMMON = 2` |
+
+A run is additionally **flagged** (reported, not disqualified on this ground alone)
+`placeholder-dominated` when ≥ **50 %** of its attributed records for that cell are
+placeholders.
+
+## D.4 Re-scoring method, frozen
+
+**EXP-0164's thresholds are kept EXACTLY as they are** — `MIN_COMMON = 2`,
+`MIN_AGREE_PCT = 99.0`, `MOVED_OVER_DISAGREE = 2.0`, `THIN_COMMON = 8`, the same
+`sig_of()`, the same bit-exact attribution, the same `classify()` ladder. **The only two
+changes are D.2 (drop placeholder records before signatures are computed) and D.3 (exclude
+ineligible runs from candidate selection).** This is deliberate: any bucket change is then
+attributable to those two defects and *cannot* be attributed to a threshold I chose after
+seeing the answer. I may not introduce, relax, or tighten any threshold in Arm D.
+
+Per withheld field, one of:
+
+| verdict | meaning |
+|---|---|
+| `AGREES` | same bucket under the corrected scoring → **the withdrawal stands**. |
+| `WRONGLY-WITHDRAWN` | re-scores to `STABLE-LIVE` under the unchanged gate → withdrawn for the wrong reason. |
+| `STILL-WITHHELD-OTHER-REASON` | bucket changes but not to `STABLE-LIVE` → still withheld, different stated reason. |
+| `NO-ELIGIBLE-EVIDENCE` | nothing eligible remains → withdrawal stands, for a **stronger** reason than the audit gave. |
+
+## D.5 Hypotheses and falsifiers (Arm D)
+
+| id | hypothesis | falsifier |
+|---|---|---|
+| **H7** | A material share of the withheld fields was scored against disowned and/or placeholder-dominated runs. **Material is pre-registered as ≥ 10 fields re-scoring `WRONGLY-WITHDRAWN`.** | **F7:** fewer than 10 → report plainly that the run-selection defect is **narrow**, with the numbers. This is an acceptable outcome and will be the headline if it fires. |
+| **H8** | The four figures handed to me in the dispatch reproduce: `pack_convert.b7` 100.00 % (audit 2.73 %), `cvt_f2i.dst` 99.56 % (82.42 %), `unpack_convert.dst` 98.96 % (25.78 %), `cvt_f2h.op` 98.44 % (91.41 %) — and exactly **two** of the four clear the unchanged ≥ 99 % bar. | **F8:** any figure disagrees → **my recomputed number is authoritative** for this experiment and the discrepancy is reported as a finding against the dispatch, not smoothed over. |
+| **H9** | The defect is concentrated in EXP-0144, whose `run01`–`run05` its own `RESULTS.md` disowns in favour of the `rv01__*` revalidation. | **F9:** other experiments contribute `WRONGLY-WITHDRAWN` fields → the defect is systemic, and each contributing experiment is named with its disownment quote. |
+| **H10** | EXP-0164's `gating_fallback` path (`if not gruns: gruns = dict(runs)`) is a second route by which a `PARTIAL.md`-marked run scored a field, because the fallback silently re-admits **every** run when the gated set is empty. | **F10:** no withheld field has `gating_fallback` true → the fallback is not implicated. |
+
+## D.6 What Arm D may NOT conclude
+
+- It **may not promote anything.** `analysis/wrongly_withdrawn.json` is an **evidence
+  document for the orchestrator**, deliberately **NOT** in `FIELD-SWEEP-PROTOCOL` §5 merge
+  schema: it carries no top-level `label` key and its `_meta` sets `"mergeable": false`, so
+  `work/merge_verdicts.py` cannot consume it even by accident.
+- `WRONGLY-WITHDRAWN` means **"withdrawn for a reason the committed evidence does not
+  support"** — never "this field is proven live", and never a statement about hardware.
+- It may not change any row's `target`, and may not promote M4 evidence to G17P. Where a
+  G17P sweep now in flight would supersede an M4 row, Arm D says so and **defers**.
+- It may not re-open Arms A/B/C, and may not edit any file outside this experiment's dir.

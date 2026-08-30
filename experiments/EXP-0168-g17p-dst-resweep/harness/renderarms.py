@@ -182,6 +182,31 @@ LADDERS = {
                   "NONE to hint6.",
              expect="the four values with bit4 clear reproduce the baseline; the "
                     "four with bit4 set zero the fragment output -> >= 2 hashes"),
+        dict(id="L_vary_slot", mnemonic="vary_store", field="out_slot",
+             values=[0x00, 0x04, 0x08, 0x0c, 0x10, 0x14, 0x18, 0x1c],
+             hazard="medium",
+             cite="THE ROUTING-SENSITIVITY CONTROL, and the design's own logic "
+                  "demands it. `L_vary_hint6` proves the observation can see a "
+                  "varying being KILLED; it does not prove the observation can "
+                  "see one being REROUTED, and those are different "
+                  "sensitivities. `vary_store.out_slot` (byte+4) is the other "
+                  "instruction's slot selector, so if it moves the observation "
+                  "then this carrier CAN see slot routing -- which is exactly "
+                  "the detection power `vtx_out_pos.slot` needs. Without it, an "
+                  "inert `slot` cannot be distinguished from an observation "
+                  "blind to routing, which is the whole EXP-0163 lesson. "
+                  "Hazard is `medium` because no prior sweep targeted this byte "
+                  "densely: EXP-0163's detection profile spliced it twice per "
+                  "arm across ~9 vary_store arms with NO fault attributed to "
+                  "out_slot in its fault table (which does list b5_tag at 18 "
+                  "and hint1 at 8 on this same instruction), and EXP-0162 hung "
+                  "on vary_store byte+1, not byte+4. Values are on the "
+                  "stride-4 grid the corpus uses, so none is wildly "
+                  "out-of-range.",
+             expect="if the slot selector is live on this carrier, >= 2 hashes "
+                    "and ideally a visible PERMUTATION of the distinct "
+                    "power-of-two varying values, which the host oracle can "
+                    "decode by subset-sum"),
         dict(id="L_self_b1", mnemonic="vtx_out_pos", field=None, raw_byte=1,
              values=[0, 1, 2, 3, 4, 5, 6, 7], hazard="high",
              cite="SAME-INSTRUCTION ladder of last resort. vtx_out_pos declares "
@@ -360,6 +385,42 @@ REQ_TIMEOUT = 15.0
 BASELINE_EVERY = 250
 BASELINE_RETRIES = 4
 
+# ---------------------------------------------------------------------------
+# PRE-REGISTERED KNOWN-FAULT VALUES, and the coverage gap they created.
+#
+# Extracted OFFLINE from EXP-0155's append-only raw before this experiment ran
+# anything (raw/g17p_20260829_run03 and _run04, arms fcp@pack0 / fcp@pack1):
+#
+#   `frag_color_pack.dst` = 192 and 193 produce a CONTAINED fault, reproducibly:
+#   4 of 4 observations across two gated runs and two occurrences.
+#
+# THE CONSEQUENCE NOBODY RECORDED.  EXP-0155's per-field stop rule fired on those
+# two faults, so BOTH runs stopped at value 194 -- `n=194, max=193` on three of
+# the four (arm, run) pairs and 208 on the fourth.  **Values 194..255 of
+# `frag_color_pack.dst` have therefore never been dispatched, on any target.**
+# That is precisely the "208 values dispatched" in EXP-0164's withheld row, and
+# closing it is a concrete deliverable of this experiment independent of any
+# verdict.
+#
+# Two design consequences, both deliberate:
+#   1. This experiment's stop rule counts only GENUINE HANGS (status HANG or an
+#      ErrorHang OS class, confirmed by majority-of-3), never contained faults.
+#      A contained command-buffer fault is a RESULT; it does not reset the device
+#      and it must not truncate coverage.
+#   2. Known-risky values are swept LAST within their field, so if one does turn
+#      out to reset the device, the rest of the coverage is already banked.
+# ---------------------------------------------------------------------------
+KNOWN_FAULT_VALUES = {
+    ("frag_color_pack", "dst"): {
+        "values": [192, 193],
+        "expect": "contained fault (CMDBUF_ERROR), device survives",
+        "cite": "EXP-0155 raw/g17p_20260829_run03 + _run04, arms fcp@pack0 and "
+                "fcp@pack1: outcome `fault` at 192 and 193 in 4 of 4 "
+                "(arm, run) pairs; both runs then stopped at value 194",
+        "coverage_gap": "194..255 never dispatched on any target",
+    },
+}
+
 # The verdict bar (mirrors EXP-0163, which is what the orchestrator merges).
 INERT_MIN_DISTINCT_CARRIER_DIMS = 3
 LADDER_MIN_DISTINCT_HASHES = 2
@@ -369,15 +430,22 @@ def arm_id(mnemonic, carrier, stage, occ):
     return "%s@%s/%s#%d" % (mnemonic, carrier, stage, occ)
 
 
-def coverage_for(width):
-    """FIELD-SWEEP-PROTOCOL sec.3: w <= 8 -> sweep ALL 2^w values, densely."""
+def coverage_for(width, defer=()):
+    """FIELD-SWEEP-PROTOCOL sec.3: w <= 8 -> sweep ALL 2^w values, densely.
+
+    `defer` names pre-registered known-risky values, which are moved to the END
+    of the order so a reset costs the least remaining coverage.
+    """
+    defer = list(defer)
     if width <= 8:
-        return list(range(1 << width))
+        vals = [v for v in range(1 << width) if v not in set(defer)]
+        return vals + [v for v in defer if v < (1 << width)]
     vals = {0, 1, 2, (1 << width) - 2, (1 << width) - 1}
     vals |= {1 << i for i in range(width)}
     vals |= {(1 << i) - 1 for i in range(1, width)}
     vals |= {(k * 0x9E3779B1) & ((1 << width) - 1) for k in range(3, 60, 2)}
-    return sorted(vals)
+    head = sorted(v for v in vals if v not in set(defer))
+    return head + [v for v in defer if v < (1 << width)]
 
 
 def selftest():
@@ -393,6 +461,14 @@ def selftest():
             bad.append("pixel_order %s partition: got %r want %r" % (member, got, sizes))
     if len(coverage_for(4)) != 16 or len(coverage_for(8)) != 256:
         bad.append("coverage_for: dense sweep is not dense")
+    d = coverage_for(8, [192, 193])
+    if sorted(d) != list(range(256)) or d[-2:] != [192, 193]:
+        bad.append("coverage_for: deferral changed the value SET, or did not "
+                   "actually defer")
+    for (mn, fn), k in KNOWN_FAULT_VALUES.items():
+        if mn not in TARGETS or fn not in TARGETS[mn]["fields"]:
+            bad.append("KNOWN_FAULT_VALUES names a field not under test: %s.%s"
+                       % (mn, fn))
     for fam, lst in LADDERS.items():
         for L in lst:
             if L["mnemonic"] is not None and len(L["values"]) < 8:

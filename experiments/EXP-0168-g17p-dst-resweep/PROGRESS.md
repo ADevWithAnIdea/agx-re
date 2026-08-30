@@ -419,3 +419,102 @@ the descriptor rather than calling them values of the field.
   `verdicts.py:540` is not currently propping anything up. Kept in the write-up
   as a named instance of the same class as the fan-out: **a gate that passes by
   construction.**
+
+## 2026-08-30 — M8: RESUMED after the session limit. Re-oriented from disk only.
+`raw/` was **empty** — no device case had ever been dispatched, so nothing
+measured was lost and there are no results to tune a contract against.
+
+**Contract integrity check, run before touching the device.** 23 of the 27
+authored hashes in `CAPTURE_CONTRACT.json` verify exactly; both pinned toolchain
+hashes verify. **Four drifted, and I am recording it rather than quietly
+re-hashing:**
+
+| file | why it drifted | semantic effect on the sweep |
+|---|---|---|
+| `PROGRESS.md` | it is an APPEND-ONLY log and hashing it was a design error of mine — it is guaranteed to drift the moment the next milestone is written | none; removed from the authored set below |
+| `harness/isa_helpers.py` | `_find_isadb()` candidate-path list re-ordered to find `tools/agx-isa` at its real location on the neo (`EXP/tools/agx-isa`) | none — it changes WHERE the pinned db is looked up, not WHAT is looked up; the resolved hashes are asserted below |
+| `harness/anchors.py` | new file, hashed from a 01:21 draft and finished at 01:30 | pre-device authoring |
+| `harness/sweeprun.py` | new file, same | pre-device authoring |
+
+All four edits predate the checkpoint commit `b44ffbc7` and all predate any
+device dispatch. Re-hashed as `authored_sha256_refrozen` with the pre-existing
+values kept beside them under `superseded_at_m8`, so an auditor can see the
+diff rather than a silently-updated number. **The rule I am holding to: a freeze
+may be amended before the first observation and never after.**
+
+**Toolchain identity is now ASSERTED, not assumed.** The db.json/isadb.py pushed
+to the neo hash to `07ad894d…` / `c97c2a22…` — byte-identical to the
+`work/frozen/` snapshot pinned in the contract. `sync.sh frozen` is therefore a
+verification step here, not an overwrite, and the hardware ran against exactly
+the descriptor set the verdicts are keyed to.
+
+## 2026-08-30 — M9: device prefreeze on G17P — anchors + matrix. THE FIXTURE WAS
+##                 WRONG ABOUT falu2, AND TWO ARMS HONESTLY DO NOT EXIST.
+`raw/prefreeze/anchors_g17p.txt`, `raw/prefreeze/casematrix_g17p.txt` (never
+evidence), `work/anchors/anchor_{report,index}.json`, `work/casematrix_g17p.json`.
+
+**`falu2` HAS a real anchor — 12 occurrences** (`k_fadd#0`, `k_sum#0..3`,
+`k_sum_reuse#0`, …). The dry-run's `arm_not_run` was an artifact of the local
+fixture's hand-built bytes decoding as `falu_compact4`, exactly as M6 predicted,
+and the multi-candidate mechanism resolved it on the device without intervention.
+
+**`reg_move_c0/c1/c2var/c9/cb` have ZERO occurrences in our whole probe corpus.**
+The Apple compiler never emits those forms from any MSL we can write. This is not
+a failure — it is the structural justification for the `REGMOVE/form` arm: the
+family is ONE 4-byte instruction whose byte+2 selects the form (EXP-0087/0140),
+so the five forms are reached by *setting byte+2 on the `uniform_mov` anchor*.
+Any claim about `reg_move_*.dst` that is not built this way cannot be built at
+all from own-shader evidence, which is worth stating plainly in RESULTS.
+
+**Two arms are recorded `arm_not_run` WITH THE REASON, never as inertness:**
+- `SHIFTMOVE/uni` — `k_rot_uni` yields **no `shift_amt_move` occurrence**; its
+  `_agc.main` also fails to tokenize (62 leftover bytes, `<unknown>@22`), a
+  db.json coverage gap noted for the orchestrator, not repaired here.
+- `COPYSIGN/highpress` — `k_copysign_rp` compiles (180 B, clean tokenization) but
+  **the compiler did not emit `copysign` in it**; it lowered the sign-transfer to
+  `n2_op6` + `falu*` instead. So the register-pressure carrier that M4(f) argued
+  for cannot be reached through MSL, and `copysign.operands` will have exactly ONE
+  carrier (`k_copysign`, 2 live float registers). Per R2 that is one carrier, not
+  two, and the field cannot clear a two-carrier bar in this experiment. Reported
+  as NOT REACHED.
+  `k_f2h_consumed` also leaves 6 bytes untokenized (`<unknown>@60`) but DOES
+  supply its `cvt_f2h` occurrence, so `CVTF2H/consumed` runs.
+
+**Matrix on the real anchors: 10,366 cases**, sha256
+`4b93fa510934adf43893eb5f596e11c98ffb869881700d1dd7b688ba39402c17`
+(the fixture's 10,587 is superseded). Roles: sweep 8,612 / bytemate 1,216 /
+ladder 470 / falsifier 33 / baseline 33 / arm_not_run 2. 33 arms, 2 not run.
+
+**Machine-readable coverage, counted from the matrix as DISTINCT `bytes` and not
+as dispatched-value count** (the orchestrator's DEF-0166-1 signature — a sweep
+that dispatches 256 values while the hardware sees 8 encodings):
+
+```
+instr                  field            values  distinct_bytes
+copysign               operands            256     256
+cvt_f2h                op                  256     512
+cvt_f2i                b9                  256     512
+cvt_f2i                dst                 256     512
+if_push                scope               256    1023
+mov_imm                byte1               256     768
+pack_convert           b7                  256     768
+stop                   b1 / b2 / b3        256     256 each
+uniform_mov            form_b2             256     256
+uniform_mov            opdesc_b3           256     256
+unpack_convert         dst                 256     768
+stop                   reserved             66      66
+falu2                  dst                  16      16
+falu2i                 dst                  16      16
+get_sr                 dst                  16      16
+uniform_mov            dst                  16     224   <- 16 dst x 14 FORMS
+get_sr                 dst_hi                8       8
+atomic_mem             addr_desc_hi          4     108
+falu_acc               cache                 2      28
+get_sr                 form                  2       2
+mov_imm                imm_top               2       6
+shift_amt_move         src_flag              2      26
+```
+`distinct_bytes > values` is the cross-product working; `distinct_bytes < 2^width`
+on `atomic_mem.addr_desc_hi` (4), `mov_imm.imm_top` (2), `falu_acc.cache` (2) and
+`shift_amt_move.src_flag` (2) is the field's real `encodable_range`, which the
+verdict rows will carry as `encodable_range` alongside `start`/`width`.

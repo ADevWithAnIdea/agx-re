@@ -175,6 +175,7 @@ def main():
     a.census = ""; a.arms = ""; a.mnem = ""; a.fields = ""
     a.max_occ = 4; a.ladder_max_occ = 4; a.deadline_s = 0.0
     a.smoke = True; a.skip_hazard = False; a.bytemate = True; a.skip_powerless = False
+    a.cross_family = False; a.bytemate_arms = 1
     p = RR.do_census(a)
     a.mode = "freeze"; a.census = p
     RR.do_freeze(a)

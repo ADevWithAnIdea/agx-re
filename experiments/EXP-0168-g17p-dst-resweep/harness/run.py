@@ -137,6 +137,12 @@ def build_program(case, carrier_len, blk):
 
     if arm == "STOP/midprogram":
         return H.synth_program_midstop(kind, blk, carrier_len)
+    if arm == "STOP/terminal":
+        # MUST NOT fall through to synth_program(): that would place the stop
+        # under test in the BODY, making this arm byte-identical in shape to
+        # STOP/midprogram. Measured as identical on hardware in the prefreeze
+        # smoke (both: whole dump poison, POST poison) before it was fixed.
+        return H.synth_program_terminalstop(kind, blk, carrier_len)
 
     if arm == "MOVIMM/padded":
         # mov_imm under test -> INERT padding -> dump. r7 is the destination

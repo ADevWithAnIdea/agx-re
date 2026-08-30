@@ -175,6 +175,22 @@ def coverage(width):
 #   before  extra instructions before the block (STYLE-S only), by name
 #   after   extra instructions after the block (STYLE-S only), by name
 #   probe_reg  register the high-register read-back probe should copy, or None
+#   falsifier_byte0  override for the pre-registered-to-fail case. The DEFAULT
+#           falsifier forces byte0 = 0x00, which is not this instruction. That
+#           is confounded whenever byte0 carries BOTH the match-pinned opcode
+#           bits AND a field under test: for `uniform_mov`, byte0 = opcode
+#           nibble (bits 0..3, pinned to 0xb) | dst (bits 4..7), so byte0 = 0x00
+#           ALSO sets dst = 0 -- and the anchor's own dst is 0. The prefreeze
+#           smoke measured that falsifier producing a digest IDENTICAL to the
+#           baseline, and raw/prefreeze/diag_byte0.json shows why: low nibble
+#           0x0 is a DIFFERENT but structurally parallel instruction that writes
+#           the SAME destination register from the SAME dst bits. Low nibbles
+#           0x5 and 0xd are the only ones inert-with-the-program-completing at
+#           BOTH form 0x00 and form 0x01, so 0x55 (lo=0x5, dst=5, seed 65 != 0)
+#           is a falsifier that provably fires.
+#           GENERAL RULE, for FIELD-SWEEP-PROTOCOL: a falsifier that clobbers a
+#           byte carrying both the opcode and a field under test is confounded
+#           with that field's own values and must be chosen away from them.
 
 ARMS = [
     # ================================================== the dst field name ===
@@ -184,6 +200,7 @@ ARMS = [
     # single verdict out to all six descriptor names (verdicts.py:327). The
     # missing measurement is the dst x form CROSS-PRODUCT, which is this arm.
     dict(id="REGMOVE/dump", style="S",
+         falsifier_byte0=0x55,
          probe=["k_uni_each", "k_uni_sum", "k_bitcast", "k_packnorm2"],
          mn="uniform_mov",
          occ=0, kind="int",
@@ -205,6 +222,7 @@ ARMS = [
                  "EXP-0101/EXP-0113 HW: the readback depends only on src_reg"),
          probe_reg=None),
     dict(id="REGMOVE/consumer", style="S",
+         falsifier_byte0=0x55,
          probe=["k_uni_each", "k_uni_sum", "k_bitcast", "k_packnorm2"],
          mn="uniform_mov",
          occ=0, kind="int",
@@ -216,6 +234,7 @@ ARMS = [
          ladder=("usrc", "byte", 1, 8, "EXP-0101/EXP-0113 HW"),
          probe_reg=None),
     dict(id="REGMOVE/consumer9", style="S",
+         falsifier_byte0=0x55,
          probe=["k_uni_each", "k_uni_sum", "k_bitcast", "k_packnorm2"],
          mn="uniform_mov", occ=0, kind="int",
          dim="the same dependence path with the CONSUMER at a different index",
@@ -226,6 +245,7 @@ ARMS = [
          ladder=("usrc", "byte", 1, 8, "EXP-0101/EXP-0113 HW"),
          probe_reg=None),
     dict(id="REGMOVE/form", style="S",
+         falsifier_byte0=0x55,
          probe=["k_uni_each", "k_uni_sum", "k_bitcast", "k_packnorm2"],
          mn="uniform_mov",
          occ=0, kind="int",
@@ -778,13 +798,20 @@ def build_cases(anchor_report):
                         **common)
 
         # --- falsifier (rule: at least one case pre-registered to FAIL) ----
-        add(role="falsifier", field="_byte0", value=0x00,
-            bytes=set_byte(blk, tgt, 0, 0x00).hex(), byte_index=0,
+        fv = arm.get("falsifier_byte0", 0x00)
+        add(role="falsifier", field="_byte0", value=fv,
+            bytes=set_byte(blk, tgt, 0, fv).hex(), byte_index=0,
             fstart=0, fwidth=8,
             cross_field=None, cross_value=None,
-            note="PRE-REGISTERED TO FAIL: byte0 forced to 0x00 is not this "
+            note="PRE-REGISTERED TO FAIL: byte0 forced to 0x%02x is not this "
                  "instruction. If it scores `ok`, this arm's sweep proves "
-                 "nothing and is reported as such rather than promoted.",
+                 "nothing and is reported as such rather than promoted.%s"
+                 % (fv, "" if fv == 0x00 else
+                    " Chosen away from 0x00 because byte0 here carries the "
+                    "pinned opcode nibble AND the swept dst field, so 0x00 is "
+                    "confounded with dst=0 -- measured identical to the "
+                    "baseline in the prefreeze smoke "
+                    "(raw/prefreeze/diag_byte0.json)."),
             **common)
 
     return cases

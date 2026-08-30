@@ -147,3 +147,101 @@ Coordinator rulings applied:
 selftest still green (0 failures). Contract re-frozen, 18 authored blobs.
 STATUS: still BLOCKED on the device — EXP-0167 then EXP-0163 are ahead of me.
 Credentials received; SSHPASS only, never written to any file.
+
+## 2026-08-30 — M6: resumed after the session-limit kill; two integrity findings BEFORE any dispatch
+
+Re-oriented from disk, not memory: `raw/` held exactly its own `README.md`, so
+**zero device dispatches had occurred**. Re-verified the frozen contract and found
+two things that had to be fixed before the first dispatch. Both are recorded, not
+erased.
+
+**(1) Four `authored_sha256` entries were stale — `amendment_05`.**
+`analysis/recitation.py`, `analysis/verdicts.py`, `harness/run.py`,
+`harness/selftest.py` did not match the contract. The M5 entry above claims the
+contract was re-frozen over 18 blobs after the amendment_03/04 edits; for these four
+it was not — the kill landed between editing them and recomputing their hashes. The
+four hashes the contract named match **no git object** (they were an in-session
+version, never committed), so the named versions are unrecoverable. Verified the
+files on disk contain exactly the amendment-authorized changes and nothing else:
+recitation.py carries the amendment_04 coverage columns, verdicts.py the amendment_03
+N-run per-field pairing. `harness/selftest.py` -> **0 of 66 checks failed**. The three
+`.metal` kernels and every other blob hash UNCHANGED. Corrected with the stale/actual
+pairs recorded verbatim in the amendment. This is legitimate only because raw/ was
+empty: with any capture in hand the correct action would have been a new experiment
+number.
+
+**(2) The hardware was about to run against a STALE `db.json` — `amendment_06`.**
+`harness/sync.sh frozen` pulled the neo's `tools/agx-isa` and it is **1036 fields /
+171 instructions**; my pinned `work/db.snapshot.json` is **1060 / 172**. **65 field
+geometries differ, 3 of them on `falu2` — my wave A primary descriptor**:
+
+| | pinned snapshot (83b83a35) | neo's stale copy (f5db942f) |
+|---|---|---|
+| `falu2.srcA_class` | (40, 1) | absent |
+| `falu2.srcB_class` | (41, 2) | absent |
+| `falu2.mod_lo` | absent | (40, 3) |
+
+The stale copy predates EXP-0138's split of bits 40..42 into `srcA_class` +
+`srcB_class`. `isa_helpers._find_isadb()` searches `work/frozen` FIRST for exactly
+this reason, but that directory did not exist on the neo, so it fell through to
+`~/agxre/tools/agx-isa`. Consequence had it gone unnoticed: `H4(a)` tests EXP-0138's
+model **at `srcB_class==1`**, a field name that does not exist in the stale db;
+`raw_schema.field_is_a_db_field_name` would have been violated; and
+`verdicts.field_geometry()` would have keyed every falu2 verdict to `mod_lo`, silently
+dropping two in-scope fields and inventing one out-of-scope field.
+
+Fixed by installing the **pinned snapshot** (contract authority, not live repo —
+the repo's live db.json has already drifted on to 1062 fields under EXP-0165) as
+`work/frozen/db.json`, paired with `tools/agx-isa/isadb.py`
+(`c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36`), verified
+assemble/disassemble round-trip on falu2 and `imm_encode/imm_decode`, and pushed to
+`~/agxre/EXP-0169/work/frozen/`. `isa_helpers.ISA_DIR` on the neo now resolves to it.
+**The neo's shared `~/agxre/tools/` was NOT touched** — EXP-0168/0171/0172 are running
+against it right now and changing it under them would have been a courtesy violation.
+
+## 2026-08-30 — M7: anchors resolved (twice), and the db drift cost nothing observable
+
+Ran `harness/anchors.py` on G17P **before** and **after** the db fix. The two
+`anchor_report.json` / `arm_resolution.json` pairs are **BYTE-IDENTICAL**: the
+snapshot-vs-stale difference is a field *partition* over the same bits 40..42, not a
+length-rule change, so tokenization and every anchor offset are stable across both db
+versions. The stale-db run is retained at `work/anchors_staledb_20260830/` and the
+stale pull at `work/frozen_neo_stale_20260830/` as evidence of the near-miss. The
+danger was entirely in the *analysis* keying, and it is now closed.
+
+28 authored probe kernels compiled via the public runtime API; `_agc.main` extracted
+and tokenized. **9 of 12 lift/nat arms resolved:**
+
+    BF_ALU/bf_alu           k_bfadd      block[32:40] len=8
+    FALU2/falu2             k_fadd       block[32:38] len=6
+    FALU2I/falu2i           k_faddi      block[18:24] len=6
+    FALU2UNI/falu2_uni      k_funichain  block[24:30] len=6
+    GET_SR/get_sr           k_sr         block[0:4]   len=4
+    HALF_ALU/half_alu       k_hadd       block[32:38] len=6
+    HALF_EXT8/half_alu_ext8 k_hfma       block[46:54] len=8
+    HALF_FMA12/half_alu_fma12 k_hfma_abs block[46:58] len=12
+    IBITCOUNT/ibitcount     k_popcount   block[18:26] len=8
+
+**3 arms UNRESOLVED — reported, not patched around** (`kernels/probes.metal` is
+frozen; adding a kernel to chase an anchor is exactly the post-hoc fitting the freeze
+exists to prevent):
+
+  * `IUNARY` on C1_alu and C2_load — `iunary` appears in **none** of the 28 compiled
+    probes. The 5 integer-unary probes compiled to `cvt_f2i`/`cvt_i2f`/`iadd2`/
+    `ibitcount`/`isel10` instead.
+  * `ICMP` (nat, `icmp_pred`) — `icmp_pred` appears in none of the 28 either. All four
+    comparison probes compiled to `isel10` / `isel8` / `isel10_c` / `isel_reg`.
+    OBSERVATION, G17P: for these authored MSL comparison patterns the compiler selects
+    the `isel*` family, never `icmp_pred`. Consistent with EXP-0139 having had to
+    construct `icmp_pred` rather than find it.
+
+Cost: `iunary` (2 fields) and `icmp_pred.cond` (1 field) have **no arm**, so they will
+report `untested / NO-DETECTION-POWER`. 54 of the 57 device-scope fields keep >=1 arm.
+
+**A DB gap, incidentally:** `k_hchain` tokenizes as
+`get_sr@0 device_load@4 device_load@18 <unknown>@32` with **52 bytes leftover** — the
+half-precision chain emits a 4-byte-group instruction whose length rule `db.json`
+cannot resolve, under BOTH db versions. Not blocking (HALF_ALU anchors from `k_hadd`),
+recorded as a finding.
+
+STATUS: about to run the pilot (`pilot01`).
