@@ -26,16 +26,16 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emitter-grade LABELS (not proof) | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 40 | 126 | 166 |
+| 37 | 129 | 166 |
 
 ## Distance to a full set of emitter-grade labels
 
 | blocking fields | instructions |
 |---:|---:|
 | 1 | 23 |
-| 2 | 11 |
-| 3 | 24 |
-| 4 | 26 |
+| 2 | 10 |
+| 3 | 25 |
+| 4 | 29 |
 | 5 | 11 |
 | 6 | 7 |
 | 7 | 7 |
@@ -53,7 +53,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | field name | instructions it blocks |
 |---|---:|
 | `_instruction` | 79 |
-| `dst` | 36 |
+| `dst` | 37 |
 | `srcA` | 14 |
 | `tail` | 13 |
 | `b3` | 10 |
@@ -75,10 +75,9 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `call` | `tail` | untested |
 | `copysign` | `_instruction` | corpus-correlation |
 | `frag_color_store` | `store_mode` | single-template-inference |
-| `frag_depth_store` | `_instruction` | corpus-correlation |
 | `frame_marker_compact` | `_instruction` | tokenization-only |
 | `fspecial_est` | `srcA` | untested |
-| `half_alu_fma12` | `ext` | untested |
+| `half_pack` | `dst` | untested |
 | `if_push` | `scope` | single-template-inference |
 | `iter` | `b9` | single-template-inference |
 | `n1_word` | `_instruction` | tokenization-only |
@@ -90,13 +89,14 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `rtq_pred` | `_instruction` | tokenization-only |
 | `sfu_marker` | `_instruction` | tokenization-only |
 | `shift_amt_move` | `src_flag` | untested |
+| `simd_reduce` | `op_hi` | untested |
 | `stop` | `reserved` | untested |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `mode` | untested |
 | `vary_slot` | `_instruction` | corpus-correlation |
 | `vtx_coord_xform` | `operand` | untested |
 
-## TWO fields away (11 instructions)
+## TWO fields away (10 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -108,7 +108,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mesh_out_src` | `sel`, `_instruction` | tokenization-only, corpus-correlation |
 | `n4_cf_word` | `b3`, `_instruction` | tokenization-only, tokenization-only |
 | `n4_rt_word` | `dst`, `_instruction` | tokenization-only, tokenization-only |
-| `pop_reconverge` | `scope`, `reserved` | untested, untested |
 | `simd_ballot` | `pred`, `cache` | untested, single-template-inference |
 | `tex_write` | `amode`, `rsv11` | untested, untested |
 
@@ -121,14 +120,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 - `op04_len8` — EMITTABLE VETO
 - `tg_addr_compute` — EMITTABLE VETO
 
-## Field-complete, blocked at the INSTRUCTION level (6)
+## Field-complete, blocked at the INSTRUCTION level (5)
 
 Every named field is emitter-grade; the instruction-level label is not. **These need a different dispatch than a field sweep** — the open question is whether the opcode/match bits themselves do what the descriptor claims, so the probe is to emit the instruction and check it acts, not to vary a field.
 
 | instruction | `_instruction` label |
 |---|---|
 | `copysign` | corpus-correlation |
-| `frag_depth_store` | corpus-correlation |
 | `frame_marker_compact` | tokenization-only |
 | `n2_op6` | corpus-correlation |
 | `sfu_marker` | tokenization-only |
@@ -138,7 +136,7 @@ Every named field is emitter-grade; the instruction-level label is not. **These 
 
 | label | fields |
 |---|---:|
-| `untested` | 244 |
+| `untested` | 257 |
 | `corpus-correlation` | 142 |
 | `tokenization-only` | 135 |
 | `single-template-inference` | 29 |

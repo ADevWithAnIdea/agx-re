@@ -1,0 +1,51 @@
+
+  INSTRUCTION-LABEL CONSISTENCY (reported, not gated -- DEF-0173-1)
+    emittable by field labels:                     37
+    ... whose _instruction label is ALSO emitter-grade:  37
+
+  COVERAGE (only verdicts that recorded machine-readable counts)
+    rows with counts: 136 of 559 emitter-grade
+    THIN (dispatched < encodable range):
+      device_store.idx_off  dispatched 260 of 2048
+    WIDE (>16-bit; protocol 3.3 sampled set + dense per-byte sweep, not exhaustive):
+      bf_alu.tail  sampled 766 of 2^24
+      bf_fma_dst.tail  sampled 50 of 2^32
+      tile_read_mrt.tail  sampled 1038 of 2^32
+OK: 172 instructions, 1053 fields, all labels valid.
+  hardware-run                491  (46.6%)
+  isolated-byte-diff           68  ( 6.5%)
+  corpus-correlation           75  ( 7.1%)
+  tokenization-only           133  (12.6%)
+  single-template-inference    29  ( 2.8%)
+  api-accept-reject             0  ( 0.0%)
+  host-private                  0  ( 0.0%)
+  untested                    257  (24.4%)
+
+  EMITTABILITY
+    old headline (every db.json descriptor):       37 / 172  (21.5%)
+    corrected (emitter-relevant instructions):     37 / 166  (22.3%)
+      denominator = 172 descriptors - 6 data words
+      data words excluded (own committed semantics say they are not
+      standalone hardware opcodes -- an emitter never emits one):
+        - operand_word
+        - operand_word_a2_01
+        - operand_word_x2_h5
+        - operand_word_x2_h6
+        - operand_word_x2_h7
+        - pad_operand
+    informational lower bound, NOT the headline:   37 / 162  (22.8%)
+      also setting aside 4 scaffolding descriptors EXP-0148 leaves
+      UNRESOLVED (3 continuation-word candidates + 1 unreachable):
+        - frame_marker_compact
+        - n2_compact2
+        - b_alu14_prep2
+        - cubearray_coord_const
+    zero-field descriptors (fully match-pinned, nothing to synthesize):
+        - n1_word                tokenization-only
+        - n2_compact2            tokenization-only
+        - n3_word                tokenization-only
+        - operand_word_a2_01     tokenization-only
+        - rtq_pred               tokenization-only
+      These are IN the denominator: `emittable` is decided by their
+      `_instruction` label, which is a validation.json decision, not a
+      db.json one. Reported so the label owner can rule on them.

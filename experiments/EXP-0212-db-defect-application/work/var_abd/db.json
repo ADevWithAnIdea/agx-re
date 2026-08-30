@@ -5428,27 +5428,6 @@
    ],
    "fields": [
     {
-     "name": "b1_lo",
-     "start": 8,
-     "width": 1,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction (byte+1 bit 0). The declared full-byte match 0x14 needs only bits 1-2; this bit is free. CANONICAL EMIT VALUE 0 (0x14 & 0x01). Accepted set for the whole byte: (v & 0x06) == 0x04, 64 of 256, two carriers, two captures."
-    },
-    {
-     "name": "b1_hi",
-     "start": 11,
-     "width": 5,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction (byte+1 bits 3-7). CANONICAL EMIT VALUE 2 (0x14 >> 3). Accepted set for the whole byte: (v & 0x06) == 0x04, 64 of 256, two carriers, two captures."
-    },
-    {
-     "name": "b2",
-     "start": 16,
-     "width": 8,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction. byte+2 was declared a full-byte match 0x54 and the HARDWARE DOES NOT ENFORCE IT AT ALL: all 256 values leave both the colour and the depth surface byte-identical on both carriers in both captures (512 dispatched, 512 ok), while b5/b3/b4/byte+1 all move on the same instruction, so the arm's detection power is proven. CANONICAL EMIT VALUE 0x54. Bounded wording: `inert over 0..255 in the c_depth and c_depth2 fragment carriers with a depth attachment; global role unknown`."
-    },
-    {
      "name": "b3",
      "start": 24,
      "width": 8,

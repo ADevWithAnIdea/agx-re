@@ -414,13 +414,13 @@ SYNTH = [
     # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03, cache=1(0x56) -> bf 01 56 00 02 00 14 03
     # EXP-M4-13 R10 (falu_int_frag retype): register CORRECTION b3->dst(byte+3),
     # src->opmarker(byte+4 const marker), b5->src(byte+5 true source); identical bytes.
-    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "op_hi": 0, "dst": 0x00,
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "dst": 0x00,
                      "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x03}),
     # quad_min: scope=0(quad), opcls=0, op=0x02(max/min), dtype=0x07, cache=1(0x56) -> 37 02 56 00 02 00 14 07
-    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "cache": 1, "op": 0x02, "op_hi": 0, "dst": 0x00,
+    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "cache": 1, "op": 0x02, "dst": 0x00,
                      "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_max as a LATER consumer of a shared source: cache=0 -> byte+2 0x54 (EXP-0038 cache-bit).
-    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "op_hi": 0, "dst": 0x00,
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "dst": 0x00,
                      "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1), cache=1 -> 47 04 56 00 02 00 0a 2c 04 00
     ("simd_shuffle", {"dir": 0x0, "mode": 0x4, "cache": 0x1, "dst": 0x0, "src": 0x2, "srctype": 0x0, "lane": 0xa, "rtype": 0x2c, "dsthi": 0x4, "rsv9": 0x0}),

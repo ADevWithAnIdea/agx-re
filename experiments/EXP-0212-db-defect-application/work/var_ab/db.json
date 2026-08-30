@@ -5421,33 +5421,17 @@
      215
     ],
     [
-     9,
-     2,
-     2
+     8,
+     8,
+     20
+    ],
+    [
+     16,
+     8,
+     84
     ]
    ],
    "fields": [
-    {
-     "name": "b1_lo",
-     "start": 8,
-     "width": 1,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction (byte+1 bit 0). The declared full-byte match 0x14 needs only bits 1-2; this bit is free. CANONICAL EMIT VALUE 0 (0x14 & 0x01). Accepted set for the whole byte: (v & 0x06) == 0x04, 64 of 256, two carriers, two captures."
-    },
-    {
-     "name": "b1_hi",
-     "start": 11,
-     "width": 5,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction (byte+1 bits 3-7). CANONICAL EMIT VALUE 2 (0x14 >> 3). Accepted set for the whole byte: (v & 0x06) == 0x04, 64 of 256, two carriers, two captures."
-    },
-    {
-     "name": "b2",
-     "start": 16,
-     "width": 8,
-     "type": "mod",
-     "note": "[EXP-0212, applied 2026-08-30] FREED by EXP-0199's match correction. byte+2 was declared a full-byte match 0x54 and the HARDWARE DOES NOT ENFORCE IT AT ALL: all 256 values leave both the colour and the depth surface byte-identical on both carriers in both captures (512 dispatched, 512 ok), while b5/b3/b4/byte+1 all move on the same instruction, so the arm's detection power is proven. CANONICAL EMIT VALUE 0x54. Bounded wording: `inert over 0..255 in the c_depth and c_depth2 fragment carriers with a depth attachment; global role unknown`."
-    },
     {
      "name": "b3",
      "start": 24,
@@ -5467,26 +5451,8 @@
      "type": "raw"
     }
    ],
-   "semantics": "write the shader [[depth]] output to the tile depth buffer. Memory-family store (byte0 0xd7) with the fragment depth variant byte+1==0x14, byte+2==0x54, 6 bytes \u2014 distinct from the 16-byte texture write (also 0xd7). Bracketed by 0x87/0x07 tile-access ops whose byte+3==0x01 selects the depth attachment (vs 0x0c for colour RT0). [EXP-0212, applied 2026-08-30] MATCH CORRECTED BY EXP-0199 (G17P, the first experiment ever to read the Depth32Float attachment back per pixel). The descriptor's ROLE is now OBSERVED, not inferred: unmutated, the depth attachment holds the shader's [[depth]] output exactly at three probe pixels with three DISTINCT values on TWO independent carriers with DIFFERENT depth functions, matching the host oracle in both; clearing byte+5 bit 1 makes the depth attachment receive 0.0 at every covered pixel while the colour value at every covered pixel is unchanged (128 of 256 b5 values, identically on both carriers and in both captures); 0 of 2304 mutations of this instruction's own bytes moved the COLOUR surface while leaving the depth surface unchanged; and with the instruction REPLACED the tile is discarded entirely and the depth attachment keeps the clear value 1.0. TWO MATCH BYTES WERE OVER-DECLARED: byte+1 was pinned to the whole byte 0x14 but only two bits are required -- the accepted set is exactly (v & 0x06) == 0x04, 64 of 256 -- and byte+2 was pinned to 0x54 but IS NOT ENFORCED AT ALL, 256 of 256 accepted on both carriers in both captures. The arm's detection power is proven on the same instruction by b5, b3, b4 and byte+1. Accepted sets for the operand bytes, same arm: b3 4 of 256, (v & 0xfc) == 0x00; b4 8 of 256, (v & 0x1f) == 0x00; b5 128 of 256, (v & 0x02) == 0x02. Bounded wording for the byte+2 result: `inert over 0..255 in the c_depth and c_depth2 fragment carriers with a depth attachment; global role unknown`.",
-   "provenance": "inferred (byte-diff, EXP-0029): appears only in out_depth (a [[depth(any)]] output) and not in the colour-only kernels; sits inside a 0x87(byte+3==0x01)/0x07 bracket distinct from the colour store's 0x0c bracket. Not individually splice-validated (agxrender has no depth attachment to read back).",
-   "match_notes": [
-    {
-     "name": "b1_declared",
-     "start": 8,
-     "width": 8,
-     "type": "raw",
-     "value": 20,
-     "note": "[EXP-0212, applied 2026-08-30] the previous full-byte pin, kept for provenance. EXP-0199 measured the accepted set as exactly (v & 0x06) == 0x04, 64 of 256, on two carriers in two captures."
-    },
-    {
-     "name": "b2_declared",
-     "start": 16,
-     "width": 8,
-     "type": "raw",
-     "value": 84,
-     "note": "[EXP-0212, applied 2026-08-30] the previous full-byte pin, kept for provenance. EXP-0199 measured that the hardware DOES NOT ENFORCE IT AT ALL: all 256 values leave both surfaces byte-identical on both carriers in both captures (512 dispatched, 512 ok)."
-    }
-   ]
+   "semantics": "write the shader [[depth]] output to the tile depth buffer. Memory-family store (byte0 0xd7) with the fragment depth variant byte+1==0x14, byte+2==0x54, 6 bytes \u2014 distinct from the 16-byte texture write (also 0xd7). Bracketed by 0x87/0x07 tile-access ops whose byte+3==0x01 selects the depth attachment (vs 0x0c for colour RT0).",
+   "provenance": "inferred (byte-diff, EXP-0029): appears only in out_depth (a [[depth(any)]] output) and not in the colour-only kernels; sits inside a 0x87(byte+3==0x01)/0x07 bracket distinct from the colour store's 0x0c bracket. Not individually splice-validated (agxrender has no depth attachment to read back)."
   },
   {
    "mnemonic": "pixel_order",
@@ -6646,18 +6612,11 @@
    "match": [
     [
      0,
-     4,
-     8
+     8,
+     24
     ]
    ],
    "fields": [
-    {
-     "name": "dst",
-     "start": 4,
-     "width": 4,
-     "type": "reg",
-     "note": "[EXP-0212, applied 2026-08-30] ADDED by EXP-0203. db.json pinned ALL EIGHT bits of byte0 in `match` (0x18), so EVERY db-EXPRESSIBLE ENCODING WROTE r1 and the instruction had to be built byte by byte to express any other destination. byte0's HIGH NIBBLE is the destination GPR and its LOW nibble (8) is the family tag -- the same defect class as DEF-0180-1 one family over, and consistent with this descriptor's own committed semantics (`the SAME op appears as 0x08/0x18/0x28/0x38 for dst r0/r1/r2/r3`). Arms HP_C/HP_D run the same instruction at destination nibble 7 (`78 0d 18 11`) and the host oracle matches 256/256 there as well, so the nibble is a REAL DESTINATION SELECTOR and not a fixed opcode bit."
-    },
     {
      "name": "dstlo",
      "start": 8,
@@ -6678,7 +6637,7 @@
      "type": "raw"
     }
    ],
-   "semantics": "HALF-LANE PACK (assemble a half2 into a packed 32-bit register). `18 05 18 03` (4 bytes). Combines the two fp16 lanes produced by the native-half 0x10 ALU (EXP-0033 half_alu) into one 32-bit word for the device store (and the reverse assembly for half unpacks). Confirmed 4 bytes across half2 add (`18 05 18 03`), mul (`18 05 19 03`) and fma (`18 05 1b 07`). byte0 HIGH nibble = destination register nibble -- the SAME op appears as 0x08/0x18/0x28/0x38 for dst r0/r1/r2/r3 (this descriptor matches the 0x18 dst-r1 form). byte+2 = source register (reg<<1)|hint. A longer 6-byte high-register form (byte+2==0x24, seen as 0x30/0x38 in the broad corpus) is a documented follow-up. short2/short4 (int16) does NOT pack. LENGTH RULE OVER-CONSTRAINED (EXP-0154 DEF-0154-1): the rule accepts byte0 == 0x18 as a 4-byte `half_pack` only when byte+1 == 0x05 and (byte+2 & 0xf8) == 0x18. Our own G17P `half2 add` emits `18 03 18 05` \u2014 byte+1 = 0x03 \u2014 so the gate rejects it and 22 bytes of our own compiled shader fail to tokenize. Needs a corpus A/B before relaxing; not applied here. LENGTH CONFIRMED 4 BYTES BY SPLICE CONTROL (EXP-0160 DEF-0160-4, HW, G17P; re-derived in EXP-0165). Replacing bytes +2..+3 with our own 2-byte `mov_imm r6, 77` leaves r6 holding its SEED -- the mov_imm never executes, so those bytes are consumed by the instruction at +0. Replacing BOTH 2-byte halves with two mov_imms executes both (r6 = 77 AND r7 = 99): the positive control that proves the probe can see a difference in exactly that slot. So DEF-0154-1's A18 `18 05 18 03` vs G17P `18 03 18 05` is an operand swap INSIDE one 4-byte instruction, not two 2-byte instructions reordered. The isadb.py length gate on byte+1 == 0x05 is therefore wrong; dropping it was MEASURED in EXP-0165 (work/probe_hp) and IMPROVES the corpus metric -- clean files 833 -> 833, strict leftover bytes 388604 -> 388584 -- but it is a length-rule change in isadb.py and is left for the length-rule owner. [EXP-0212, applied 2026-08-30] CORRECTED AND EXTENDED BY EXP-0203 (G17P, host-oracle match on full post-state). (1) WRITE TARGET: this member writes the destination's HIGH 16 bits and PRESERVES its LOW 16 bits; its byte0-low-nibble-0 sibling writes the LOW half. The name `pack` is a misnomer for what was measured -- a per-lane fp16 ALU op on the HIGH lane, which is exactly why a `half2` operation takes ONE INSTRUCTION PER LANE (4 arms x 512 field cases, full-post-state oracle match 100%). (2) SOURCE RELEASE: at byte+2 = 0x18 the instruction ZEROES both named source half-lanes (opflags 3 source release), and WHICH lane is zeroed follows the descriptor's value -- so the release is part of the field's semantics, not a constant side effect. Every release-free candidate model scored 2/80; with the release the arithmetic member scores 80/80, confirmed on 2048 gated field cases. (3) LENGTH GATE, INDEPENDENT HARDWARE CONFIRMATION of DEF-0154-1: the HARDWARE consumed exactly FOUR bytes for ALL 256 byte+1 values (all four 2-byte length markers survived in every case, every arm, every run), while `isadb.instr_length` accepts byte0 == 0x18 as a 4-byte half_pack only when byte+1 == 0x05 -- so our own tokenizer returned `<unknown>` for the anchor `18 0d 18 11` and disagreed with itself on 11 of the 256 byte+1 values. THE BYTE+1 GATE IS NOT A LENGTH CONDITION. The length rule is NOT changed here (it is the length-rule owner's file); this is the second independent measurement asking for it. Evidence: raw/g17p_run31..32. [EXP-0212, applied 2026-08-30] THE byte0 MATCH IS RELAXED from 8 pinned bits (0x18) to 4 (low nibble 0x8) by EXP-0203; byte0's high nibble is now the `dst` field. Before this edit no db-expressible half_pack could write any register but r1.",
+   "semantics": "HALF-LANE PACK (assemble a half2 into a packed 32-bit register). `18 05 18 03` (4 bytes). Combines the two fp16 lanes produced by the native-half 0x10 ALU (EXP-0033 half_alu) into one 32-bit word for the device store (and the reverse assembly for half unpacks). Confirmed 4 bytes across half2 add (`18 05 18 03`), mul (`18 05 19 03`) and fma (`18 05 1b 07`). byte0 HIGH nibble = destination register nibble -- the SAME op appears as 0x08/0x18/0x28/0x38 for dst r0/r1/r2/r3 (this descriptor matches the 0x18 dst-r1 form). byte+2 = source register (reg<<1)|hint. A longer 6-byte high-register form (byte+2==0x24, seen as 0x30/0x38 in the broad corpus) is a documented follow-up. short2/short4 (int16) does NOT pack. LENGTH RULE OVER-CONSTRAINED (EXP-0154 DEF-0154-1): the rule accepts byte0 == 0x18 as a 4-byte `half_pack` only when byte+1 == 0x05 and (byte+2 & 0xf8) == 0x18. Our own G17P `half2 add` emits `18 03 18 05` \u2014 byte+1 = 0x03 \u2014 so the gate rejects it and 22 bytes of our own compiled shader fail to tokenize. Needs a corpus A/B before relaxing; not applied here. LENGTH CONFIRMED 4 BYTES BY SPLICE CONTROL (EXP-0160 DEF-0160-4, HW, G17P; re-derived in EXP-0165). Replacing bytes +2..+3 with our own 2-byte `mov_imm r6, 77` leaves r6 holding its SEED -- the mov_imm never executes, so those bytes are consumed by the instruction at +0. Replacing BOTH 2-byte halves with two mov_imms executes both (r6 = 77 AND r7 = 99): the positive control that proves the probe can see a difference in exactly that slot. So DEF-0154-1's A18 `18 05 18 03` vs G17P `18 03 18 05` is an operand swap INSIDE one 4-byte instruction, not two 2-byte instructions reordered. The isadb.py length gate on byte+1 == 0x05 is therefore wrong; dropping it was MEASURED in EXP-0165 (work/probe_hp) and IMPROVES the corpus metric -- clean files 833 -> 833, strict leftover bytes 388604 -> 388584 -- but it is a length-rule change in isadb.py and is left for the length-rule owner. [EXP-0212, applied 2026-08-30] CORRECTED AND EXTENDED BY EXP-0203 (G17P, host-oracle match on full post-state). (1) WRITE TARGET: this member writes the destination's HIGH 16 bits and PRESERVES its LOW 16 bits; its byte0-low-nibble-0 sibling writes the LOW half. The name `pack` is a misnomer for what was measured -- a per-lane fp16 ALU op on the HIGH lane, which is exactly why a `half2` operation takes ONE INSTRUCTION PER LANE (4 arms x 512 field cases, full-post-state oracle match 100%). (2) SOURCE RELEASE: at byte+2 = 0x18 the instruction ZEROES both named source half-lanes (opflags 3 source release), and WHICH lane is zeroed follows the descriptor's value -- so the release is part of the field's semantics, not a constant side effect. Every release-free candidate model scored 2/80; with the release the arithmetic member scores 80/80, confirmed on 2048 gated field cases. (3) LENGTH GATE, INDEPENDENT HARDWARE CONFIRMATION of DEF-0154-1: the HARDWARE consumed exactly FOUR bytes for ALL 256 byte+1 values (all four 2-byte length markers survived in every case, every arm, every run), while `isadb.instr_length` accepts byte0 == 0x18 as a 4-byte half_pack only when byte+1 == 0x05 -- so our own tokenizer returned `<unknown>` for the anchor `18 0d 18 11` and disagreed with itself on 11 of the 256 byte+1 values. THE BYTE+1 GATE IS NOT A LENGTH CONDITION. The length rule is NOT changed here (it is the length-rule owner's file); this is the second independent measurement asking for it. Evidence: raw/g17p_run31..32.",
    "provenance": "HW-VALIDATED (EXP-0038): the half2 round-trip k_h2roundtrip (float2 -> fp16 pack (0x18) -> store -> load -> unpack -> float2) returns EXACT for 8 values. 4-byte length confirmed by anchored segmentation of half2 add/mul/fma. Operand bit-packing INFERRED. The 0x30/0x38 census siblings + the 6-byte high-register form are INFERRED (not splice-validated). 4-byte length HW-VALIDATED by splice control with a firing positive control (EXP-0160, G17P); byte+2's three inert bits measured in the same sweep."
   },
   {
@@ -8144,7 +8103,7 @@
    "match": [
     [
      0,
-     5,
+     3,
      6
     ],
     [
@@ -8156,17 +8115,17 @@
    "fields": [
     {
      "name": "b0_hi",
-     "start": 5,
-     "width": 3,
+     "start": 3,
+     "width": 5,
      "type": "mod",
-     "note": "byte+0 bits 3-7. HW (EXP-0146 on M4/G16G, reproduced byte-for-byte on G17P in three carriers by EXP-0157): byte+0 accepts only (v & 0xF7) == 0x06, so within this field ONLY bit 3 (this field's bit 0) is free and bits 4-7 must be 0. Setting byte+0 to 0x00 flips the sign of fast::sin on exactly the range-reduced rows. [EXP-0212, applied 2026-08-30] SPAN NARROWED by EXP-0199 from (start 3, width 5) to (start 5, width 3), and the descriptor's byte0 match TIGHTENED from (b0 & 0x07) == 6 to (b0 & 0x1f) == 6. Of the 32 values the declared match admits, EXACTLY 8 ARE ACCEPTED, and they are exactly (b0 & 0x1f) == 0x06 -- {0x06,0x26,0x46,0x66,0x86,0xa6,0xc6,0xe6}: bits 5-7 free, bits 3-4 MUST BE 0. byte0 = 0x0e also satisfies the OLD declared match but is `stop` -- it halts the program (poison in the output, sentinel present). 36 byte0 values are accepted in total at each swept site; the other 28 have (b0 & 0x07) == 4, the get_sr/mov_imm low-3-bits-100 family, a DIFFERENT descriptor, and are not evidence about this one. The 2-byte length is confirmed in the same arm by insertion at seven instruction boundaries the compiler did not choose: `06 02` correct at 7 of 7, while `00 00`, `ff ff` and deleting two bytes were each correct at 0 of 7. DEF-0166-2 NOTICE: this name now denotes bits 5..7; any verdict keyed to `sfu_marker.b0_hi` and measured before 2026-08-30 is a claim about bits 3..7."
+     "note": "byte+0 bits 3-7. HW (EXP-0146 on M4/G16G, reproduced byte-for-byte on G17P in three carriers by EXP-0157): byte+0 accepts only (v & 0xF7) == 0x06, so within this field ONLY bit 3 (this field's bit 0) is free and bits 4-7 must be 0. Setting byte+0 to 0x00 flips the sign of fast::sin on exactly the range-reduced rows."
     },
     {
      "name": "b1_hi",
      "start": 10,
      "width": 6,
      "type": "mod",
-     "note": "byte+1 bits 2-7. HW (EXP-0146 M4, reproduced on G17P by EXP-0157): byte+1 accepts only (v & 0x13) == 0x02, so within this field bits 2, 3, 5, 6 and 7 of the byte are free and bit 4 (this field's bit 2) must be 0. [EXP-0212, applied 2026-08-30] EXP-0199 adds a FRAMING result that does not contradict the semantic one already recorded here: byte+1 is UNCONSTRAINED FOR FRAMING -- 256 of 256 accepted at insertion boundary 94 and 255 of 256 at boundary 74 (the single exception is a lone fault against a clean observation on a measured-busy machine). EXP-0146/EXP-0157 measured byte+1 in a REPLACEMENT context inside an SFU carrier, where a wrong value produced a wrong `fast::sin`: that is a SEMANTIC constraint on the SFU control word, this is a FRAMING constraint. Both hold and the two axes must not be collapsed."
+     "note": "byte+1 bits 2-7. HW (EXP-0146 M4, reproduced on G17P by EXP-0157): byte+1 accepts only (v & 0x13) == 0x02, so within this field bits 2, 3, 5, 6 and 7 of the byte are free and bit 4 (this field's bit 2) must be 0."
     }
    ],
    "semantics": "SFU / transcendental helper CONTROL WORD (byte0 0x06, byte+1 0x02 as the compiler emits it), 2 bytes, emitted adjacent to special-function-unit and varying/mesh output ops. **NOT byte-invariant and NOT field-less** -- HW-VALIDATED on M4/G16G (EXP-0146, 512 cases over two gated runs) and REPRODUCED BYTE-FOR-BYTE on G17P in THREE independent carriers (EXP-0157: fast::sin, fast::cos, sin+cos+tan). Both bytes are load-bearing: byte+0 accepts only (v & 0xF7) == 0x06 -- 2 of 256, i.e. bit 3 is the only free bit -- with 62 values returning a wrong result and 192 silently zeroing; byte+1 accepts only (v & 0x13) == 0x02 -- 32 of 256, i.e. bits 2, 3, 5, 6 and 7 are free. Setting byte+0 to 0x00 FLIPS THE SIGN of fast::sin on exactly the rows whose argument needs range reduction (|x| > pi/2) while leaving the small-argument rows correct, so at least one live bit is a quadrant/sign control. The descriptor now carries the two free-bit groups as fields (`b0_hi`, `b1_hi`) and pins only the bits the hardware requires, so the evidence can be labelled and the assembler can emit the variants. DECODE IS UNCHANGED: isadb.py's length rule still admits length 2 for byte0 == 0x06 only when byte+1 == 0x02, so no additional byte pattern is claimed -- verified by a corpus A/B with zero firing delta. Per clean-room rule 5 the adjacent range-reduction coefficient words are left raw and the exact micro-op is NOT-YET-CHARACTERIZED.",
