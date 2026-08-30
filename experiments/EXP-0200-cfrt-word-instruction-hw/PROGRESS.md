@@ -74,3 +74,54 @@ Next: push, verify remotely as a SEPARATE step, build, census, hole probe.
 
 Next: gated pairs, serialized (T1 run01, T1 run02, T2 run01, T2 run02) so this
 experiment does not contaminate its own confirmation runs.
+
+## 2026-08-30 M2 — corrections adopted (A3), target-1 pair COMPLETE, target-2 pair COMPLETE
+
+**New raw observations.** `t1/raw/g17p_20260830_t1run01` (1276 cases, 240 s,
+frozen order) and `.../g17p_20260830_t1run02rev` (1276 cases, 282 s, REVERSED
+order via `harness/arms187_reversed.json`, permutation-checked). Pulled into
+`raw/t1_frozen0187/`. `raw/g17p_20260830_t2run01` and
+`raw/g17p_20260830_t2run02rev` (736 cases each, 38 s / 80 s).
+
+**Gate A (ledger).** T2: **736/736 requested == actual dispatched bytes** in both
+runs, 0 match-bit collisions. T1 (`reconstructed` grade — EXP-0187's harness
+predates Gate A and may not be edited): **1148/1148 decoded-from-bytes ==
+requested value**, 0 differ, 0 collisions; 128 n/a are the fieldless match-byte
+probes.
+
+**Target 1 — EXP-0187's frozen gate PASSES.** `n4_rt_word.dst` = LIVE /
+`hardware-run` under that experiment's own pre-registered gate: 2 of 3 arms with
+detection power moved. Detail: `rq_mdist`, `rq_inst` **and `rq_bbox`** each gave
+**64 fault / 192 ok out of 256**, and the fault set is EXACTLY
+`{v : (v & 0b110) == 0b100}` in **both runs on all three carriers** — 6 arm-runs,
+384 fault observations, 1152 clean, zero exceptions, 100 % cross-run agreement.
+`rq_bbox` is new: EXP-0187 never obtained a gated measurement there.
+`rq_ccount` is excluded by the gate — its unmutated baseline returned 0.0 for the
+whole of run02rev (carrier-level failure, `baselines_ok = False`).
+**But V = 1**: across all 1152 clean values the observed payload is a single
+constant. The movement is ENTIRELY the fault wall, so under the corrections this
+is `live` + a legality `bounded-map`, and the field's selection role is UNKNOWN.
+
+**Target 2 — the ruler arm is CONFOUNDED, and its own data proves it.**
+Byte-identical 8-byte fills read `not_written` at `cw_trans@102/110` and `ok` at
+`cw_trans@70/428`. No length property of an encoding can do that. `not_written`
+has at least three causes: a genuine halt, a store masked off by a predicate or
+exec-mask change, and a clobbered store-address register. **The arm is
+`carrier-undecidable`; no length verdict is drawn from it, in either direction.**
+
+**The finding that matters, from the transparency arm.** Writing a `stop`
+(`_instruction: hardware-run`) into a natural compact-word occurrence left the
+carrier at its exact non-zero oracle at **61 of 65 holes**, 100 % cross-run
+agreement, reversed order. At the SAME offset (`rq_mdist` +1306) target 1 has an
+illegal `dst` faulting the command buffer 64/256. **An illegal encoding is
+rejected where a terminator is ignored.** Amendment A5 (frozen before its first
+dispatch) adds the stop-scan to separate the two models.
+
+**One clean transparency result.** `cw_trans@n4_cf_word_324`: `X_null` ok,
+`X_reach` halts, `X_over` (6-byte word in a 4-byte hole) breaks, `X_if_push`
+(known 4-byte) ok — both controls fire in OPPOSITE directions — and **generated
+`06 c2 00 00` (`rtq_pred`) and `04 42 20 80` (`n4_rt_word`) both leave the exact
+oracle 12.5 intact.** One hole, one carrier: `generated-point`, not a verdict.
+
+**Claims downgraded:** none. **Bounded unknowns:** whether the RT compact-word
+region is executed at all under a grid-of-1 traversal (A5 answers this).

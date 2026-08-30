@@ -103,33 +103,33 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
-| `PASS` | 221 | 1212 | the raw meets the rule |
-| `REJECT` | 229 | 1212 | the raw CONTRADICTS the rule |
+| `PASS` | 215 | 1212 | the raw meets the rule |
+| `REJECT` | 235 | 1212 | the raw CONTRADICTS the rule |
 | `INSUFFICIENT` | 181 | 1212 | the raw lacks what the rule needs |
 | `N/A` | 581 | 1212 | the rule does not apply to this claim |
 
-### `REJECT` — 229 row(s), by reason
+### `REJECT` — 235 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
 | 21 | N raw runs but ONE carrier (carrier) and ONE cited experiment |
-| 13 | N raw runs but ONE carrier (CN_alu) and ONE cited experiment |
+| 19 | N raw runs but ONE carrier (CN_alu) and ONE cited experiment |
+| 11 | N raw runs but ONE carrier (unnamed) and ONE cited experiment |
 | 9 | N raw runs but ONE carrier (synth) and ONE cited experiment |
 | 8 | N raw runs but ONE carrier (SYNTH+LIFTED:k_abs_add@faluN_srcmodN[N:N]) and ONE cited experiment |
 | 8 | N raw runs but ONE carrier (SYNTH+LIFTED:k_fma_abs@faluN_srcmodN[N:N]) and ONE cited experiment |
 | 8 | N raw runs but ONE carrier (SYNTH+LIFTED:k_isel@iselN[N:N]) and ONE cited experiment |
-| 7 | N raw runs but ONE carrier (unnamed) and ONE cited experiment |
 | 7 | N raw runs but ONE carrier (atdev) and ONE cited experiment |
-| 7 | N raw runs but ONE carrier (c_fNi) and ONE cited experiment |
 | 7 | N raw runs but ONE carrier (CN_uni) and ONE cited experiment |
+| 6 | N raw runs but ONE carrier (c_fNi) and ONE cited experiment |
 | 6 | N raw runs but ONE carrier (c_iNf) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (attg) and ONE cited experiment |
-| 5 | N raw runs but ONE carrier (c_fNh) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (SYNTH+LIFTED:k_sat_add@faluN_ext[N:N]) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (SYNTH+LIFTED:k_imad@imad[N:N]) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (SYNTH+LIFTED:k_rsqrt@iselN[N:N]) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (NAT:k_ashr@ishift+NxN) and ONE cited experiment |
 | 5 | N raw runs but ONE carrier (sballot@simdN) and ONE cited experiment |
+| 4 | N raw runs but ONE carrier (c_fNh) and ONE cited experiment |
 | 4 | N raw runs but ONE carrier (c_iNf_src) and ONE cited experiment |
 | 4 | N raw runs but ONE carrier (SYNTH+LIFTED:k_sum@falu_acc[N:N]) and ONE cited experiment |
 
@@ -156,11 +156,11 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `bf_alu.tail` | hardware-run | G17P | 2 raw runs but ONE carrier (C1_alu) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2h.b1` | hardware-run | M4 | 5 raw runs but ONE carrier (c_f2h) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2h.b4` | hardware-run | M4 | 5 raw runs but ONE carrier (c_f2h) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
-| `cvt_f2h.op` | hardware-run | G17P | 2 raw runs but ONE carrier (c_f2h) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
+| `cvt_f2h.op` | hardware-run | G17P | 2 raw runs but ONE carrier (unnamed) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2h.src` | isolated-byte-diff | M4 | 5 raw runs but ONE carrier (c_f2h) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2h.tail` | isolated-byte-diff | M4 | 5 raw runs but ONE carrier (c_f2h) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2i.cvtop` | hardware-run | M4 | 3 raw runs but ONE carrier (c_f2i) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
-| `cvt_f2i.dst` | hardware-run | G17P | 2 raw runs but ONE carrier (c_f2i) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
+| `cvt_f2i.dst` | hardware-run | G17P | 2 raw runs but ONE carrier (unnamed) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2i.dst_class` | hardware-run | M4 | 3 raw runs but ONE carrier (c_f2i) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2i.mode` | hardware-run | M4 | 4 raw runs but ONE carrier (c_f2i) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |
 | `cvt_f2i.signflag` | hardware-run | M4 | 3 raw runs but ONE carrier (c_f2i) and ONE cited experiment. Phase 5: two carriers sharing the observation path count as one method |

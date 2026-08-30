@@ -103,6 +103,47 @@ def main():
         print("  %-28s modelled=%d  matched_the_exact_vector_in_BOTH_runs=%d  misses=%s"
               % (arm, len(mod), len(hit), rng([v for v in mod if v not in hit])))
 
+    print("\n== irotate.operands byte+6 : the amount recovered INDEPENDENTLY of the model ==")
+    print("   (for each aligned value, search all 32 K for one whose rotate-LEFT-by-K vector")
+    print("    reproduces the observation; the codewords are asymmetric so left/right and every")
+    print("    K are distinguishable. This does not use the pre-registered formula at all.)")
+    sys.path.insert(0, str(EXP / "harness"))
+    import carriers202 as CC          # noqa: E402
+    for arm in arms_of(lambda r: r.get("sub") == "byte+6"):
+        base = None
+        rec = collections.OrderedDict()
+        for k in common:
+            if k[0] != arm:
+                continue
+            base = ia[k].get("baseline_field_value") if base is None else base
+            if (k[1] & 3) != (base & 3):
+                continue
+            oa = (ia[k].get("observed") or {}).get("vals_u32")
+            ob = (ib[k].get("observed") or {}).get("vals_u32")
+            if oa is None or oa != ob:
+                rec[k[1]] = None
+                continue
+            hit = None
+            for K in range(32):
+                vec = [CC.rotl(a, K) for a in CC.A_ROT]
+                if ia[k].get("note", "") and False:
+                    pass
+                if "rot_alu" in arm:
+                    vec = [((x * 3) + 7) & CC.M32 for x in vec]
+                if oa == vec:
+                    hit = K
+                    break
+            rec[k[1]] = hit
+        got = {v: k for v, k in rec.items() if k is not None}
+        fml = {v: k for v, k in got.items() if k == (32 - (v >> 2)) % 32}
+        print("  %-28s aligned values=%d  a single rotate-LEFT amount recovered at %d of them "
+              "(in BOTH runs); of those, %d match K = (32 - (byte+6 >> 2)) mod 32; distinct K = %d"
+              % (arm, len(rec), len(got), len(fml), len(set(got.values()))))
+        bad = [v for v in got if v not in fml]
+        print("       values where a K was recovered but the formula disagrees: %s" % (bad or "none"))
+        print("       values where NO single rotate amount reproduces the output: %s"
+              % rng([v for v, k in rec.items() if k is None])[:110])
+
     print("\n== irotate.operands : the other four bytes, and the joint 40-bit arm ==")
     for arm in arms_of(lambda r: r.get("instr") == "irotate" and r.get("field") == "operands"
                        and r.get("sub") != "byte+6"):

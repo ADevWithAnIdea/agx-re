@@ -25,6 +25,13 @@ point.**
 **Target: Apple A18 Pro / G17P** (`applegpu_g17p`, `AGXAcceleratorG17P`, 5 cores, macOS 26.6, Metal
 family Apple9), host `users-MacBook-Neo.local`. Nothing was run on the M4.
 
+> **`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` (added by the user mid-run) is normative and wins.**
+> The redesign it forced — Gate A's actual-byte ledger, Gate C's independent semantic predictor,
+> Gate E's case-order control and quiet-machine requirement, and the six verdict axes — is frozen
+> as **Amendment 2** in `PRE_REGISTRATION.md` §15, **before its first dispatch**.
+> `raw/g17p_20260830_run01` ran under the original gate and is retained as a discovery sweep,
+> excluded from every Amendment-2 gate, never topped up and never reused.
+
 ## The one idea this experiment is built on
 
 `docs/isa/emit-worklist.md` line 7: *a field that never moves is promotable only if the carriers
@@ -76,7 +83,10 @@ So the work here is mostly **carrier design**, and each carrier states the dimen
 | `run.py` | the capture driver |
 | `analysis/census.py` | pre-freeze calibration (no verdict may cite it) |
 | `analysis/verdicts.py` | verdicts, recomputed from `raw/` only |
-| `analysis/cube_probe.py` | the tier-3 `cubearray_coord_const` synthesis probe (no promotion possible) |
+| `analysis/mode_bits.py` | the bit-level liveness map for `tex_sample.mode`, computed only over values both gated runs agree on |
+| `analysis/cube_probe.py`, `analysis/cube_decode.py` | the tier-3 `cubearray_coord_const` synthesis probe (no promotion possible) and its offline decode analysis |
+| `analysis/wave_audit.txt` | `tools/agx-isa/wave_audit.py` output, verbatim, run before reporting |
+| `harness/quietconfirm.sh` | Gate E helper: fires the confirmation pair **only** in a measured quiet window, and exits non-zero rather than passing off a busy pair as a confirmation |
 | `raw/prefreeze/` | **calibration only** |
 | `raw/g17p_*` | append-only gated evidence, one JSON object per case, plus `procs.jsonl` — the machine-quiet **measurement** |
 

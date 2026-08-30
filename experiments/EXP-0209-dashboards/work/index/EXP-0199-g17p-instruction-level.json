@@ -3,81 +3,101 @@
   "dir": "EXP-0199-g17p-instruction-level",
   "files": {
    ".md": 3,
-   ".json": 16,
-   ".py": 13,
+   ".json": 30,
+   ".py": 14,
    ".metal": 8,
    ".m": 2,
    ".txt": 1,
-   ".jsonl": 4
+   ".jsonl": 17
   },
   "bytes": {
    ".md": 23966,
-   ".json": 54426,
-   ".py": 105178,
+   ".json": 100299,
+   ".py": 111384,
    ".metal": 10496,
    ".m": 63059,
    ".txt": 84,
-   ".jsonl": 2529496
+   ".jsonl": 16838892
   },
-  "record_files": 20,
+  "record_files": 47,
   "nonrecord_files": 4,
   "runs": {
+   "g17p_confsmoke": 3,
+   "g17p_conf04": 4,
+   "g17p_conf03": 3,
+   "g17p_conf02": 3,
    "g17p_run01b": 3,
+   "g17p_run02c": 3,
+   "g17p_run02b": 3,
    "g17p_run01c": 3,
    "smoke01": 2,
    "prefreeze": 7,
-   "g17p_run01a": 3
+   "g17p_conf01": 4,
+   "g17p_run01a": 3,
+   "g17p_run02a": 3
   },
   "run_targets": {
+   "g17p_confsmoke": "G17P",
+   "g17p_conf04": "G17P",
+   "g17p_conf03": "G17P",
+   "g17p_conf02": "G17P",
    "g17p_run01b": "G17P",
+   "g17p_run02c": "G17P",
+   "g17p_run02b": "G17P",
    "g17p_run01c": "G17P",
    "smoke01": null,
    "prefreeze": null,
-   "g17p_run01a": "G17P"
+   "g17p_conf01": "G17P",
+   "g17p_run01a": "G17P",
+   "g17p_run02a": "G17P"
   },
   "targets": [
    "G17P"
   ],
   "parse_failures": 5,
   "instr_names_seen": {
-   "frame_marker_compact": 1304,
-   "frag_depth_store": 1299,
-   "sfu_marker": 1207,
-   "vary_slot": 1025,
-   "n2_op6": 1025,
-   "vary_store": 32
+   "frag_depth_store": 7468,
+   "frame_marker_compact": 5361,
+   "sfu_marker": 4410,
+   "vary_slot": 4209,
+   "n2_op6": 3654,
+   "vary_store": 131,
+   "_control": 58
   },
   "field_names_seen": {
-   "byte0": 784,
-   "match_byte0": 697,
-   "byte2": 512,
-   "match_byte1": 512,
-   "b1_in_4byte": 508,
-   "slot": 256,
-   "sel": 256,
-   "byte2_in_4byte": 256,
-   "byte3_in_4byte": 256,
-   "b3": 256,
-   "b4": 256,
-   "b5": 256,
-   "byte1": 256,
-   "opsel": 256,
-   "imm_sel": 256,
-   "b1_in_2byte": 254,
-   "out_slot": 32,
-   "_insert2": 21,
-   "_insert4": 7,
-   "_null": 5
+   "byte2": 2644,
+   "byte0": 2636,
+   "match_byte0": 2344,
+   "match_byte1": 2093,
+   "b1_in_4byte": 2090,
+   "b5": 1593,
+   "byte1": 1591,
+   "b3": 1584,
+   "byte2_in_4byte": 1055,
+   "byte3_in_4byte": 1053,
+   "sel": 1050,
+   "slot": 1050,
+   "imm_sel": 1049,
+   "b4": 1048,
+   "opsel": 1048,
+   "b1_in_2byte": 1040,
+   "out_slot": 131,
+   "_insert2": 94,
+   "_insert4": 42,
+   "_null": 24,
+   "_delete2": 14,
+   "_baseline": 10,
+   "_identity": 8
   },
   "instr_records": {
-   "vary_slot": 1025,
-   "vary_store": 32,
-   "sfu_marker": 1207,
-   "frame_marker_compact": 1304,
-   "frag_depth_store": 1299,
-   "n2_op6": 1025
+   "frag_depth_store": 7468,
+   "sfu_marker": 4410,
+   "vary_slot": 4209,
+   "frame_marker_compact": 5361,
+   "n2_op6": 3654,
+   "vary_store": 131
   },
-  "n_group_strings": 5793,
+  "n_group_strings": 8132,
   "has_raw": true,
   "has_prereg": true,
   "has_contract": true,
@@ -87,20 +107,28 @@
   "quarantined": false
  },
  "cells": {
-  "vary_slot.slot": {
-   "records": 256,
-   "in_raw": 256,
+  "frag_depth_store.byte2": {
+   "records": 1594,
+   "in_raw": 1594,
    "keying": {
-    "k1": 256
+    "k1": 1594
    },
    "runs": {
-    "g17p_run01b": 256
+    "g17p_confsmoke": 58,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "raw_runs": {
-    "g17p_run01b": 256
+    "g17p_confsmoke": 58,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "targets": {
-    "G17P": 256
+    "G17P": 1594
    },
    "req_values": [
     "0",
@@ -179,682 +207,323 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 128,
-    "draw_gone": 128
-   },
-   "hard": {},
-   "valid_payloads": [
-    "19f8ce0311adb768",
-    "285568f15a51e5bc"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "B": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 2,
-   "n_oracle_digests": 0,
-   "V": 2,
-   "L": 256
-  },
-  "vary_slot.sel": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01b": 256
-   },
-   "raw_runs": {
-    "g17p_run01b": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "moved": 240,
-    "ok": 16
-   },
-   "hard": {},
-   "valid_payloads": [
-    "01c7cb9aae1dc119",
-    "0284f3301626eae4",
-    "06e9073e926f10f3",
-    "1531bef2371ddce3",
-    "285568f15a51e5bc",
-    "39fcd953bf40f9bd",
-    "59899c599d819cf2",
-    "79baf9579e90ba15",
-    "87275f1123f06837",
-    "92a730a8eb3cd177",
-    "9afa74b801f45a3d",
-    "b3ec10397befa83a",
-    "b71da00830cb3fe8",
-    "c77708d425730667",
-    "ce36e05e46e797b3",
-    "e6c6d111bf387659"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "B": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 16,
-   "n_oracle_digests": 0,
-   "V": 16,
-   "L": 256
-  },
-  "vary_slot.byte0": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01b": 256
-   },
-   "raw_runs": {
-    "g17p_run01b": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 60,
-    "moved": 196
-   },
-   "hard": {},
-   "valid_payloads": [
-    "1f236cbc151ce743",
-    "285568f15a51e5bc",
-    "2bb9f3b6006192ee",
-    "7f78d67a58ec5787",
-    "8524a954f6bd1706",
-    "95cea5ee325c8184",
-    "ce36e05e46e797b3"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "B": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 7,
-   "n_oracle_digests": 0,
-   "V": 7,
-   "L": 256
-  },
-  "vary_slot.byte2": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01b": 256
-   },
-   "raw_runs": {
-    "g17p_run01b": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "draw_gone": 252,
-    "ok": 4
-   },
-   "hard": {},
-   "valid_payloads": [
-    "19f8ce0311adb768",
-    "285568f15a51e5bc"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "B": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 2,
-   "n_oracle_digests": 0,
-   "V": 2,
-   "L": 256
-  },
-  "vary_slot.__UNATTRIBUTED__": {
-   "records": 1,
-   "in_raw": 1,
-   "keying": {
-    "k0": 1
-   },
-   "runs": {
-    "g17p_run01b": 1
-   },
-   "raw_runs": {
-    "g17p_run01b": 1
-   },
-   "targets": {
-    "G17P": 1
-   },
-   "req_values": [
-    "\"4pad\""
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "draw_gone": 1
-   },
-   "hard": {},
-   "valid_payloads": [
-    "19f8ce0311adb768"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "B": 1
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 1
-   },
-   "capped": false,
-   "n_req_values": 1,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 1,
-   "n_oracle_digests": 0,
-   "V": 1,
-   "L": 1
-  },
-  "sfu_marker.__UNATTRIBUTED__": {
-   "records": 14,
-   "in_raw": 14,
-   "keying": {
-    "k0": 14
-   },
-   "runs": {
-    "g17p_run01c": 7,
-    "smoke01": 7
-   },
-   "raw_runs": {
-    "g17p_run01c": 7,
-    "smoke01": 7
-   },
-   "targets": {
-    "G17P": 7
-   },
-   "req_values": [
-    "\"0602\""
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 14
-   },
-   "hard": {},
-   "valid_payloads": [
-    "c98f7c2d77da8814"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "C": 14
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 7,
-    "experiments/EXP-0199-g17p-instruction-level/raw/smoke01/sweep.jsonl": 7
-   },
-   "capped": false,
-   "n_req_values": 1,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 1,
-   "n_oracle_digests": 0,
-   "V": 1,
-   "L": 1
-  },
-  "sfu_marker.match_byte0": {
-   "records": 681,
-   "in_raw": 681,
-   "keying": {
-    "k1": 681
-   },
-   "runs": {
-    "g17p_run01c": 512,
-    "smoke01": 169
-   },
-   "raw_runs": {
-    "g17p_run01c": 512,
-    "smoke01": 169
-   },
-   "targets": {
-    "G17P": 512
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "wrong_value": 208,
-    "fault": 190,
-    "halted_poison": 154,
-    "ok": 94,
-    "zero": 35
+    "ok": 1590,
+    "fault": 3,
+    "both_moved": 1
    },
    "hard": {
-    "fault": 190
+    "fault": 3
+   },
+   "valid_payloads": [
+    "7546d91dd49236d1",
+    "94ac4fb452871077",
+    "a026029d75d136cc",
+    "cc77cbbc700ac43c",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 533,
+    "c_depth2": 549
+   },
+   "arms": {
+    "A": 1594
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 58,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 5,
+   "n_oracle_digests": 0,
+   "V": 5,
+   "L": 256
+  },
+  "frag_depth_store.b5": {
+   "records": 1593,
+   "in_raw": 1593,
+   "keying": {
+    "k1": 1593
+   },
+   "runs": {
+    "g17p_confsmoke": 57,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 57,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "targets": {
+    "G17P": 1593
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "both_moved": 800,
+    "ok": 791,
+    "fault": 2
+   },
+   "hard": {
+    "fault": 2
+   },
+   "valid_payloads": [
+    "15d7eeb5fffe5671",
+    "88303f19eca752d8",
+    "94ac4fb452871077",
+    "a026029d75d136cc",
+    "b9a8dfe58bf75c43",
+    "cc77cbbc700ac43c",
+    "d50bad449a4e581f",
+    "f1a6c4a9a2100172",
+    "fcc549442a99620d"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 543,
+    "c_depth2": 538
+   },
+   "arms": {
+    "A": 1593
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 57,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 9,
+   "n_oracle_digests": 0,
+   "V": 9,
+   "L": 256
+  },
+  "sfu_marker.match_byte0": {
+   "records": 2277,
+   "in_raw": 2277,
+   "keying": {
+    "k1": 2277
+   },
+   "runs": {
+    "g17p_confsmoke": 57,
+    "g17p_conf04": 512,
+    "g17p_conf02": 3,
+    "g17p_run02c": 512,
+    "g17p_run01c": 512,
+    "smoke01": 169,
+    "g17p_conf01": 512
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 57,
+    "g17p_conf04": 512,
+    "g17p_conf02": 3,
+    "g17p_run02c": 512,
+    "g17p_run01c": 512,
+    "smoke01": 169,
+    "g17p_conf01": 512
+   },
+   "targets": {
+    "G17P": 2108
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "halted_poison": 551,
+    "wrong_value": 694,
+    "ok": 319,
+    "fault": 605,
+    "never_ran": 3,
+    "zero": 105
+   },
+   "hard": {
+    "fault": 605
    },
    "valid_payloads": [
     "3bb514faa3edaf53",
@@ -869,6 +538,7 @@
     "c98f7c2d77da8814",
     "cbb0353ada0c1fbb",
     "d60cbb9e5e2c2baa",
+    "d84da61f339ef7b1",
     "dcfb52dc01c65695",
     "e6c8fd26297f1d2a",
     "f7c2ee0c5b086624"
@@ -880,9 +550,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 1084
+   },
    "arms": {
-    "C": 681
+    "C": 2277
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -891,32 +563,45 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 57,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf02/sweep.jsonl": 3,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 512,
     "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 512,
-    "experiments/EXP-0199-g17p-instruction-level/raw/smoke01/sweep.jsonl": 169
+    "experiments/EXP-0199-g17p-instruction-level/raw/smoke01/sweep.jsonl": 169,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512
    },
    "capped": false,
    "n_req_values": 256,
    "n_actual_bytes": 0,
    "n_actual_field_values": 0,
-   "n_valid_payloads": 15,
+   "n_valid_payloads": 16,
    "n_oracle_digests": 0,
-   "V": 15,
+   "V": 16,
    "L": 256
   },
   "sfu_marker.match_byte1": {
-   "records": 512,
-   "in_raw": 512,
+   "records": 2093,
+   "in_raw": 2093,
    "keying": {
-    "k1": 512
+    "k1": 2093
    },
    "runs": {
-    "g17p_run01c": 512
+    "g17p_confsmoke": 45,
+    "g17p_conf04": 512,
+    "g17p_run02c": 512,
+    "g17p_run01c": 512,
+    "g17p_conf01": 512
    },
    "raw_runs": {
-    "g17p_run01c": 512
+    "g17p_confsmoke": 45,
+    "g17p_conf04": 512,
+    "g17p_run02c": 512,
+    "g17p_run01c": 512,
+    "g17p_conf01": 512
    },
    "targets": {
-    "G17P": 512
+    "G17P": 2093
    },
    "req_values": [
     "0",
@@ -995,11 +680,11 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "fault": 1,
-    "ok": 511
+    "ok": 2090,
+    "fault": 3
    },
    "hard": {
-    "fault": 1
+    "fault": 3
    },
    "valid_payloads": [
     "c98f7c2d77da8814"
@@ -1011,9 +696,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 1069
+   },
    "arms": {
-    "C": 512
+    "C": 2093
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1022,7 +709,11 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 512
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 45,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512
    },
    "capped": false,
    "n_req_values": 256,
@@ -1033,95 +724,29 @@
    "V": 1,
    "L": 256
   },
-  "frame_marker_compact.__UNATTRIBUTED__": {
-   "records": 14,
-   "in_raw": 14,
+  "vary_slot.sel": {
+   "records": 1052,
+   "in_raw": 1052,
    "keying": {
-    "k0": 14
+    "k1": 1050,
+    "k3": 2
    },
    "runs": {
-    "g17p_run01c": 14
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 257,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 257
    },
    "raw_runs": {
-    "g17p_run01c": 14
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 257,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 257
    },
    "targets": {
-    "G17P": 14
-   },
-   "req_values": [
-    "\"6001\"",
-    "\"60010000\""
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 7,
-    "wrong_value": 2,
-    "fault": 1,
-    "zero": 2,
-    "halted_poison": 2
-   },
-   "hard": {
-    "fault": 1
-   },
-   "valid_payloads": [
-    "6b7c5207f2f21352",
-    "9e8e7ccf3c83027f",
-    "a3a2f978db7a64b1",
-    "be3ff50964f352f7",
-    "c98f7c2d77da8814"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "D": 14
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 14
-   },
-   "capped": false,
-   "n_req_values": 2,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 5,
-   "n_oracle_digests": 0,
-   "V": 5,
-   "L": 2
-  },
-  "frame_marker_compact.b1_in_4byte": {
-   "records": 508,
-   "in_raw": 508,
-   "keying": {
-    "k1": 508
-   },
-   "runs": {
-    "g17p_run01c": 508
-   },
-   "raw_runs": {
-    "g17p_run01c": 508
-   },
-   "targets": {
-    "G17P": 508
+    "G17P": 1052
    },
    "req_values": [
     "0",
@@ -1200,7 +825,489 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 508
+    "moved": 983,
+    "ok": 68,
+    "fault": 1
+   },
+   "hard": {
+    "fault": 1
+   },
+   "valid_payloads": [
+    "01c7cb9aae1dc119",
+    "0284f3301626eae4",
+    "06e9073e926f10f3",
+    "1531bef2371ddce3",
+    "27265391e400f6ea",
+    "285568f15a51e5bc",
+    "34ccf26945eaf49c",
+    "39fcd953bf40f9bd",
+    "4e5edf564a65e8de",
+    "5306e955ae758e39",
+    "5612f83fb9d0a4c7",
+    "59899c599d819cf2",
+    "79baf9579e90ba15",
+    "86cae70d78071e7a",
+    "87275f1123f06837",
+    "916c5408eb70acd4",
+    "92a730a8eb3cd177",
+    "9afa74b801f45a3d",
+    "b04038665d66fdd0",
+    "b3ec10397befa83a",
+    "b71da00830cb3fe8",
+    "b8a22c68dca8b6b9",
+    "bd3b2917b42eb4b7",
+    "c267b11a575b68f1",
+    "c77708d425730667",
+    "c9bcd13357f746e8",
+    "ce36e05e46e797b3",
+    "d9a4801a29e83d49",
+    "df2d9427d1fc4f1b",
+    "e6c6d111bf387659",
+    "e91a4131b4170263"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_vary4": 540
+   },
+   "arms": {
+    "B": 1052
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 26,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 257,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 257
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 31,
+   "n_oracle_digests": 0,
+   "V": 31,
+   "L": 256
+  },
+  "frag_depth_store.byte1": {
+   "records": 1591,
+   "in_raw": 1591,
+   "keying": {
+    "k1": 1591
+   },
+   "runs": {
+    "g17p_confsmoke": 53,
+    "g17p_conf04": 512,
+    "g17p_conf02": 2,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 53,
+    "g17p_conf04": 512,
+    "g17p_conf02": 2,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "targets": {
+    "G17P": 1591
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 400,
+    "tile_discarded": 1184,
+    "fault": 7
+   },
+   "hard": {
+    "fault": 7
+   },
+   "valid_payloads": [
+    "94ac4fb452871077",
+    "a026029d75d136cc",
+    "cc77cbbc700ac43c",
+    "e95863466141190a",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth2": 540,
+    "c_depth": 539
+   },
+   "arms": {
+    "A": 1591
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 53,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf02/sweep.jsonl": 2,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 5,
+   "n_oracle_digests": 0,
+   "V": 5,
+   "L": 256
+  },
+  "vary_slot.byte0": {
+   "records": 1051,
+   "in_raw": 1051,
+   "keying": {
+    "k1": 1051
+   },
+   "runs": {
+    "g17p_confsmoke": 27,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 27,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
+   },
+   "targets": {
+    "G17P": 1051
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "moved": 807,
+    "ok": 244
+   },
+   "hard": {},
+   "valid_payloads": [
+    "1f236cbc151ce743",
+    "208ff8d94acbc04b",
+    "285568f15a51e5bc",
+    "2bb9f3b6006192ee",
+    "44eb69b1ec04090a",
+    "4e5edf564a65e8de",
+    "74ec171a9a757999",
+    "7f78d67a58ec5787",
+    "8524a954f6bd1706",
+    "9117e7f739183db8",
+    "95cea5ee325c8184",
+    "b10d54fbe6fd369f",
+    "ce36e05e46e797b3"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_vary4": 539
+   },
+   "arms": {
+    "B": 1051
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 27,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 13,
+   "n_oracle_digests": 0,
+   "V": 13,
+   "L": 256
+  },
+  "frame_marker_compact.byte3_in_4byte": {
+   "records": 1053,
+   "in_raw": 1053,
+   "keying": {
+    "k1": 1053
+   },
+   "runs": {
+    "g17p_confsmoke": 29,
+    "g17p_conf04": 256,
+    "g17p_run02c": 256,
+    "g17p_run01c": 256,
+    "g17p_conf01": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 29,
+    "g17p_conf04": 256,
+    "g17p_run02c": 256,
+    "g17p_run01c": 256,
+    "g17p_conf01": 256
+   },
+   "targets": {
+    "G17P": 1053
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 1053
    },
    "hard": {},
    "valid_payloads": [
@@ -1213,9 +1320,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 541
+   },
    "arms": {
-    "D": 508
+    "D": 1053
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1224,31 +1333,43 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 508
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 29,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256
    },
    "capped": false,
-   "n_req_values": 254,
+   "n_req_values": 256,
    "n_actual_bytes": 0,
    "n_actual_field_values": 0,
    "n_valid_payloads": 1,
    "n_oracle_digests": 0,
    "V": 1,
-   "L": 254
+   "L": 256
   },
-  "frame_marker_compact.b1_in_2byte": {
-   "records": 254,
-   "in_raw": 254,
+  "vary_slot.slot": {
+   "records": 1050,
+   "in_raw": 1050,
    "keying": {
-    "k1": 254
+    "k1": 1050
    },
    "runs": {
-    "g17p_run01c": 254
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
    },
    "raw_runs": {
-    "g17p_run01c": 254
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
    },
    "targets": {
-    "G17P": 254
+    "G17P": 1050
    },
    "req_values": [
     "0",
@@ -1327,8 +1448,156 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "zero": 252,
-    "wrong_value": 2
+    "draw_gone": 525,
+    "ok": 524,
+    "fault": 1
+   },
+   "hard": {
+    "fault": 1
+   },
+   "valid_payloads": [
+    "19f8ce0311adb768",
+    "285568f15a51e5bc"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_vary4": 538
+   },
+   "arms": {
+    "B": 1050
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 26,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 2,
+   "n_oracle_digests": 0,
+   "V": 2,
+   "L": 256
+  },
+  "frame_marker_compact.b1_in_2byte": {
+   "records": 1040,
+   "in_raw": 1040,
+   "keying": {
+    "k1": 1040
+   },
+   "runs": {
+    "g17p_confsmoke": 23,
+    "g17p_conf04": 254,
+    "g17p_conf02": 1,
+    "g17p_run02c": 254,
+    "g17p_run01c": 254,
+    "g17p_conf01": 254
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 23,
+    "g17p_conf04": 254,
+    "g17p_conf02": 1,
+    "g17p_run02c": 254,
+    "g17p_run01c": 254,
+    "g17p_conf01": 254
+   },
+   "targets": {
+    "G17P": 1040
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "zero": 1031,
+    "wrong_value": 9
    },
    "hard": {},
    "valid_payloads": [
@@ -1342,9 +1611,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 532
+   },
    "arms": {
-    "D": 254
+    "D": 1040
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1353,7 +1624,12 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 254
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 23,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 254,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf02/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 254,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 254,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 254
    },
    "capped": false,
    "n_req_values": 254,
@@ -1364,20 +1640,28 @@
    "V": 2,
    "L": 254
   },
-  "frame_marker_compact.byte2_in_4byte": {
-   "records": 256,
-   "in_raw": 256,
+  "frag_depth_store.b3": {
+   "records": 1584,
+   "in_raw": 1584,
    "keying": {
-    "k1": 256
+    "k1": 1584
    },
    "runs": {
-    "g17p_run01c": 256
+    "g17p_confsmoke": 48,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "raw_runs": {
-    "g17p_run01c": 256
+    "g17p_confsmoke": 48,
+    "g17p_conf04": 512,
+    "g17p_conf01": 512,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "targets": {
-    "G17P": 256
+    "G17P": 1584
    },
    "req_values": [
     "0",
@@ -1456,9 +1740,313 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 40,
-    "zero": 96,
-    "wrong_value": 120
+    "tile_discarded": 1557,
+    "ok": 24,
+    "fault": 2,
+    "both_moved": 1
+   },
+   "hard": {
+    "fault": 2
+   },
+   "valid_payloads": [
+    "1f92fca9648aabe9",
+    "94ac4fb452871077",
+    "a026029d75d136cc",
+    "cc77cbbc700ac43c",
+    "e95863466141190a",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 541,
+    "c_depth2": 531
+   },
+   "arms": {
+    "A": 1584
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 48,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 6,
+   "n_oracle_digests": 0,
+   "V": 6,
+   "L": 256
+  },
+  "frag_depth_store.b4": {
+   "records": 1048,
+   "in_raw": 1048,
+   "keying": {
+    "k1": 1048
+   },
+   "runs": {
+    "g17p_confsmoke": 22,
+    "g17p_conf04": 256,
+    "g17p_conf02": 2,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 22,
+    "g17p_conf04": 256,
+    "g17p_conf02": 2,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "targets": {
+    "G17P": 1048
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "tile_discarded": 1014,
+    "ok": 33,
+    "fault": 1
+   },
+   "hard": {
+    "fault": 1
+   },
+   "valid_payloads": [
+    "a026029d75d136cc",
+    "e95863466141190a",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 536
+   },
+   "arms": {
+    "A": 1048
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 22,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf02/sweep.jsonl": 2,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 3,
+   "n_oracle_digests": 0,
+   "V": 3,
+   "L": 256
+  },
+  "frame_marker_compact.byte2_in_4byte": {
+   "records": 1055,
+   "in_raw": 1055,
+   "keying": {
+    "k1": 1055
+   },
+   "runs": {
+    "g17p_confsmoke": 30,
+    "g17p_conf04": 256,
+    "g17p_conf02": 1,
+    "g17p_run02c": 256,
+    "g17p_run01c": 256,
+    "g17p_conf01": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 30,
+    "g17p_conf04": 256,
+    "g17p_conf02": 1,
+    "g17p_run02c": 256,
+    "g17p_run01c": 256,
+    "g17p_conf01": 256
+   },
+   "targets": {
+    "G17P": 1055
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "wrong_value": 493,
+    "zero": 397,
+    "ok": 165
    },
    "hard": {},
    "valid_payloads": [
@@ -1475,9 +2063,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 543
+   },
    "arms": {
-    "D": 256
+    "D": 1055
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1486,7 +2076,12 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 256
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 30,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf02/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256
    },
    "capped": false,
    "n_req_values": 256,
@@ -1497,20 +2092,28 @@
    "V": 5,
    "L": 256
   },
-  "frame_marker_compact.byte3_in_4byte": {
-   "records": 256,
-   "in_raw": 256,
+  "n2_op6.opsel": {
+   "records": 1048,
+   "in_raw": 1048,
    "keying": {
-    "k1": 256
+    "k1": 1048
    },
    "runs": {
-    "g17p_run01c": 256
+    "g17p_confsmoke": 24,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "raw_runs": {
-    "g17p_run01c": 256
+    "g17p_confsmoke": 24,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
    },
    "targets": {
-    "G17P": 256
+    "G17P": 1048
    },
    "req_values": [
     "0",
@@ -1589,9 +2192,190 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 256
+    "color_moved": 977,
+    "ok": 68,
+    "both_moved": 1,
+    "fault": 2
    },
-   "hard": {},
+   "hard": {
+    "fault": 2
+   },
+   "valid_payloads": [
+    "110710c38e241431",
+    "14d6415c010e333b",
+    "18fa23f1897de078",
+    "19e64c91677d0d68",
+    "1af32b4f32d95ccb",
+    "1d313f68af2d4b10",
+    "221511452274e8c8",
+    "317fb19c5a5b222c",
+    "3ddb99d4563649cc",
+    "49cb51defd23d7d8",
+    "4bf01ec202f6a283",
+    "518b1fc7ff208bf7",
+    "52423e1f7e62db95",
+    "6dbbc18d0dcee479",
+    "84d5fb5b261e81b4",
+    "85ef8a93368ae356",
+    "86808958a9cb9cc0",
+    "93e8a3b49f490681",
+    "a026029d75d136cc",
+    "a339a9800bb7b728",
+    "ad128922d71ebe58",
+    "ae949cfe8d25e955",
+    "b070423a4df8dc50",
+    "bd8d7bfbe3aa1ac2",
+    "c303be0d5172b61d",
+    "d7d39dbb5d1ca4a2",
+    "dd1c5fa82f652a17",
+    "e1a0a202e2c9a61c",
+    "e6a7fa727b5c0c2d",
+    "e7285a671e4e535a",
+    "ece175b9d2cfbe5d",
+    "ee0fccf70b067e5a",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 536
+   },
+   "arms": {
+    "E": 1048
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 24,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 33,
+   "n_oracle_digests": 0,
+   "V": 33,
+   "L": 256
+  },
+  "frame_marker_compact.b1_in_4byte": {
+   "records": 2090,
+   "in_raw": 2090,
+   "keying": {
+    "k1": 2090
+   },
+   "runs": {
+    "g17p_confsmoke": 58,
+    "g17p_conf04": 508,
+    "g17p_run02c": 508,
+    "g17p_run01c": 508,
+    "g17p_conf01": 508
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 58,
+    "g17p_conf04": 508,
+    "g17p_run02c": 508,
+    "g17p_run01c": 508,
+    "g17p_conf01": 508
+   },
+   "targets": {
+    "G17P": 2090
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 2089,
+    "fault": 1
+   },
+   "hard": {
+    "fault": 1
+   },
    "valid_payloads": [
     "c98f7c2d77da8814"
    ],
@@ -1602,9 +2386,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 1074
+   },
    "arms": {
-    "D": 256
+    "D": 2090
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1613,31 +2399,524 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 256
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 58,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 508,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 508,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 508,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 508
    },
    "capped": false,
-   "n_req_values": 256,
+   "n_req_values": 254,
    "n_actual_bytes": 0,
    "n_actual_field_values": 0,
    "n_valid_payloads": 1,
    "n_oracle_digests": 0,
    "V": 1,
+   "L": 254
+  },
+  "n2_op6.imm_sel": {
+   "records": 1049,
+   "in_raw": 1049,
+   "keying": {
+    "k1": 1049
+   },
+   "runs": {
+    "g17p_confsmoke": 25,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 25,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 256,
+    "g17p_run02a": 256
+   },
+   "targets": {
+    "G17P": 1049
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 68,
+    "color_moved": 979,
+    "both_moved": 1,
+    "fault": 1
+   },
+   "hard": {
+    "fault": 1
+   },
+   "valid_payloads": [
+    "03d73ac68350d05d",
+    "0537e153be40a8b0",
+    "05e0d4a123fbb519",
+    "0dc247eef2dd36fb",
+    "1e35bd191ec80a1e",
+    "27b0ee010759419e",
+    "2ce2b63ad2cbd96e",
+    "32e019fd15ab5de2",
+    "43d5657ec33c1abb",
+    "43db38a17fc7ebb3",
+    "4955287464e41461",
+    "4f018bbc60033302",
+    "5706d2e4c2f313b9",
+    "5ca9791ebbc9c2a4",
+    "5cdfab5d168d7102",
+    "6620b3cbdaa5b28f",
+    "67988828265eb5e1",
+    "7b3be788dc93b573",
+    "7feec90c9a915ef5",
+    "8200e783ff86ebc5",
+    "8448ac1a45f5fa32",
+    "88ad431f3a9484c5",
+    "a026029d75d136cc",
+    "a14d432680ab387d",
+    "a1955fa5137d3596",
+    "b3bd8e83dcb38e3d",
+    "b6535f8467e94d27",
+    "c3bf87aad54c4a0e",
+    "cbdac36a92c39bea",
+    "ceb8af06df25f82b",
+    "d073f6cf847b71c8",
+    "f1a6c4a9a2100172",
+    "f9bf3ee9a9d06086"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 537
+   },
+   "arms": {
+    "E": 1049
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 25,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 33,
+   "n_oracle_digests": 0,
+   "V": 33,
+   "L": 256
+  },
+  "vary_slot.byte2": {
+   "records": 1050,
+   "in_raw": 1050,
+   "keying": {
+    "k1": 1050
+   },
+   "runs": {
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 26,
+    "g17p_conf04": 256,
+    "g17p_run01b": 256,
+    "g17p_run02b": 256,
+    "g17p_conf01": 256
+   },
+   "targets": {
+    "G17P": 1050
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "draw_gone": 1028,
+    "ok": 18,
+    "moved": 1,
+    "fault": 3
+   },
+   "hard": {
+    "fault": 3
+   },
+   "valid_payloads": [
+    "0b128c0cae5ef880",
+    "19f8ce0311adb768",
+    "285568f15a51e5bc"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_vary4": 538
+   },
+   "arms": {
+    "B": 1050
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 26,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 3,
+   "n_oracle_digests": 0,
+   "V": 3,
+   "L": 256
+  },
+  "n2_op6.byte0": {
+   "records": 1553,
+   "in_raw": 1553,
+   "keying": {
+    "k1": 1553
+   },
+   "runs": {
+    "g17p_confsmoke": 17,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 512,
+    "g17p_run02a": 512
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 17,
+    "g17p_conf04": 256,
+    "g17p_conf01": 256,
+    "g17p_run01a": 512,
+    "g17p_run02a": 512
+   },
+   "targets": {
+    "G17P": 1553
+   },
+   "req_values": [
+    "0",
+    "1",
+    "10",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "106",
+    "107",
+    "108",
+    "109",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "117",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "128",
+    "129",
+    "13",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "135",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "146",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "color_moved": 1101,
+    "tile_discarded": 261,
+    "fault": 142,
+    "ok": 48,
+    "both_moved": 1
+   },
+   "hard": {
+    "fault": 142
+   },
+   "valid_payloads": [
+    "095b6c68f9ea3a41",
+    "3fbd9750d9d1b803",
+    "6c115b236af34a96",
+    "836eebc7e8dfe52c",
+    "85b9550ecbf0b368",
+    "a026029d75d136cc",
+    "b051fae54fa22dea",
+    "e95863466141190a",
+    "f1a6c4a9a2100172"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 529
+   },
+   "arms": {
+    "E": 1553
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 17,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 256,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 512,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 512
+   },
+   "capped": false,
+   "n_req_values": 256,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 9,
+   "n_oracle_digests": 0,
+   "V": 9,
    "L": 256
   },
   "frame_marker_compact.match_byte0": {
-   "records": 16,
-   "in_raw": 16,
+   "records": 67,
+   "in_raw": 67,
    "keying": {
-    "k1": 16
+    "k1": 67
    },
    "runs": {
-    "g17p_run01c": 16
+    "g17p_confsmoke": 3,
+    "g17p_conf04": 16,
+    "g17p_run02c": 16,
+    "g17p_run01c": 16,
+    "g17p_conf01": 16
    },
    "raw_runs": {
-    "g17p_run01c": 16
+    "g17p_confsmoke": 3,
+    "g17p_conf04": 16,
+    "g17p_run02c": 16,
+    "g17p_run01c": 16,
+    "g17p_conf01": 16
    },
    "targets": {
-    "G17P": 16
+    "G17P": 67
    },
    "req_values": [
     "0",
@@ -1668,9 +2947,9 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 12,
-    "zero": 2,
-    "wrong_value": 2
+    "wrong_value": 9,
+    "ok": 50,
+    "zero": 8
    },
    "hard": {},
    "valid_payloads": [
@@ -1686,9 +2965,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 35
+   },
    "arms": {
-    "D": 16
+    "D": 67
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1697,7 +2978,11 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 16
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 3,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 16,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 16,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 16,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 16
    },
    "capped": false,
    "n_req_values": 16,
@@ -1708,86 +2993,31 @@
    "V": 4,
    "L": 16
   },
-  "frag_depth_store.b3": {
-   "records": 256,
-   "in_raw": 256,
+  "sfu_marker.__UNATTRIBUTED__": {
+   "records": 25,
+   "in_raw": 25,
    "keying": {
-    "k1": 256
+    "k0": 25
    },
    "runs": {
-    "g17p_run01a": 256
+    "g17p_conf04": 2,
+    "g17p_run02c": 7,
+    "g17p_run01c": 7,
+    "smoke01": 7,
+    "g17p_conf01": 2
    },
    "raw_runs": {
-    "g17p_run01a": 256
+    "g17p_conf04": 2,
+    "g17p_run02c": 7,
+    "g17p_run01c": 7,
+    "smoke01": 7,
+    "g17p_conf01": 2
    },
    "targets": {
-    "G17P": 256
+    "G17P": 18
    },
    "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
+    "\"0602\""
    ],
    "actual_bytes": [],
    "actual_field_values": [],
@@ -1800,15 +3030,11 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 3,
-    "both_moved": 1,
-    "tile_discarded": 252
+    "ok": 25
    },
    "hard": {},
    "valid_payloads": [
-    "1f92fca9648aabe9",
-    "e95863466141190a",
-    "f1a6c4a9a2100172"
+    "c98f7c2d77da8814"
    ],
    "oracle_digests": [],
    "sem_checks": 0,
@@ -1817,9 +3043,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "k_line3": 4
+   },
    "arms": {
-    "A": 256
+    "C": 25
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -1828,545 +3056,358 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 2,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 7,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 7,
+    "experiments/EXP-0199-g17p-instruction-level/raw/smoke01/sweep.jsonl": 7,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 2
    },
    "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 3,
-   "n_oracle_digests": 0,
-   "V": 3,
-   "L": 256
-  },
-  "frag_depth_store.b4": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 8,
-    "tile_discarded": 248
-   },
-   "hard": {},
-   "valid_payloads": [
-    "e95863466141190a",
-    "f1a6c4a9a2100172"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "A": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 2,
-   "n_oracle_digests": 0,
-   "V": 2,
-   "L": 256
-  },
-  "frag_depth_store.b5": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "both_moved": 128,
-    "ok": 128
-   },
-   "hard": {},
-   "valid_payloads": [
-    "f1a6c4a9a2100172",
-    "fcc549442a99620d"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "A": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 2,
-   "n_oracle_digests": 0,
-   "V": 2,
-   "L": 256
-  },
-  "frag_depth_store.byte1": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "tile_discarded": 192,
-    "ok": 64
-   },
-   "hard": {},
-   "valid_payloads": [
-    "e95863466141190a",
-    "f1a6c4a9a2100172"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "A": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 2,
-   "n_oracle_digests": 0,
-   "V": 2,
-   "L": 256
-  },
-  "frag_depth_store.byte2": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 256
-   },
-   "hard": {},
-   "valid_payloads": [
-    "f1a6c4a9a2100172"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "A": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
+   "n_req_values": 1,
    "n_actual_bytes": 0,
    "n_actual_field_values": 0,
    "n_valid_payloads": 1,
    "n_oracle_digests": 0,
    "V": 1,
-   "L": 256
+   "L": 1
   },
-  "frag_depth_store.byte0": {
-   "records": 16,
-   "in_raw": 16,
+  "vary_slot.__UNATTRIBUTED__": {
+   "records": 6,
+   "in_raw": 6,
    "keying": {
-    "k1": 16
+    "k0": 6
    },
    "runs": {
-    "g17p_run01a": 16
+    "g17p_conf04": 2,
+    "g17p_run01b": 1,
+    "g17p_run02b": 1,
+    "g17p_conf01": 2
    },
    "raw_runs": {
-    "g17p_run01a": 16
+    "g17p_conf04": 2,
+    "g17p_run01b": 1,
+    "g17p_run02b": 1,
+    "g17p_conf01": 2
    },
    "targets": {
-    "G17P": 16
+    "G17P": 6
+   },
+   "req_values": [
+    "\"4pad\""
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 2,
+    "draw_gone": 4
+   },
+   "hard": {},
+   "valid_payloads": [
+    "19f8ce0311adb768",
+    "285568f15a51e5bc"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_vary4": 4
+   },
+   "arms": {
+    "B": 6
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 2,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 2
+   },
+   "capped": false,
+   "n_req_values": 1,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 2,
+   "n_oracle_digests": 0,
+   "V": 2,
+   "L": 1
+  },
+  "frame_marker_compact.__UNATTRIBUTED__": {
+   "records": 56,
+   "in_raw": 56,
+   "keying": {
+    "k0": 56
+   },
+   "runs": {
+    "g17p_conf04": 14,
+    "g17p_run02c": 14,
+    "g17p_run01c": 14,
+    "g17p_conf01": 14
+   },
+   "raw_runs": {
+    "g17p_conf04": 14,
+    "g17p_run02c": 14,
+    "g17p_run01c": 14,
+    "g17p_conf01": 14
+   },
+   "targets": {
+    "G17P": 56
+   },
+   "req_values": [
+    "\"6001\"",
+    "\"60010000\""
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "zero": 8,
+    "ok": 28,
+    "halted_poison": 8,
+    "wrong_value": 8,
+    "fault": 4
+   },
+   "hard": {
+    "fault": 4
+   },
+   "valid_payloads": [
+    "6b7c5207f2f21352",
+    "9e8e7ccf3c83027f",
+    "a3a2f978db7a64b1",
+    "be3ff50964f352f7",
+    "c98f7c2d77da8814"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "k_line3": 28
+   },
+   "arms": {
+    "D": 56
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 14,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02c/sweep.jsonl": 14,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01c/sweep.jsonl": 14,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 14
+   },
+   "capped": false,
+   "n_req_values": 2,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 5,
+   "n_oracle_digests": 0,
+   "V": 5,
+   "L": 2
+  },
+  "frag_depth_store.__UNATTRIBUTED__": {
+   "records": 26,
+   "in_raw": 26,
+   "keying": {
+    "k0": 26
+   },
+   "runs": {
+    "g17p_conf04": 10,
+    "g17p_conf01": 10,
+    "g17p_run01a": 3,
+    "g17p_run02a": 3
+   },
+   "raw_runs": {
+    "g17p_conf04": 10,
+    "g17p_conf01": 10,
+    "g17p_run01a": 3,
+    "g17p_run02a": 3
+   },
+   "targets": {
+    "G17P": 26
+   },
+   "req_values": [
+    "\"barrier_color\"",
+    "\"barrier_depth\"",
+    "\"six_pads\""
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "tile_discarded": 18,
+    "ok": 8
+   },
+   "hard": {},
+   "valid_payloads": [
+    "94ac4fb452871077",
+    "a026029d75d136cc",
+    "e95863466141190a"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth2": 10,
+    "c_depth": 10
+   },
+   "arms": {
+    "A": 26
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 10,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 10,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 3,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 3
+   },
+   "capped": false,
+   "n_req_values": 3,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 3,
+   "n_oracle_digests": 0,
+   "V": 3,
+   "L": 3
+  },
+  "n2_op6.__UNATTRIBUTED__": {
+   "records": 4,
+   "in_raw": 4,
+   "keying": {
+    "k0": 4
+   },
+   "runs": {
+    "g17p_conf04": 1,
+    "g17p_conf01": 1,
+    "g17p_run01a": 1,
+    "g17p_run02a": 1
+   },
+   "raw_runs": {
+    "g17p_conf04": 1,
+    "g17p_conf01": 1,
+    "g17p_run01a": 1,
+    "g17p_run02a": 1
+   },
+   "targets": {
+    "G17P": 4
+   },
+   "req_values": [
+    "\"barrier\""
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 2,
+    "tile_discarded": 2
+   },
+   "hard": {},
+   "valid_payloads": [
+    "a026029d75d136cc",
+    "e95863466141190a"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "c_depth": 2
+   },
+   "arms": {
+    "E": 4
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 1
+   },
+   "capped": false,
+   "n_req_values": 1,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 2,
+   "n_oracle_digests": 0,
+   "V": 2,
+   "L": 1
+  },
+  "frag_depth_store.byte0": {
+   "records": 32,
+   "in_raw": 32,
+   "keying": {
+    "k1": 32
+   },
+   "runs": {
+    "g17p_run01a": 16,
+    "g17p_run02a": 16
+   },
+   "raw_runs": {
+    "g17p_run01a": 16,
+    "g17p_run02a": 16
+   },
+   "targets": {
+    "G17P": 32
    },
    "req_values": [
     "103",
@@ -2397,13 +3438,13 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "ok": 1,
-    "fault": 1,
-    "tile_discarded": 13,
-    "both_moved": 1
+    "ok": 2,
+    "fault": 2,
+    "tile_discarded": 26,
+    "both_moved": 2
    },
    "hard": {
-    "fault": 1
+    "fault": 2
    },
    "valid_payloads": [
     "e95863466141190a",
@@ -2419,7 +3460,7 @@
    "prose_predictions": 0,
    "carriers": {},
    "arms": {
-    "A": 16
+    "A": 32
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -2428,7 +3469,8 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 16
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 16,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02a/sweep.jsonl": 16
    },
    "capped": false,
    "n_req_values": 16,
@@ -2438,576 +3480,31 @@
    "n_oracle_digests": 0,
    "V": 3,
    "L": 16
-  },
-  "frag_depth_store.__UNATTRIBUTED__": {
-   "records": 3,
-   "in_raw": 3,
-   "keying": {
-    "k0": 3
-   },
-   "runs": {
-    "g17p_run01a": 3
-   },
-   "raw_runs": {
-    "g17p_run01a": 3
-   },
-   "targets": {
-    "G17P": 3
-   },
-   "req_values": [
-    "\"barrier_color\"",
-    "\"barrier_depth\"",
-    "\"six_pads\""
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "tile_discarded": 3
-   },
-   "hard": {},
-   "valid_payloads": [
-    "e95863466141190a"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "A": 3
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 3
-   },
-   "capped": false,
-   "n_req_values": 3,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 1,
-   "n_oracle_digests": 0,
-   "V": 1,
-   "L": 3
-  },
-  "n2_op6.byte0": {
-   "records": 512,
-   "in_raw": 512,
-   "keying": {
-    "k1": 512
-   },
-   "runs": {
-    "g17p_run01a": 512
-   },
-   "raw_runs": {
-    "g17p_run01a": 512
-   },
-   "targets": {
-    "G17P": 512
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "color_moved": 383,
-    "ok": 16,
-    "tile_discarded": 64,
-    "fault": 49
-   },
-   "hard": {
-    "fault": 49
-   },
-   "valid_payloads": [
-    "095b6c68f9ea3a41",
-    "3fbd9750d9d1b803",
-    "85b9550ecbf0b368",
-    "b051fae54fa22dea",
-    "e95863466141190a",
-    "f1a6c4a9a2100172"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "E": 512
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 512
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 6,
-   "n_oracle_digests": 0,
-   "V": 6,
-   "L": 256
-  },
-  "n2_op6.opsel": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "ok": 16,
-    "color_moved": 240
-   },
-   "hard": {},
-   "valid_payloads": [
-    "110710c38e241431",
-    "18fa23f1897de078",
-    "1d313f68af2d4b10",
-    "221511452274e8c8",
-    "3ddb99d4563649cc",
-    "49cb51defd23d7d8",
-    "4bf01ec202f6a283",
-    "52423e1f7e62db95",
-    "a339a9800bb7b728",
-    "ae949cfe8d25e955",
-    "c303be0d5172b61d",
-    "d7d39dbb5d1ca4a2",
-    "dd1c5fa82f652a17",
-    "e1a0a202e2c9a61c",
-    "ee0fccf70b067e5a",
-    "f1a6c4a9a2100172"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "E": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 16,
-   "n_oracle_digests": 0,
-   "V": 16,
-   "L": 256
-  },
-  "n2_op6.imm_sel": {
-   "records": 256,
-   "in_raw": 256,
-   "keying": {
-    "k1": 256
-   },
-   "runs": {
-    "g17p_run01a": 256
-   },
-   "raw_runs": {
-    "g17p_run01a": 256
-   },
-   "targets": {
-    "G17P": 256
-   },
-   "req_values": [
-    "0",
-    "1",
-    "10",
-    "100",
-    "101",
-    "102",
-    "103",
-    "104",
-    "105",
-    "106",
-    "107",
-    "108",
-    "109",
-    "11",
-    "110",
-    "111",
-    "112",
-    "113",
-    "114",
-    "115",
-    "116",
-    "117",
-    "118",
-    "119",
-    "12",
-    "120",
-    "121",
-    "122",
-    "123",
-    "124",
-    "125",
-    "126",
-    "127",
-    "128",
-    "129",
-    "13",
-    "130",
-    "131",
-    "132",
-    "133",
-    "134",
-    "135",
-    "136",
-    "137",
-    "138",
-    "139",
-    "14",
-    "140",
-    "141",
-    "142",
-    "143",
-    "144",
-    "145",
-    "146",
-    "147",
-    "148",
-    "149",
-    "15",
-    "150",
-    "151",
-    "152",
-    "153",
-    "154",
-    "155"
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "color_moved": 240,
-    "ok": 16
-   },
-   "hard": {},
-   "valid_payloads": [
-    "03d73ac68350d05d",
-    "1e35bd191ec80a1e",
-    "27b0ee010759419e",
-    "32e019fd15ab5de2",
-    "4f018bbc60033302",
-    "6620b3cbdaa5b28f",
-    "67988828265eb5e1",
-    "7b3be788dc93b573",
-    "8448ac1a45f5fa32",
-    "88ad431f3a9484c5",
-    "a14d432680ab387d",
-    "b3bd8e83dcb38e3d",
-    "b6535f8467e94d27",
-    "c3bf87aad54c4a0e",
-    "f1a6c4a9a2100172",
-    "f9bf3ee9a9d06086"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "E": 256
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 256
-   },
-   "capped": false,
-   "n_req_values": 256,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 16,
-   "n_oracle_digests": 0,
-   "V": 16,
-   "L": 256
-  },
-  "n2_op6.__UNATTRIBUTED__": {
-   "records": 1,
-   "in_raw": 1,
-   "keying": {
-    "k0": 1
-   },
-   "runs": {
-    "g17p_run01a": 1
-   },
-   "raw_runs": {
-    "g17p_run01a": 1
-   },
-   "targets": {
-    "G17P": 1
-   },
-   "req_values": [
-    "\"barrier\""
-   ],
-   "actual_bytes": [],
-   "actual_field_values": [],
-   "ledger_records": 0,
-   "ledger_decoded": 0,
-   "ledger_agree": 0,
-   "ledger_disagree": 0,
-   "ledger_examples": [],
-   "byte_ledger_records": 0,
-   "byte_ledger_agree": 0,
-   "byte_ledger_disagree": 0,
-   "outcomes": {
-    "tile_discarded": 1
-   },
-   "hard": {},
-   "valid_payloads": [
-    "e95863466141190a"
-   ],
-   "oracle_digests": [],
-   "sem_checks": 0,
-   "sem_true": 0,
-   "sem_false": 0,
-   "sem_buckets": {},
-   "liveness_predictions": 0,
-   "prose_predictions": 0,
-   "carriers": {},
-   "arms": {
-    "E": 1
-   },
-   "probes": {},
-   "baseline_oracle": 0,
-   "host_oracle": 0,
-   "victim": 0,
-   "sentinel_bad": 0,
-   "contamination": {},
-   "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01a/sweep.jsonl": 1
-   },
-   "capped": false,
-   "n_req_values": 1,
-   "n_actual_bytes": 0,
-   "n_actual_field_values": 0,
-   "n_valid_payloads": 1,
-   "n_oracle_digests": 0,
-   "V": 1,
-   "L": 1
   }
  },
  "controls": {
   "vary_store.__role_positive_control": {
-   "records": 32,
-   "in_raw": 32,
+   "records": 131,
+   "in_raw": 131,
    "keying": {
-    "ctrl": 32
+    "ctrl": 131
    },
    "runs": {
-    "g17p_run01b": 32
+    "g17p_confsmoke": 3,
+    "g17p_conf04": 32,
+    "g17p_run01b": 32,
+    "g17p_run02b": 32,
+    "g17p_conf01": 32
    },
    "raw_runs": {
-    "g17p_run01b": 32
+    "g17p_confsmoke": 3,
+    "g17p_conf04": 32,
+    "g17p_run01b": 32,
+    "g17p_run02b": 32,
+    "g17p_conf01": 32
    },
    "targets": {
-    "G17P": 32
+    "G17P": 131
    },
    "req_values": [
     "0",
@@ -3030,27 +3527,63 @@
    "byte_ledger_agree": 0,
    "byte_ledger_disagree": 0,
    "outcomes": {
-    "draw_gone": 16,
-    "ok": 4,
-    "moved": 6,
-    "relocated": 6
+    "moved": 25,
+    "draw_gone": 66,
+    "ok": 16,
+    "relocated": 24
    },
    "hard": {},
    "valid_payloads": [
+    "0424d893e4f6c203",
+    "057a022bfc0a8ee7",
+    "0d0f8165326f3d56",
     "19f8ce0311adb768",
+    "1f8ecbda962b48ae",
+    "256b8ea1c9bf1be8",
     "285568f15a51e5bc",
+    "2a60883471a7afbf",
+    "2adf4253112e8274",
     "337d27a6bb924832",
     "34248361c661f1f6",
+    "3439697c90ecb58a",
+    "3b7a82d607ba03ea",
+    "3e7de00618136837",
+    "402cbd4a147f720e",
+    "40e608684f105010",
+    "41252cdbf8cf7af7",
+    "42c6a3587aa10829",
     "43bf42004b52ce40",
+    "4b28b85a3afdf909",
     "528ff1936252835d",
+    "5dda4eb3c1228687",
+    "630a41d210b35708",
     "66aea0d324b013d1",
+    "73aaaf076563f5ed",
+    "781db16b4795bdb6",
     "7c2f78e74db716a7",
+    "8058e6d4bc97bbdc",
     "8c34793863c8745a",
+    "8cd5e7b7632627b7",
+    "93df9e0e7520ca0f",
     "96a694d606cf33e1",
     "a570752fe8a7997f",
+    "a7e3a5e88748e6f3",
+    "ac69439fa710e11a",
     "b42c7f7b573c71ed",
     "bb3fb4950168819b",
-    "ca98011cb0d9fe3f"
+    "bd31b7f1c29f00f2",
+    "c76e64551bdd0bac",
+    "c871da3b091d8836",
+    "ca98011cb0d9fe3f",
+    "d243a6dd18679a46",
+    "d5fcba417336220e",
+    "dc20c7a627a21c3e",
+    "e0c2cd19ce183b94",
+    "e5746c29a0fb4f29",
+    "e7cf108b129ae81f",
+    "f7e714af0a53ec93",
+    "f8c74d048d361880",
+    "fb689074d959212c"
    ],
    "oracle_digests": [],
    "sem_checks": 0,
@@ -3059,9 +3592,11 @@
    "sem_buckets": {},
    "liveness_predictions": 0,
    "prose_predictions": 0,
-   "carriers": {},
+   "carriers": {
+    "c_vary4": 67
+   },
    "arms": {
-    "B": 32
+    "B": 131
    },
    "probes": {},
    "baseline_oracle": 0,
@@ -3070,18 +3605,96 @@
    "sentinel_bad": 0,
    "contamination": {},
    "files": {
-    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 32
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 3,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 32,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run01b/sweep.jsonl": 32,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_run02b/sweep.jsonl": 32,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 32
    },
    "capped": false,
    "n_req_values": 8,
    "n_actual_bytes": 0,
    "n_actual_field_values": 0,
-   "n_valid_payloads": 14,
+   "n_valid_payloads": 50,
    "n_oracle_digests": 0,
-   "V": 14,
+   "V": 50,
    "L": 8
+  },
+  "sfu_marker.__role_positive_control": {
+   "records": 15,
+   "in_raw": 15,
+   "keying": {
+    "ctrl": 15
+   },
+   "runs": {
+    "g17p_confsmoke": 1,
+    "g17p_conf04": 7,
+    "g17p_conf01": 7
+   },
+   "raw_runs": {
+    "g17p_confsmoke": 1,
+    "g17p_conf04": 7,
+    "g17p_conf01": 7
+   },
+   "targets": {
+    "G17P": 15
+   },
+   "req_values": [
+    "\"0602\""
+   ],
+   "actual_bytes": [],
+   "actual_field_values": [],
+   "ledger_records": 0,
+   "ledger_decoded": 0,
+   "ledger_agree": 0,
+   "ledger_disagree": 0,
+   "ledger_examples": [],
+   "byte_ledger_records": 0,
+   "byte_ledger_agree": 0,
+   "byte_ledger_disagree": 0,
+   "outcomes": {
+    "ok": 15
+   },
+   "hard": {},
+   "valid_payloads": [
+    "c98f7c2d77da8814"
+   ],
+   "oracle_digests": [],
+   "sem_checks": 0,
+   "sem_true": 0,
+   "sem_false": 0,
+   "sem_buckets": {},
+   "liveness_predictions": 0,
+   "prose_predictions": 0,
+   "carriers": {
+    "k_line3": 15
+   },
+   "arms": {
+    "C": 15
+   },
+   "probes": {},
+   "baseline_oracle": 0,
+   "host_oracle": 0,
+   "victim": 0,
+   "sentinel_bad": 0,
+   "contamination": {},
+   "files": {
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_confsmoke/sweep.jsonl": 1,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf04/sweep.jsonl": 7,
+    "experiments/EXP-0199-g17p-instruction-level/raw/g17p_conf01/sweep.jsonl": 7
+   },
+   "capped": false,
+   "n_req_values": 1,
+   "n_actual_bytes": 0,
+   "n_actual_field_values": 0,
+   "n_valid_payloads": 1,
+   "n_oracle_digests": 0,
+   "V": 1,
+   "L": 1
   }
  },
- "_fingerprint": "1d69671dfd1d40007e117f4695c930e9",
- "_files": 47
+ "derived_cells": {},
+ "derived_controls": {},
+ "_fingerprint": "6ef91fed153aeda355622cf84a150c06",
+ "_files": 75
 }

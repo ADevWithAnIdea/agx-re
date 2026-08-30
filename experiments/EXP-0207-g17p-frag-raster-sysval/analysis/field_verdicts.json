@@ -1,0 +1,882 @@
+{
+ "_doc": "EXP-0207 proposed verdicts, recomputed from raw/ by analysis/verdicts.py under PRE_REGISTRATION.md section 6 as superseded by RE_EXPERIMENT_PROCESS_CORRECTIONS.md (six independent axes; Gates A/B/C/E; exact numerators and denominators, never a percentage alone). Hard outcomes are counted SEPARATELY from distinct valid payloads. Liveness is NOT rounded up into a semantic or emitter label.",
+ "db_defects": {
+  "dev_scoreboard_fence": {
+   "db_says": "'The compiler inserts it around divergent control flow and before atomics/calls.'",
+   "measured_on_G17P": "two carriers built precisely for that description -- divergent device atomics plus threadgroup_barrier(mem_flags::mem_device) -- emit ZERO occurrences. They emit the 0x07 `scoreboard_fence` sibling instead (07 02 00 00 before the atomics, 07 22 02 00, 07 42 02 00). Splicing that occurrence's byte0 0x07 -> 0x80 produces a legal, cleanly-executing dev_scoreboard_fence, and all 256 scope_flag values then run without fault. Reproduces EXP-0141's finding on a much stronger carrier.",
+   "status": "CANDIDATE -- the 'compiler inserts it' clause is unsupported by any own-MSL carrier we can build"
+  },
+  "frag_color_store[[sample_mask]]": {
+   "db_says": "frag_color_store is the fragment colour store; no sample-mask form is described",
+   "measured_on_G17P": "a fragment returning a struct with a [[sample_mask]] member alongside [[color(0)]] at 4 samples emits NO frag_color_store at all, and its program does not tokenize: one <unknown> record and a 20-byte leftover (a2113f15801003c09f015410031e600014041215). raw/prefreeze/census03.",
+   "status": "UNDECODED FORM -- a gap, recorded"
+  },
+  "get_sr.dst_hi": {
+   "candidate_correction": "byte+3 bits 5-7 are NOT the destination-register extension on G17P; the bank appears to live in byte+2. Bounded to: the compiled dst values on these five carriers, dst_hi 0..7.",
+   "db_says": "semantics: 'The full destination register is dst = byte0[4:8] | (byte+3[5:8] << 4), reaching r0..r127 -- dst_hi (byte+3 bits5-7) is the register EXTENSION.'",
+   "measured_on_G17P": "INERT across 8 of 8 values on FIVE arms in TWO stages (compute sr_c/sr_dump/sr_hi, fragment sr_f/sr_f2), two gated runs in opposite case order, 100% per-value agreement, with the in-dimension control firing on every arm: splicing `dst` (the LOW half of the same register number) moves the observable, and on the register-dump carrier it clobbers a NAMED codeword slot (slot 9 at dst=10), so a relocated write IS visible to this read-back plan. Relocating `dst_hi` clobbers nothing and changes nothing. What does move the destination bank is `dp_width` (byte+2): the documented 0x50 'top dst bank' ladder step moves the observable and clobbers codeword slot 8.",
+   "status": "CANDIDATE -- not applied; db.json is the orchestrator's file"
+  },
+  "get_sr.form": {
+   "candidate_correction": "`form` is not merely a width modifier: it gates whether the system-value read happens at all, under dp_width 0x14/0x15. Bounded to dp_width in {0x00,0x04,0x10,0x11,0x14,0x15,0x50,0x54} x form in {0,1} on six carriers.",
+   "db_says": "semantics: 'bit3 (form) is a datapath/width modifier (set for the position-in-grid SR family) that does not change the SR select.'",
+   "measured_on_G17P": "form is a READ-ENABLE whose effect is CONDITIONAL on dp_width. At dp_width 0x10 it is inert on all six arms; at dp_width 0x14 it changes the output on all five compute/fragment arms -- INCLUDING the four whose compiler-chosen dp_width was 0x10, so the effect follows the FIELD, not the carrier. With dp_width 0x14, form=1 makes the read contribute exactly zero: out(form=1) == out(form=0) - lane*65536 for all 64 lanes on sr_hi, and the 18-selector map collapses from 6 distinct payloads to 1.",
+   "status": "CANDIDATE -- not applied"
+  },
+  "get_sr.sr_sel[168]": {
+   "candidate_correction": "168 reads a GRID SIZE IN THREADS (threads_per_grid.x) rather than a threadgroup count, at least under a non-uniform dispatchThreads dispatch.",
+   "db_says": "enum 168 = 'threadgroups_per_grid.x'",
+   "measured_on_G17P": "under dispatchThreads(64) with threadsPerThreadgroup(64) -- ONE threadgroup -- selector 168 returns 64 on both compute arms and in both gated runs, the same value selector 152 (threads_per_threadgroup.x) returns, where the documented reading predicts 1. Selectors 169/170 return 1, which both readings predict. This is the ONLY selector where the host oracle was refuted, and it was refuted identically at form=0 and form=1.",
+   "status": "CANDIDATE -- not applied; one dispatch shape tested"
+  },
+  "mesh_out_src.sel": {
+   "db_says": "validation.json label 'tokenization-only -- framing only (round-trips; no value semantics established)'",
+   "measured_on_G17P": "first dispatch ever: 129 of 256 values SUPPRESS THE DRAW entirely and 127 run legally, identically, on the one carrier that emits the op. The field is therefore not free framing. NOTE: this arm is CARRIER-UNDECIDABLE -- no control could move its frame to a different VALID payload -- so the 127-value inertness is NOT a finding, only the 129-value hazard map is.",
+   "status": "CANDIDATE -- hazard map only"
+  }
+ },
+ "dev_scoreboard_fence.scope_flag": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "independently-confirmed",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "best_arm": "fen_syn",
+  "controls_fired": 0,
+  "controls_that_only_destroyed_the_observation": 0,
+  "controls_tried": 8,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 1,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 0,
+  "hard_outcomes": {},
+  "interaction": null,
+  "label": "untested",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 256,
+  "moved_including_hard": 0,
+  "moved_valid": 0,
+  "note": "GATE B FAILED: no pre-registered control moved this arm's observable to a different VALID payload (0 control(s) moved it only into a fault / hang / suppressed draw, which shows the program can be BROKEN, not that a different legal result would be visible).  The arm is CARRIER-UNDECIDABLE and zero movement is NOT evidence of inertness.",
+  "oracle_kinds": [
+   "ordering"
+  ],
+  "per_arm": [
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "fen_at",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "compute",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "fen_rel",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "compute",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "fen_syn",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 2,
+    "stage": "compute",
+    "verdict": "CARRIER-UNDECIDABLE"
+   }
+  ],
+  "range": "encodable=256 dispatched=256 distinct_requested=256 distinct_actual=256 legal=256 silent=0 faults=0 hangs=0 no_draw=0 aliases=0 untested=0",
+  "sem_checked": 256,
+  "sem_hit": 254,
+  "sem_miss": 2,
+  "stage": "compute",
+  "start": 24,
+  "target": "G17P",
+  "verdict": "CARRIER-UNDECIDABLE",
+  "width": 8
+ },
+ "frag_color_store.store_mode": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "accepted-inert",
+   "reproducibility": "independently-confirmed",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "best_arm": "sm_blend",
+  "controls_fired": 10,
+  "controls_that_only_destroyed_the_observation": 0,
+  "controls_tried": 10,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 1,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 0,
+  "hard_outcomes": {},
+  "interaction": null,
+  "label": "single-template-inference",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 256,
+  "moved_including_hard": 0,
+  "moved_valid": 0,
+  "note": "GATE B satisfied: 10 control record(s) moved on this arm  || inert in the exact tested envelope above; global role unknown",
+  "oracle_kinds": [
+   "structural_partition"
+  ],
+  "per_arm": [
+   {
+    "V": 1,
+    "agreement": 0.98828125,
+    "arm": "sm_dual",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 3,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "NOT-GATED"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "sm_dual1",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "render",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sm_blend",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sm_samp",
+    "controls_destructive_only": 0,
+    "controls_fired": 8,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "sm_mask",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "render",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sm_u32",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sm_depth",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sm_r8",
+    "controls_destructive_only": 0,
+    "controls_fired": 8,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 251,
+    "stage": "render",
+    "verdict": "INERT"
+   }
+  ],
+  "range": "encodable=256 dispatched=256 distinct_requested=256 distinct_actual=256 legal=256 silent=0 faults=0 hangs=0 no_draw=0 aliases=0 untested=0",
+  "sem_checked": 256,
+  "sem_hit": 5,
+  "sem_miss": 251,
+  "stage": "render",
+  "start": 16,
+  "target": "G17P",
+  "verdict": "INERT",
+  "width": 8
+ },
+ "get_sr.dst_hi": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "accepted-inert",
+   "reproducibility": "independently-confirmed",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "best_arm": "sr_c",
+  "controls_fired": 10,
+  "controls_that_only_destroyed_the_observation": 0,
+  "controls_tried": 10,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 1,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 0,
+  "hard_outcomes": {},
+  "interaction": null,
+  "label": "single-template-inference",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 8,
+  "moved_including_hard": 0,
+  "moved_valid": 0,
+  "note": "GATE B satisfied: 10 control record(s) moved on this arm  || inert in the exact tested envelope above; global role unknown",
+  "oracle_kinds": [
+   "dst_routing"
+  ],
+  "per_arm": [
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_c",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 8,
+    "sem_miss": 7,
+    "stage": "compute",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_hi",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 8,
+    "sem_miss": 1,
+    "stage": "compute",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_dump",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 8,
+    "sem_miss": 7,
+    "stage": "compute",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_f",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 8,
+    "sem_miss": 7,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_f2",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 0,
+    "sem_miss": 0,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_v",
+    "controls_destructive_only": 10,
+    "controls_fired": 0,
+    "hard_total": 7,
+    "moved_valid": 0,
+    "sem_checked": 8,
+    "sem_miss": 7,
+    "stage": "vertex",
+    "verdict": "CARRIER-UNDECIDABLE"
+   }
+  ],
+  "range": "encodable=8 dispatched=8 distinct_requested=8 distinct_actual=8 legal=8 silent=0 faults=0 hangs=0 no_draw=0 aliases=0 untested=0",
+  "sem_checked": 8,
+  "sem_hit": 1,
+  "sem_miss": 7,
+  "stage": "compute",
+  "start": 29,
+  "target": "G17P",
+  "verdict": "INERT",
+  "width": 3
+ },
+ "get_sr.form": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "reproducibility": "independently-confirmed",
+   "semantics": "bounded-map",
+   "target": "G17P-direct"
+  },
+  "best_arm": "sr_hi",
+  "controls_fired": 10,
+  "controls_that_only_destroyed_the_observation": 0,
+  "controls_tried": 10,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 2,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 0,
+  "hard_outcomes": {},
+  "interaction": {
+   "cells_against_prediction": 2,
+   "cells_as_predicted": 22,
+   "hypothesis": "H8 (Amendment 4, frozen before its own capture): get_sr.form is a read-enable whose effect is CONDITIONAL on dp_width -- the two form values DIFFER at dp_width 0x14 and are IDENTICAL at 0x10",
+   "passed": true,
+   "per_arm_run": {
+    "sr_c@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_c@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_dump@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_dump@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_f2@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_f2@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_f@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_f@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_hi@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_hi@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "DIFFER as predicted"
+    },
+    "sr_v@g17p_20260830_int01": {
+     "0x10": "same as predicted",
+     "0x14": "same AGAINST prediction"
+    },
+    "sr_v@g17p_20260830_int02": {
+     "0x10": "same as predicted",
+     "0x14": "same AGAINST prediction"
+    }
+   }
+  },
+  "label": "isolated-byte-diff",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 2,
+  "moved_including_hard": 1,
+  "moved_valid": 1,
+  "note": "",
+  "oracle_kinds": [
+   "sr_value"
+  ],
+  "per_arm": [
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_c",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 2,
+    "sem_miss": 1,
+    "stage": "compute",
+    "verdict": "INERT"
+   },
+   {
+    "V": 2,
+    "agreement": 1.0,
+    "arm": "sr_hi",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 1,
+    "sem_checked": 2,
+    "sem_miss": 1,
+    "stage": "compute",
+    "verdict": "LIVE"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_dump",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 2,
+    "sem_miss": 1,
+    "stage": "compute",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_f",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 2,
+    "sem_miss": 1,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_f2",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 0,
+    "sem_miss": 0,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "sr_v",
+    "controls_destructive_only": 10,
+    "controls_fired": 0,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 2,
+    "sem_miss": 1,
+    "stage": "vertex",
+    "verdict": "CARRIER-UNDECIDABLE"
+   }
+  ],
+  "range": "encodable=2 dispatched=2 distinct_requested=2 distinct_actual=2 legal=2 silent=0 faults=0 hangs=0 no_draw=0 aliases=0 untested=0",
+  "sem_checked": 2,
+  "sem_hit": 1,
+  "sem_miss": 1,
+  "stage": "compute",
+  "start": 3,
+  "target": "G17P",
+  "verdict": "LIVE",
+  "width": 1
+ },
+ "iter.b9": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "accepted-inert",
+   "reproducibility": "independently-confirmed",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "best_arm": "it_ps4",
+  "controls_fired": 10,
+  "controls_that_only_destroyed_the_observation": 0,
+  "controls_tried": 12,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 1,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 0,
+  "hard_outcomes": {},
+  "interaction": null,
+  "label": "single-template-inference",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 256,
+  "moved_including_hard": 0,
+  "moved_valid": 0,
+  "note": "GATE B satisfied: 10 control record(s) moved on this arm  || inert in the exact tested envelope above; global role unknown",
+  "oracle_kinds": [
+   "structural_partition"
+  ],
+  "per_arm": [
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "it_ps4",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 255,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "it_ps4b",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 255,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 0.9921875,
+    "arm": "it_ps1",
+    "controls_destructive_only": 0,
+    "controls_fired": 10,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 255,
+    "stage": "render",
+    "verdict": "INERT"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "it_atsamp",
+    "controls_destructive_only": 0,
+    "controls_fired": 8,
+    "hard_total": 0,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 255,
+    "stage": "render",
+    "verdict": "INERT"
+   }
+  ],
+  "range": "encodable=256 dispatched=256 distinct_requested=256 distinct_actual=256 legal=256 silent=0 faults=0 hangs=0 no_draw=0 aliases=0 untested=0",
+  "sem_checked": 256,
+  "sem_hit": 1,
+  "sem_miss": 255,
+  "stage": "render",
+  "start": 72,
+  "target": "G17P",
+  "verdict": "INERT",
+  "width": 8
+ },
+ "mesh_out_src.sel": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "independently-confirmed",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "best_arm": "me_p2",
+  "controls_fired": 0,
+  "controls_that_only_destroyed_the_observation": 4,
+  "controls_tried": 10,
+  "cross_run_agreement": 1.0,
+  "disagreements": 0,
+  "distinct_oracle_payloads": 2,
+  "distinct_valid_payloads": 1,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 129,
+  "hard_outcomes": {
+   "no_draw": 129
+  },
+  "interaction": null,
+  "label": "untested",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 127,
+  "moved_including_hard": 129,
+  "moved_valid": 0,
+  "note": "GATE B FAILED: no pre-registered control moved this arm's observable to a different VALID payload (4 control(s) moved it only into a fault / hang / suppressed draw, which shows the program can be BROKEN, not that a different legal result would be visible).  The arm is CARRIER-UNDECIDABLE and zero movement is NOT evidence of inertness.",
+  "oracle_kinds": [
+   "structural_partition"
+  ],
+  "per_arm": [
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "me_w2",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "mesh",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "me_w3",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "mesh",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "me_p1",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "mesh",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": 1,
+    "agreement": 1.0,
+    "arm": "me_p2",
+    "controls_destructive_only": 4,
+    "controls_fired": 0,
+    "hard_total": 129,
+    "moved_valid": 0,
+    "sem_checked": 256,
+    "sem_miss": 255,
+    "stage": "mesh",
+    "verdict": "CARRIER-UNDECIDABLE"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "me_p3",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "mesh",
+    "verdict": "NO-PAIRED-RUNS"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "me_w1",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "mesh",
+    "verdict": "NO-PAIRED-RUNS"
+   }
+  ],
+  "range": "encodable=256 dispatched=256 distinct_requested=256 distinct_actual=256 legal=127 silent=0 faults=0 hangs=0 no_draw=129 aliases=0 untested=0",
+  "sem_checked": 256,
+  "sem_hit": 1,
+  "sem_miss": 255,
+  "stage": "mesh",
+  "start": 8,
+  "target": "G17P",
+  "verdict": "CARRIER-UNDECIDABLE",
+  "width": 8
+ },
+ "vtx_coord_xform.operand": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "reproducibility": "independently-confirmed",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "best_arm": "vx_wide",
+  "controls_fired": 4,
+  "controls_that_only_destroyed_the_observation": 2,
+  "controls_tried": 8,
+  "cross_run_agreement": 0.9977511244377811,
+  "disagreements": 3,
+  "distinct_oracle_payloads": 1,
+  "distinct_valid_payloads": 11,
+  "evidence": [
+   "EXP-0207"
+  ],
+  "hard_outcome_total": 242,
+  "hard_outcomes": {
+   "fault": 1,
+   "invalid_run": 2,
+   "no_draw": 239
+  },
+  "interaction": null,
+  "label": "untested",
+  "ledger_failures": 0,
+  "ledger_mismatch_across_runs": 0,
+  "legal_values_observed": 1092,
+  "moved_including_hard": 1263,
+  "moved_valid": 1023,
+  "note": "",
+  "oracle_kinds": [
+   "baseline_equality"
+  ],
+  "per_arm": [
+   {
+    "V": 2,
+    "agreement": 0.9970014992503748,
+    "arm": "vx_multi",
+    "controls_destructive_only": 4,
+    "controls_fired": 2,
+    "hard_total": 457,
+    "moved_valid": 4,
+    "sem_checked": 1334,
+    "sem_miss": 461,
+    "stage": "vertex",
+    "verdict": "NOT-GATED"
+   },
+   {
+    "V": 11,
+    "agreement": 0.9977511244377811,
+    "arm": "vx_wide",
+    "controls_destructive_only": 2,
+    "controls_fired": 4,
+    "hard_total": 242,
+    "moved_valid": 1023,
+    "sem_checked": 1334,
+    "sem_miss": 1265,
+    "stage": "vertex",
+    "verdict": "LIVE"
+   },
+   {
+    "V": null,
+    "agreement": null,
+    "arm": "vx_pos2",
+    "controls_destructive_only": 0,
+    "controls_fired": 0,
+    "hard_total": null,
+    "moved_valid": null,
+    "sem_checked": null,
+    "sem_miss": null,
+    "stage": "vertex",
+    "verdict": "NO-PAIRED-RUNS"
+   }
+  ],
+  "range": "encodable=1099511627776 dispatched=1334 distinct_requested=1334 distinct_actual=1334 legal=1092 silent=0 faults=1 hangs=0 no_draw=239 aliases=0 untested=1099511626442",
+  "sem_checked": 1334,
+  "sem_hit": 69,
+  "sem_miss": 1265,
+  "stage": "vertex",
+  "start": 40,
+  "target": "G17P",
+  "verdict": "LIVE",
+  "width": 40
+ }
+}

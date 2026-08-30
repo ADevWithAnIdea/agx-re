@@ -59,3 +59,27 @@ All times UTC. Target: A18 Pro / G17P at 192.168.170.254. Nothing runs on the M4
   every run; EXP-0199, EXP-0200, EXP-0205 and EXP-0206 were dispatching throughout. **Gate E's
   clean-confirmation requirement is therefore NOT MET so far**, and no verdict in this experiment
   claims `independently-confirmed`.
+- **20:20** `raw/g17p_20260830_A2run03_derivmapping` complete: **65/65 values on BOTH arms**
+  (`complete: true`), 7 genuine hangs, 0 cascade. `raw/g17p_20260830_A2run04_derivmapping`
+  (reverse order): `deriv/0` 65/65, `deriv2/0` stopped at 30/65 on the declared 8-hang budget
+  (reverse order reaches the all-ones hazard family first). **73/73 cross-run agreement** on the
+  comparable values, 72 moving.
+- **20:25** `raw/cube_probe` complete, 512 hardware cases. `analysis/cube_decode.py` (offline)
+  settles the orchestrator's open question about the descriptor: `f0 c0 04 <b3>` decodes as
+  `cubearray_coord_const` standalone and at a trailing 4-byte boundary, but is **shadowed by
+  `pad_operand`** at an interior one. **Neither probe site has detection power**, so `b3` stays
+  UNRESOLVED exactly as pre-registered.
+- **20:30** `analysis/verdicts.py`, `analysis/mode_bits.py`, `analysis/manifest.py` and
+  `tools/agx-isa/wave_audit.py` all run; `analysis/wave_audit.txt` kept verbatim. Its self-test
+  passes and none of its three warnings (constant oracle, V<=1, aliased encodings) fires.
+- **GATE E: a quiet-window confirmation attempt is RUNNING** — `harness/quietconfirm.sh 1500 3`
+  polls the device process table and fires `--run-id g17p_20260830_C1` (shuffled order) and
+  `…_C2` (reverse order) **only** after three consecutive samples with zero foreign GPU
+  processes; otherwise it exits non-zero and Gate E stays NOT MET. Foreign process count fell
+  from 17 to 3 over the window but **never reached 0 in any of its 86 samples**. The attempt was
+  then stopped so that the committed state matches `manifest.json` exactly, and its full log is
+  retained as evidence at `raw/quietwindow/quietconfirm.log`. **GATE E IS NOT MET, and no field in
+  this experiment is `independently-confirmed`.** If the orchestrator later gets a quiet window,
+  `sh harness/quietconfirm.sh` fires the pair as `g17p_20260830_C1` / `_C2` and
+  `python3 analysis/verdicts.py` picks them up automatically — the run-id filter already accepts
+  those ids — and only then may any field move to `independently-confirmed`.

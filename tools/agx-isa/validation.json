@@ -3847,7 +3847,18 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 2 values dispatched over 1 arm(s), 2 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 80,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "ledger-verified: 10 arms x 256 dense x 2 runs, ledger 5119/5119, 256 distinct actual encodings",
+     "liveness": "live: 6 of 10 arms at 256/256 agreement; 4 arms unstable (103-242/256) and support nothing",
+     "semantics": "hypothesis \u2014 THE DOCUMENTED ENUM IS WRONG. `mode` is a BITFIELD, not an enum, and 0x10 (\"filtered sample\") is INERT: splicing 0x10<->0x00 leaves the observation BIT-IDENTICAL on all five representative arms in both runs. On the six 100%-agreement arms the moved set is described EXACTLY, zero exceptions: (mode & 0x2C) != 0, (0x0C) != 0, (0x08) != 0. Bit 3 live everywhere; bit 2 live exactly where a filter is in play; bit 5 live exactly where an implicit LOD is (INERT under explicit `level()`). Derived AFTER the sweep, so recorded as a hypothesis for a successor. The PRE-REGISTERED class model was REFUTED at 1/30.",
+     "carrier_dimension": "sample-operation class: 6 carriers, one per class, including THE FIRST `calculate_lod` CARRIER IN THIS CORPUS (required a mipmapped texture). Compiler baselines came out 0x10 / 0x00 / 0x20 \u2014 all three documented values, so the carrier set provably spans the dimension.",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET for anything in this experiment. All four gated runs were measurably BUSY (up to 17 concurrent foreign GPU processes); a dedicated quiet-window helper took 86 samples and NEVER SAW ONE (log at raw/quietwindow/). Nothing is independently-confirmed.",
+     "detection_power": "36/36 arms have detection power AND a moved control in the field's own dimension, so an inert reading here is not zero-by-construction",
+     "frozen_gate": "PASSED under frozen Amendment 2, which the agent froze BEFORE its first dispatch in response to RE_EXPERIMENT_PROCESS_CORRECTIONS.md"
+    }
    },
    "lod_present": {
     "label": "hardware-run",
@@ -3902,7 +3913,18 @@
     "evidence": [
      "EXP-0163"
     ],
-    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert."
+    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
+    "axes": {
+     "geometry": "ledger-verified: 12 arms x 256 x 2 runs, ledger 6144/6144, 256 distinct encodings",
+     "liveness": "inert in the tested envelope; global role unknown \u2014 0/3072 moved. NOT \"unused\": this harness reads back AFTER command-buffer completion, so a base-sharing/terminal marker (the 0x54/0x55 split the compiler itself uses) would have NO observable here. Prior \"unreached, not inert\" wording preserved.",
+     "semantics": "semantic predictor 3072/3072",
+     "carrier_dimension": "address form / operand sourcing: 5 carriers, 4 NEW address forms, 5 different observation paths (mip level, texture_buffer, cube face, 1/2-component, register-formed coord + no-ALU vec4)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET for anything in this experiment. All four gated runs were measurably BUSY (up to 17 concurrent foreign GPU processes); a dedicated quiet-window helper took 86 samples and NEVER SAW ONE (log at raw/quietwindow/). Nothing is independently-confirmed.",
+     "detection_power": "36/36 arms have detection power AND a moved control in the field's own dimension, so an inert reading here is not zero-by-construction",
+     "frozen_gate": "PASSED under frozen Amendment 2, which the agent froze BEFORE its first dispatch in response to RE_EXPERIMENT_PROCESS_CORRECTIONS.md"
+    }
    },
    "seq_idx": {
     "label": "hardware-run",
@@ -3965,7 +3987,18 @@
     "evidence": [
      "EXP-0163"
     ],
-    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert."
+    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
+    "axes": {
+     "geometry": "ledger-verified: same 12 arms",
+     "liveness": "inert in the tested envelope; global role unknown \u2014 0/3072 moved",
+     "semantics": "semantic predictor 3072/3072",
+     "carrier_dimension": "write-data format: 1-component R32Float and 2-component RG32Float destinations \u2014 EVERYTHING ever swept before was 4-component",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET for anything in this experiment. All four gated runs were measurably BUSY (up to 17 concurrent foreign GPU processes); a dedicated quiet-window helper took 86 samples and NEVER SAW ONE (log at raw/quietwindow/). Nothing is independently-confirmed.",
+     "detection_power": "36/36 arms have detection power AND a moved control in the field's own dimension, so an inert reading here is not zero-by-construction",
+     "frozen_gate": "PASSED under frozen Amendment 2, which the agent froze BEFORE its first dispatch in response to RE_EXPERIMENT_PROCESS_CORRECTIONS.md"
+    }
    },
    "wop": {
     "label": "hardware-run",
@@ -4031,7 +4064,19 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 65 values dispatched over 4 arm(s), 198 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 16,
-    "width": 24
+    "width": 24,
+    "axes": {
+     "geometry": "ledger-verified: 184/184, PLUS 3 requested encodings that decode as NO DESCRIPTOR (Gate A rejected them)",
+     "liveness": "live; role unknown \u2014 capped BY DESIGN at a declared budget of 8, stated in advance. 65/65 both arms; 73/73 with 0 disagreements in opposite case order",
+     "semantics": "unknown",
+     "hazard_map": "THE INSTABILITY IS EXPLAINED: a hazard FAMILY, not two values \u2014 0x03FFFF, 0x07FFFF, 0x0FFFFF, 0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFE, 0xFFFFFF, plus 0xFBEEE7. EXP-0172 budgeted 2 hangs, stopped at 39/65 and could NEVER attribute the disagreement. Mapped and excluded, the partition is EXACTLY reproducible.",
+     "carrier_dimension": "dst/src register allocation: EXP-0172 carrier MSL-unchanged plus a second allocation",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET for anything in this experiment. All four gated runs were measurably BUSY (up to 17 concurrent foreign GPU processes); a dedicated quiet-window helper took 86 samples and NEVER SAW ONE (log at raw/quietwindow/). Nothing is independently-confirmed.",
+     "detection_power": "36/36 arms have detection power AND a moved control in the field's own dimension, so an inert reading here is not zero-by-construction",
+     "frozen_gate": "PASSED under frozen Amendment 2, which the agent froze BEFORE its first dispatch in response to RE_EXPERIMENT_PROCESS_CORRECTIONS.md"
+    }
    },
    "src_comp": {
     "label": "hardware-run",

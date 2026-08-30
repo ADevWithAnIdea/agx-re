@@ -6,16 +6,16 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 
 | axis | PASS | REJECT | INSUFFICIENT | N/A | rows |
 |---|---:|---:|---:|---:|---:|
-| audit | 467 | 556 | 149 | 40 | 1212 |
-| geometry | 526 | 72 | 442 | 172 | 1212 |
-| liveness | 143 | 147 | 581 | 341 | 1212 |
+| audit | 461 | 562 | 149 | 40 | 1212 |
+| geometry | 530 | 68 | 442 | 172 | 1212 |
+| liveness | 112 | 179 | 580 | 341 | 1212 |
 | recipe | 41 | 55 | 535 | 581 | 1212 |
 | semantics | 5 | 42 | 584 | 581 | 1212 |
 | target | 610 | 2 | 600 | 0 | 1212 |
 
 ## Rows that clear EVERY rule that applies to them
 
-66 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
+48 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
 
 | row | label | target | rules that returned PASS |
 |---|---|---|---|
@@ -24,9 +24,6 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 | `dev_scoreboard_fence.scope_flag` | corpus-correlation | M4 | R1, R2, R3, R4, R9 |
 | `falu2_srcmod10.ctrl` | untested | G17P | R1, R2, R3, R4 |
 | `falu2i.ctrl_lo` | untested | G17P | R1, R2, R3, R4 |
-| `falu2i.imm_exp` | hardware-run | G17P | R1, R2, R3, R4, R5, R6, R7, R8 |
-| `falu2i.imm_mant` | hardware-run | G17P | R1, R2, R3, R4, R5, R6, R7, R8 |
-| `falu2i.imm_sign` | hardware-run | G17P | R1, R2, R3, R4, R5, R6, R7, R8 |
 | `falu2i.mods` | untested | G17P | R1, R2, R3, R4 |
 | `falu2i.opflags` | untested | G17P | R1, R2, R3, R4 |
 | `falu2i.srcA_reg_top` | untested | G17P | R1, R2, R3, R4, R6 |
@@ -35,6 +32,7 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 | `get_sr.dst_hi` | untested | G17P | R1, R2, R3, R4, R6 |
 | `get_sr.form` | untested | G17P | R1, R2, R3, R4 |
 | `h_coord_hi_ext.tail` | untested | G17P | R1, R2, R3, R4 |
+| `half_alu_fma12.ext` | untested | G17P | R1, R2, R3, R4 |
 | `iadd2.b2_fmt` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
 | `ibfe.b2_bit0` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
 | `ibfe.sign_ext` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
@@ -56,25 +54,9 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 | `pop_reconverge.scope` | untested | M4 | R1, R2, R3, R4, R9 |
 | `ray_move_copy6.optype` | untested | G17P | R1, R2, R3, R4, R9 |
 | `reg_move_c0.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c0.op_desc` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c0.src_class` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c0.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c0.src_reg` | untested | G17P | R1, R2, R3, R4, R6 |
 | `reg_move_c1.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c1.op_desc` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c1.src_class` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c1.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c1.src_reg` | untested | G17P | R1, R2, R3, R4, R6 |
 | `reg_move_c2var.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c2var.op_desc` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c2var.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c2var.src_reg` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c2var.subform` | untested | G17P | R1, R2, R3, R4, R6 |
 | `reg_move_c9.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c9.op_desc` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c9.src_class` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c9.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
-| `reg_move_c9.src_reg` | untested | G17P | R1, R2, R3, R4, R6 |
 | `rt_query_traverse.dst` | untested | G17P | R1, R2, R3, R4 |
 | `shift_amt_move.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
 | `threadgroup_barrier.mem_scope` | untested | M4 | R1, R2, R3, R4 |

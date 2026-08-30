@@ -36,6 +36,7 @@ FILES = ["PRE_REGISTRATION.md", "README.md", "run200.py",
          "analysis/census200.py", "analysis/gen_arms200.py",
          "analysis/verdicts200.py", "analysis/contract200.py",
          "analysis/ledger200.py", "analysis/reverse_arms.py",
+         "analysis/gen_scan200.py", "harness/arms200c.json",
          "harness/arms187_reversed.json",
          "kernels/k_w200.metal"]
 # Target 1 is EXP-0187's apparatus carried in VERBATIM. Every one of these is

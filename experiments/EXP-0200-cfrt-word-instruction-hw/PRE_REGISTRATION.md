@@ -450,3 +450,58 @@ throughout — so `reproducibility` is capped at `auditable` and cannot reach
 `encoding_geometry`, `liveness`, `semantics`, `compiler_recipe`, `target`,
 `reproducibility` per row, with exact numerators and denominators. The safe
 negative wording is `inert in <exact tested envelope>; global role unknown`.
+
+### A5 — the stop-scan reachability arm (2026-08-30, frozen before its first dispatch)
+
+**Why.** The gated target-2 pair returned an observation the frozen design did
+not anticipate and cannot interpret without a further measurement, so a new arm
+is pre-registered rather than the existing data reinterpreted.
+
+Writing a `stop` (`0e 00 00 00`, `_instruction: hardware-run`) into a natural
+compact-word occurrence left the carrier returning its **exact non-zero oracle**
+at **61 of 65** transparency holes, with 100 % cross-run agreement in reversed
+order. At the same offset — `rq_mdist` +1306 — target 1 measured
+`04 <dst> 20 80` faulting the command buffer for exactly the 64 values with
+`(dst & 0b110) == 0b100`, in both runs and on three carriers.
+
+An illegal encoding is **rejected** at an offset where a terminator is
+**ignored**. Two models explain it, with opposite consequences:
+
+* **M1** — the bytes are fetched and decoded but the instruction's architectural
+  effect is suppressed (a divergent region with no active lane in a grid-of-1
+  dispatch): decode-stage validation still rejects the illegal encoding, and
+  `stop` has nothing to halt.
+* **M2** — the offset is **not an instruction boundary in hardware**;
+  `04 <dst> 20 80` is the operand tail of a longer preceding instruction our
+  tokenizer under-lengths. Changing byte+1 corrupts that operand (fault);
+  writing `0e 00 00 00` there writes a different, benign operand. Under M2
+  `n4_rt_word` is not an instruction at these sites — a descriptor defect in the
+  sense of FIELD-SWEEP-PROTOCOL §6.
+
+**The arm.** `analysis/gen_scan200.py` (its docstring is normative) writes a
+`stop` at every offset on a fine grid (every 2 bytes, the parcel size) in a
+±32-byte window around each natural 4-byte occurrence the gated pair used, plus
+a coarse grid every 128 bytes across the whole of `_agc.main`, on `rq_mdist`,
+`rq_inst`, `rq_bbox` and `cw_trans`. Offsets are dispatched whether or not our
+tokenizer calls them instruction boundaries.
+
+**The prediction is one-sided on purpose.** A halt (`not_written`, or
+`invalid_run` when the halt precedes the sentinel store) **proves the region is
+fetched and executed**. Absence of a halt across a wide window is *evidence of*
+unreachability, never proof, and is reported that way.
+
+**Falsifiers.** If some offset within ±32 bytes of +1306 halts, the region is
+executed and M2 is the live explanation. If nothing halts anywhere in the RT
+carriers while offsets in `cw_trans` (the compute positive control) do halt, the
+scan itself is suspect and no conclusion is drawn. If halts appear only before
+the sentinel store, the executed window is bounded and reported as such.
+
+**What it changes about the ruler arm.** Nothing is retracted. The ruler's own
+readings are reported as **confounded and therefore `carrier-undecidable`** —
+`not_written` there has at least three causes (a genuine halt, a masked-off
+store, a clobbered store-address register), and the pair's own data proves the
+confound is real: byte-identical 8-byte fills read `not_written` at
+`cw_trans@102/110` and `ok` at `cw_trans@70/428`, which no length property of an
+encoding can explain. The gate is corrected to detect exactly that — anchor
+readings that are inconsistent across holes mean the instrument is not
+calibrated — and to return `carrier-undecidable` instead of a length verdict.

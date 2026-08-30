@@ -68,7 +68,7 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `ishift.shamt` | hardware-run | M4 | 64 semantic check(s) but they cover only 1 behaviour bucket(s) (correct). Gate C requires the predictor to distinguish correct / coherent-other / silent / fault / measurement-failure |
 | `ishift.shift_type` | isolated-byte-diff | M4 | 2 semantic check(s) but they cover only 1 behaviour bucket(s) (correct). Gate C requires the predictor to distinguish correct / coherent-other / silent / fault / measurement-failure |
 | `ishift.src_class` | hardware-run | M4 | 2 semantic check(s) but they cover only 1 behaviour bucket(s) (correct). Gate C requires the predictor to distinguish correct / coherent-other / silent / fault / measurement-failure |
-| `pixel_order.kind` | hardware-run | G17P | 3840 semantic check(s) over 3 bucket(s), but the oracle took ONE value across the sweep -- a constant oracle predicts the instruction's effect, not the field's |
+| `pixel_order.kind` | hardware-run | G17P | 3072 semantic check(s) over 2 bucket(s), but the oracle took ONE value across the sweep -- a constant oracle predicts the instruction's effect, not the field's |
 
 </details>
 

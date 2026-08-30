@@ -1,0 +1,114 @@
+{
+ "_README": "EXP-0208 hand-verified extraction from PRE-EXP-0138-era .log/.txt raw, which no automated keying in this corpus reaches (EXP-0189's collector required raw/**/*.jsonl). Each entry cites the exact committed file and quotes it verbatim. Read by analysis/classify_axes.py and merged as DIRECT dispatched evidence.",
+ "funary.mod": {
+  "files": ["experiments/EXP-0013-scalar-alu/raw/val_unary_minmax.log"],
+  "target": "A18 (G17P) -- EXP-0001..0046 ran on the A18 Pro per docs/evidence-classification.md section 3",
+  "quote": "splice b5 0x0a->0x02 out=[1.0, 2.0, 3.0, 4.0] exp abs=[1.0, 2.0, 3.0, 4.0] PASS / splice b5 0x0a->0x00 out=[1.0, -2.0, 3.0, -4.0] exp mov=[1.0, -2.0, 3.0, -4.0] PASS / splice b5 0x0a->0x08 (neg only,no abs) out=[1.0, -2.0, 3.0, -4.0] (bit3=neg,bit1=abs)",
+  "dispatched_values": [10, 2, 0, 8],
+  "distinct_valid_payloads": 3,
+  "faults": 0, "hangs": 0,
+  "semantic": "bounded-map at 4 points: bit1 = absolute-value, bit3 = negate; three of the four cases carry a HOST-COMPUTED expectation and are recorded PASS",
+  "liveness": "live"
+ },
+ "matrix_mac.a_reg": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/matrix_test.log",
+            "experiments/RT-10-isa-pass2/raw/part3_matrix.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: [a_reg(+5)=b_reg 0x08 (expect B*B+C = 28j+1000)] STATUS OK D= 1000.0 1028.0 1056.0 ... row-independent. RT-10: [+5 (A reg) 0x04->0x08 = B reg expect B*B+C=36(j+1)+500: D00=536 D01=572 D10=536(row-indep)] D[0][0..3]=536,572,608,644 D[1][0]=536",
+  "dispatched_values": [4, 8],
+  "distinct_valid_payloads": 2,
+  "faults": 0, "hangs": 0,
+  "semantic": "bounded-map at 1 substituted value in TWO independent experiments: byte+5 selects the A (left) operand register; substituting B's register yields exactly the host-predicted B*B+C matrix in both",
+  "liveness": "live"
+ },
+ "matrix_mac.b_reg": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/matrix_test.log",
+            "experiments/RT-10-isa-pass2/raw/part3_matrix.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: [b_reg(+6)=a_reg 0x04 (expect A*A+C = 28i+1000)] STATUS OK. RT-10: [+6 (B reg) 0x08->0x04 = A reg expect A*A+C=36(i+1)+500: D00=536 D01=536(col-indep) D10=572] D[0][0..3]=536,536,536,536 D[1][0]=572. Also [swap +5=0x08 +6=0x04 expect B*A+C=204+500=704 everywhere] D=704,704,704,704",
+  "dispatched_values": [8, 4],
+  "distinct_valid_payloads": 3,
+  "faults": 0, "hangs": 0,
+  "semantic": "bounded-map: byte+6 selects the B (right) operand register; the col-independent A*A+C prediction and the swap case (B*A+C = 704 everywhere) both match exactly",
+  "liveness": "live"
+ },
+ "matrix_mac.c_src": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/matrix_test.log",
+            "experiments/RT-10-isa-pass2/raw/part3_matrix.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: [c_src(+7)=a_reg 0x04 (probe: C sourced from A's reg?)] STATUS OK D= all 0.0. RT-10: [+7 (C reg) 0x09->0x00 probe C accumulator source] D[0][0..3]=8,16,0,0 D[1][0]=16 D[7][7]=0",
+  "dispatched_values": [9, 4, 0],
+  "distinct_valid_payloads": 3,
+  "faults": 0, "hangs": 0,
+  "semantic": "hypothesis only -- the two experiments' substitutions were pre-registered as PROBES with no predicted value, and they disagree (all-zero vs a partial 8,16,0,0). Liveness is established; the mapping is not",
+  "liveness": "live"
+ },
+ "matrix_mac.dst": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/matrix_test.log",
+            "experiments/RT-10-isa-pass2/raw/part3_matrix.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: [dst(+8) 0xd4->0xd6 (probe: store reads stale reg?)] STATUS OK D= 1000.0 1007.5 1015.0 ... (vs baseline 1000.0 1008.0 1016.0). RT-10: [+8 (dst) 0xd4->0xd6 probe dst reg] D[0][0..3]=508,515,522,530 (vs baseline 508,516,524,532)",
+  "dispatched_values": [212, 214],
+  "distinct_valid_payloads": 2,
+  "faults": 0, "hangs": 0,
+  "semantic": "hypothesis: a one-step change of byte+8 shifts the read-back matrix by a consistent half-step in BOTH experiments, consistent with a destination-register/lane selector; no predictor was pre-registered",
+  "liveness": "live"
+ },
+ "matrix_mac.acc_en": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/matrix_test.log",
+            "experiments/RT-10-isa-pass2/raw/part3_matrix.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: [accum(+11) 0x01->0x00 (expect A*B only = 8ij)] STATUS OK D= 0.0 8.0 16.0 24.0 ... 392.0. RT-10: [+11 accum 0x01->0x00 expect A*B only=8(i+1)(j+1): D00=8 D77=512] D[0][0..3]=8,16,24,32 D[7][7]=512",
+  "dispatched_values": [1, 0],
+  "distinct_valid_payloads": 2,
+  "faults": 0, "hangs": 0,
+  "semantic": "bounded-map at both encodable values, in TWO independent experiments: bit 88 (byte+11 bit0) enables the C accumulate. Clearing it yields exactly the host-predicted A*B product matrix (RT-5 8ij, RT-10 8(i+1)(j+1), D77=512) -- this is a genuine Gate-C-shaped check on a 1-bit field",
+  "liveness": "live"
+ },
+ "rt_intersect.as_type": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/rt_test.log",
+            "experiments/RT-10-isa-pass2/raw/part4_rt_asselect.log"],
+  "target": "A18 (G17P)",
+  "quote": "RT-5: byte+4 0x8b->0x1b (instance AS) -> 1 3 0 0.2 ; ->0xbb (motion AS) -> 1 3 0 0.2 ; ->0x00 -> 1 3 0 0.2 (baseline 1 3 0 0.2). RT-10: PRIM byte+4 0x8b->0x6b/0x1b/0x00 : 1 3 0 0.2 ; PRIM byte+4 0x8b->0xff : FAULT:ERROR dispatch: Caused GPU Hang Error (00000003:kIOGPUCommandBufferCallbackErrorHang). INST baseline 0x6b->0x8b/0x00 : 1 3 0 0",
+  "dispatched_values": [139, 27, 187, 0, 107, 255],
+  "distinct_valid_payloads": 1,
+  "faults": 0, "hangs": 1,
+  "hang_values": [255],
+  "semantic": "unknown",
+  "liveness": "carrier-undecidable",
+  "carrier_note": "In the SAME log the destination-register field (byte0 hi-nibble) was also spliced and also did not move the observable. An arm on which changing the destination register changes nothing has no demonstrated detection power, so its inertness verdicts establish nothing (Gate B). EXP-M4-14 later found the load-bearing ray-query op at a completely different offset (+0x155a) where byte+4 IS live -- which is what a blind carrier looks like."
+ },
+ "rt_intersect.dst": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/rt_test.log"],
+  "target": "A18 (G17P)",
+  "quote": "byte0 result reg (baseline 0xe4, hi-nibble=reg): 0xe4->0x04 (result reg 0) -> 1 3 0 0.2 ; 0xe4->0x14 (result reg 1) -> 1 3 0 0.2",
+  "dispatched_values": [228, 4, 20],
+  "distinct_valid_payloads": 1,
+  "faults": 0, "hangs": 0,
+  "semantic": "unknown",
+  "liveness": "carrier-undecidable",
+  "carrier_note": "THIS ROW IS THE PROOF THAT THE ARM WAS BLIND. Redirecting the result to a different register left the read-back byte-identical. Either the carrier never read the register this field selects, or this op is not the one producing the observed value. Per FIELD-SWEEP-PROTOCOL section 9 a destination field reading inert is the single least trustworthy inert verdict in this corpus."
+ },
+ "rt_intersect.mode": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/rt_test.log"],
+  "target": "A18 (G17P)",
+  "quote": "byte+2 mode (baseline 0x90 const-origin): 0x90->0x10 (dyn-origin) -> 1 3 0 0.2 ; 0x90->0xd0 (+fn-table) -> 1 3 0 0.2",
+  "dispatched_values": [144, 16, 208],
+  "distinct_valid_payloads": 1,
+  "faults": 0, "hangs": 0,
+  "semantic": "unknown",
+  "liveness": "carrier-undecidable",
+  "carrier_note": "same blind arm as rt_intersect.dst"
+ },
+ "rt_intersect.ray_param": {
+  "files": ["experiments/RT-5-isa-tex-simd-mat-rt-frag-falsify/raw/rt_test.log"],
+  "target": "A18 (G17P)",
+  "quote": "byte+3 ray/param reg (baseline 0xa6): 0xa6->0x00 -> 1 3 0 0.2",
+  "dispatched_values": [166, 0],
+  "distinct_valid_payloads": 1,
+  "faults": 0, "hangs": 0,
+  "semantic": "unknown",
+  "liveness": "carrier-undecidable",
+  "carrier_note": "same blind arm as rt_intersect.dst; ONE substituted value only"
+ }
+}

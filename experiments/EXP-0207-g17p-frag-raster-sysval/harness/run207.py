@@ -350,6 +350,10 @@ def main():
     ap.add_argument("--fields", default="")
     ap.add_argument("--max-cases", type=int, default=0)
     ap.add_argument("--census-only", action="store_true")
+    ap.add_argument("--interaction", action="store_true",
+                    help="AMENDMENT 4: also emit the get_sr `form` x `dp_width` map")
+    ap.add_argument("--skip-sweeps", action="store_true",
+                    help="baseline + controls + interaction map only (no value sweeps)")
     ap.add_argument("--archive-cache", action="store_true",
                     help="reuse (and populate) work/archive_cache: the shader compiler is a "
                          "contended shared service and Gate E wants both runs to dispatch "
@@ -1069,7 +1073,7 @@ def main():
         # ----------------------------------------------------- sweeps --------
         ndone = 0
         stop = False
-        for fname in ruled:
+        for fname in ([] if args.skip_sweeps else ruled):
             if wantf and fname not in wantf:
                 continue
             f = fieldsdesc[fname]
@@ -1117,7 +1121,7 @@ def main():
                 break
 
         # ------------------------- the joint form x sr_sel map ---------------
-        if arm["instr"] == "get_sr" and not stop and not wantf:
+        if arm["instr"] == "get_sr" and not stop and not wantf and not args.skip_sweeps:
             ff = fieldsdesc["form"]
             fs = fieldsdesc["sr_sel"]
             for fv in (0, 1):
@@ -1127,6 +1131,25 @@ def main():
                     record("case", "__form_x_srsel", fv * 1000 + sel, blk,
                            note="form=%d sr_sel=%d" % (fv, sel), cof=sel,
                            form_value=fv, sr_sel=sel)
+
+        # ------------------- AMENDMENT 4: the form x dp_width map ------------
+        # H8, frozen before this capture: `form` is a READ-ENABLE whose effect is
+        # CONDITIONAL ON `dp_width`.  Predicted: at dp_width == 0x14 the two form
+        # values give DIFFERENT outputs (form = 1 contributes a silent zero);
+        # at dp_width == 0x10 they give the SAME output.  Other dp_width values
+        # are unpredicted and record oracle `unknown`.
+        if args.interaction and arm["instr"] == "get_sr" and not stop:
+            ff = fieldsdesc["form"]
+            fd = fieldsdesc["dp_width"]
+            for dp in SP.DP_WIDTH_SET:
+                for fv in (0, 1):
+                    blk = set_bits(blk0, ff["start"], ff["width"], fv)
+                    blk = set_bits(blk, fd["start"], fd["width"], dp)
+                    record("case", "__form_x_dpwidth", dp * 2 + fv, blk,
+                           note="form=%d dp_width=0x%02x" % (fv, dp),
+                           form_value=fv, dp_width=dp,
+                           h8_expect=("form_changes_output" if dp == 0x14 else
+                                      ("form_inert" if dp == 0x10 else "unknown")))
 
         emit({"kind": "arm_done", "arm": arm["arm"], "instr": arm["instr"],
               "seconds": round(time.time() - t_arm, 1), "recovery": recovery,

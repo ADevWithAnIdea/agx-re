@@ -1,0 +1,34 @@
+run DEMO-total-evidence-loss   ledger experiments/EXP-0209-dashboards/work/monotonicity_demo/ledger.jsonl (19575 lines)
+
+  dashboard (top rung)                         attn   curr  denom   downgr
+  Encoding geometry coverage / geometry-mappe    502      0   1040      620
+  Field/bit liveness coverag / decided-multi-     99      0   1040      620
+  Semantic-map coverage / semantically-m          5      0   1040       67
+  Canonical generated-recipe / canonical-reci      2      2    166        0
+  Direct G17P revalidation c / G17P-direct-re    432      0   1040      612
+  Reproducible evidence-chai / independently-    264      0   1212      597
+  Finite-resource limit and  / limit-mapped     133      0    987      594
+
+  1. Encoding geometry coverage
+      incomplete                 attained    40 / 1212   current    40 / 1212
+      citation-resolves          attained   575 / 1212   current  1172 / 1212
+      auditable                  attained   333 / 1212   current     0 / 1212
+      independently-confirmed    attained   264 / 1212   current     0 / 1212
+  7. Finite-resource limit and overflow coverage
+      no-data                    attained   393 / 987   current   987 / 987
+      partial-sweep              attained    79 / 987   current     0 / 987
+      full-domain-swept          attained   382 / 987   current     0 / 987
+      limit-mapped               attained   133 / 987   current     0 / 987
+
+  section-2 `axes` sidecar census (absence is reported as absence)
+      validation.json (inline)                             23
+      EXP-0208-axis-reclassification/analysis/axes.json    496
+      db.json fields with NO axes object                   544 of 1040
+      cross-check disagreements                            257
+        geometry:agree                                     250
+        geometry:disagree                                  231
+        geometry:not-comparable                            15
+        liveness:declared-with-control-or-no-records       274
+        semantics:agree                                    455
+        semantics:disagree                                 31
+        semantics:not-comparable                           10

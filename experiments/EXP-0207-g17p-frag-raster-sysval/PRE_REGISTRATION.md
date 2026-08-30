@@ -455,3 +455,50 @@ match. No gated run had occurred (`raw/prefreeze/census0{1,2,3}/`, `work/pilot0{
 If that reproduces in the gated pair, `dev_scoreboard_fence.scope_flag` is reported
 **carrier-undecidable** — no verdict — with that null control as the measured proof, exactly
 as §3 of this pre-registration said it would be.
+
+### Amendment 4 — 2026-08-30, frozen BEFORE its own first dispatch
+
+The two gated runs `g17p_20260830_run01/02` are **unaffected** by this amendment: they were
+captured under the §1–§9 plan as amended through Amendment 3, and their verdicts stand on
+that plan. This amendment adds a **new question with its own named captures**
+(`g17p_20260830_int01` forward and `int02` reverse), because §4 of
+`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` requires a design change made after seeing
+observations to be a named amendment frozen before *its* first dispatch, never an edit to a
+hypothesis that already has data.
+
+**What run01 showed that raises the question.** `get_sr.form` is inert on five of the six
+carriers and **moves on exactly one**: `sr_hi`, the high-register-pressure compute kernel.
+There, over the 18-selector map, `form = 1` collapses the output to **one payload for all 18
+selectors** while `form = 0` gives six distinct payloads, and the per-lane arithmetic is
+exact — `out(form=1) == out(form=0) − lane·65536` for all 64 lanes, i.e. **the system-value
+read contributed exactly zero.** The one thing that distinguishes `sr_hi` from the five inert
+carriers is its compiled `dp_width`: **0x14 on `sr_hi`, 0x10 on all five others.**
+
+**H8 (frozen now, before the interaction capture):** `get_sr.form` is a **read-enable whose
+effect is conditional on `dp_width`**.
+
+* **Predicted:** at `dp_width == 0x14` the two `form` values produce **different** outputs
+  (form = 1 contributing a silent zero); at `dp_width == 0x10` they produce the **same**
+  output. This must hold on carriers whose *compiled* `dp_width` is 0x10 once `dp_width` is
+  spliced to 0x14 — i.e. the effect must follow the **field**, not the carrier.
+* **Refuter A:** splicing `dp_width = 0x14` into `sr_c` / `sr_dump` / `sr_f` / `sr_f2` and
+  flipping `form` changes nothing. Then the effect belongs to something else about `sr_hi`
+  (register pressure, allocation, the destination bank) and H8 is refuted; `form` is
+  reported live on one carrier with the cause **unknown**, not as a read-enable.
+* **Refuter B:** `form` changes the output at `dp_width == 0x10` too. Then the conditional
+  is wrong and `form` is simply live wherever the read is on a path we can see.
+* **Coverage:** `dp_width` ∈ {0x00, 0x04, 0x10, 0x11, 0x14, 0x15, 0x50, 0x54} × `form` ∈
+  {0, 1}, on all six `get_sr` arms, two gated runs in opposite case order. The values
+  bracket the two the compiler emitted and include the documented 0x50 "top dst bank".
+* **This is one carrier's finding until the interaction capture confirms it**, and §7 of the
+  corrections document wants three structurally different carriers before an
+  interaction becomes a general rule. Whatever the outcome, the claim is bounded to the
+  tested envelope.
+
+**Gate B is also tightened, and the tightening is applied to run01/run02 as well because it
+can only ever refuse, never promote.** A control that moved the observable **only into a
+fault, a hang, or a suppressed draw** shows that the program can be *broken*, not that a
+different legal result would have been visible. Such a control no longer counts as detection
+power. This decides three arms: `fen_syn` (0 of 4 controls moved at all), `me_p2` and `sr_v`
+(controls moved, but every one of them only destroyed the observation). All three are
+**carrier-undecidable**, and their zero movement is **not** evidence of inertness.

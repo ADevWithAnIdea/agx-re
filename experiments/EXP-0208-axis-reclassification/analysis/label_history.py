@@ -32,5 +32,5 @@ for sha, date, subj in commits:
             if not hist[k] or hist[k][-1]["label"] != lab:
                 hist[k].append(dict(sha=sha[:8], date=date, subj=subj, label=lab,
                                     evidence=rec.get("evidence") or []))
-json.dump(hist, open(os.path.join(HERE, "label_history.json"), "w"), indent=0)
+json.dump(hist, open(os.path.join(HERE, "..", "work", "label_history.json"), "w"), indent=0)
 print("rows with history:", len(hist), "commits:", len(commits))

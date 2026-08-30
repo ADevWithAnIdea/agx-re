@@ -10,27 +10,39 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
-| `PASS` | 180 | 1212 | the raw meets the rule |
-| `REJECT` | 83 | 1212 | the raw CONTRADICTS the rule |
+| `PASS` | 147 | 1212 | the raw meets the rule |
+| `REJECT` | 116 | 1212 | the raw CONTRADICTS the rule |
 | `INSUFFICIENT` | 537 | 1212 | the raw lacks what the rule needs |
 | `N/A` | 412 | 1212 | the rule does not apply to this claim |
 
-### `REJECT` — 83 row(s), by reason
+### `REJECT` — 116 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
-| 83 | N control arm(s) present and NONE moved (V<N and <N distinct encodings) |
+| 116 | N control arm(s) present and NONE moved (V<N and <N distinct encodings) |
 
 <details><summary>first 60 rows</summary>
 
 | row | label | target | why |
 |---|---|---|---|
+| `device_store.access_desc` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.addr_mode` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.base_slot` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.elem_size` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.idx_off` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.index_reg` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.reserved13` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.reserved7` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.space` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.st_desc_hi` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.st_format` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `device_store.st_format_ext` | hardware-run | G17P | 3 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.dst` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.mod_lo` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.srcA_reg` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.srcA_size` | untested | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.srcB_imm` | untested | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `falu2_ext.srcB_neg` | hardware-run | M4 | 2 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
+| `falu2_ext.srcB_neg` | hardware-run | M4 | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.srcB_reg` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_ext.srcB_size` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `falu2_srcmod10.dst` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
@@ -73,18 +85,6 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `ibfins.mask_imm` | untested | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `ilogic.lut_b` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 | `ilogic.op_base` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `ilogic.srcA` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `ilogic.srcB` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.b0bit7` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.b2_bit0` | untested | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.dst` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.lenbit` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.mulsel` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.srcC_lo` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `imad.store_en` | untested | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `iminmax.dst` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `iminmax.sel` | hardware-run | G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
-| `irotate._instruction` | hardware-run | G16G+G17P | 1 control arm(s) present and NONE moved (V<2 and <2 distinct encodings) -- the carrier could not have shown the effect either way |
 
 </details>
 
@@ -166,11 +166,11 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
 | `PASS` | 64 | 1212 | the raw meets the rule |
-| `REJECT` | 72 | 1212 | the raw CONTRADICTS the rule |
-| `INSUFFICIENT` | 179 | 1212 | the raw lacks what the rule needs |
-| `N/A` | 897 | 1212 | the rule does not apply to this claim |
+| `REJECT` | 71 | 1212 | the raw CONTRADICTS the rule |
+| `INSUFFICIENT` | 174 | 1212 | the raw lacks what the rule needs |
+| `N/A` | 903 | 1212 | the rule does not apply to this claim |
 
-### `REJECT` — 72 row(s), by reason
+### `REJECT` — 71 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
@@ -186,7 +186,6 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | 1 | hard outcomes present (fault=N,invalid_run=N,victim=N) with cascade/contamination markers in the SAME cited ra |
 | 1 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: sentinel_bad=N |
 | 1 | hard outcomes present (fault=N,invalid_run=N,no_draw=N) with cascade/contamination markers in the SAME cited r |
-| 1 | hard outcomes present (fault=N,hang=N) with cascade/contamination markers in the SAME cited raw: sentinel_bad= |
 | 1 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: foreign=N |
 | 1 | hard outcomes present (fault=N,undecodable=N) with cascade/contamination markers in the SAME cited raw: victim |
 | 1 | hard outcomes present (hang=N,invalid_run=N) with cascade/contamination markers in the SAME cited raw: restart |
@@ -222,7 +221,6 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `fspecial_est.dst` | hardware-run | G17P | hard outcomes present (fault=540) with cascade/contamination markers in the SAME cited raw: victim=476. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `fspecial_est.subop` | hardware-run | G17P | hard outcomes present (fault=5) with cascade/contamination markers in the SAME cited raw: victim=139. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `get_sr.dp_width` | hardware-run | G17P | hard outcomes present (fault=391,invalid_run=25,no_draw=104) with cascade/contamination markers in the SAME cited raw: sentinel_bad=104. Gate E: a malformed runner response is `measurement_failure`, never a hardware outc |
-| `get_sr.sr_sel` | hardware-run | G17P | hard outcomes present (fault=263,hang=12) with cascade/contamination markers in the SAME cited raw: sentinel_bad=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `half_alu_ext8.b4` | isolated-byte-diff | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: foreign=1536. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `half_alu_ext8.opflags` | hardware-run | G17P | hard outcomes present (fault=448) with cascade/contamination markers in the SAME cited raw: foreign=4608,victim=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `half_alu_ext8.opsel` | isolated-byte-diff | G17P | hard outcomes present (fault=384) with cascade/contamination markers in the SAME cited raw: foreign=4608. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
@@ -256,24 +254,25 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `ishift.opB` | hardware-run | G17P | hard outcomes present (fault=1) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ishift.srcA` | hardware-run | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: victim=78. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `jump_cond.cf_scope` | untested | G17P | hard outcomes present (invalid_run=1024) with cascade/contamination markers in the SAME cited raw: sentinel_bad=1024,unstable=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `jump_cond.offset` | untested | G17P | hard outcomes present (fault=53,invalid_run=61) with cascade/contamination markers in the SAME cited raw: sentinel_bad=61,unstable=2. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 
 </details>
 
-### `INSUFFICIENT` — 179 row(s), by reason
+### `INSUFFICIENT` — 174 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
 | 114 | a fault/hang/limit claim confirmed in N run(s) |
-| 31 | N hard outcome(s) in the raw (fault=N) that the claim does not mention |
+| 27 | N hard outcome(s) in the raw (fault=N) that the claim does not mention |
 | 20 | N hard outcome(s) in the raw (hang=N) that the claim does not mention |
 | 5 | N hard outcome(s) in the raw (fault=N,hang=N) that the claim does not mention |
 | 2 | N hard outcome(s) in the raw (invalid_run=N) that the claim does not mention |
-| 2 | N hard outcome(s) in the raw (undecodable=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (cmdbuf_error=N,fault=N,hang=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (fault=N,hang=N,invalid_run=N,undecodable=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (fault=N,hang=N,undecodable=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (fault=N,undecodable=N) that the claim does not mention |
-| 1 | N hard outcome(s) in the raw (fault=N,no_draw=N) that the claim does not mention |
+| 1 | N hard outcome(s) in the raw (undecodable=N) that the claim does not mention |
+| 1 | N hard outcome(s) in the raw (no_draw=N) that the claim does not mention |
 
 <details><summary>first 60 rows</summary>
 

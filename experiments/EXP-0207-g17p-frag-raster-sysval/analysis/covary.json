@@ -135,6 +135,20 @@
    "observable": "the read-back word/pixel the consumer of the system value produces"
   },
   {
+   "arm": "sr_dump",
+   "field": "form",
+   "instr": "get_sr",
+   "not_covariant_because": "`form` is byte0 bit 3 and is not a register selector; the consumer reads a register chosen by `dst`/`dst_hi`, which this sweep holds fixed.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
+   "arm": "sr_dump",
+   "field": "dst_hi",
+   "instr": "get_sr",
+   "not_covariant_because": "DELIBERATE AND DECLARED: dst_hi selects the DESTINATION REGISTER, and the consumer reads the COMPILED register, which the sweep does NOT move.  Field and observable are therefore decoupled -- the field moves the write, the observable stays on the original register.  That is the opposite of the EXP-0140 defect, where the read-back followed the field.",
+   "observable": "the read-back word/pixel the consumer of the system value produces"
+  },
+  {
    "arm": "sr_f",
    "field": "form",
    "instr": "get_sr",
@@ -191,6 +205,13 @@
    "observable": "a device-atomic reduction with a host-computable correct answer"
   },
   {
+   "arm": "fen_syn",
+   "field": "scope_flag",
+   "instr": "dev_scoreboard_fence",
+   "not_covariant_because": "the fence has no operands; the observable is produced by other instructions entirely.",
+   "observable": "a device-atomic reduction with a host-computable correct answer"
+  },
+  {
    "arm": "me_w2",
    "field": "sel",
    "instr": "mesh_out_src",
@@ -199,6 +220,27 @@
   },
   {
    "arm": "me_w3",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  },
+  {
+   "arm": "me_p1",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  },
+  {
+   "arm": "me_p2",
+   "field": "sel",
+   "instr": "mesh_out_src",
+   "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",
+   "observable": "the rasterised frame produced from the mesh outputs"
+  },
+  {
+   "arm": "me_p3",
    "field": "sel",
    "instr": "mesh_out_src",
    "not_covariant_because": "the frame's address space is fixed by the render pass; `sel` supplies a source value to the following store, not a destination.",

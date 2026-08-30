@@ -36,16 +36,22 @@ for m, fields in val["instructions"].items():
         if rec.get("label") in TARGET:
             rows.append((m, f, rec))
 
+TRACKED = set(l.strip() for l in open(os.path.join(HERE, "..", "work", "tracked_files.txt")))
+skipped_untracked = 0
+
 idx = collections.defaultdict(list)     # (instr, field) -> groups
 idx_instr = collections.defaultdict(list)
-for line in open(os.path.join(HERE, "raw_index_jsonl.jsonl")):
+for line in open(os.path.join(HERE, "..", "work", "raw_index_jsonl.jsonl")):
     g = json.loads(line)
+    if g["file"] not in TRACKED:      # working-tree-only raw is not committed evidence
+        skipped_untracked += 1
+        continue
     idx[(g["instr"], g["field"])].append(g)
     idx_instr[g["instr"]].append(g)
 
 nj_struct = collections.defaultdict(list)
 nj_text = collections.defaultdict(list)
-for line in open(os.path.join(HERE, "raw_index_nonjsonl.jsonl")):
+for line in open(os.path.join(HERE, "..", "work", "raw_index_nonjsonl.jsonl")):
     r = json.loads(line)
     for s in r.get("struct", []):
         nj_struct[(s["op"], s["field"])].append(dict(file=r["file"], exp=r["exp"], n=s["n"],
@@ -53,7 +59,8 @@ for line in open(os.path.join(HERE, "raw_index_nonjsonl.jsonl")):
     for a, b, n in r.get("pairs", []):
         nj_text[(a, b)].append(dict(file=r["file"], exp=r["exp"], n=n, is_raw=r["is_raw"], ext=r["ext"]))
 
-UNIONS = ("obs", "okobs", "orc", "values", "okvals", "faultvals", "hangvals", "abytes_h")
+UNIONS = ("obs", "okobs", "validobs", "validvals", "orc", "values", "okvals",
+          "faultvals", "hangvals", "abytes_h")
 
 def sumgroups(gs):
     """UNION the distinct-payload sets across groups. Summing per-group counts (what
@@ -76,9 +83,12 @@ def sumgroups(gs):
         percase_alias.append(dict(exp=g["exp"], file=g["file"], carrier=g["carrier"], arm=g["arm"],
                                   n=g["n"], nv=g.get("n_values", 0), nb=g.get("n_abytes", 0),
                                   nobs=g.get("n_obs", 0), nokobs=g.get("n_okobs", 0),
+                                  nvalidobs=g.get("n_validobs", 0), nvalidvals=g.get("n_validvals", 0),
                                   norc=g.get("n_orc", 0), sem=g.get("semchecked", 0),
                                   nfault=g.get("n_faultvals", 0), nhang=g.get("n_hangvals", 0),
-                                  out=g["outcomes"], keying=g["keying"]))
+                                  out=g["outcomes"], keying=g["keying"],
+                                  vals=g.get("values") or [], fvals=g.get("faultvals") or [],
+                                  hvals=g.get("hangvals") or []))
     r = dict(groups=len(gs), exps=sorted(exps), n_files=len(files),
              files=sorted(files)[:12], carriers=sorted(carriers)[:24],
              n_carriers=len(carriers), arms=sorted(arms)[:24], n_arms=len(arms),
@@ -86,6 +96,7 @@ def sumgroups(gs):
              alias_per_group=percase_alias[:60], **tot)
     for k in UNIONS:
         r["u_" + k] = len(U[k])
+    r["max_group_validobs"] = max([p["nvalidobs"] for p in percase_alias] or [0])
     r["max_group_obs"] = max([p["nobs"] for p in percase_alias] or [0])
     r["max_group_okobs"] = max([p["nokobs"] for p in percase_alias] or [0])
     r["max_group_orc"] = max([p["norc"] for p in percase_alias] or [0])
@@ -127,7 +138,7 @@ for m, f, rec in rows:
         L3_span_hits=sorted({i for g in L3 for i in g["span_hits"]}),
         L5=L5[:20], L6=sorted(L6, key=lambda r: -r["n"])[:20])
 
-json.dump(out, open(os.path.join(HERE, "row_evidence.json"), "w"), indent=1)
+json.dump(out, open(os.path.join(HERE, "..", "work", "row_evidence.json"), "w"), indent=1)
 hits = collections.Counter()
 for k, v in out.items():
     tags = tuple(l for l in ("L1", "L2", "L3", "L4") if v[l]) + \

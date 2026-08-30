@@ -1,0 +1,109 @@
+cross-run: 10156 shared cases, 10156 agree, 0 disagree
+disagreements by group: {}
+
+== shift_amt_move.src_flag : profile over the source index, both flags ==
+  sam_alu    indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+  sam_gpr    indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+  sam_mix    indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+  sam_sys    indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+  sam_uni    indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+  sam_uni2   indices where flag=0 and flag=1 are IDENTICAL in BOTH runs: 128/128
+
+== b_alu10_lo7.src_flag : the same-dimension positive control ==
+  BALU/cvt_i64@46/src_flag   v=0  unexpected_ok  identical-across-values=True
+  BALU/cvt_i64@46/src_flag   v=1  ok             identical-across-values=True
+  BALU/cvt_i64@78/src_flag   v=0  unexpected_ok  identical-across-values=True
+  BALU/cvt_i64@78/src_flag   v=1  ok             identical-across-values=True
+  BALU/pc_tg@12/src_flag     v=0  ok             identical-across-values=True
+  BALU/pc_tg@12/src_flag     v=1  unexpected_ok  identical-across-values=True
+
+== ibitcount.cache ==
+  PC/iu_ctz#0/cache        base=0  moved_runA=False moved_runB=False  v0=ok v1=unexpected_ok
+  PC/pc_alu#0/cache        base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_clz#0/cache        base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_cmp#0/cache        base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_dump#0/cache       base=0  moved_runA=False moved_runB=False  v0=ok v1=unexpected_ok
+  PC/pc_rev#0/cache        base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_store#0/cache      base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_tg#0/cache         base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_two#0/cache        base=1  moved_runA=True moved_runB=True  v0=wrong_value v1=ok
+  PC/pc_two#1/cache        base=0  moved_runA=False moved_runB=False  v0=ok v1=unexpected_ok
+
+== ibitcount.dst : delivery set and the hazard wall ==
+  PC/iu_ctz#0/dst        base=4    reproduces_in_BOTH=[4, 5]  faults_in_BOTH(64)=192-255
+  PC/pc_alu#0/dst        base=0    reproduces_in_BOTH=[0, 1]  faults_in_BOTH(64)=192-255
+  PC/pc_dump#0/dst       base=0    reproduces_in_BOTH=[0, 1]  faults_in_BOTH(64)=192-255
+  PC/pc_store#0/dst      base=0    reproduces_in_BOTH=[0, 1]  faults_in_BOTH(64)=192-255
+  PC/pc_two#0/dst        base=4    reproduces_in_BOTH=[4, 5]  faults_in_BOTH(64)=192-255
+
+== irotate.operands byte+6 : the EXACT rotate-amount predictor ==
+  ROT/rot_alu#0/operands_b6    modelled=33  matched_the_exact_vector_in_BOTH_runs=33  misses=none
+  ROT/rot_k13#0/operands_b6    modelled=33  matched_the_exact_vector_in_BOTH_runs=33  misses=none
+  ROT/rot_k19#0/operands_b6    modelled=33  matched_the_exact_vector_in_BOTH_runs=33  misses=none
+  ROT/rot_k5#0/operands_b6     modelled=33  matched_the_exact_vector_in_BOTH_runs=33  misses=none
+
+== irotate.operands byte+6 : the amount recovered INDEPENDENTLY of the model ==
+   (for each aligned value, search all 32 K for one whose rotate-LEFT-by-K vector
+    reproduces the observation; the codewords are asymmetric so left/right and every
+    K are distinguishable. This does not use the pre-registered formula at all.)
+  ROT/rot_alu#0/operands_b6    aligned values=64  a single rotate-LEFT amount recovered at 33 of them (in BOTH runs); of those, 33 match K = (32 - (byte+6 >> 2)) mod 32; distinct K = 32
+       values where a K was recovered but the formula disagrees: none
+       values where NO single rotate amount reproduces the output: 132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,232,236,24
+  ROT/rot_k13#0/operands_b6    aligned values=64  a single rotate-LEFT amount recovered at 33 of them (in BOTH runs); of those, 33 match K = (32 - (byte+6 >> 2)) mod 32; distinct K = 32
+       values where a K was recovered but the formula disagrees: none
+       values where NO single rotate amount reproduces the output: 132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,232,236,24
+  ROT/rot_k19#0/operands_b6    aligned values=64  a single rotate-LEFT amount recovered at 33 of them (in BOTH runs); of those, 33 match K = (32 - (byte+6 >> 2)) mod 32; distinct K = 32
+       values where a K was recovered but the formula disagrees: none
+       values where NO single rotate amount reproduces the output: 132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,232,236,24
+  ROT/rot_k5#0/operands_b6     aligned values=64  a single rotate-LEFT amount recovered at 33 of them (in BOTH runs); of those, 33 match K = (32 - (byte+6 >> 2)) mod 32; distinct K = 32
+       values where a K was recovered but the formula disagrees: none
+       values where NO single rotate amount reproduces the output: 132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,232,236,24
+
+== irotate.operands : the other four bytes, and the joint 40-bit arm ==
+  ROT/cvt_i64#0/operands_joint   n=70   {'wrong_value': 53, 'fault': 15, 'ok': 2}  reproduces_at=566969500174-566969500175
+  ROT/rot_alu#0/operands_b3      n=256  {'ok': 2, 'wrong_value': 188, 'not_written': 2, 'fault': 64}  reproduces_at=0-1
+  ROT/rot_alu#0/operands_b4      n=256  {'wrong_value': 128, 'ok': 128}  reproduces_at=128 values
+  ROT/rot_alu#0/operands_b5      n=256  {'ok': 4, 'wrong_value': 252}  reproduces_at=0-3
+  ROT/rot_alu#0/operands_b7      n=256  {'ok': 8, 'wrong_value': 248}  reproduces_at=0,2,4,6,8,10,12,14
+  ROT/rot_k5#0/operands_b3       n=256  {'ok': 2, 'silent_zero': 188, 'not_written': 2, 'fault': 64}  reproduces_at=0-1
+  ROT/rot_k5#0/operands_b4       n=256  {'silent_zero': 128, 'ok': 128}  reproduces_at=128 values
+  ROT/rot_k5#0/operands_b5       n=256  {'ok': 4, 'wrong_value': 252}  reproduces_at=0-3
+  ROT/rot_k5#0/operands_b7       n=256  {'ok': 8, 'silent_zero': 120, 'wrong_value': 128}  reproduces_at=0,2,4,6,8,10,12,14
+  ROT/rot_k5#0/operands_joint    n=70   {'silent_zero': 44, 'wrong_value': 13, 'ok': 2, 'fault': 11}  reproduces_at=1811939840-1811939841
+
+== iunary (SYNTHESIZED 27 2d 22) ==
+  IU/pc_alu#0/b1           {'fault': 192, 'ok': 32, 'wrong_value': 32}
+       fault        n=192   value mod 8 -> [0, 1, 2, 3, 4, 7]   mod 4 -> [0, 1, 2, 3]
+       ok           n=32    value mod 8 -> [5]   mod 4 -> [1]
+       wrong_value  n=32    value mod 8 -> [6]   mod 4 -> [2]
+       tokenizes as: {None: 4, 'iunary': 251, 'cvt_f2i': 1}
+  IU/pc_alu#0/opsel        {'ok': 128, 'wrong_value': 128}
+       ok           n=128   value mod 8 -> [2, 3, 6, 7]   mod 4 -> [2, 3]
+       wrong_value  n=128   value mod 8 -> [0, 1, 4, 5]   mod 4 -> [0, 1]
+       tokenizes as: {'iunary': 254, 'ibitcount': 2}
+  IU/pc_store#0/b1         {'not_written': 192, 'ok': 32, 'wrong_value': 32}
+       not_written  n=192   value mod 8 -> [0, 1, 2, 3, 4, 7]   mod 4 -> [0, 1, 2, 3]
+       ok           n=32    value mod 8 -> [5]   mod 4 -> [1]
+       wrong_value  n=32    value mod 8 -> [6]   mod 4 -> [2]
+       tokenizes as: {None: 4, 'iunary': 251, 'cvt_f2i': 1}
+  IU/pc_store#0/opsel      {'ok': 128, 'wrong_value': 128}
+       ok           n=128   value mod 8 -> [2, 3, 6, 7]   mod 4 -> [2, 3]
+       wrong_value  n=128   value mod 8 -> [0, 1, 4, 5]   mod 4 -> [0, 1]
+       tokenizes as: {'iunary': 254, 'ibitcount': 2}
+
+== cvt_f2i.b9 ==
+  CVT/cvt_alu#0/b9         n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+  CVT/cvt_rnd#0/b9         n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+  CVT/cvt_s32#0/b9         n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+  CVT/cvt_v4#0/b9          n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+  CVT/cvt_v4#1/b9          n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+  CVT/iu_h2i#0/b9          n=256  {'ok': 256}  distinct (outcome,payload) across BOTH runs=1
+
+== cvt_f2i.signflag (H8): lane 7 = int(2^31 + 2^8), outside int32 ==
+  lane7 = 0x00000000  at 160 signflag values : 0-7,16-23,32-71,80-87,96-103,112-119,128-135,144-151,160-199,208-215,224-231,240-247
+  lane7 = 0x0000ffff  at  16 signflag values : 8-15,24-31
+  lane7 = 0x7fffffff  at  16 signflag values : 72-79,88-95
+  lane7 = 0x80000000  at  16 signflag values : 104-111,120-127
+  lane7 = 0x000000ff  at  16 signflag values : 136-143,152-159
+  lane7 = 0x00007fff  at  16 signflag values : 200-207,216-223
+  lane7 = 0x00008000  at  16 signflag values : 232-239,248-255

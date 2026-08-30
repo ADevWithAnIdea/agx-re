@@ -50,6 +50,12 @@ SR_SET = [130, 133, 152, 153, 154, 156, 157, 158,
           160, 161, 162, 164, 165, 166, 167, 168, 169, 170]
 SR_SET_VERTEX = [221, 216, 136, 138]
 
+# AMENDMENT 4.  `dp_width` values for the form x dp_width interaction map.
+# 0x10 is what the compiler emitted on sr_c/sr_dump/sr_f/sr_f2/sr_v; 0x14 is what
+# it emitted on the high-register-pressure carrier sr_hi, and that is the ONLY
+# carrier on which `form` moved anything in the gated pair.  The rest bracket it.
+DP_WIDTH_SET = [0x00, 0x04, 0x10, 0x11, 0x14, 0x15, 0x50, 0x54]
+
 BASE_VERTEX = 9
 BASE_INSTANCE = 5
 INSTANCES = 3

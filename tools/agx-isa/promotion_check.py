@@ -195,6 +195,10 @@ class Evidence(object):
         self.exps = os.path.join(self.root, "experiments")
         self._docs = {}
         self._recipes = None
+        try:
+            self._spec = EI.load_db()
+        except Exception:
+            self._spec = {}
 
     # -- directory resolution (the project validator's own glob rule) -------
     def resolve(self, slug):
@@ -274,6 +278,9 @@ class Evidence(object):
             "controls": {}, "control_fired": None,
             "nonrecord_files": 0, "record_files": 0,
             "keying": collections.Counter(),
+            "derived_only": [],       # cited experiments whose only records for this
+                                      # row live outside raw/ (analysis/ or work/)
+            "derived_records": 0,
         }
         key = row["key"]
         for ev in row.get("evidence") or []:
@@ -302,6 +309,11 @@ class Evidence(object):
                 cell = doc["cells"].get(key)
                 if cell:
                     self._merge(agg, cell)
+                dcell = (doc.get("derived_cells") or {}).get(key)
+                if dcell:
+                    agg["derived_records"] += dcell.get("records", 0)
+                    if not cell:
+                        agg["derived_only"].append(d)
                 # Gate B controls are per instruction, not per field.
                 for ck, cc in doc["controls"].items():
                     if ck.split(".")[0] == row["mnemonic"]:
@@ -403,6 +415,15 @@ def rule_R2(row, ev, e):
     return PASS, "claimed %s, raw ran on %s" % (claimed, ",".join(sorted(seen)))
 
 
+def _field_width(row, e):
+    """The field's real width: db.json first, the claim row only as a fallback."""
+    sp = (getattr(e, "_spec", {}) or {}).get(row["mnemonic"]) or {}
+    span = (sp.get("fields") or {}).get(row["field"])
+    if span:
+        return span[1]
+    return row.get("width")
+
+
 def rule_R3(row, ev, e):
     """actual-byte ledger is missing, or requested and decoded values disagree"""
     if row["field"] is None:
@@ -414,9 +435,22 @@ def rule_R3(row, ev, e):
             which.append("%d field-keyed" % ev["ledger_disagree"])
         if ev["byte_ledger_disagree"]:
             which.append("%d byte-keyed" % ev["byte_ledger_disagree"])
+        width = _field_width(row, e)
+        over = [x for x in exs if isinstance(width, int)
+                and isinstance(x.get("requested"), int)
+                and x["requested"] >= (1 << width)]
+        if over:
+            kind = ("the requested values run past this field's %d-bit encodable "
+                    "range, so `value` is a byte- or program-level intent: the "
+                    "ledger does NOT establish that the FIELD took it" % width)
+        else:
+            kind = ("either the assembler could not place the requested value (the "
+                    "DEF-0166 signature) or `value` names a byte rather than this "
+                    "field -- both leave Gate A unmet, and the raw does not "
+                    "distinguish them")
         return REJECT, ("%s record(s) where the requested value != the value decoded "
-                        "from the ACTUAL dispatched bytes (e.g. %s)"
-                        % (" + ".join(which),
+                        "from the ACTUAL dispatched bytes; %s (e.g. %s)"
+                        % (" + ".join(which), kind,
                            "; ".join("[%s] req=%s bytes=%s decoded=%s"
                                      % (x.get("keying"), x["requested"],
                                         x["actual_bytes"], x["decoded"])
@@ -425,6 +459,10 @@ def rule_R3(row, ev, e):
         why = ("no records at all under any keying" if ev["records"] == 0
                else "%d record(s) but none carried actual instruction bytes"
                     % ev["records"])
+        if ev["records"] == 0 and ev["derived_records"]:
+            why += ("; %d record(s) exist but only OUTSIDE raw/ (%s) -- derived "
+                    "artifacts are not dispatches"
+                    % (ev["derived_records"], ",".join(ev["derived_only"][:3])))
         if ev["records"] == 0 and ev["nonrecord_files"]:
             why += ("; evidence is in %d non-record file(s) (.txt/.log/.hex) -- "
                     "format-unreadable, not absent" % ev["nonrecord_files"])
@@ -612,7 +650,7 @@ def check_row(row, e):
                       "raw_runs", "targets", "carriers", "outcomes", "hard",
                       "contamination", "keying", "nonrecord_files", "record_files",
                       "unresolved", "no_raw", "no_authored", "quarantined",
-                      "control_fired")},
+                      "control_fired", "derived_only", "derived_records")},
            "rules": {}}
     for code, fn in RULES:
         v, why = fn(row, ev, e)

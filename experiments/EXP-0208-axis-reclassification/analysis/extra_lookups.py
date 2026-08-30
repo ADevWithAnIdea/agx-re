@@ -47,7 +47,8 @@ def byte_pos(name):
     m = BYTEPOS.match(name.strip())
     return int(m.group(1)) if m else None
 
-groups = [json.loads(l) for l in open(os.path.join(HERE, "raw_index_jsonl.jsonl"))]
+TRACKED = set(l.strip() for l in open(os.path.join(HERE, "..", "work", "tracked_files.txt")))
+groups = [g for g in (json.loads(l) for l in open(os.path.join(HERE, "..", "work", "raw_index_jsonl.jsonl"))) if g["file"] in TRACKED]
 by_instr = collections.defaultdict(list)
 for g in groups:
     by_instr[g["instr"]].append(g)
@@ -75,17 +76,35 @@ if os.path.exists(p):
                                       enum=r.get("enum"), note=r.get("note")))
 
 HEX = re.compile(r"0x[0-9a-fA-F]{1,2}\b")
+ARROW = re.compile(r"->\s*([^;,()]{1,40})")   # `=>` introduces the AUTHOR'S CONCLUSION in
+                                              # these records, not an observed outcome
+
 def prose_stats(ev):
+    """Parse an EXP-M4-14 `evidence` string WITHOUT substring traps.
+
+    The first version of this function used `"hang" in text`, which matched the word
+    `unchanged` and reported a GPU hang for a byte the record calls `fully inert`.
+    Word boundaries everywhere, and liveness is decided by counting DISTINCT arrow
+    targets rather than by keyword sentiment."""
     if not ev: return None
     vals = sorted({int(h, 16) for h in HEX.findall(ev)})
-    low = ev.lower()
+    targets = [t.split(".")[0].strip() if not re.match(r"^\s*[-+]?[0-9]*\.[0-9]", t) else t.strip()
+               for t in ARROW.findall(ev)]
+    targets = [t for t in targets if len(t.split()) <= 5]
+    targets = [t for t in targets if t]
+    norm = set()
+    for t in targets:
+        t2 = re.sub(r"\s+", " ", t.lower())
+        t2 = re.sub(r"\(.*", "", t2).strip()
+        if t2 in ("baseline", "base", "unchanged"): t2 = "<baseline>"
+        norm.add(t2)
     return dict(
-        distinct_hex_values_mentioned=len(vals),
-        values=vals[:64],
-        mentions_fault=bool(re.search(r"cmdbuf_error|fault|pagefault", low)),
-        mentions_hang=("hang" in low),
-        mentions_all_inert=bool(re.search(r"all\s*->|all\s+baseline|no effect|unchanged|inert", low)),
-        mentions_changed=bool(re.search(r"changed|corrupt|->\s*\d|zeroed|halved", low)),
+        distinct_hex_values_mentioned=len(vals), values=vals[:64],
+        arrow_targets=sorted(norm)[:24], distinct_arrow_targets=len(norm),
+        says_hang=bool(re.search(r"\bhangs?\b|\bhung\b|ErrorHang", ev, re.I)),
+        says_fault=bool(re.search(r"\bfaults?\b|CMDBUF_ERROR|PageFault|ErrorPageFault", ev, re.I)),
+        says_inert=bool(re.search(r"\bunchanged\b|\bno effect\b|\b(fully )?inert\b|"
+                                  r"\ball\b[^.;]{0,40}(->|=>)", ev, re.I)),
         chars=len(ev))
 
 out = {}
@@ -140,6 +159,7 @@ for m, f in rows:
                            siblings=sorted({g.get("sibling_mnemonic", "") for g in L}) if nm == "L7" else None,
                            files=sorted({g["file"] for g in L})[:8],
                            u_okobs_max=max(g.get("n_okobs", 0) for g in L),
+                           u_validobs_max=max(g.get("n_validobs", 0) for g in L),
                            u_obs_max=max(g.get("n_obs", 0) for g in L),
                            nv_max=max(g.get("n_values", 0) for g in L),
                            nb_max=max(g.get("n_abytes", 0) for g in L),

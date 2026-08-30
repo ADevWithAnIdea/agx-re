@@ -18,8 +18,8 @@ import hashlib, json, os, sys, collections
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "raw_index_jsonl.jsonl")
-FILEOUT = os.path.join(HERE, "raw_file_census.jsonl")
+OUT = os.path.join(HERE, "..", "work", "raw_index_jsonl.jsonl")
+FILEOUT = os.path.join(HERE, "..", "work", "raw_file_census.jsonl")
 
 NULLF = "\x00NULL"
 NOF = "\x00NOFIELD"
@@ -106,7 +106,8 @@ def main():
                         exp=exp, file=rel, instr=str(ins), field=fkey, keying=keying,
                         carrier=str(carrier), arm=str(arm), n=0,
                         values=set(), abytes=set(), rbytes=set(), obs=set(), orc=set(),
-                        okobs=set(), okvals=set(), faultvals=set(), hangvals=set(),
+                        okobs=set(), validobs=set(), validvals=set(), okvals=set(),
+                        faultvals=set(), hangvals=set(),
                         fidx=set(), fstart=set(), fwidth=set(), mutidx=set(),
                         outcomes=collections.Counter(), match=collections.Counter(),
                         invalid=0, victim=0, sentinel_bad=0, semchecked=0,
@@ -137,6 +138,16 @@ def main():
                 oc = str(r.get("outcome") or r.get("status") or r.get("result") or "?")
                 g["outcomes"][oc] += 1
                 lo = oc.lower()
+                # EXP-0191's validity rule: a record is an OBSERVATION unless the command
+                # buffer failed, the tokenizer failed, the run was contaminated, or the case
+                # never ran.  `silent_zero` / `wrong_value` / `no_draw` ARE observations.
+                INVALID = ("fault", "hang", "error", "undecodable", "invalid", "victim",
+                           "foreign", "timeout", "skipped", "measurement_failure", "cascade")
+                if not any(b in lo for b in INVALID):
+                    pay = canon(r["observed"]) if "observed" in r else (
+                          canon(r["out"]) if "out" in r else None)
+                    if pay is not None: g["validobs"].add(pay)
+                    if v is not None: g["validvals"].add(json.dumps(v, sort_keys=True))
                 if lo in ("ok", "pass"):
                     if "observed" in r: g["okobs"].add(canon(r["observed"]))
                     elif "out" in r: g["okobs"].add(canon(r["out"]))
@@ -168,8 +179,9 @@ def main():
     with open(OUT, "w") as out:
         for key, g in sorted(groups.items()):
             row = dict(g)
-            for k in ("values", "abytes", "rbytes", "obs", "orc", "okobs", "okvals",
-                      "faultvals", "hangvals", "fidx", "fstart", "fwidth", "mutidx", "keys"):
+            for k in ("values", "abytes", "rbytes", "obs", "orc", "okobs", "validobs",
+                      "validvals", "okvals", "faultvals", "hangvals", "fidx", "fstart",
+                      "fwidth", "mutidx", "keys"):
                 row["n_" + k] = len(g[k])
             row["fidx"] = sorted(g["fidx"])[:64]
             row["mutidx"] = sorted(g["mutidx"])[:64]
@@ -180,6 +192,8 @@ def main():
             # would report "2 distinct payloads" for a field that is inert in both runs.
             row["obs"] = sorted(g["obs"])[:400]
             row["okobs"] = sorted(g["okobs"])[:400]
+            row["validobs"] = sorted(g["validobs"])[:400]
+            row["validvals"] = sorted(g["validvals"])[:600]
             row["orc"] = sorted(g["orc"])[:400]
             row["values"] = sorted(g["values"])[:600]
             row["okvals"] = sorted(g["okvals"])[:600]

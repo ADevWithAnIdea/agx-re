@@ -581,14 +581,22 @@ def fingerprint(expdir):
         h.update(("%s|%d|%d;" % (os.path.relpath(p, expdir), st.st_size,
                                  int(st.st_mtime))).encode())
         n += 1
-    h.update(b"|schema=8")
+    h.update(b"|schema=9")
     return h.hexdigest(), n
 
 
 def index_experiment(expdir, spec, verbose=False):
     ix = Indexer(spec)
+    # Section 4: raw files are append-only evidence. A record scraped out of
+    # analysis/ or work/ is a DERIVED artifact -- often a prior audit's own scan
+    # output -- and must never be mistaken for a dispatch. EXP-0197's
+    # work/scan_call_offset.json alone would otherwise inject records into
+    # call.offset's Gate A ledger. The two populations are kept apart; the
+    # promotion checker consumes only the raw one.
     cells = collections.defaultdict(_new_cell)
     ctrl = collections.defaultdict(_new_cell)
+    dcells = collections.defaultdict(_new_cell)
+    dctrl = collections.defaultdict(_new_cell)
     meta = {
         "dir": os.path.basename(expdir),
         "instr_names_seen": collections.Counter(),
@@ -628,12 +636,13 @@ def index_experiment(expdir, spec, verbose=False):
                         except Exception:
                             meta["parse_failures"] += 1
                             continue
+                        C, K = (cells, ctrl) if in_raw else (dcells, dctrl)
                         if isinstance(rec, list):
                             for rr in rec:
-                                ix.handle(rr, cells, ctrl, meta, (rel, ln), run,
+                                ix.handle(rr, C, K, meta, (rel, ln), run,
                                           target, in_raw)
                         else:
-                            ix.handle(rec, cells, ctrl, meta, (rel, ln), run,
+                            ix.handle(rec, C, K, meta, (rel, ln), run,
                                       target, in_raw)
             else:
                 with open(p, errors="replace") as fh:
@@ -642,8 +651,8 @@ def index_experiment(expdir, spec, verbose=False):
                     except Exception:
                         meta["parse_failures"] += 1
                         continue
-                _walk_json(doc, ix, cells, ctrl, meta, rel, run, target,
-                           in_raw=in_raw)
+                C, K = (cells, ctrl) if in_raw else (dcells, dctrl)
+                _walk_json(doc, ix, C, K, meta, rel, run, target, in_raw=in_raw)
         except (OSError, UnicodeDecodeError, RecursionError):
             meta["parse_failures"] += 1
             continue
@@ -675,6 +684,10 @@ def index_experiment(expdir, spec, verbose=False):
         },
         "cells": {"%s.%s" % (m, f): _finish(c) for (m, f), c in cells.items()},
         "controls": {"%s.%s" % (m, f): _finish(c) for (m, f), c in ctrl.items()},
+        "derived_cells": {"%s.%s" % (m, f): _finish(c)
+                          for (m, f), c in dcells.items()},
+        "derived_controls": {"%s.%s" % (m, f): _finish(c)
+                             for (m, f), c in dctrl.items()},
     }
     return out
 
@@ -819,9 +832,10 @@ def build(only=None, verbose=True, force=False):
         built += 1
         if verbose:
             m = doc["_meta"]
-            print("  [%3d/%3d] %-46s cells=%-5d ctrl=%-4d rec_files=%-5d "
-                  "nonrec=%-5d targets=%s"
-                  % (i, len(dirs), d, len(doc["cells"]), len(doc["controls"]),
+            print("  [%3d/%3d] %-46s raw_cells=%-5d derived=%-5d ctrl=%-4d "
+                  "rec_files=%-5d nonrec=%-5d targets=%s"
+                  % (i, len(dirs), d, len(doc["cells"]),
+                     len(doc["derived_cells"]), len(doc["controls"]),
                      m["record_files"], m["nonrecord_files"],
                      ",".join(m["targets"]) or "-"))
             sys.stdout.flush()

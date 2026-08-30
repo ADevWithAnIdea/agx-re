@@ -1,0 +1,358 @@
+{
+ "experiment": "EXP-0199-g17p-instruction-level",
+ "title": "The five field-complete instructions blocked at the INSTRUCTION level",
+ "target": {
+  "name": "A18 Pro / G17P",
+  "host": "192.168.170.254",
+  "soc": "T8140",
+  "accelerator": "AGXAcceleratorG17P",
+  "cores": 5,
+  "os": "macOS 26.6",
+  "kernel": "Darwin 25.6.0 xnu-12377.160.70.501.6~2 RELEASE_ARM64_T8140",
+  "clang": "Apple clang 21.0.0",
+  "python": "3.9.6",
+  "metal": "Metal 4"
+ },
+ "clean_room": {
+  "category": "OWN-SHADER + HW-PROBE",
+  "apple_binary_introspection": "NONE",
+  "inputs": "kernels/*.metal authored by us; AGX bytes produced from them by the public Metal runtime"
+ },
+ "process": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md gates A-E via AMENDMENT-01",
+ "gated_confirmation": [
+  "raw/g17p_conf01 (shuffled)",
+  "raw/g17p_conf04 (reversed)"
+ ],
+ "discovery": [
+  "raw/g17p_run01a",
+  "raw/g17p_run01b",
+  "raw/g17p_run01c",
+  "raw/g17p_run02a",
+  "raw/g17p_run02b",
+  "raw/g17p_run02c"
+ ],
+ "retained_partials": [
+  "raw/smoke01",
+  "raw/g17p_confsmoke",
+  "raw/g17p_conf02",
+  "raw/g17p_conf03",
+  "raw/prefreeze"
+ ],
+ "repo_revision_at_preregistration": "ff747ca3a2a526a8f96360846f1eeaed3fa26821",
+ "generated_utc": "2026-08-30T19:51:26Z",
+ "artifacts": {
+  "CAPTURE_CONTRACT.json": {
+   "bytes": 7521,
+   "sha256": "cce612c9934ce82c457ce5307ab462d635115a41c55159022444a34cf68d5f2e"
+  },
+  "run.py": {
+   "bytes": 20576,
+   "sha256": "29db0874045f5e49e0d87c262c726afa30f1be5c90a00014d386d5dee707d41a"
+  },
+  "AMENDMENT-01.md": {
+   "bytes": 11283,
+   "sha256": "1ff668efb3a15615f98b1aaf985b28d4dc269456c42ef1e0bf3a36e1efe3dc00"
+  },
+  "conf.py": {
+   "bytes": 18409,
+   "sha256": "7c881ffe74237aa899953c5e02cdd99a77e2c0f4f5fd0015a803eb9aed5b0dc6"
+  },
+  "PROGRESS.md": {
+   "bytes": 7438,
+   "sha256": "da52a123f61429c9625926dadf1b16f0e1d661110f932466a0ac17c728d8a43d"
+  },
+  "README.md": {
+   "bytes": 5069,
+   "sha256": "fe47b9014c0151651f9588dccfe096d5ba9b88c09450a875675073a4e2e05da1"
+  },
+  "RESULTS.md": {
+   "bytes": 21070,
+   "sha256": "eb087d42f343f5b3942ce13be15fbfef09a61b4b1fd4768fabc13d705aaf2686"
+  },
+  "PRE_REGISTRATION.md": {
+   "bytes": 10281,
+   "sha256": "12fc285a384125552f0c66f15c7d5939dd8f408e8620f4cbedde9c67635aefa3"
+  },
+  "manifest.json": {
+   "bytes": 11887,
+   "sha256": "cfc810f417aa2d4add9500691abe9fef2ee9102c931d8012d13ea5eacba13917"
+  },
+  "CAPTURE_CONTRACT-AMENDMENT-01.json": {
+   "bytes": 12306,
+   "sha256": "7b1ea381dc2598d4184129f69982c8e2a6e395f25d27f4dfbefeefbf7fd47f8a"
+  },
+  "kernels/k_line.metal": {
+   "bytes": 1988,
+   "sha256": "cb669f6fde7abe924583e60eed4d76c96efc0748854c3b9d3ad2320a993c3fad"
+  },
+  "kernels/c_vary4.metal": {
+   "bytes": 1404,
+   "sha256": "058c3f61307ff13ecb144272bca148ac0f9055fc358f55afcad5b1343f0e741f"
+  },
+  "kernels/c_depth.metal": {
+   "bytes": 1535,
+   "sha256": "717855ea9965977bdee33578c540c31f4b0625388b5256e1328b1e3ad8439075"
+  },
+  "kernels/c_depth2.metal": {
+   "bytes": 1660,
+   "sha256": "85340aa8a6efffada064f037cd85d22f5b4772b33bef0506e00afaf6b4379ff0"
+  },
+  "kernels/k_sin.metal": {
+   "bytes": 686,
+   "sha256": "63b7b8dcd95c09ab40821103878ce2495f4b457a7b4a9db927afc34375eb725f"
+  },
+  "kernels/k_line2.metal": {
+   "bytes": 1069,
+   "sha256": "3090e2f6fe9534f56806e2ff87cd9434a7375a3bc020903291dd4f4ccc77292d"
+  },
+  "kernels/k_line4.metal": {
+   "bytes": 1063,
+   "sha256": "0eccd8d8b516a105d329f44136f7363a5adc96e6b1a610e10e67caaaea84c330"
+  },
+  "kernels/k_line3.metal": {
+   "bytes": 1091,
+   "sha256": "2d4d82d7a1af0ed8ada249336c6f549a7a2605c822f808a760808af964a47f8c"
+  },
+  "analysis/predictor.py": {
+   "bytes": 15085,
+   "sha256": "42d228e7aa19d861b09bbcdffe037d283cf67d58bc8a2c44aaa351645f700b27"
+  },
+  "analysis/predictions_g17p_confsmoke.json": {
+   "bytes": 473536,
+   "sha256": "4ba6392e17724683e04717a4d4601a0a3db48acb6175c1a45f37ad65abfa9605"
+  },
+  "analysis/predictions_g17p_conf01.json": {
+   "bytes": 473536,
+   "sha256": "4ba6392e17724683e04717a4d4601a0a3db48acb6175c1a45f37ad65abfa9605"
+  },
+  "analysis/field_verdicts.json": {
+   "bytes": 40792,
+   "sha256": "c845eb37012559137908530c7415c63e74d3ed31bf8f5be7c89d6909bd61a5b5"
+  },
+  "analysis/gate_report.json": {
+   "bytes": 38585,
+   "sha256": "08f7ffba8a8b28ddd6e5224cc39fb057c9267e8e5bb1615e6ec728908cc98992"
+  },
+  "analysis/gates.py": {
+   "bytes": 6206,
+   "sha256": "594df8fe1bc46cad6dafe86d2893ee28cec82efe45ce380b2bfc35fc70eeb220"
+  },
+  "analysis/predictions_g17p_conf04.json": {
+   "bytes": 473536,
+   "sha256": "3a905089dc7481232de390ff33cfc2e33b0551acb54b7af246456b6e8e63f840"
+  },
+  "analysis/verdicts.py": {
+   "bytes": 4987,
+   "sha256": "ab7de368d3fdd16ad107d9d08b0cfb4e6c7431025312657921bcfd5366cc848a"
+  },
+  "analysis/tok.py": {
+   "bytes": 1515,
+   "sha256": "665f148688531a41ba421b716f984e54bf3da6e8b6555dc77f39d98cb84ce978"
+  },
+  "analysis/make_verdicts.py": {
+   "bytes": 26254,
+   "sha256": "2efa05da74b2356e0f8540d07ee0fdfb846d40fa0e9d383fe22e9585d69148c8"
+  },
+  "analysis/predictions_g17p_conf02.json": {
+   "bytes": 473536,
+   "sha256": "3a905089dc7481232de390ff33cfc2e33b0551acb54b7af246456b6e8e63f840"
+  },
+  "analysis/predictions_g17p_conf03.json": {
+   "bytes": 473536,
+   "sha256": "3a905089dc7481232de390ff33cfc2e33b0551acb54b7af246456b6e8e63f840"
+  },
+  "harness/crun199.m": {
+   "bytes": 14798,
+   "sha256": "b4089cd7753b3a367d8ca4618be8a2c09d83e0ad45f3b2b8bdbb9b20d79dfecf"
+  },
+  "harness/gfrun5.m": {
+   "bytes": 48261,
+   "sha256": "bed2619701e3e649b55aedf34c4bf47bfd9e4a892d30a010c14c6a64e600552c"
+  },
+  "harness/runner199.py": {
+   "bytes": 12713,
+   "sha256": "d54f518f91a035841019bb5d03fef6bb2ca62e83ef229c917e837ed335a36b4c"
+  },
+  "harness/cases199.py": {
+   "bytes": 1691,
+   "sha256": "a21b3c5b3c16f0d7e2938d00db189867ffdf59ce6c4b9d952371ea595d71d53d"
+  },
+  "raw/g17p_confsmoke/sweep.jsonl": {
+   "bytes": 536963,
+   "sha256": "915fbe7193a003a6d38a495710a5b23fecdfa0eef3e494e91ced5400e6d8ac19"
+  },
+  "raw/g17p_confsmoke/concurrency.jsonl": {
+   "bytes": 2466,
+   "sha256": "6442581c3039d67717326820811cdcba1bec6f22462da7dd0058beb47f38a41d"
+  },
+  "raw/g17p_confsmoke/00_inputs.json": {
+   "bytes": 992,
+   "sha256": "e78bf21154b94d66de439d2b3f514e17380f94c7cef3742eb5ad19f0234edb73"
+  },
+  "raw/g17p_conf04/sweep.jsonl": {
+   "bytes": 5651905,
+   "sha256": "80e1a0417ce265de9554a51cb0068140e05232c569f6f1b90325674321316bb1"
+  },
+  "raw/g17p_conf04/concurrency.jsonl": {
+   "bytes": 8797,
+   "sha256": "67bb11abb19fc475cc3af6f96b7d23f12402650fde999e22f7457cb71b54c18c"
+  },
+  "raw/g17p_conf04/00_inputs.json": {
+   "bytes": 989,
+   "sha256": "18c6da79b7f54b95110fb8342654433a153f8a7990b8cdac332322e8ea4a0109"
+  },
+  "raw/g17p_conf04/05_run_manifest.json": {
+   "bytes": 129,
+   "sha256": "4e2c2834fb277614e5277901d47ac6433bea375e09a86cf01f2e7e78c40252ac"
+  },
+  "raw/g17p_conf03/sweep.jsonl": {
+   "bytes": 692,
+   "sha256": "e561c00160b6db5daaf01ce969c8d803ef7325dcb6dea4ff774608cef3d11d6b"
+  },
+  "raw/g17p_conf03/concurrency.jsonl": {
+   "bytes": 272,
+   "sha256": "424fe9443aaf9f6ba2ed46b5193714ebc0dbfc8dc701eae7024501d953ad4433"
+  },
+  "raw/g17p_conf03/00_inputs.json": {
+   "bytes": 989,
+   "sha256": "5199fa36fdf3ab2a53f0c36a2113b49f8e2f3a0200258b47e600b2bdcd02295d"
+  },
+  "raw/g17p_conf02/sweep.jsonl": {
+   "bytes": 17574,
+   "sha256": "8f745b5a7ff788960d3c2a0e6b1fae533a170798469438943adfded465df3316"
+  },
+  "raw/g17p_conf02/concurrency.jsonl": {
+   "bytes": 1184,
+   "sha256": "51b29d3417c6da4c3c76c68eaf3c43b9e587e1096afb5eb1f622ad2d36a7cc64"
+  },
+  "raw/g17p_conf02/00_inputs.json": {
+   "bytes": 989,
+   "sha256": "7489e691f25d6be4fa9aef55237a70e1a2f36bd9d9860d437924db52d8bf5154"
+  },
+  "raw/g17p_run01b/sweep.jsonl": {
+   "bytes": 395539,
+   "sha256": "8fc29ef2bf346a0802062f9034e68f0a7018b96dbb4004ebe68275b7f4cf443f"
+  },
+  "raw/g17p_run01b/00_inputs.json": {
+   "bytes": 582,
+   "sha256": "51176011da314e249171162ffd4c4d4ace1be12c827b01566711b24d3a7147b1"
+  },
+  "raw/g17p_run01b/05_run_manifest.json": {
+   "bytes": 107,
+   "sha256": "167d0d279fc19a9a158f64eb1bab8663ba614441bf632f14408273ca6b0e7795"
+  },
+  "raw/g17p_run02c/sweep.jsonl": {
+   "bytes": 1031513,
+   "sha256": "95ab2c8c18f34535342c53c07f8999179057a6486692a186da60a7bd26ef473d"
+  },
+  "raw/g17p_run02c/00_inputs.json": {
+   "bytes": 589,
+   "sha256": "14e3e66923f2795c89034aee10ed77a54044c0b0d46e340293645f8238509a47"
+  },
+  "raw/g17p_run02c/05_run_manifest.json": {
+   "bytes": 108,
+   "sha256": "3e56f68b7b1cd2db76c3b9be8ff768e5d895d496c24c167797990dc77e1d806d"
+  },
+  "raw/g17p_run02b/sweep.jsonl": {
+   "bytes": 395523,
+   "sha256": "6e985f2e841cd12f0e71f5853bb5bbe35ac9d05d6c791c7e8bf2fd4991af1229"
+  },
+  "raw/g17p_run02b/00_inputs.json": {
+   "bytes": 582,
+   "sha256": "9b8b19ba5f922a80492ca69bf1c48389d3d69ee75cc96a6a89eb70104a215943"
+  },
+  "raw/g17p_run02b/05_run_manifest.json": {
+   "bytes": 106,
+   "sha256": "0ea45c38c0654b0135bc52b32fe9fbe88ddebaeca4d63ab3575ead2698c60043"
+  },
+  "raw/g17p_run01c/sweep.jsonl": {
+   "bytes": 1031959,
+   "sha256": "c36c79c2bbdd929f66087f5f055d910820e81560f2dec4a3b10b6805cd67d7d2"
+  },
+  "raw/g17p_run01c/00_inputs.json": {
+   "bytes": 589,
+   "sha256": "25a85c908581be8c0ebe895f091435fcfe68ae09e857cb3e659b9b80571c0252"
+  },
+  "raw/g17p_run01c/05_run_manifest.json": {
+   "bytes": 107,
+   "sha256": "1cee1190ec183b66a6ca249b7454dc0d96d8a7bcc120556753ec232a61544cec"
+  },
+  "raw/smoke01/sweep.jsonl": {
+   "bytes": 97637,
+   "sha256": "deff4d97cb6a108f0f344d8b1e24def926d6222d4166c465af9a288da863ef3e"
+  },
+  "raw/smoke01/00_inputs.json": {
+   "bytes": 578,
+   "sha256": "d1a5faa35a33d0726d0685141b0cb90eab1473944349b96bb67973b84c6d62c6"
+  },
+  "raw/prefreeze/pilot.py": {
+   "bytes": 5158,
+   "sha256": "a42421033eeedeafe681e6dfa96c1c8307a74fe8184b3fec434da457588edcfd"
+  },
+  "raw/prefreeze/pilot01_baselines.json": {
+   "bytes": 2384,
+   "sha256": "13106c9978b9c666e6a1e2457768a4df7381df78ee8aaa90cc5fab08a98443ee"
+  },
+  "raw/prefreeze/pilot3.py": {
+   "bytes": 4292,
+   "sha256": "11a72690d5f8800b1ababe6b3d8e07a45d510b360c483b1069300fbc7d9858f5"
+  },
+  "raw/prefreeze/carriers_located.json": {
+   "bytes": 3111,
+   "sha256": "d2f0b5a0eb82f9ba28c96fe30082853a63419954f25a1aa0288e143638d94483"
+  },
+  "raw/prefreeze/pilot03_4byte_and_n2op6.json": {
+   "bytes": 4442,
+   "sha256": "c533f43a90a675957c0297b226a0151e0269e3fb24290357bec7f2d10b0c8734"
+  },
+  "raw/prefreeze/pilot2.py": {
+   "bytes": 5651,
+   "sha256": "ca4fea93db1757c432c8afe35d445dfb43bd2c6679999412cfd4731a9120f400"
+  },
+  "raw/prefreeze/pilot02_insertion_and_spot.json": {
+   "bytes": 7225,
+   "sha256": "74aca351022329e667e23e6298b40d19e92739c7062cd457e11969e2f455f912"
+  },
+  "raw/g17p_conf01/sweep.jsonl": {
+   "bytes": 5649446,
+   "sha256": "6ddf97d54ea40ba222932572dac32f228cfd98e16dc3144ac588c2cf11176984"
+  },
+  "raw/g17p_conf01/concurrency.jsonl": {
+   "bytes": 5016,
+   "sha256": "de9c642b2eb10c55f34188c37696d12106e705f56caa62107d81e6c5a8f19a12"
+  },
+  "raw/g17p_conf01/00_inputs.json": {
+   "bytes": 989,
+   "sha256": "4a316157f9ea81c8f7c48df78dc5d715d8bbf6b6896f795f067364b6bd81654c"
+  },
+  "raw/g17p_conf01/05_run_manifest.json": {
+   "bytes": 129,
+   "sha256": "855165a5d06833b8a2a4eef1011b48a620b51718594a7ef020036f06768199d4"
+  },
+  "raw/g17p_run01a/sweep.jsonl": {
+   "bytes": 1004361,
+   "sha256": "4ce8b8ddc05c768ef5201627412415da907d48290e4df4a27bf60577a189a6d1"
+  },
+  "raw/g17p_run01a/00_inputs.json": {
+   "bytes": 589,
+   "sha256": "a9eb5c4d8cebf543eac36a3dfdff6a6ec5bf4c943b71902cbc3eebc8e5529802"
+  },
+  "raw/g17p_run01a/05_run_manifest.json": {
+   "bytes": 107,
+   "sha256": "cab0e2c9d397a85d4e75bfd0b9e1715965e1150b7e631a900870939e9307636e"
+  },
+  "raw/g17p_run02a/sweep.jsonl": {
+   "bytes": 1008045,
+   "sha256": "dc76b60f1cad5650bde324f9c714831601943c3bd68b0abd2c2489f1dcb631be"
+  },
+  "raw/g17p_run02a/00_inputs.json": {
+   "bytes": 589,
+   "sha256": "6b048ebcd2219c11cd836ac839aeab1a714f644d255fd566778e186d5d58a336"
+  },
+  "raw/g17p_run02a/05_run_manifest.json": {
+   "bytes": 108,
+   "sha256": "eb604d26f5540f5bc5d8cf223fd439f83174bc329307629a6aec717ccf3893f3"
+  }
+ },
+ "gate_E": "NOT MET -- held for a serialized quiet confirmation run (orchestrator ruling)"
+}

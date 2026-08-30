@@ -1,85 +1,5 @@
 {
- "_experiment": "EXP-0204",
- "_gate_D_note": "Gate D (generated compiler recipe) was NOT ATTEMPTED in this experiment.  Every arm splices one field of a compiler-emitted occurrence, which is a liveness/semantics instrument, not a generation proof.  No instruction here is claimed emittable.",
- "_gate_selftest": "passed: promotes (moved=1,disagree=0); refuses (moved=0); refuses (moved=1,disagree=1)",
- "_runs_discovery_not_gated": {
-  "g17p_20260830_run01": {
-   "busy_samples": 18,
-   "foreign_process_names": {
-    "Python": 63,
-    "agxrun_persist": 27,
-    "agxrun_persist_as": 11,
-    "bash": 28,
-    "gfrun5": 16,
-    "zsh": 12
-   },
-   "max_concurrent_foreign_procs": 15,
-   "quiet": false,
-   "samples": 19,
-   "why": "ran under the ORIGINAL sec.8 gate: no actual-byte ledger, no semantic oracle, busy machine, killed by an SSH hang-up at 404 cases. Retained as evidence, excluded from every gate (sec.9: nothing captured is discarded, but it is not topped up or reused)."
-  }
- },
- "_runs_gated": {
-  "g17p_20260830_A2run01": {
-   "busy_samples": 7,
-   "foreign_process_names": {
-    "Python": 27,
-    "agxrun_persist": 15,
-    "agxrun_persist_as": 5,
-    "bash": 15,
-    "gfrun5": 11,
-    "sh": 7
-   },
-   "max_concurrent_foreign_procs": 17,
-   "quiet": false,
-   "samples": 7
-  },
-  "g17p_20260830_A2run02": {
-   "busy_samples": 2,
-   "foreign_process_names": {
-    "Python": 4,
-    "agxrun_persist": 4,
-    "bash": 2,
-    "gfrun5": 6,
-    "sh": 2,
-    "shdump": 1
-   },
-   "max_concurrent_foreign_procs": 10,
-   "quiet": false,
-   "samples": 2
-  },
-  "g17p_20260830_A2run03_derivmapping": {
-   "busy_samples": 16,
-   "foreign_process_names": {
-    "Python": 32,
-    "agxrun_persist": 47,
-    "bash": 32,
-    "gfrun5": 10,
-    "rendersweep207": 13,
-    "sh": 16
-   },
-   "max_concurrent_foreign_procs": 11,
-   "quiet": false,
-   "samples": 16
-  },
-  "g17p_20260830_A2run04_derivmapping": {
-   "busy_samples": 10,
-   "foreign_process_names": {
-    "Python": 20,
-    "agxrun_persist": 27,
-    "bash": 20,
-    "gfrun5": 30,
-    "rendersweep207": 8,
-    "sh": 10
-   },
-   "max_concurrent_foreign_procs": 13,
-   "quiet": false,
-   "samples": 10
-  }
- },
- "_spec": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; gates frozen in PRE_REGISTRATION sec.15",
- "_target": "G17P (Apple A18 Pro, applegpu_g17p) -- DIRECT, not INFERRED",
- "arms": {
+ "_arms": {
   "tex_deriv.dstsrc@tex_deriv@deriv/0": {
    "baseline_field_value": 201812,
    "baseline_host_oracle": {
@@ -103,10 +23,12 @@
    "distinct_valid_payloads": 4,
    "gate_A_ledger": {
     "cases_ok": 110,
-    "cases_with_ledger": 112,
+    "cases_with_ledger": 110,
     "distinct_actual_encodings": 57,
     "distinct_requested_values": 65,
-    "passed": false
+    "passed": true,
+    "requested_bytes_on_disk": "112/112",
+    "unreachable_requested_encodings": 2
    },
    "gate_B_control": {
     "detection_power": true,
@@ -187,10 +109,12 @@
    "distinct_valid_payloads": 3,
    "gate_A_ledger": {
     "cases_ok": 74,
-    "cases_with_ledger": 75,
+    "cases_with_ledger": 74,
     "distinct_actual_encodings": 56,
     "distinct_requested_values": 65,
-    "passed": false
+    "passed": true,
+    "requested_bytes_on_disk": "75/75",
+    "unreachable_requested_encodings": 1
    },
    "gate_B_control": {
     "detection_power": true,
@@ -269,7 +193,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -352,7 +278,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -435,7 +363,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -517,7 +447,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -599,7 +531,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -682,7 +616,9 @@
     "cases_with_ledger": 511,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "511/511",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -765,7 +701,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -848,7 +786,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -929,7 +869,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1011,7 +953,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1094,7 +1038,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1146,7 +1092,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1204,7 +1152,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1262,7 +1212,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1320,7 +1272,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1378,7 +1332,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1435,7 +1391,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1493,7 +1451,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1551,7 +1511,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1609,7 +1571,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1667,7 +1631,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1725,7 +1691,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1783,7 +1751,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1833,7 +1803,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1889,7 +1861,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -1945,7 +1919,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2001,7 +1977,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2057,7 +2035,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2113,7 +2093,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2169,7 +2151,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2225,7 +2209,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2281,7 +2267,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2337,7 +2325,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2393,7 +2383,9 @@
     "cases_with_ledger": 512,
     "distinct_actual_encodings": 256,
     "distinct_requested_values": 256,
-    "passed": true
+    "passed": true,
+    "requested_bytes_on_disk": "512/512",
+    "unreachable_requested_encodings": 0
    },
    "gate_B_control": {
     "detection_power": true,
@@ -2424,7 +2416,7 @@
    ]
   }
  },
- "db_defects": {
+ "_db_defects": {
   "DEF-0204-1": {
    "claim_in_db": "`mode` is modelled as an 8-bit ENUM with {0x00: gather/read/sample_compare, 0x10: filtered sample, 0x20: LOD query}.",
    "consequence": "The enum must not be used as an operation-class selector by an emitter. It also reproduces and extends RT-5's negative ('op+6 0x00/0x10 on a linear sample: filtering does NOT change') from a different direction and with per-value records.",
@@ -2451,285 +2443,367 @@
    "measured": "In the pre-freeze census, the three explicit-level writes of `twmip` differ only in byte+10: 0x00 for `write(c,coord,0)`, 0x10 for level 1 and 0x20 for level 2, with byte+11 (`rsv11`) 0 in all three. db.json calls byte+10 `rsv10` (a `mod` with no semantics) yet EXP-0155 already found it live (240/256 moved)."
   }
  },
- "fields": {
-  "tex_deriv.dstsrc": {
-   "arms": [
-    "tex_deriv.dstsrc@tex_deriv@deriv/0",
-    "tex_deriv.dstsrc@tex_deriv@deriv2/0"
-   ],
-   "axes": {
-    "_pre_registered_semantic_model_refuted": false,
-    "compiler_recipe": "not-generated",
-    "encoding_geometry": "unverified",
-    "liveness": "live",
-    "reproducibility": "auditable",
-    "semantics": "unknown",
-    "target": "G17P-direct"
+ "_experiment": "EXP-0204",
+ "_gate_D_note": "Gate D (generated compiler recipe) was NOT ATTEMPTED in this experiment.  Every arm splices one field of a compiler-emitted occurrence, which is a liveness/semantics instrument, not a generation proof.  No instruction here is claimed emittable.",
+ "_gate_selftest": "passed: promotes (moved=1,disagree=0); refuses (moved=0); refuses (moved=1,disagree=1)",
+ "_runs_discovery_not_gated": {
+  "g17p_20260830_run01": {
+   "busy_samples": 18,
+   "foreign_process_names": {
+    "Python": 63,
+    "agxrun_persist": 27,
+    "agxrun_persist_as": 11,
+    "bash": 28,
+    "gfrun5": 16,
+    "zsh": 12
    },
-   "counts": {
-    "arms": 2,
-    "arms_at_or_above_99pct_agreement": 2,
-    "arms_passing_movement_repro_gate": 2,
-    "arms_where_field_moved": 2,
-    "arms_with_detection_power": 2,
-    "arms_with_dimension_control_moved": 2,
-    "clean_quiet_runs": [],
-    "cross_run_agreement_min": 100.0,
-    "cross_run_common_total": 73,
-    "disagreements_total": 0,
-    "dispatched_values_per_arm": 65,
-    "distinct_bytes": 57,
-    "distinct_requested_values": 65,
-    "distinct_valid_payloads_max": 4,
-    "encodable_values": null,
-    "ledger_cases_ok_over_checked": "184/187",
-    "moved_total": 72,
-    "outcome_totals_run1": {
-     "fault": 7,
-     "foreign": 14,
-     "ledger_mismatch": 2,
-     "ok": 2,
-     "wrong_value": 105
-    },
-    "sem_buckets_total": {
-     "no_model": 130
-    },
-    "sem_checked_total": 0,
-    "sem_correct_total": 0,
-    "sem_model_hit_rate": "0/0"
-   },
-   "dimension": "the packed DESTINATION and SOURCE REGISTER of the quad-difference derivative.  Carriers must differ in register allocation and in which values are live around the op.",
-   "evidence": [
-    "EXP-0204"
-   ],
-   "gates": {
-    "A": false,
-    "B": true,
-    "C": false,
-    "D": false,
-    "E": false
-   },
-   "label": "untested",
-   "note": "",
-   "range": "65 sampled values of 2^24 (boundaries + powers of two + all-ones prefixes + 16 hashed interior) x 2 arms",
-   "start": 16,
-   "target": "G17P",
-   "width": 24
-  },
-  "tex_sample.mode": {
-   "arms": [
-    "tex_sample.mode@tex_sample@msfilt/0",
-    "tex_sample.mode@tex_sample@msfixl/0",
-    "tex_sample.mode@tex_sample@msgath/0",
-    "tex_sample.mode@tex_sample@msread/0",
-    "tex_sample.mode@tex_sample@mscmp/0",
-    "tex_sample.mode@tex_sample@mslodq/0",
-    "tex_sample.mode@tex_sample@msfixl/1",
-    "tex_sample.mode@tex_sample@msread/1",
-    "tex_sample.mode@tex_sample@mscmp/1",
-    "tex_sample.mode@tex_sample@mslodq/1"
-   ],
-   "axes": {
-    "_pre_registered_semantic_model_refuted": true,
-    "compiler_recipe": "not-generated",
-    "encoding_geometry": "ledger-verified",
-    "liveness": "live",
-    "reproducibility": "auditable",
-    "semantics": "hypothesis",
-    "target": "G17P-direct"
-   },
-   "counts": {
-    "arms": 10,
-    "arms_at_or_above_99pct_agreement": 6,
-    "arms_passing_movement_repro_gate": 6,
-    "arms_where_field_moved": 10,
-    "arms_with_detection_power": 10,
-    "arms_with_dimension_control_moved": 10,
-    "clean_quiet_runs": [],
-    "cross_run_agreement_min": 40.23,
-    "cross_run_common_total": 2559,
-    "disagreements_total": 313,
-    "dispatched_values_per_arm": 256,
-    "distinct_bytes": 256,
-    "distinct_requested_values": 256,
-    "distinct_valid_payloads_max": 13,
-    "encodable_values": 256,
-    "ledger_cases_ok_over_checked": "5119/5119",
-    "moved_total": 1763,
-    "outcome_totals_run1": {
-     "foreign": 1,
-     "ok": 514,
-     "wrong_value": 2045
-    },
-    "sem_buckets_total": {
-     "coherent_other": 1053,
-     "contaminated": 1,
-     "correct": 1,
-     "silent_zero": 927,
-     "unchanged": 514,
-     "unmodelled": 64
-    },
-    "sem_checked_total": 30,
-    "sem_correct_total": 1,
-    "sem_model_hit_rate": "1/30"
-   },
-   "dimension": "the SAMPLE-OPERATION CLASS: filtered sample (0x10) vs gather/read/sample_compare (0x00) vs LOD query (0x20).  Carriers must differ in which class they express, not merely in texture shape.",
-   "evidence": [
-    "EXP-0204"
-   ],
-   "gates": {
-    "A": true,
-    "B": true,
-    "C": true,
-    "D": false,
-    "E": false
-   },
-   "label": "untested",
-   "note": "",
-   "range": "0..255 dense (all 256 values) x 10 arms",
-   "start": 80,
-   "target": "G17P",
-   "width": 8
-  },
-  "tex_write.amode": {
-   "arms": [
-    "tex_write.amode@tex_write@twmip/0",
-    "tex_write.amode@tex_write@twbuf/0",
-    "tex_write.amode@tex_write@twcube/0",
-    "tex_write.amode@tex_write@twcomp/0",
-    "tex_write.amode@tex_write@twdyn/0",
-    "tex_write.amode@tex_write@twbuf/3",
-    "tex_write.amode@tex_write@twcube/2",
-    "tex_write.amode@tex_write@twmip/1",
-    "tex_write.amode@tex_write@twbuf/1",
-    "tex_write.amode@tex_write@twcube/1",
-    "tex_write.amode@tex_write@twcomp/1",
-    "tex_write.amode@tex_write@twdyn/1"
-   ],
-   "axes": {
-    "_pre_registered_semantic_model_refuted": false,
-    "compiler_recipe": "not-generated",
-    "encoding_geometry": "ledger-verified",
-    "liveness": "accepted-inert",
-    "reproducibility": "auditable",
-    "semantics": "bounded-map",
-    "target": "G17P-direct"
-   },
-   "counts": {
-    "arms": 12,
-    "arms_at_or_above_99pct_agreement": 12,
-    "arms_passing_movement_repro_gate": 0,
-    "arms_where_field_moved": 0,
-    "arms_with_detection_power": 12,
-    "arms_with_dimension_control_moved": 12,
-    "clean_quiet_runs": [],
-    "cross_run_agreement_min": 99.61,
-    "cross_run_common_total": 3072,
-    "disagreements_total": 1,
-    "dispatched_values_per_arm": 256,
-    "distinct_bytes": 256,
-    "distinct_requested_values": 256,
-    "distinct_valid_payloads_max": 1,
-    "encodable_values": 256,
-    "ledger_cases_ok_over_checked": "6144/6144",
-    "moved_total": 0,
-    "outcome_totals_run1": {
-     "ok": 3072
-    },
-    "sem_buckets_total": {
-     "correct_all_writes_landed": 3072
-    },
-    "sem_checked_total": 3072,
-    "sem_correct_total": 3072,
-    "sem_model_hit_rate": "3072/3072"
-   },
-   "dimension": "the ADDRESS FORM / OPERAND SOURCING of the texture store -- the same byte position and the same 0x54/0x56/0x44/0x64 vocabulary as device_load.addr_mode / device_store.addr_mode.  Carriers must differ in how the destination address is formed (constant vs register, implicit vs explicit level, 2D vs cube vs linear buffer) or in how the store data reaches the op (ALU-computed vs direct live load result).",
-   "evidence": [
-    "EXP-0204"
-   ],
-   "gates": {
-    "A": true,
-    "B": true,
-    "C": true,
-    "D": false,
-    "E": false
-   },
-   "label": "untested",
-   "note": "",
-   "range": "0..255 dense (all 256 values) x 12 arms",
-   "start": 16,
-   "target": "G17P",
-   "width": 8
-  },
-  "tex_write.rsv11": {
-   "arms": [
-    "tex_write.rsv11@tex_write@twmip/0",
-    "tex_write.rsv11@tex_write@twbuf/0",
-    "tex_write.rsv11@tex_write@twcube/0",
-    "tex_write.rsv11@tex_write@twcomp/0",
-    "tex_write.rsv11@tex_write@twdyn/0",
-    "tex_write.rsv11@tex_write@twbuf/3",
-    "tex_write.rsv11@tex_write@twcube/2",
-    "tex_write.rsv11@tex_write@twmip/1",
-    "tex_write.rsv11@tex_write@twbuf/1",
-    "tex_write.rsv11@tex_write@twcube/1",
-    "tex_write.rsv11@tex_write@twcomp/1",
-    "tex_write.rsv11@tex_write@twdyn/1"
-   ],
-   "axes": {
-    "_pre_registered_semantic_model_refuted": false,
-    "compiler_recipe": "not-generated",
-    "encoding_geometry": "ledger-verified",
-    "liveness": "accepted-inert",
-    "reproducibility": "auditable",
-    "semantics": "bounded-map",
-    "target": "G17P-direct"
-   },
-   "counts": {
-    "arms": 12,
-    "arms_at_or_above_99pct_agreement": 12,
-    "arms_passing_movement_repro_gate": 0,
-    "arms_where_field_moved": 0,
-    "arms_with_detection_power": 12,
-    "arms_with_dimension_control_moved": 11,
-    "clean_quiet_runs": [],
-    "cross_run_agreement_min": 99.61,
-    "cross_run_common_total": 3072,
-    "disagreements_total": 1,
-    "dispatched_values_per_arm": 256,
-    "distinct_bytes": 256,
-    "distinct_requested_values": 256,
-    "distinct_valid_payloads_max": 1,
-    "encodable_values": 256,
-    "ledger_cases_ok_over_checked": "6144/6144",
-    "moved_total": 0,
-    "outcome_totals_run1": {
-     "ok": 3072
-    },
-    "sem_buckets_total": {
-     "correct_all_writes_landed": 3072
-    },
-    "sem_checked_total": 3072,
-    "sem_correct_total": 3072,
-    "sem_model_hit_rate": "3072/3072"
-   },
-   "dimension": "the WRITE-DATA FORMAT DESCRIPTOR TAIL, by position the sibling of device_store.st_desc_hi.  Carriers must differ in the component count and width of the data actually written.",
-   "evidence": [
-    "EXP-0204"
-   ],
-   "gates": {
-    "A": true,
-    "B": true,
-    "C": true,
-    "D": false,
-    "E": false
-   },
-   "label": "untested",
-   "note": "",
-   "range": "0..255 dense (all 256 values) x 12 arms",
-   "start": 88,
-   "target": "G17P",
-   "width": 8
+   "max_concurrent_foreign_procs": 15,
+   "quiet": false,
+   "samples": 19,
+   "why": "ran under the ORIGINAL sec.8 gate: no actual-byte ledger, no semantic oracle, busy machine, killed by an SSH hang-up at 404 cases. Retained as evidence, excluded from every gate (sec.9: nothing captured is discarded, but it is not topped up or reused)."
   }
+ },
+ "_runs_gated": {
+  "g17p_20260830_A2run01": {
+   "busy_samples": 7,
+   "foreign_process_names": {
+    "Python": 27,
+    "agxrun_persist": 15,
+    "agxrun_persist_as": 5,
+    "bash": 15,
+    "gfrun5": 11,
+    "sh": 7
+   },
+   "max_concurrent_foreign_procs": 17,
+   "quiet": false,
+   "samples": 7
+  },
+  "g17p_20260830_A2run02": {
+   "busy_samples": 2,
+   "foreign_process_names": {
+    "Python": 4,
+    "agxrun_persist": 4,
+    "bash": 2,
+    "gfrun5": 6,
+    "sh": 2,
+    "shdump": 1
+   },
+   "max_concurrent_foreign_procs": 10,
+   "quiet": false,
+   "samples": 2
+  },
+  "g17p_20260830_A2run03_derivmapping": {
+   "busy_samples": 16,
+   "foreign_process_names": {
+    "Python": 32,
+    "agxrun_persist": 47,
+    "bash": 32,
+    "gfrun5": 10,
+    "rendersweep207": 13,
+    "sh": 16
+   },
+   "max_concurrent_foreign_procs": 11,
+   "quiet": false,
+   "samples": 16
+  },
+  "g17p_20260830_A2run04_derivmapping": {
+   "busy_samples": 10,
+   "foreign_process_names": {
+    "Python": 20,
+    "agxrun_persist": 27,
+    "bash": 20,
+    "gfrun5": 30,
+    "rendersweep207": 8,
+    "sh": 10
+   },
+   "max_concurrent_foreign_procs": 13,
+   "quiet": false,
+   "samples": 10
+  }
+ },
+ "_spec": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; gates frozen in PRE_REGISTRATION sec.15",
+ "_target": "G17P (Apple A18 Pro, applegpu_g17p) -- DIRECT, not INFERRED",
+ "tex_deriv.dstsrc": {
+  "arms": [
+   "tex_deriv.dstsrc@tex_deriv@deriv/0",
+   "tex_deriv.dstsrc@tex_deriv@deriv2/0"
+  ],
+  "axes": {
+   "_pre_registered_semantic_model_refuted": false,
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "ledger-verified",
+   "liveness": "live",
+   "reproducibility": "auditable",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "arms": 2,
+   "arms_at_or_above_99pct_agreement": 2,
+   "arms_passing_movement_repro_gate": 2,
+   "arms_where_field_moved": 2,
+   "arms_with_detection_power": 2,
+   "arms_with_dimension_control_moved": 2,
+   "clean_quiet_runs": [],
+   "cross_run_agreement_min": 100.0,
+   "cross_run_common_total": 73,
+   "disagreements_total": 0,
+   "dispatched_values_per_arm": 65,
+   "distinct_bytes": 57,
+   "distinct_requested_values": 65,
+   "distinct_valid_payloads_max": 4,
+   "encodable_values": null,
+   "ledger_cases_ok_over_checked": "184/184",
+   "moved_total": 72,
+   "outcome_totals_run1": {
+    "fault": 7,
+    "foreign": 14,
+    "ledger_mismatch": 2,
+    "ok": 2,
+    "wrong_value": 105
+   },
+   "sem_buckets_total": {
+    "no_model": 130
+   },
+   "sem_checked_total": 0,
+   "sem_correct_total": 0,
+   "sem_model_hit_rate": "0/0",
+   "unreachable_requested_encodings": 3
+  },
+  "dimension": "the packed DESTINATION and SOURCE REGISTER of the quad-difference derivative.  Carriers must differ in register allocation and in which values are live around the op.",
+  "evidence": [
+   "EXP-0204"
+  ],
+  "gates": {
+   "A": true,
+   "B": true,
+   "C": false,
+   "D": false,
+   "E": false
+  },
+  "label": "untested",
+  "note": "LIVE; ROLE UNKNOWN -- and that ceiling was stated in advance, not discovered afterwards. NO semantic model was pre-registered (the deriv carriers are deliberately AFFINE, which is what makes each derivative exactly host-computable but also, per sec.5 Phase 3, makes many candidate operations indistinguishable), so sem_checked = 0 and sec.2 makes `hardware-run` unreachable here. What the named debt asked for IS answered on the liveness axis: on the values comparable in both gated runs, dispatched in OPPOSITE case order, the per-value partition agrees 73/73 with 72 moving -- EXP-0189's `UNSTABLE` is explained. The reason it looked unstable is now mapped: the declared hang-tolerant MAPPING PASS (budget 8, not 2) swept 65/65 values and showed the hazard is a FAMILY, not the two isolated values EXP-0172's budget could reach: pooled over every arm and run the reproduced fault/hang set is 0x03FFFF, 0x07FFFF, 0x0FFFFF, 0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFE, 0xFFFFFF -- every all-ones prefix from 2^18-1 upward plus max-1 and max -- plus the isolated 0xFBEEE7. The device survived all of them: no wedge, no reboot. Gate A additionally found that three requested encodings (e.g. dstsrc=0x80 on deriv2/0) are written to disk exactly as asked but decode as NO descriptor -- an encoding-geometry fact no prior experiment could see. Gate E NOT met: both runs were on a busy machine.",
+  "range": "65 sampled values of 2^24 (boundaries + powers of two + all-ones prefixes + 16 hashed interior) x 2 arms",
+  "start": 16,
+  "target": "G17P",
+  "width": 24
+ },
+ "tex_sample.mode": {
+  "arms": [
+   "tex_sample.mode@tex_sample@msfilt/0",
+   "tex_sample.mode@tex_sample@msfixl/0",
+   "tex_sample.mode@tex_sample@msgath/0",
+   "tex_sample.mode@tex_sample@msread/0",
+   "tex_sample.mode@tex_sample@mscmp/0",
+   "tex_sample.mode@tex_sample@mslodq/0",
+   "tex_sample.mode@tex_sample@msfixl/1",
+   "tex_sample.mode@tex_sample@msread/1",
+   "tex_sample.mode@tex_sample@mscmp/1",
+   "tex_sample.mode@tex_sample@mslodq/1"
+  ],
+  "axes": {
+   "_pre_registered_semantic_model_refuted": true,
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "ledger-verified",
+   "liveness": "live",
+   "reproducibility": "auditable",
+   "semantics": "hypothesis",
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "arms": 10,
+   "arms_at_or_above_99pct_agreement": 6,
+   "arms_passing_movement_repro_gate": 6,
+   "arms_where_field_moved": 10,
+   "arms_with_detection_power": 10,
+   "arms_with_dimension_control_moved": 10,
+   "clean_quiet_runs": [],
+   "cross_run_agreement_min": 40.23,
+   "cross_run_common_total": 2559,
+   "disagreements_total": 313,
+   "dispatched_values_per_arm": 256,
+   "distinct_bytes": 256,
+   "distinct_requested_values": 256,
+   "distinct_valid_payloads_max": 13,
+   "encodable_values": 256,
+   "ledger_cases_ok_over_checked": "5119/5119",
+   "moved_total": 1763,
+   "outcome_totals_run1": {
+    "foreign": 1,
+    "ok": 514,
+    "wrong_value": 2045
+   },
+   "sem_buckets_total": {
+    "coherent_other": 1053,
+    "contaminated": 1,
+    "correct": 1,
+    "silent_zero": 927,
+    "unchanged": 514,
+    "unmodelled": 64
+   },
+   "sem_checked_total": 30,
+   "sem_correct_total": 1,
+   "sem_model_hit_rate": "1/30",
+   "unreachable_requested_encodings": 0
+  },
+  "dimension": "the SAMPLE-OPERATION CLASS: filtered sample (0x10) vs gather/read/sample_compare (0x00) vs LOD query (0x20).  Carriers must differ in which class they express, not merely in texture shape.",
+  "evidence": [
+   "EXP-0204"
+  ],
+  "gates": {
+   "A": true,
+   "B": true,
+   "C": true,
+   "D": false,
+   "E": false
+  },
+  "label": "untested",
+  "note": "PRE-REGISTERED MODEL REFUTED (1/30). db.json models this byte as an ENUM {0x00 gather/read/sample_compare, 0x10 filtered sample, 0x20 LOD query}; it is a BITFIELD and 0x10 is INERT. Six carriers -- one per operation class, the LOD-query one authored for the first time in this corpus and needing a mipmapped texture -- gave compiler-chosen baselines of 0x10, 0x00 and 0x20, so the carrier set provably spans the dimension. Splicing 0x10<->0x00 across classes leaves the observation BIT-IDENTICAL on every arm. On the six arms whose two gated runs (opposite case order) agree at 256/256, the moved set is described EXACTLY, zero exceptions, by `(mode & 0x2C) != 0` (mscmp/0, mscmp/1, msfilt/0), `(mode & 0x0C) != 0` (msfixl/0, msfixl/1) and `(mode & 0x08) != 0` (msgath/0, 255/256 with 1 InnocentVictim). Read straight from raw and identical in both runs: bit 3 is live on EVERY arm; bit 2 is live exactly where a FILTER is in play (msfilt/msfixl/mscmp) and inert on the unfiltered arms (msgath nearest, msread integer read); bit 5 is live exactly where an IMPLICIT LOD is in play (msfilt/mscmp) and inert where the level is explicit or absent. Bits 0,1,4,6,7 (mask 0xD3) move nothing on any of them. Bit 5 is CONTEXT-DEPENDENT: live under implicit LOD, inert under explicit level(). That bit rule was derived AFTER the sweep, so it is a HYPOTHESIS for a successor to pre-register, not a bounded map. Four arms (msread x2, mslodq x2) are irreproducible (103/256 .. 242/256) and support nothing. Legacy label `untested` is NOT `no evidence` -- see the axes.",
+  "range": "0..255 dense (all 256 values) x 10 arms",
+  "start": 80,
+  "target": "G17P",
+  "width": 8
+ },
+ "tex_write.amode": {
+  "arms": [
+   "tex_write.amode@tex_write@twmip/0",
+   "tex_write.amode@tex_write@twbuf/0",
+   "tex_write.amode@tex_write@twcube/0",
+   "tex_write.amode@tex_write@twcomp/0",
+   "tex_write.amode@tex_write@twdyn/0",
+   "tex_write.amode@tex_write@twbuf/3",
+   "tex_write.amode@tex_write@twcube/2",
+   "tex_write.amode@tex_write@twmip/1",
+   "tex_write.amode@tex_write@twbuf/1",
+   "tex_write.amode@tex_write@twcube/1",
+   "tex_write.amode@tex_write@twcomp/1",
+   "tex_write.amode@tex_write@twdyn/1"
+  ],
+  "axes": {
+   "_pre_registered_semantic_model_refuted": false,
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "ledger-verified",
+   "liveness": "accepted-inert",
+   "reproducibility": "auditable",
+   "semantics": "bounded-map",
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "arms": 12,
+   "arms_at_or_above_99pct_agreement": 12,
+   "arms_passing_movement_repro_gate": 0,
+   "arms_where_field_moved": 0,
+   "arms_with_detection_power": 12,
+   "arms_with_dimension_control_moved": 12,
+   "clean_quiet_runs": [],
+   "cross_run_agreement_min": 99.61,
+   "cross_run_common_total": 3072,
+   "disagreements_total": 1,
+   "dispatched_values_per_arm": 256,
+   "distinct_bytes": 256,
+   "distinct_requested_values": 256,
+   "distinct_valid_payloads_max": 1,
+   "encodable_values": 256,
+   "ledger_cases_ok_over_checked": "6144/6144",
+   "moved_total": 0,
+   "outcome_totals_run1": {
+    "ok": 3072
+   },
+   "sem_buckets_total": {
+    "correct_all_writes_landed": 3072
+   },
+   "sem_checked_total": 3072,
+   "sem_correct_total": 3072,
+   "sem_model_hit_rate": "3072/3072",
+   "unreachable_requested_encodings": 0
+  },
+  "dimension": "the ADDRESS FORM / OPERAND SOURCING of the texture store -- the same byte position and the same 0x54/0x56/0x44/0x64 vocabulary as device_load.addr_mode / device_store.addr_mode.  Carriers must differ in how the destination address is formed (constant vs register, implicit vs explicit level, 2D vs cube vs linear buffer) or in how the store data reaches the op (ALU-computed vs direct live load result).",
+  "evidence": [
+   "EXP-0204"
+  ],
+  "gates": {
+   "A": true,
+   "B": true,
+   "C": true,
+   "D": false,
+   "E": false
+  },
+  "label": "untested",
+  "note": "INERT IN THE TESTED ENVELOPE; GLOBAL ROLE UNKNOWN. This is the third-carrier requirement the prior refusal named (`only 2 distinct carriers with proven detection power, the bar is 3`): EXP-0163's twdim and twtype are ONE carrier in amode's own dimension because every write in both is write(colour, uint2(LITERAL,LITERAL)) at implicit level 0 with amode 0x54. FIVE new carriers with four different ADDRESS FORMS and five different observation paths (explicit mip level, texture_buffer linear 1-D index, cube face, 1-/2-component destinations, register-formed coordinate + a no-ALU contiguous vec4 store) were swept 0..255 dense on 12 arms x 2 gated runs in opposite case order: 0/3072 moved, 3071/3072 cross-run agreement, 6144/6144 ledger-verified, 256 distinct ACTUAL encodings, and a host-computed semantic predictor says the store still landed at the predicted destination with the predicted data at 3072/3072. The census also broke the 0x54 monoculture: the compiler itself emits 0x55 on the LAST write of twbuf and twcube, so two arms have a different baseline. NOT PROMOTED TO A GENERAL INERTNESS RULE: sec.7 also wants interaction coverage (none run) and two CLEAN repetitions (Gate E not met -- every run was on a measurably busy machine). And the surviving alternative explanation is real: db.json's own vocabulary for this byte position distinguishes `terminal/standalone` from `non-terminal of a base-sharing group`, and this harness reads back AFTER command-buffer completion, so it has no ordering observable at all. The prior `unreached, not inert` wording is preserved.",
+  "range": "0..255 dense (all 256 values) x 12 arms",
+  "start": 16,
+  "target": "G17P",
+  "width": 8
+ },
+ "tex_write.rsv11": {
+  "arms": [
+   "tex_write.rsv11@tex_write@twmip/0",
+   "tex_write.rsv11@tex_write@twbuf/0",
+   "tex_write.rsv11@tex_write@twcube/0",
+   "tex_write.rsv11@tex_write@twcomp/0",
+   "tex_write.rsv11@tex_write@twdyn/0",
+   "tex_write.rsv11@tex_write@twbuf/3",
+   "tex_write.rsv11@tex_write@twcube/2",
+   "tex_write.rsv11@tex_write@twmip/1",
+   "tex_write.rsv11@tex_write@twbuf/1",
+   "tex_write.rsv11@tex_write@twcube/1",
+   "tex_write.rsv11@tex_write@twcomp/1",
+   "tex_write.rsv11@tex_write@twdyn/1"
+  ],
+  "axes": {
+   "_pre_registered_semantic_model_refuted": false,
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "ledger-verified",
+   "liveness": "accepted-inert",
+   "reproducibility": "auditable",
+   "semantics": "bounded-map",
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "arms": 12,
+   "arms_at_or_above_99pct_agreement": 12,
+   "arms_passing_movement_repro_gate": 0,
+   "arms_where_field_moved": 0,
+   "arms_with_detection_power": 12,
+   "arms_with_dimension_control_moved": 11,
+   "clean_quiet_runs": [],
+   "cross_run_agreement_min": 99.61,
+   "cross_run_common_total": 3072,
+   "disagreements_total": 1,
+   "dispatched_values_per_arm": 256,
+   "distinct_bytes": 256,
+   "distinct_requested_values": 256,
+   "distinct_valid_payloads_max": 1,
+   "encodable_values": 256,
+   "ledger_cases_ok_over_checked": "6144/6144",
+   "moved_total": 0,
+   "outcome_totals_run1": {
+    "ok": 3072
+   },
+   "sem_buckets_total": {
+    "correct_all_writes_landed": 3072
+   },
+   "sem_checked_total": 3072,
+   "sem_correct_total": 3072,
+   "sem_model_hit_rate": "3072/3072",
+   "unreachable_requested_encodings": 0
+  },
+  "dimension": "the WRITE-DATA FORMAT DESCRIPTOR TAIL, by position the sibling of device_store.st_desc_hi.  Carriers must differ in the component count and width of the data actually written.",
+  "evidence": [
+   "EXP-0204"
+  ],
+  "gates": {
+   "A": true,
+   "B": true,
+   "C": true,
+   "D": false,
+   "E": false
+  },
+  "label": "untested",
+  "note": "INERT IN THE TESTED ENVELOPE; GLOBAL ROLE UNKNOWN. Same 12 arms / 5 carriers / 2 gated runs as amode: 0/3072 moved, 3071/3072 agreement, 6144/6144 ledger-verified, 256 distinct ACTUAL encodings, semantic predictor 3072/3072. byte+11's positional sibling is device_store.st_desc_hi, the store data-format descriptor tail whose neighbour is documented as set only for a NON-4-component store, so this experiment added 1-component R32Float and 2-component RG32Float destinations -- every destination ever swept before was 4-component. The compiler emits rsv11 = 0 on ALL of them, which is a compiler differential against the format hypothesis, not support for it. Same two unmet sec.7 items as amode (interaction coverage, clean repetitions). Reported UNREACHED-and-bounded, not `unused` or `reserved`.",
+  "range": "0..255 dense (all 256 values) x 12 arms",
+  "start": 88,
+  "target": "G17P",
+  "width": 8
  }
 }

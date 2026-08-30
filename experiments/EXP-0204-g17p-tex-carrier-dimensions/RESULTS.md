@@ -19,8 +19,8 @@ Exact numerators and denominators throughout. **No percentage appears without it
 | `tex_sample.mode` | **ledger-verified** 5119/5119 | **live** on 10/10 arms | **hypothesis** — the pre-registered model is **REFUTED** (1/30) and replaced by an exact bit rule | not-generated | G17P-direct | auditable (6/10 arms at 256/256; Gate E not met) | `untested` |
 | `tex_write.amode` | **ledger-verified** 6144/6144 | **accepted-inert in the tested envelope**, 0/3072 moved | **bounded-map** 3072/3072 (the store still landed where and with what the host predicted, at every value) | not-generated | G17P-direct | auditable (12/12 arms ≥ 99 %; Gate E not met) | `untested` |
 | `tex_write.rsv11` | **ledger-verified** 6144/6144 | **accepted-inert in the tested envelope**, 0/3072 moved | **bounded-map** 3072/3072 | not-generated | G17P-direct | auditable (12/12 arms ≥ 99 %; Gate E not met) | `untested` |
-| `tex_deriv.dstsrc` | ledger-verified on the A2 runs | **live** | **unknown** — *no semantic model was pre-registered*, so Gate C caps this field at `live; role unknown` **by design, stated in advance** | not-generated | G17P-direct | see §4 | `untested` |
-| `cubearray_coord_const.b3` | — | — | — | — | — | — | **UNRESOLVED** (§5) |
+| `tex_deriv.dstsrc` | **ledger-verified** 184/184 (+3 requested encodings that decode as no descriptor at all) | **live** — 72 of 73 comparable values move | **unknown** — *no semantic model was pre-registered*, so Gate C caps this field at `live; role unknown` **by design, stated in advance** | not-generated | G17P-direct | auditable (**73/73**, opposite case order; Gate E not met — §3.4) | `untested` |
+| `cubearray_coord_const.b3` | — | — | — | — | — | — | **UNRESOLVED** (§4) |
 
 **`untested` here is not "no evidence".** Under `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` §2,
 `hardware-run` requires semantic checks against an independent predictor and `isolated-byte-diff`
@@ -119,6 +119,25 @@ explicit-`level()` arms**, reproduced at 256/256 on all five. That is a field-de
 (`RE_EXPERIMENT_PROCESS_CORRECTIONS` §5 Phase 4) between `mode` bit 5 and whether the occurrence
 carries an explicit LOD — which is exactly what one would expect if 0x20 selects an LOD-query path
 that an explicit level makes vacuous.
+
+**The three live bits, verified straight from `raw/` and reproduced in both runs:**
+
+| arm (its filter / LOD situation) | `0x00` | `0x10` | `0x04` (bit 2) | `0x08` (bit 3) | `0x20` (bit 5) |
+|---|---|---|---|---|---|
+| `msfilt/0` — linear filter, **implicit** LOD | = baseline | = baseline | **changes** | **changes** | **changes** |
+| `msfixl/0` — linear filter, **explicit** `level()` | = baseline | = baseline | **changes** | **changes** | = baseline |
+| `mscmp/0` — linear PCF compare, implicit LOD | = baseline | = baseline | **changes** | **changes** | **changes** |
+| `msgath/0` — **nearest** gather | = baseline | = baseline | = baseline | **changes** | = baseline |
+| `msread/0` — integer `read`, no sampler | = baseline | = baseline | = baseline | **changes** | = baseline |
+
+Identical in `A2run01` (forward) and `A2run02` (reverse). Read across the rows, the pattern is
+coherent and each bit's liveness tracks a different property of the occurrence:
+
+- **bit 3 (0x08) is live on every arm** — the only unconditionally live bit found;
+- **bit 2 (0x04) is live exactly where a FILTER is in play** (`msfilt`, `msfixl`, `mscmp` all use a
+  linear filter) and inert on the two unfiltered arms (`msgath` nearest, `msread` integer read);
+- **bit 5 (0x20) is live exactly where an IMPLICIT LOD is in play** (`msfilt`, `mscmp`) and inert
+  wherever the level is explicit or absent (`msfixl`, `msgath`, `msread`).
 
 **Status of this rule.** It was derived *after* the sweep, so it is a **hypothesis**, not a
 `bounded-map`: it survived a cross-run reproducibility test in opposite case order but was never
@@ -232,11 +251,20 @@ of 8 instead of 2, and announced in `PROGRESS.md` as a courtesy:
   54/65 and 53/65 moved, **7 genuine device hangs**, 0 cascade, 156 cases, 310 s.
 - The earlier partial `raw/g17p_20260830_run01` also reached **65/65 on `deriv/0`**.
 
-**The hazard is a family, not the two isolated values EXP-0172 could see.** Reproduced fault/hang
-values include `0x3FFFF`, `0x7FFFF`, `0xFFFFF`, `0x1FFFFF`, `0x7FFFFF` — the **all-ones prefixes** —
-plus `0xFBEEE7`. EXP-0172 stopped after the first two. This is precisely
-`FIELD-SWEEP-PROTOCOL` §3(c)'s warning that a per-field budget *"guarantees the region is never
-mapped"*, and the device survived every hang with no wedge and no `macvdmtool`.
+**The hazard is a FAMILY, not the two isolated values EXP-0172 could see.** Pooled over every arm
+and every run in this experiment, the reproduced fault/hang set is:
+
+```
+0x03FFFF  0x07FFFF  0x0FFFFF  0x1FFFFF  0x3FFFFF  0x7FFFFF  0xFFFFFE  0xFFFFFF     plus  0xFBEEE7
+```
+
+— i.e. **every all-ones prefix from 2¹⁸−1 upward, plus max−1 and max**, and one isolated interior
+value. `tex_deriv@deriv/0` and `tex_deriv@deriv2/0` each produced the full eight-value high region;
+`deriv/1` produced seven of them. EXP-0172 stopped after the first two, so it saw an accident where
+there is a **contiguous high region** — the shape one would expect if `dstsrc` packs register
+indices and an all-ones index is out of range. That is exactly `FIELD-SWEEP-PROTOCOL` §3(c)'s
+warning that a per-field budget *"guarantees the region is never mapped"*. **The device survived
+every one of these hangs: no wedge, no `macvdmtool`, no reboot.**
 
 ### 3.3 Gate A caught a real geometry fact
 
@@ -247,7 +275,27 @@ hardware conclusion** — neither movement nor inertness. Part of `dstsrc`'s nom
 not produce a decodable `tex_deriv`. This is exactly what Gate A exists for, and no earlier
 experiment on this field could have seen it.
 
-### 3.4 Ceiling, stated in advance
+### 3.4 The cross-run question the debt was actually about — answered
+
+On the values comparable in **both** gated Amendment-2 runs, dispatched in **opposite case order**:
+
+| arm | cross-run agreement | moved | distinct valid payloads | Gate A ledger | unreachable requested encodings | Gate B |
+|---|---|---|---|---|---|---|
+| `tex_deriv@deriv/0` (EXP-0172's own carrier, MSL unchanged) | **54/54** | 53 | 4 | 110/110 | 2 | pass |
+| `tex_deriv@deriv2/0` (different register allocation) | **19/19** | 19 | 3 | 74/74 | 1 | pass |
+
+**73 of 73 comparable values agree, 0 disagreements**, with 72 of them moving the observation.
+The denominators are smaller than 65 per arm because the hazard family (§3.2) and the three
+unreachable encodings (§3.3) are excluded from the comparison population rather than scored — and
+that is the whole explanation of EXP-0189's `UNSTABLE`: EXP-0172's five disagreeing values were
+`fault` in one run and `InnocentVictim` in the other **at exactly the hazard values**, and its
+budget of 2 meant the hazard was never mapped, so the disagreement could not be attributed. Mapped
+and excluded, the partition is **exactly reproducible**.
+
+**This does not clear Gate E.** Both runs were on a measurably busy machine (§6.1), so this is
+`auditable`, not `independently-confirmed`.
+
+### 3.5 Ceiling, stated in advance
 
 **No semantic model was pre-registered for `dstsrc`**, and `PRE_REGISTRATION` §15.3 says why: the
 `deriv` carriers are deliberately **affine** (which is what makes each derivative constant over the
@@ -304,8 +352,13 @@ Full text with evidence pointers in `analysis/field_verdicts.json → db_defects
 ## 6. Limitations, and the gates that were NOT met
 
 1. **Gate E (clean confirmation) is NOT MET for any field.** `raw/*/procs.jsonl` is a
-   *measurement*, and it says every run was **BUSY**: 0 quiet samples in every run, with EXP-0199,
-   EXP-0200, EXP-0205 and EXP-0206 dispatching throughout. Per the corrections document a
+   *measurement*, and it says every run was **BUSY**: 0 quiet samples in any of the four gated
+   runs (7, 2, 16 and 10 samples; up to **17 concurrent foreign GPU processes**), with EXP-0199,
+   EXP-0200, EXP-0205 and EXP-0206 dispatching throughout. A dedicated quiet-window helper
+   (`harness/quietconfirm.sh`, which fires the confirmation pair only after three consecutive
+   zero-foreign samples and otherwise refuses) was then run for **86 samples** and **never once saw
+   a quiet sample** — the foreign count fell from 17 to 3 but not to 0. Its full log is retained at
+   `raw/quietwindow/quietconfirm.log`. Per the corrections document a
    confirmation run may not rely on a busy machine **at all**, so **nothing here is
    `independently-confirmed`**, and the coordinator's earlier "mark it contaminated" allowance is
    superseded. What *is* true, and is reported as such: the two `tex_sample`/`tex_write` runs were
@@ -340,3 +393,30 @@ Full text with evidence pointers in `analysis/field_verdicts.json → db_defects
    only that can lift it off `live; role unknown`.
 4. **`cubearray_coord_const` is an orchestrator decision**, not a sweep: the descriptor decodes
    correctly standalone but is shadowed by `pad_operand` in context.
+
+---
+
+## 8. `tools/agx-isa/wave_audit.py` — run before reporting, verbatim in `analysis/wave_audit.txt`
+
+The arrival gate was run on this directory. Its own self-test passed, and **none of its three
+warnings fired** on any field:
+
+| check | `tex_sample.mode` | `tex_write.amode` | `tex_write.rsv11` | `tex_deriv.dstsrc` |
+|---|---|---|---|---|
+| records (field-keyed) | 5120 | 6144 | 6144 | 553 |
+| **V (distinct valid payloads)** — `V ≤ 1` would mean INDISTINGUISHABLE | 5120 | 5121 | 5121 | 226 |
+| **distinct oracles** — `≤ 1` would mean a CONSTANT oracle | **12** | **12** | 2 | 6 |
+| **distinct encodings dispatched** vs L legal values — `< L` would mean ALIASED | 2560 vs 256 | 2816 vs 256 | 2816 vs 256 | 325 vs 66 |
+| hard outcomes, counted apart from movement | none | none | none | 46 fault, 4 hang |
+
+**One caveat that matters, and it is the auditor's own arithmetic, not a result.**
+`wave_audit.py` keys records by `(instr, field)` only — it has **no arm dimension** — so when a
+field has several arms it collapses them all onto the same `value` key and the last arm written
+wins. Its `cross-run agreement` line is therefore meaningless for a multi-arm field: it reports
+`0.00% (256/256 disagree)` for `tex_sample.mode`, which is **ten different carriers' observations
+being compared with each other**, not two runs disagreeing. The same pooling inflates `V`. The
+per-arm figures in `analysis/field_verdicts.json → _arms` are the ones that carry the claim:
+six of ten `mode` arms agree at **256/256**, and `tex_write.amode`/`rsv11` agree at **3071/3072**
+across twelve arms. `wave_audit`'s single-arm-per-field cases (`tex_write.amode`, 100.00 %;
+`rsv11`, 99.61 %) do agree with the per-arm computation, which is the cross-check that the
+difference really is pooling.

@@ -76,3 +76,35 @@
   Run in parallel (the machine already carries 9 sibling agents, so serializing
   bought no quiet and cost hours); the reversed order decorrelates any
   order-dependent artefact. Recorded as a Gate E limitation, not hidden.
+- 2026-08-30 ~13:55Z — **run03 COMPLETE: 5,231 cases in 1,107.9 s.** Ledger clean
+  (every case `ledger_ok`). run04 still in flight.
+  NOTE: the sequential launcher (`sh -c "run03; run04"`) tried to start run04 after
+  run03 finished, and `run.py` correctly REFUSED because that id already existed —
+  but the refusal message overwrote `work/run04.log`. The log is not evidence;
+  `raw/g17p_20260830_run04/sweep.jsonl` is untouched and complete-so-far.
+- 2026-08-30 ~14:10Z — first results, all from the gated pair:
+  * `stop.reserved` INERT at both stop positions, 730 gated cases, and the
+    TERMINATION-DIMENSION CONTROL FIRES BOTH WAYS: a synthesized mid-program stop
+    terminates (sentinel + 32 poison words, identical in both runs), and at the
+    FINAL stop byte0 -> 0x0f or 0x8f FAULTS reproducibly on three carriers in both
+    runs while six other byte0 values are harmless. EXP-0003/EXP-0010's "corrupting
+    any of it is a no-op" is thereby BOUNDED, not refuted.
+  * `ret_luse.linkmode`: accepted set is `v & 3 == 2` (64/256), NOT EXP-0156's
+    `v & 7 == 4`; and at the NON-LEAF return bit 4 (0x10) splits the accepted set
+    into 32 correct and 32 different-but-coherent. **TWO DISTINCT VALID PAYLOADS —
+    Case C cleared.**
+  * `pop_reconverge.reserved`: LIVE. At cf_ifnl+184 the 9 values with a zero LOW
+    BYTE are correct and all 43 with a non-zero low byte give one identical wrong
+    payload. db.json's single 16-bit `reserved` field is really two.
+  * `ret.scoreboard`: 1024/1024 correct across four occurrences spanning the
+    ORDERING dimension (nothing outstanding -> load in callee -> store->load across
+    the return -> non-leaf frame). EXP-0179's "this carrier cannot ask the question"
+    is answered.
+  * `if_push.scope`: LIVE at the one occurrence whose compiled value is 0x56
+    (128/128 bit-1-set correct, 0/128 bit-1-clear correct), inert at three others
+    INCLUDING two more `scope_kind == 0x1a` pushes. Both pre-registered models
+    refuted. Cross-run: 122 values common, 122/122 identical.
+- 2026-08-30 ~14:40Z — COURTESY (protocol section 7): run04's
+  `if_push.scope@cf_nl2+106` arm is producing genuine `hang` outcomes (8 s watchdog
+  + child restart) as well as faults on bit-1-clear values. Device resets on
+  192.168.170.254 originate here.

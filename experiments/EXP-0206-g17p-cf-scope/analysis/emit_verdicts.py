@@ -128,12 +128,101 @@ def main():
             "note": "",
         }
 
+    # FIELD-SWEEP-PROTOCOL section 6: "If a sweep shows the modelled boundaries do
+    # not match the hardware -- a `field` that is really two, a live byte db.json
+    # does not expose -- that is a first-class result. Record the corrected model
+    # under `db_defects`. Do NOT edit db.json; the orchestrator owns it."
+    out["db_defects"] = {
+        "MISSING-DESCRIPTOR-non-leaf-epilogue": {
+            "what": "The 6-byte word `ef 02 54 00 00 50` has NO descriptor in the "
+                    "pinned db.json. It is emitted by our own compiler at the end "
+                    "of EVERY non-leaf callee, immediately before the non-leaf "
+                    "return `8f 12 54 00`, in four independent regions "
+                    "(c_mid, d_mid, d_out, s_big).",
+            "consequence": "A linear tokenizer walk dies at that word, so the ONLY "
+                           "occurrences in this corpus carrying `ret.linkmode == "
+                           "0x12` are invisible to it. That is exactly the value "
+                           "the leaf-only carriers of the WITHDRAWN "
+                           "`ret_luse.linkmode` measurement could never reach: the "
+                           "db gap and the evidence gap are the same gap.",
+            "evidence": "raw/prefreeze/census.json (`gaps`), "
+                        "harness/locate206.py::walk_resync",
+            "recommendation": "add a descriptor; until then any experiment locating "
+                              "instructions by linear walk silently loses every "
+                              "non-leaf epilogue and the return that follows it",
+        },
+        "pop_reconverge.reserved-is-two-fields": {
+            "what": "db.json models bits 32..47 as ONE 16-bit `reserved` field of "
+                    "type `mod`. The sweep separates them: byte+4 (bits 32..39) is "
+                    "LOAD-BEARING and byte+5 (bits 40..47) is inert over the tested "
+                    "set.",
+            "measured": "at cf_ifnl+184 every sampled value whose LOW BYTE is zero "
+                        "is correct and every value with a non-zero low byte gives "
+                        "a different, deterministic payload -- a clean separation "
+                        "with no exceptions in the sampled set",
+            "evidence": "analysis/report_tables.py, "
+                        "raw/g17p_20260830_run03/sweep.jsonl",
+            "recommendation": "split into `reserved_lo` (byte+4, must be 0 on the "
+                              "tested envelope) and `reserved_hi` (byte+5, inert "
+                              "over 8 tested values); the name `reserved` is wrong "
+                              "for the low byte",
+        },
+        "ret.linkmode-accepted-set": {
+            "what": "EXP-0156 recorded the accepted set of `ret`/`ret_luse` byte+1 "
+                    "as `v & 7 == 4`. On G17P it is `v & 3 == 2` (64 of 256).",
+            "measured": "identical accepted sets at four independent occurrences "
+                        "(cl_atomic real ret_luse, cl_leaf leaf ret, cl_chain "
+                        "non-leaf ret, and the ret.linkmode control at cl_chain), "
+                        "and the compiler itself emits 0x02 and 0x12 -- both of "
+                        "which have `v & 7 == 2`, so the old rule is refuted by our "
+                        "own compiled bytes before any sweep",
+            "evidence": "raw/g17p_20260830_run03 and run04 sweep.jsonl",
+            "recommendation": "record the accepted set as `v & 3 == 2` and bit 4 "
+                              "(0x10) as the non-leaf restore-link flag; the enum "
+                              "{2 leaf, 18 nonleaf_restore_link, 4/5 cf_merge} is "
+                              "wrong about 4 and 5, which FAULT here",
+        },
+        "stop-final-word-is-executed": {
+            "what": "db.json says the `stop` word is `NOT a strictly-enforced "
+                    "terminator` and that `corrupting any of it is a no-op` "
+                    "(EXP-0003/EXP-0010). Bounded here: the 24-bit BODY is inert "
+                    "over 73 sampled values on three carriers, but replacing "
+                    "BYTE 0 with a control-flow leader (0x0f or 0x8f) FAULTS "
+                    "reproducibly on all three carriers and in both runs, while "
+                    "0x00/0x01/0x0c/0x0d/0x2e/0xff are harmless.",
+            "consequence": "the final word IS fetched and executed; most opcodes "
+                           "with an all-zero body happen to be harmless, and a "
+                           "branch/return leader is not. And a MID-PROGRAM `stop` "
+                           "genuinely terminates: synthesized over the optional "
+                           "4-byte frame marker it leaves the sentinel written and "
+                           "all 32 value words still POISON.",
+            "evidence": "CTRL:byte0@* and stop.reserved@synth_mid@* arms",
+            "recommendation": "keep `emit 0x000000` as the driver rule, but drop "
+                              "`corrupting any of it is a no-op` -- it is only true "
+                              "for the byte values previously tried",
+        },
+        "call.b6-bit1-not-universally-required": {
+            "what": "EXP-0179 arm S concluded `call.b6` bit 1 is load-bearing and "
+                    "`must be set`, giving an encodable range of 128. Our own "
+                    "compiler emits b6 = 0x54 (bit 1 CLEAR) for both calls inside "
+                    "the non-leaf callee `c_mid`, and 0x56 (bit 1 SET) for the call "
+                    "in `_agc.main`.",
+            "measured": "the b6 control accepts values with bit 1 clear at "
+                        "cl_leaf (0x04, 0x08, 0x24 are all correct) and is "
+                        "COMPLETELY inert over all 16 sampled values at cl_atomic",
+            "evidence": "raw/prefreeze/census.json; CTRL:b6@* arms",
+            "recommendation": "the `bit 1 must be set` rule is carrier-dependent, "
+                              "not universal; re-scope it before an emitter relies "
+                              "on it",
+        },
+    }
+
     p = os.path.join(HERE, "field_verdicts.json")
     with open(p, "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=True)
     print("wrote %s" % p)
     for k, v in sorted(out.items()):
-        if k.startswith("_"):
+        if k.startswith("_") or k == "db_defects":
             continue
         print("%-34s %-20s %s  V=%s L=%s hard=%s surviving=%s"
               % (k, v["label"], v["verdict"],

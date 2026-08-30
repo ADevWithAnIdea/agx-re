@@ -17,7 +17,7 @@ import json, os, re, sys, collections
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "raw_index_nonjsonl.jsonl")
+OUT = os.path.join(HERE, "..", "work", "raw_index_nonjsonl.jsonl")
 
 EXTS = (".json", ".txt", ".log", ".out", ".stdout", ".md", ".csv", ".tsv")
 SKIP_EXP = {"EXP-0208-axis-reclassification"}
