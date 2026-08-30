@@ -280,34 +280,56 @@ later moved.
 
 ---
 
-## 3. A register-file fact, found because my own seed table failed
+## 3. RETRACTED — the "r15 is not writable" claim was MY OWN SCAFFOLDING
 
-At M10 I changed `SEED_I[15]` from 0 to 121 to remove a seed/value collision.
-**The write never landed.** In run02, across every arm and both seeding paths,
-r15 reads `0x0`:
+**This section previously reported a hardware fact. It was wrong, it was wrong
+by construction, and it is the same failure I convicted EXP-0140 of.** EXP-0174
+found it; the mechanism is confirmed here in my own source.
 
-- int path `mov_imm(15, 121)` = `fc79`, which round-trips as
-  `mov_imm {dst:15, imm7:121, imm_top:0}` — the encoding is correct;
-- float path `falu2i(r15, r14, +2.5)` — same result;
-- **r14 reads correctly** (0x3 int, 0x0 float) through the identical code path,
-  so this is specific to index 15, not to the seeding.
+**What I claimed:** that a write whose 4-bit destination nibble is 15 is
+discarded and the slot reads 0 — presented as a driver-relevant register-file
+fact, with the caveat that I could not distinguish "hardwired zero register"
+from "nibble 15 means no destination".
 
-**Measured: a write whose 4-bit destination nibble is 15 is discarded, and the
-slot reads 0.** Driver consequence: an emitter must not allocate register index
-15 as the destination of a 4-bit-dst instruction — it is a bit bucket, not a GPR.
+**What is actually true:** `isa_helpers.R_IDX = 15`. That is the register my own
+`device_store` scaffolding uses as its index register, and `store_word()` emits
+`mov_imm(R_IDX, 0)` **before every single store** — including the store that
+reads back r15:
 
-**What this cannot distinguish, stated rather than glossed:** "physical r15 is a
-hardwired zero register" and "the 4-bit dst nibble value 15 encodes *no
-destination*" predict identical observations in every carrier here. Separating
-them needs a write through a *wider* dst field to physical r15 and a read back
-through the 7-bit source side; this experiment has a 7-bit source probe
-(`falu2i` srcA) but no 7-bit destination. Recorded as a named open question.
-(EXP-0128's "imm ≥ 128 does not write the register at all" is a different fact.)
+```python
+R_IDX = 15          # device_store index register; re-seeded to 0 before EVERY store
+def store_word(word_idx, data_reg, base_slot=0):
+    return (mov_imm(R_IDX, 0)
+            + device_store(R_IDX, word_idx // STORE_STRIDE_WORDS, base_slot,
+                           data_reg=data_reg))
+```
 
-**Applied against my own coverage claim:** `dst = 15` is **UNDECIDABLE** in this
-carrier at every form that writes 0, so `uniform_mov.dst` dispatches 16 values
-but only **15 are decidable**. Every affected verdict row carries
-`undecidable_values`, `decidable_values` and `undecidable_why`.
+So r15 is clobbered to 0 immediately before it is observed, in every case, in
+every arm, on both seeding paths. **r15 could never have read anything but 0,
+whatever the hardware did.** EXP-0174 confirms the positive result on a plan
+indexed on r7: r15 holds its seed in all 64 baselines and is written normally.
+**r15 is an ordinary writable GPR.**
+
+**This is exactly rule R-A — the observable must not co-vary with the field
+under test — violated in my own harness.** EXP-0140's read-back was
+parameterised by the swept `dst`; mine was parameterised by the register being
+read. In both cases the apparatus destroyed the thing it was measuring, and in
+both cases the result was a confident, clean-looking, *impossible* observation.
+I caught theirs by reading their code and missed mine by not reading my own. The
+rule is worth more than the retracted fact.
+
+**What survives:** `dst = 15` genuinely *is* undecidable **in this carrier** —
+not because the hardware discards it, but because my scaffolding overwrites it.
+The `undecidable_values` / `decidable_values` accounting on the verdict rows is
+therefore still correct as a statement about coverage (`uniform_mov.dst`
+dispatches 16, decides 15); only the stated *cause* changes, and
+`undecidable_why` has been rewritten to say so. No verdict label moves.
+
+**Left open, deliberately not claimed:** run02 also showed `regs[0] = 0` where
+the seed is 10, at the baseline of several arms. EXP-0174 reports that anomaly
+does **not** reproduce on its r7-indexed plan. I have no mechanism for it and it
+is not worth a guess, so it is recorded as an open observation rather than
+promoted to a finding.
 
 ---
 
@@ -341,7 +363,7 @@ compiler emitted" is a captured-template dependency.
 
 ---
 
-## 5. Nine by-construction defects, all found in this experiment's own harness
+## 5. Ten by-construction defects — nine found here, one found by EXP-0174
 
 Every one was caught by the pre-freeze smoke or by cross-checking an analysis
 against an independent measurement — none by inspection. They are the substance
@@ -349,7 +371,7 @@ of this experiment as much as the verdicts are.
 
 | # | defect | why it would have produced a confident wrong answer |
 |---|---|---|
-| 1 | `SEED_I[15] = 0` collided with the value under test | reg_move forms 0x00/0x01/0x03 **write zero**, so `dst=15` could not be told from "did nothing" |
+| 1 | `SEED_I[15] = 0` collided with the value under test | reg_move forms 0x00/0x01/0x03 **write zero**, so `dst=15` could not be told from "did nothing". The "fix" (seed 121) never landed — see defect 10 |
 | 2 | falsifier `byte0 = 0x00` confounded with the swept field | `uniform_mov`'s byte0 is `opcode nibble │ dst`, so 0x00 also sets `dst=0` — and the anchor's `dst` is 0. Measured **identical to the baseline** on 4 REGMOVE arms; also on `COPYSIGN/lowpress` and `ATOMIC/highreg` |
 | 3 | `STOP/terminal` and `STOP/midprogram` were **one carrier** | `STOP/terminal` fell through to `synth_program()`, which puts the block in the BODY — the same program shape. Both gave whole-dump-poison on hardware |
 | 4 | `NEEDED` was a hand-maintained lookup list | omitting `iter_at` made `--mode freeze` report *"no occurrence in this carrier — a STRUCTURAL RESULT about when the instruction is emitted"*. The instruction was at offset 8 all along |
@@ -357,6 +379,7 @@ of this experiment as much as the verdicts are.
 | 6 | the `iter_at` carrier could not make the compiler emit `iter_at` | plain smooth interpolation lowers to the location-implicit form; `iter_at` needs an EXPLICIT location (`[[centroid_perspective]]`) — which is why EXP-0155's carrier was `c_cent1` |
 | 7 | `STOP/terminal`'s discriminating word was outside the classifier | the register dump has already run in every case on that carrier, so the 16 regs are identical by construction; the falsifier plainly fires (`probe 0x4d` vs `0xdeadbeef`) but scored `ok`, failing the arm's own ladder and blocking all four `stop` fields. The sweep could see **nothing**: 836 cases, all `ok`, all `moved=False` |
 | 8 | I added an instruction family with no host ORACLE | `oracle()` branches `vtx`/`rog`/else-`fcp`; the new `itr` family fell through to `fcp` and died on `KeyError: 'fcp_values'` at the first baseline dispatch. **The offline mock test never calls `oracle()`**, so a family can pass the mock with no oracle at all |
+| 10 | **r15 is my `device_store` index register**, and `store_word()` re-seeds it with `mov_imm(15,0)` before every store — including the store that reads r15 | produced a clean, reproducible, **impossible** observation that I wrote up as a hardware fact ("nibble 15 discards the write"). Rule R-A violated in my own harness; retracted in §3 |
 | 9 | the hazard sat in front of the measurement, twice | `frag_color_pack.dst` (band 194..197) and `iter_at.grp` (254 of 256 values out-of-descriptor) both blow the hang budget *before* reaching the values worth measuring — so every run since EXP-0155 has spent its budget and learned nothing. Fixed by ordering: legal values first, hazardous band last |
 
 ### Four generalisable rules for `FIELD-SWEEP-PROTOCOL`

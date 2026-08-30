@@ -1110,8 +1110,27 @@ c("EXP-M5-23", target=M5, status="COMPLETE — 3 of 4 resolved, 1 characterised-
   gap=None)
 
 # ---------------- merge with the machine-derived enumeration ----------------
+# The corpus moved under this experiment while it ran: the orchestrator committed
+# EXP-0173..0177 and added a row for EXP-0173. Per SUBAGENT_BRIEF ("pin the revision at
+# pre-registration; do not gate on live HEAD"), the drafted-row set is the one frozen at
+# enumeration time. Experiments committed AFTER that freeze are excluded here and listed in
+# drafted_rows.md's post-freeze appendix instead; their rows are the orchestrator's to write
+# alongside their own results.
+POST_FREEZE = {"EXP-0174", "EXP-0175", "EXP-0176", "EXP-0177"}
+
 enum = json.load(open(os.path.join(HERE, "enumerate.json")))
-by_id = {r["id"]: r for r in enum["missing"]}
+by_id = {r["id"]: r for r in enum["missing"] if r["id"] not in POST_FREEZE}
+post_freeze_now_missing = sorted(r["id"] for r in enum["missing"] if r["id"] in POST_FREEZE)
+# an experiment that GAINED a row after the freeze (EXP-0173 did) stays in the drafted set so the
+# orchestrator can diff the drafted row against the one that landed
+frozen_ids = {"EXP-0173"}
+for fid in frozen_ids:
+    if fid not in by_id:
+        by_id[fid] = {"id": fid, "dir": "experiments/EXP-0173-closure-audit",
+                      "cited_in_docs": False, "docs_files": [], "has_results": True,
+                      "has_raw": True, "has_quarantine": False,
+                      "_note": "gained a PROVENANCE row after this enumeration was frozen; "
+                               "drafted row retained for comparison"}
 
 def first_commit(d):
     out = subprocess.run(["git", "-C", ROOT, "log", "--format=%h", "--reverse", "--", d],
@@ -1156,6 +1175,13 @@ for eid in sorted(by_id, key=lambda x: (x.startswith("EXP-M"), x)):
     })
 out["_meta"]["totals"] = {"missing_rows": len(out["experiments"]), **{
     "cited_in_docs_as_" + k: v for k, v in kinds.items()}}
+out["_meta"]["post_freeze_drift"] = {
+    "note": "HEAD moved while this experiment ran. These were committed AFTER the enumeration was "
+            "frozen and are NOT among the 67 drafted rows; their rows are the orchestrator's to "
+            "write with their own results.",
+    "committed_after_freeze_and_still_without_a_row": post_freeze_now_missing,
+    "gained_a_row_after_freeze_drafted_row_retained_for_comparison": sorted(frozen_ids),
+}
 json.dump(out, open(os.path.join(HERE, "missing_rows.json"), "w"), indent=1)
 print(json.dumps(out["_meta"]["totals"], indent=1))
 print("wrote", os.path.join(HERE, "missing_rows.json"))

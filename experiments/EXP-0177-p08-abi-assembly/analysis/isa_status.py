@@ -108,6 +108,41 @@ def main():
             )
         out["subareas"][sub] = rows
 
+    # ---- P0.8 headline, computed rather than asserted ----
+    considered = [r for rows in out["subareas"].values() for r in rows if r["present_in_db"]]
+    emittable_rows = [r for r in considered if r["emittable"]]
+    weak_instr = [r["mnemonic"] for r in emittable_rows
+                  if not r["instruction_label_is_emitter_grade"]]
+    both_bars = sorted(r["mnemonic"] for r in emittable_rows
+                       if r["instruction_label_is_emitter_grade"])
+    out["p08_headline"] = {
+        "instructions_considered": len(considered),
+        "emittable": len(emittable_rows),
+        "emittable_pct": round(100.0 * len(emittable_rows) / len(considered), 1),
+        "emittable_but_instruction_label_weaker_than_emitter_grade": sorted(weak_instr),
+        "note_on_weak": (
+            "EXP-0173 sec.7.2: the emittability rule never reads the `_instruction` label, "
+            "so these pass the metric without their own identity/semantics evidence."
+        ),
+        "clear_both_bars": both_bars,
+        "clear_both_bars_count": len(both_bars),
+        "blocked": sorted(
+            [
+                {
+                    "mnemonic": r["mnemonic"],
+                    "n_blocking_fields": r["n_blocking_fields"],
+                    "blocking_fields": [b["field"] for b in r["blocking_fields"]],
+                    "field_targets": r["field_targets"],
+                }
+                for r in considered if not r["emittable"]
+            ],
+            key=lambda x: (-x["n_blocking_fields"], x["mnemonic"]),
+        ),
+        "measured_only_on_M4": sorted(
+            r["mnemonic"] for r in considered if r["field_targets"] == ["M4"]
+        ),
+    }
+
     dst = os.path.join(HERE, "isa_status.json")
     with open(dst, "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=False)
@@ -126,6 +161,15 @@ def main():
                 f"blocking={r['n_blocking_fields']:2d} "
                 f"targets={','.join(r['field_targets'])}"
             )
+    h = out["p08_headline"]
+    print(
+        f"\nP0.8 HEADLINE: {h['emittable']} of {h['instructions_considered']} "
+        f"stage-ABI instructions emittable ({h['emittable_pct']}%); "
+        f"{len(h['emittable_but_instruction_label_weaker_than_emitter_grade'])} of those carry a "
+        f"sub-emitter-grade `_instruction` label, so only "
+        f"{h['clear_both_bars_count']} clear BOTH bars: {h['clear_both_bars']}"
+    )
+    print(f"measured only on M4: {h['measured_only_on_M4']}")
     print(f"\nwrote {dst}")
     return 0
 

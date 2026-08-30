@@ -154,6 +154,9 @@ Consequences, all mechanical:
 3. **L93 onward — 100 of the 174 logical rows, 57% of the log — restart with `|` but have no
    header or delimiter above them, so GFM does not render them as a table at all.** Every row from
    the ISA consolidation entry through the newest G17P rows is affected.
+4. **It grows on its own.** Two rows landed while this file was being written; re-measuring gives
+   **176 rows / 102 outside the table**. New rows are appended at the end, i.e. **below the break**,
+   so every row added from now on lands outside the table too. Fix this one first.
 
 **Fix.** Split L90 into two lines and give the resumed table its own header + delimiter:
 

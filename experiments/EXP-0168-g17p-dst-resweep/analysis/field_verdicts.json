@@ -879,7 +879,7 @@
    "undecidable_values": [
     15
    ],
-   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "undecidable_why": "CARRIER LIMIT, NOT A HARDWARE PROPERTY. isa_helpers.R_IDX = 15 is this harness's own device_store index register, and store_word() emits mov_imm(R_IDX, 0) before EVERY store -- including the store that reads r15 back. So r15 is clobbered to 0 immediately before it is observed, in every case, and dst=15 cannot be decided here whatever the hardware does. EXP-0174 confirms r15 is an ordinary writable GPR on a plan indexed on r7 (it holds its seed in all 64 baselines). EXP-0168's earlier claim that a 4-bit-nibble write to 15 is discarded is RETRACTED -- it was rule R-A (the observable must not co-vary with the field under test) violated in our own harness. The coverage accounting below is unchanged and still correct; only the cause is different.",
    "under_covered": false,
    "values_dispatched": 16,
    "width": 4
@@ -979,7 +979,7 @@
    "undecidable_values": [
     15
    ],
-   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "undecidable_why": "CARRIER LIMIT, NOT A HARDWARE PROPERTY. isa_helpers.R_IDX = 15 is this harness's own device_store index register, and store_word() emits mov_imm(R_IDX, 0) before EVERY store -- including the store that reads r15 back. So r15 is clobbered to 0 immediately before it is observed, in every case, and dst=15 cannot be decided here whatever the hardware does. EXP-0174 confirms r15 is an ordinary writable GPR on a plan indexed on r7 (it holds its seed in all 64 baselines). EXP-0168's earlier claim that a 4-bit-nibble write to 15 is discarded is RETRACTED -- it was rule R-A (the observable must not co-vary with the field under test) violated in our own harness. The coverage accounting below is unchanged and still correct; only the cause is different.",
    "under_covered": false,
    "values_dispatched": 16,
    "width": 4
@@ -1277,7 +1277,7 @@
    "undecidable_values": [
     15
    ],
-   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "undecidable_why": "CARRIER LIMIT, NOT A HARDWARE PROPERTY. isa_helpers.R_IDX = 15 is this harness's own device_store index register, and store_word() emits mov_imm(R_IDX, 0) before EVERY store -- including the store that reads r15 back. So r15 is clobbered to 0 immediately before it is observed, in every case, and dst=15 cannot be decided here whatever the hardware does. EXP-0174 confirms r15 is an ordinary writable GPR on a plan indexed on r7 (it holds its seed in all 64 baselines). EXP-0168's earlier claim that a 4-bit-nibble write to 15 is discarded is RETRACTED -- it was rule R-A (the observable must not co-vary with the field under test) violated in our own harness. The coverage accounting below is unchanged and still correct; only the cause is different.",
    "under_covered": false,
    "values_dispatched": 16,
    "width": 4
@@ -2891,7 +2891,7 @@
    "undecidable_values": [
     15
    ],
-   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "undecidable_why": "CARRIER LIMIT, NOT A HARDWARE PROPERTY. isa_helpers.R_IDX = 15 is this harness's own device_store index register, and store_word() emits mov_imm(R_IDX, 0) before EVERY store -- including the store that reads r15 back. So r15 is clobbered to 0 immediately before it is observed, in every case, and dst=15 cannot be decided here whatever the hardware does. EXP-0174 confirms r15 is an ordinary writable GPR on a plan indexed on r7 (it holds its seed in all 64 baselines). EXP-0168's earlier claim that a 4-bit-nibble write to 15 is discarded is RETRACTED -- it was rule R-A (the observable must not co-vary with the field under test) violated in our own harness. The coverage accounting below is unchanged and still correct; only the cause is different.",
    "under_covered": false,
    "values_dispatched": 16,
    "width": 4

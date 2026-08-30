@@ -306,13 +306,13 @@ def analyse(runs):
     # declared over. Measured exhaustively offline in analysis/bitcheck.json,
     # not assumed. db.json is NOT edited here (EXP-0165 owns it) -- these rows
     # carry the corrected number and the defect travels under `db_defects`.
-    # Values a field DISPATCHED but which the carrier cannot DECIDE, measured
-    # rather than assumed. `dst = 15` on every 4-bit-dst instruction: run02 shows
-    # register index 15 is not writable through the 4-bit destination nibble
-    # (mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0,
-    # while r14 reads correctly through the identical code path), so at any form
-    # that writes 0 the slot reads 0 whether the instruction wrote it or not.
-    # A row must not claim dense 16/16 when one of the 16 is undecidable.
+    # Values a field DISPATCHED but which THIS CARRIER cannot DECIDE.
+    # `dst = 15` on every 4-bit-dst instruction, because isa_helpers.R_IDX = 15
+    # is our own device_store index register and store_word() re-seeds it with
+    # mov_imm(15, 0) before every store, including the store that reads r15.
+    # This is a property of the HARNESS, not of the hardware: EXP-0174 shows r15
+    # is an ordinary writable GPR. A row must not claim dense 16/16 when one of
+    # the 16 is undecidable, whatever the reason.
     UNDECIDABLE = {
         "uniform_mov.dst": [15], "falu2.dst": [15], "falu2i.dst": [15],
         "get_sr.dst": [15], "vtx_out_pos.dst": [15],
@@ -583,12 +583,19 @@ def analyse(runs):
             cov["undecidable_values"] = und
             cov["decidable_values"] = max(0, maxcov - len(und))
             cov["undecidable_why"] = (
-                "register index 15 is not writable through the 4-bit "
-                "destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) "
-                "and falu2i(r15,r14,+2.5) both leave the slot reading 0 while "
-                "r14 reads correctly through the same code path), so at any "
-                "form that writes 0 the slot reads 0 whether the instruction "
-                "wrote it or not")
+                "CARRIER LIMIT, NOT A HARDWARE PROPERTY. isa_helpers.R_IDX = 15 "
+                "is this harness's own device_store index register, and "
+                "store_word() emits mov_imm(R_IDX, 0) before EVERY store -- "
+                "including the store that reads r15 back. So r15 is clobbered "
+                "to 0 immediately before it is observed, in every case, and "
+                "dst=15 cannot be decided here whatever the hardware does. "
+                "EXP-0174 confirms r15 is an ordinary writable GPR on a plan "
+                "indexed on r7 (it holds its seed in all 64 baselines). "
+                "EXP-0168's earlier claim that a 4-bit-nibble write to 15 is "
+                "discarded is RETRACTED -- it was rule R-A (the observable must "
+                "not co-vary with the field under test) violated in our own "
+                "harness. The coverage accounting below is unchanged and still "
+                "correct; only the cause is different.")
         # Is this a REAL db.json field, or a name this experiment invented for a
         # whole-byte sweep? `mov_imm.byte1`, `stop.b1/b2/b3`,
         # `uniform_mov.form_b2` and `uniform_mov.opdesc_b3` are OURS -- they are

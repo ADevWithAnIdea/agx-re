@@ -1,0 +1,193 @@
+{
+ "experiment": "EXP-0176-provenance-chain",
+ "title": "Provenance-chain reverse audit and drafted repair",
+ "date_utc": "2026-08-30T11:12:18Z",
+ "target": {
+  "device": "NONE - pure analysis on the repo host",
+  "audited_evidence_targets": [
+   "M4/G16G",
+   "A18 Pro/G17P",
+   "M5/G17g"
+  ],
+  "device_work": "none: no SSH, no GPU dispatch, no macvdmtool"
+ },
+ "clean_room": {
+  "category": "OWN-SHADER + PUBLIC (offline re-reading of committed repository artifacts)",
+  "apple_binary_introspection": "NONE"
+ },
+ "environment": {
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.14.6",
+  "git_head": "74f6af254480ab7bbdc17b3ada68a4519c955cca",
+  "git_dirty": true
+ },
+ "reproduction": [
+  "python3 experiments/EXP-0176-provenance-chain/analysis/enumerate.py",
+  "python3 experiments/EXP-0176-provenance-chain/analysis/build_missing_rows.py",
+  "python3 experiments/EXP-0176-provenance-chain/analysis/cite_paths.py",
+  "python3 experiments/EXP-0176-provenance-chain/analysis/table_integrity.py",
+  "python3 experiments/EXP-0176-provenance-chain/analysis/sample_rows.py"
+ ],
+ "headline": {
+  "committed_exp_dirs": 214,
+  "missing_provenance_rows": 67,
+  "cited_in_docs_as_fact_codex_s9_violations": 40,
+  "cited_in_docs_as_disclaimer_only": 3,
+  "not_cited_in_docs": 24,
+  "rows_drafted": "67 (+1 for this experiment itself, in the post-freeze appendix)",
+  "drafted_rows_with_5_gfm_cells": "68/68",
+  "cited_paths_verified_to_exist": "353/353",
+  "provenance_rows_total_logical": "174 at measurement; 176 after two further rows landed",
+  "provenance_rows_outside_the_rendered_table": "100 at measurement; 102 after (the defect grows: every new row is appended below the break)",
+  "provenance_rows_with_wrong_gfm_cell_count": "11 at measurement; 12 after",
+  "physical_lines_carrying_two_logical_rows": 2,
+  "reproduction_sample": {
+   "seed": 20260830,
+   "lines": [
+    25,
+    31,
+    43,
+    75,
+    89,
+    100,
+    137,
+    157,
+    170,
+    190
+   ],
+   "reproduce": 8,
+   "partial": 1,
+   "fails_as_written": 1,
+   "note": "L89 is a glued line scored as two claims: 9 of 11 claims reproduce"
+  }
+ },
+ "promotes": "NOTHING. PROVENANCE.md, docs/, db.json and validation.json were read only.",
+ "artifacts": {
+  "experiments/EXP-0176-provenance-chain/PRE_REGISTRATION.md": {
+   "sha256": "67f907b232174ee255ea47ca1074eb1cfe4ea5ff8d70d87c2d3aa950922807fa",
+   "bytes": 4579
+  },
+  "experiments/EXP-0176-provenance-chain/PROGRESS.md": {
+   "sha256": "911c5b6812f4ddc102baa32b44e1364d19ec674dae12b14cd32a2e9b001edbbd",
+   "bytes": 5747
+  },
+  "experiments/EXP-0176-provenance-chain/README.md": {
+   "sha256": "1ed0e53d7280c59b70d0868ec3edeb75e602ed4a1863a12c0a8b8e9e737a7040",
+   "bytes": 5638
+  },
+  "experiments/EXP-0176-provenance-chain/RESULTS.md": {
+   "sha256": "628c8a6ebc7ca98dd3160870eba513df1e12bcee3220962ca5c897e129c5f5c9",
+   "bytes": 19215
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/broken_rows.md": {
+   "sha256": "982ab040431c36352511d630513374f79cc94bac85d790059af393f752d5bb53",
+   "bytes": 17176
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/build_missing_rows.py": {
+   "sha256": "2cfda46dd6eca2196c63bb3dfc9ea468022d3a7563dc34b89c4a7a53e885063f",
+   "bytes": 100668
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/cite_paths.py": {
+   "sha256": "7d5071b882e891aa3fc6b3ddfa8be13e49973b841875cfee6e35b7e02af3f8a4",
+   "bytes": 1181
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/drafted_rows.md": {
+   "sha256": "3d55caf9b0f6112e40836cb7cdf018ed4f79797b83f27850652ac9b5da07bcad",
+   "bytes": 128805
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/enumerate.json": {
+   "sha256": "912188bcb5d15677ea52fec49bf06a3ecc930ca27a7e5b0bde2cf4031feda569",
+   "bytes": 116491
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/enumerate.py": {
+   "sha256": "df2b6df91e4674d3377b381fb436915da24e698545db5f7898d2dfe1bf1948a8",
+   "bytes": 3600
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/missing_rows.json": {
+   "sha256": "647d74e1ae5e833b08749409721575b4bedd9c25e489e731388f189f76915325",
+   "bytes": 113370
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/reproduction_sample.md": {
+   "sha256": "22790b333bec4bc7c66c5ca810d5aa6a783a5ffb2b13bfc1adf8181018ecf02b",
+   "bytes": 19644
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/sample_rows.py": {
+   "sha256": "302a4475a6b3cc3cf249aa434384db0d58f84956f63745b387b48f28129e5a4e",
+   "bytes": 1041
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/table_integrity.json": {
+   "sha256": "48450dcda4a84b5d30a1722922a33336041ccdaec345966db0198d5f45053f3a",
+   "bytes": 6429
+  },
+  "experiments/EXP-0176-provenance-chain/analysis/table_integrity.py": {
+   "sha256": "dc70b6b0ff5a2c85e62f5cc50104084b87e7a329c87a195bca6d47ba6a11a82f",
+   "bytes": 2326
+  }
+ },
+ "inputs_read_only": {
+  "PROVENANCE.md": {
+   "sha256": "719ee869c1ee0c2b2626d23aad13e42d4176858725b6ac89a6e684c0fd7aa6af",
+   "bytes": 210664
+  },
+  "CODEX.md": {
+   "sha256": "04e3834e63d0e8b087ab1d4dc66fe38334e625413093eaf98be52a5a53d3b301",
+   "bytes": 15023
+  },
+  "CLAUDE.md": {
+   "sha256": "51b73c56110d2a14027efbeec09896b9cca009da3ea1aa86bd4b211a1b45b39f",
+   "bytes": 24621
+  },
+  "experiments/SUBAGENT_BRIEF.md": {
+   "sha256": "dada0dbd6c36fa8efdab9baa442448efa1b16966138408a4f0226fcf21d7a4e5",
+   "bytes": 9124
+  },
+  "docs/tiling/README.md": {
+   "sha256": "3db52dcc4e98f62cce59a4d527f539ccc7fc4bd65f9eb08f66c1db80a72ff12e",
+   "bytes": 20917
+  },
+  "docs/isa/memory-model.md": {
+   "sha256": "ea391a99846163fbff6c3fd2064555b0adae02fdd512794c2717b270f35b9d3e",
+   "bytes": 50100
+  },
+  "docs/compiler-readiness.md": {
+   "sha256": "7d63a67eff41ff341411f6f012578ab0432d38918a1d5ace99d4eaeda91aab18",
+   "bytes": 95977
+  },
+  "tools/agx-isa/db.json": {
+   "sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+   "bytes": 468712
+  },
+  "tools/agx-isa/validation.json": {
+   "sha256": "8b3b088423e4be6fc87db0fe9a7f270b2d378458929cf81e75fb8ce1b47a2f40",
+   "bytes": 451448
+  },
+  "tools/agx-isa/gen_agx3_xml.py": {
+   "sha256": "b7a1ec4fb81ccb6abae93d454d48257234abfc95e220b17ac1a51ec881d5175e",
+   "bytes": 19666
+  },
+  "tools/agxtest/agxrun.m": {
+   "sha256": "d5e167bfdde140c23f132cccd78a17dd897a3b1e2bef8280109e2b4a9a895c9e",
+   "bytes": 10455
+  },
+  "docs/isa/agx3.xml": {
+   "sha256": "260dc2b1fb6e4ab720cdde99ad9e7b6675a540a2c243162d39a1687dee5ea47c",
+   "bytes": 172049
+  },
+  "experiments/EXP-0173-closure-audit/analysis/provenance_audit.json": {
+   "sha256": "85a02966984bd0e5d867e844d854812ebe1670414b93a577a1f4e9a5db0fa8c1",
+   "bytes": 217955
+  }
+ },
+ "post_freeze_drift": {
+  "note": "HEAD advanced while this experiment ran; the drafted set is the one frozen at enumeration.",
+  "gained_a_row_after_freeze": [
+   "EXP-0173"
+  ],
+  "committed_after_freeze_without_a_row": [
+   "EXP-0176",
+   "EXP-0177"
+  ],
+  "live_missing_count_at_write_time": 68
+ },
+ "process_disclosure": "Three throwaway files were written outside the repository (agx3_orig.xml, commits.txt, ids_in_draft.txt) and deleted on discovery. Process-boundary violation, not clean-room contamination; all three held only this repository's own committed content. See RESULTS.md section 5b."
+}

@@ -1,0 +1,93 @@
+{
+ "experiment": "EXP-0177-p08-abi-assembly",
+ "title": "P0.8 / DRV-ABI-01 evidence assembly",
+ "kind": "pure-analysis (no device, no SSH, no GPU, no compilation, no splicing)",
+ "date": "2026-08-30",
+ "target": "none - this experiment ran no hardware. Every cited result carries its own target (A18 Pro/G17P or M4/G16G).",
+ "host": "repo host (Apple M4 Mac mini), analysis only",
+ "git_revision_at_analysis": "74f6af254480ab7bbdc17b3ada68a4519c955cca",
+ "git_worktree_dirty_at_analysis": true,
+ "note_on_dirty": "Three device experiments were live and the orchestrator commits continuously; a dirty worktree is expected and is not contamination (SUBAGENT_BRIEF, post-EXP-0082 pinned-revision rule).",
+ "inputs_read_only": [
+  "experiments/*/RESULTS.md",
+  "experiments/*/README.md",
+  "experiments/*/QUARANTINE.md",
+  "PROVENANCE.md",
+  "tools/agx-isa/validation.json",
+  "docs/**",
+  "APPLE9_RE_IMPLEMENTATION_GAPS.md",
+  "CODEX.md",
+  "CLAUDE.md",
+  "experiments/SUBAGENT_BRIEF.md"
+ ],
+ "files_written": [
+  {
+   "path": "PRE_REGISTRATION.md",
+   "sha256": "b05442d646ac6c5481b4f910677a5c011b546bffbc8f2b991706a991130dee3d",
+   "bytes": 4809
+  },
+  {
+   "path": "PROGRESS.md",
+   "sha256": "2421c453e7fc57cc1c3f6914a2f89d215a9fc935ee6dc868cd3b5af77bf81a8f",
+   "bytes": 9754
+  },
+  {
+   "path": "README.md",
+   "sha256": "e11355e10f01dfe573d3028bc1106be47a41b918d8c9d9e49b666b0909a088ae",
+   "bytes": 4123
+  },
+  {
+   "path": "RESULTS.md",
+   "sha256": "850ecb4b339356219531be3d1f93730fae9323132daa2725bfce242f5af39fea",
+   "bytes": 43793
+  },
+  {
+   "path": "analysis/isa_status.json",
+   "sha256": "3f73485d92b681cd21285c507be064815989ac8c9b74a9eced28b4181343f9f3",
+   "bytes": 24251
+  },
+  {
+   "path": "analysis/isa_status.py",
+   "sha256": "c108e59a5582c88f8d1468907106fb2d3963c0a55856d2f059f6d85cea4549eb",
+   "bytes": 6914
+  },
+  {
+   "path": "analysis/p08_closure_cell_draft.md",
+   "sha256": "db678ba0635c105145eaef2070daaf4005aa94af59b27c4697c354d54b10717e",
+   "bytes": 13086
+  },
+  {
+   "path": "analysis/p08_evidence.json",
+   "sha256": "b20458c29c72d538a8dc3608d9a26ac3d5dcaf111dea94ccdfe43835121a5225",
+   "bytes": 93743
+  },
+  {
+   "path": "analysis/p08_gaps.md",
+   "sha256": "242c98ecb0d2b7a696bf2f76e4823175c95b01a70eaee1e8cb3afb705df89b8e",
+   "bytes": 25695
+  },
+  {
+   "path": "analysis/provenance_check.json",
+   "sha256": "732d4f89afab1aeb1166a24455cedb1ef20747abe2b062aa948ddb02cfee953a",
+   "bytes": 13105
+  },
+  {
+   "path": "analysis/provenance_check.py",
+   "sha256": "88a4ed632a4099cc7ecbd1bf90473aed1c9a3ac49aaeee864e6442e06d5221d3",
+   "bytes": 4996
+  }
+ ],
+ "validation_json_sha256": "8b3b088423e4be6fc87db0fe9a7f270b2d378458929cf81e75fb8ce1b47a2f40",
+ "validation_json_generated": "2026-08-28",
+ "raw_directory": "NONE - pure analysis; there are no raw observations. The artifacts are the two re-runnable scripts and their JSON outputs.",
+ "reproduction": [
+  "python3 analysis/isa_status.py",
+  "python3 analysis/provenance_check.py"
+ ],
+ "clean_room": {
+  "provenance": "PUBLIC (this repository's own committed artifacts, read only)",
+  "apple_binary_introspection": "NONE",
+  "device_contact": "NONE",
+  "files_modified_outside_this_directory": "NONE"
+ }
+}

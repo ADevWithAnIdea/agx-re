@@ -1,7 +1,7 @@
 {
  "_source": "tools/agx-isa/validation.json",
  "_validation_generated": "2026-08-28",
- "_db_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+ "_db_sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
  "_warning": "validation.json and db.json are owned by another live experiment (EXP-0175). These numbers are a snapshot, not a stable figure.",
  "_emitter_grade_labels": [
   "hardware-run",
@@ -9,7 +9,7 @@
  ],
  "coverage_headline": {
   "total_instructions": 172,
-  "total_fields": 1062,
+  "total_fields": 1036,
   "emittable_instructions": 50,
   "emitter_relevant_instructions": 166,
   "emittable_of_emitter_relevant": 50
@@ -27,7 +27,7 @@
      "EXP-0029",
      "EXP-0031"
     ],
-    "n_fields": 9,
+    "n_fields": 8,
     "field_targets": [
      "A18",
      "G17P"
@@ -828,7 +828,7 @@
      "EXP-0035",
      "EXP-0038"
     ],
-    "n_fields": 6,
+    "n_fields": 3,
     "field_targets": [
      "A18"
     ],
@@ -911,6 +911,230 @@
     "n_blocking_fields": 0,
     "blocking_fields": []
    }
+  ]
+ },
+ "p08_headline": {
+  "instructions_considered": 28,
+  "emittable": 12,
+  "emittable_pct": 42.9,
+  "emittable_but_instruction_label_weaker_than_emitter_grade": [
+   "frag_depth_store",
+   "frame_marker_compact",
+   "iter_flat",
+   "ret_luse",
+   "sr_read_wide",
+   "vary_slot",
+   "vtx_coord_xform"
+  ],
+  "note_on_weak": "EXP-0173 sec.7.2: the emittability rule never reads the `_instruction` label, so these pass the metric without their own identity/semantics evidence.",
+  "clear_both_bars": [
+   "frame_prologue",
+   "link_save_restore",
+   "pixel_order",
+   "pop_reconverge",
+   "spill_frame_marker"
+  ],
+  "clear_both_bars_count": 5,
+  "blocked": [
+   {
+    "mnemonic": "imageblock_load",
+    "n_blocking_fields": 5,
+    "blocking_fields": [
+     "dst",
+     "b4",
+     "b6",
+     "fmt",
+     "tail"
+    ],
+    "field_targets": [
+     "A18",
+     "M4",
+     "M4+A18"
+    ]
+   },
+   {
+    "mnemonic": "tile_read",
+    "n_blocking_fields": 5,
+    "blocking_fields": [
+     "b2",
+     "b4",
+     "b7",
+     "tail",
+     "b6_hi"
+    ],
+    "field_targets": [
+     "M4"
+    ]
+   },
+   {
+    "mnemonic": "call",
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     "b3",
+     "b5",
+     "b6",
+     "tail"
+    ],
+    "field_targets": [
+     "A18",
+     "M4+A18"
+    ]
+   },
+   {
+    "mnemonic": "get_sr",
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     "form",
+     "sr_sel",
+     "dp_width",
+     "dp_marker"
+    ],
+    "field_targets": [
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "vary_store",
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     "hint1",
+     "hint2",
+     "b5_tag",
+     "b7"
+    ],
+    "field_targets": [
+     "A18",
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "frag_tile_setup",
+    "n_blocking_fields": 3,
+    "blocking_fields": [
+     "sel",
+     "access",
+     "b5"
+    ],
+    "field_targets": [
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "tile_read_mrt",
+    "n_blocking_fields": 3,
+    "blocking_fields": [
+     "b4",
+     "tail",
+     "b6_hi"
+    ],
+    "field_targets": [
+     "M4"
+    ]
+   },
+   {
+    "mnemonic": "n3_sample_read",
+    "n_blocking_fields": 2,
+    "blocking_fields": [
+     "b1",
+     "b3"
+    ],
+    "field_targets": [
+     "M4"
+    ]
+   },
+   {
+    "mnemonic": "vtx_out_pos",
+    "n_blocking_fields": 2,
+    "blocking_fields": [
+     "dst",
+     "slot"
+    ],
+    "field_targets": [
+     "M4"
+    ]
+   },
+   {
+    "mnemonic": "frag_color_pack",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "dst"
+    ],
+    "field_targets": [
+     "A18",
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "frag_color_store",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "store_mode"
+    ],
+    "field_targets": [
+     "A18",
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "imageblock_store",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "b4"
+    ],
+    "field_targets": [
+     "A18",
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "iter",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "b9"
+    ],
+    "field_targets": [
+     "A18",
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "iter_at",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "grp"
+    ],
+    "field_targets": [
+     "G17P"
+    ]
+   },
+   {
+    "mnemonic": "mesh_out_src",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "sel"
+    ],
+    "field_targets": [
+     "M4+A18"
+    ]
+   },
+   {
+    "mnemonic": "ret",
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     "scoreboard"
+    ],
+    "field_targets": [
+     "G17P"
+    ]
+   }
+  ],
+  "measured_only_on_M4": [
+   "n3_sample_read",
+   "pixel_order",
+   "tile_read",
+   "tile_read_mrt",
+   "vtx_coord_xform",
+   "vtx_out_pos"
   ]
  }
 }

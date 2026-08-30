@@ -1,0 +1,817 @@
+{
+ "_experiment": "EXP-0177-p08-abi-assembly",
+ "_row": "docs/P0-P1-CLOSURE.md P0.8 = APPLE9_RE_IMPLEMENTATION_GAPS.md DRV-ABI-01",
+ "_row_scope": "inputs, outputs, sysvals, interpolation, tilebuffer, calls, scratch, linking and sideband; independently generated blend/logic/conversion epilogs across advertised formats",
+ "_method": "Pure analysis over committed artifacts. Nothing established here; every entry is a citation.",
+ "_target_rule": "Closure is measured against FULL G17P (CLAUDE.md, user directive 2026-08-28). An M4/G16G result is SUPPORTING evidence for this row, never closure evidence. Every entry below carries the target it actually ran on.",
+ "_evidence_labels": "CODEX.md ladder: HW-VALIDATED > DATA-TRACE-VALIDATED > OWN-SHADER-DIFF > STRUCTURAL > INFERRED > UNKNOWN.",
+ "_generated": "2026-08-30",
+
+ "_excluded_non_evidence": [
+  {
+   "experiment": "EXP-0050-fragment-output-abi",
+   "why": "QUARANTINED. Its v1 runner materialized bytes outside its own allowlist (constant/auxiliary program regions) while its README/manifest attested it read only the selected fragment _agc.main. The false clean-room attestation breaks the provenance chain.",
+   "quote": "QUARANTINED - ALL VERDICTS AND CLAIMS BELOW ARE NON-EVIDENCE.",
+   "note": "This is the experiment whose NAME is closest to P0.8's fragment-output sub-area. None of its content may be cited."
+  },
+  {
+   "experiment": "EXP-0071-m4-vertex-fragment-abi-contract",
+   "why": "QUARANTINED pre-GPU. Underspecified frozen matrix; no capture was ever run.",
+   "quote": "PRE-GPU / NO RESULT. P0.8 remains OPEN."
+  },
+  {
+   "experiment": "EXP-0057-m4-scratch-pressure-envelope",
+   "why": "QUARANTINED. Its metadata harness read a compiled pipeline container beyond the registered metadata-only boundary; live records retained only success booleans.",
+   "quote": "EXP-0041 remains the applicable valid M4 negative boundary evidence; EXP-0057 contributes nothing."
+  },
+  {
+   "experiment": "EXP-0118-a18-pro-partial-render-workload",
+   "why": "NOT usable as evidence. RESULTS.md is 5 lines; no target line, no evidence label, no run count, no PRE_REGISTRATION, no CAPTURE_CONTRACT, no manifest, no committed raw. Its only G17P attribution lives in README.md. Committed as 'append-only process history'.",
+   "note": "Named here because it is the only file in the tree that claims a G17P partial-render result; it must not be read as one."
+  }
+ ],
+
+ "subareas": {
+
+  "1_inputs": {
+   "scope": "VS fetch/input ABI for all formats, instancing/divisors, base vertex/instance, and robustness; FS stage_in delivery; CS entry.",
+   "coverage_verdict": "SUBSTANTIAL on M4/G16G; STRUCTURAL-only on G17P. No G17P gated capture exists for this sub-area.",
+   "established": [
+    {
+     "fact": "VS `[[stage_in]]` attribute fetch is IN-SHADER SOFTWARE FETCH. There is no fixed-function attribute-fetch descriptor: stride/offset/format live in the compiled shader; the command-stream attribute table at gpu_va 0x10000100000 supplies only the base pointer, preloaded into a uniform slot selected by `device_load` byte+4 `base_slot = 0x03`.",
+     "experiment": "EXP-0031-sr-abi",
+     "artifact": "experiments/EXP-0031-sr-abi/raw/vertex_attr_fetch.txt",
+     "label": "OWN-SHADER-DIFF",
+     "target": "A18 Pro / G17P",
+     "tested_range": "5 layout knobs, each moving exactly the predicted bytes: stride 32->64 (imad imm `80 00`->`00 01`); attr1 offset 16->12 (`11 04`->`11 84`); attr0 float3->uchar4Normalized (`5d 01`->`61 01` + shift + normalize); attr1 float4->half4 (`5d 01`->`09 04`); perVertex->perInstance (get_sr `0c dd`->`0c d8`). No two-run gate (2026-07-07, predates that regime)."
+    },
+    {
+     "fact": "Every tested vertex-format category produces mutually distinct compiled VS bytes from the same attribute slot, and every layout knob independently moves the compiled bytes. A nonzero instance step rate is not free: rate 1->2 costs +26 bytes, consistent with a real compiled division.",
+     "experiment": "EXP-0109-m4-stage-abi",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01/04_results.jsonl (backend=vfetch_extract)",
+     "label": "OWN-SHADER-DIFF",
+     "target": "M4 / G16G",
+     "tested_range": "7 MTLVertexFormat values (Float4, Half4, UChar4Normalized, Short4Normalized, Int4, UInt4, Int1010102Normalized) at offset 0 / stride 32 / perVertex; 4 layout pairs (stride 32|64, offset 0|16, step vertex|instance, stepRate 1|2). 2 gated runs, 57/57 byte-identical."
+    },
+    {
+     "fact": "Out-of-range vertex fetch reads EXACTLY ZERO with no fault, and the fetch address is computed from `vertex_id` (already base-inclusive), not the raw index. A huge `baseVertex` does not fault, crash, or wrap. Driver consequence: generated VS fetch code needs no additional bounds check under the current buffer model.",
+     "experiment": "EXP-0109-m4-stage-abi",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01/04_results.jsonl (cases vsfetch_hw_inrange, vsfetch_hw_oob, vsfetch_hw_instancing_base, vsfetch_hw_oob_large_base)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 cases, 2 gated runs byte-identical. In-range indices 0..5 exact; OOB index nvert+50=56 against a 6-element buffer -> (0,0,0,0); baseVertex=2/baseInstance=10 shift; baseVertex=1,000,000 -> all 5 records zero. Zero faults."
+    },
+    {
+     "fact": "The same zero-fill-on-OOB policy holds across a genuine CALL boundary: a `noinline` fetch helper reached by a real out-of-line call returns exact values in range and exactly zero out of range.",
+     "experiment": "EXP-0137-m4-bary-split-abi",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (case prolog_render)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "in-range indices 0..5 exact to 4 decimals; OOB index 56 vs a 6-element buffer -> exactly zero. 29/29 cases byte-identical across 2 gated runs."
+    },
+    {
+     "fact": "Per-stage ENTRY contract: nothing is preloaded into a GPR at entry, in any stage. Compute must emit `get_sr` for thread IDs; vertex must emit `get_sr` for vertex_id/instance_id; fragment gets varyings only through the interpolation datapath and position/front_facing through `get_sr`. Only the UNIFORM register file is preloaded (buffer base pointers + scalar constant uniforms), populated by the constant/uniform program.",
+     "experiment": "EXP-0031-sr-abi",
+     "artifact": "experiments/EXP-0031-sr-abi/RESULTS.md sec.3, experiments/EXP-0031-sr-abi/raw/getsr_table.txt",
+     "label": "OWN-SHADER-DIFF (mechanism HW-validated in compute)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "compute/vertex/fragment entry inspected across 44 authored kernels; no run count or cross-run gate (predates that regime)."
+    },
+    {
+     "fact": "CS dynamic threadgroup-memory capacity is a genuine per-dispatch runtime parameter against ONE compiled pipeline: the `[[threadgroup(n)]]` base address is compiled/fixed and the capacity has no compiled dependency.",
+     "experiment": "EXP-0109-m4-stage-abi",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01/04_results.jsonl (case cstgmem_hw_sweep)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "N in {1,2,4,8,16,32,64} (64x dynamic range), same compiled bytecode throughout, exact wraparound at every size, both runs byte-identical. Not tested past 64."
+    }
+   ],
+   "not_established": [
+    "Any G17P gated capture of vertex fetch, format lowering, layout knobs, or OOB behaviour. The G17P side rests on one ungated 2026-07-07 byte-diff (EXP-0031).",
+    "The bit-level encoding of each format's load-width/shift/normalize convert sequence (EXP-0109 establishes THAT the code differs and by how much, not the encoding).",
+    "Packed/integer-typed varyings for the FS input budget (EXP-0097 tested float/half/vector widths only).",
+    "An FS `stage_in` requesting a varying the VS never wrote (EXP-0097: 'not constructible through ordinary MSL and was not pursued')."
+   ]
+  },
+
+  "2_outputs": {
+   "scope": "FS outputs: color, MRT, dual source, depth, stencil, sample mask, discard/demote, and side-effect order. VS pre-raster outputs.",
+   "coverage_verdict": "The STRONGEST sub-area. Field-level legal-value maps exist ON G17P for the whole fragment output path; the behavioural/semantic layer is M4-only.",
+   "established": [
+    {
+     "fact": "The fragment output path is emittable field-by-field on G17P: `frag_tile_setup` -> `frag_color_pack` -> `frag_color_store` / `imageblock_store`, plus `frag_depth_store`. Named silent-zero traps: `frag_color_store.mask` bit 0 clear gives a SILENT ZERO; `frag_color_pack.src_desc` off `mod 8 in {4,6}` silently zeroes; `imageblock_store.b6` bit 0 clear silently zeroes; `frag_depth_store.b4` is correct ONLY at 0 and silently zeroes at every other residue mod 32.",
+     "experiment": "EXP-0155-g17p-emit-tex-frag",
+     "artifact": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl, raw/g17p_20260829_run04/sweep.jsonl, analysis/bit_rules.json",
+     "label": "HW-VALIDATED",
+     "target": "A18 Pro / G17P",
+     "tested_range": "99,526 swept cases over 2 gated runs; each named field swept densely over its full 8-bit range unless a hang budget stopped it (19 of 105 promoted fields are `isolated-byte-diff` for that reason, each recording its exact swept count). 232 exact machine-checked bit rules over 244 comparable (arm, field) triples."
+    },
+    {
+     "fact": "`frag_tile_setup` has only ONE live field. `sel`, `access` and `b5` are inert over all 256 values on 5-8 structurally different carriers; only `b1` is live (silent_zero iff mod 8 <= 1).",
+     "experiment": "EXP-0155-g17p-emit-tex-frag + EXP-0163-g17p-inert-liveness",
+     "artifact": "experiments/EXP-0163-g17p-inert-liveness/analysis/field_verdicts_flat.json",
+     "label": "HW-VALIDATED measurement, labelled `single-template-inference` for emitter purposes",
+     "target": "A18 Pro / G17P",
+     "tested_range": "256 values x 8 arms (EXP-0163), on carriers ibmrt/layer/mrt3/tileread/tilerw2. EXP-0163 is PROVISIONAL: ONE gated run; run02 was deferred behind a coordinated quiet window.",
+     "caveat": "EXP-0163 deliberately labels these INERT-ROBUST negatives `single-template-inference`, not `hardware-run`, because its own emitter guidance is 'emit the compiler-observed value' - a dependency on a captured template, which closure rule 1 forbids."
+    },
+    {
+     "fact": "A fragment colour-store VARIANT that db.json does not decode: `byte+1 == 0x86` (vs 0x06 plain and 0x16 first-after-tile-setup). It falls through to a 14-byte COMPUTE `device_store` in a fragment program that has no writable device buffer. Consequence: every occurrence census ever run against the `frag_color_store` descriptor is unquantified over this form.",
+     "experiment": "EXP-0163-g17p-inert-liveness",
+     "artifact": "experiments/EXP-0163-g17p-inert-liveness/RESULTS.md sec.4b; carrier kernels/k_texcube.metal, store at offset 188",
+     "label": "STRUCTURAL (observed bytes; the proposed nibble-split match fix is explicitly INFERRED and unswept)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "One carrier (k_texcube: four texture samples of a 2D, 3D, cube and 2D-array texture then a float4 return into RGBA32Float). byte+1 was NEVER swept, so the nibble split is a proposal, not a validated fix."
+    },
+    {
+     "fact": "`frag_color_store` semantics: byte+1 == 0x06 is the FRAGMENT tile-store variant (the compute device store is 0x00, 14 B); byte+3 is the source colour GPR; byte+5 is the render-target index as (rt<<1) - RT0=0x00, RT1=0x02, RT2=0x04. Splicing byte+5 0x00->0x02 (store to an absent RT1) leaves RT0 at the clear colour; corrupting byte+1 0x06->0x00 also leaves RT0 clear. MRT emits one store per target, each in its own 0x87/0x07 tile bracket.",
+     "experiment": "EXP-0029-fragment-isa",
+     "artifact": "experiments/EXP-0029-fragment-isa/raw/validations.log sec.6, raw/*.frag.hex",
+     "label": "HW-VALIDATED (splice-and-observe)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "27 authored kernels; 36 hex dumps; 6 numbered validation sections. No run count, no cross-run gate (2026-07-07)."
+    },
+    {
+     "fact": "MRT scales cleanly and independently. Attachment count 1..8 all render correctly with independently-addressed, independently-correct per-target values; adding targets does not perturb lower-indexed ones. The hard ceiling is EXACTLY 8: index 8 raises a FATAL, UNCATCHABLE process abort the instant the attachment array is indexed (`attachmentIndex(8) must be < 8`), with no pipeline or shader involved.",
+     "experiment": "EXP-0109-m4-stage-abi (1/2/4) + EXP-0117-m4-stage-abi-remainder (full 1..8 + ceiling)",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01/04_results.jsonl (cases mrtceil_1..8, mrtapiceil_{1,8,9,10})",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "natt = 1..8 spot-checked at 1 and 8 to exact half-float match; API index probe at 0, 7, 8, 9. 148/148 cases byte-identical across 2 gated runs."
+    },
+    {
+     "fact": "Dual-source blend is native and the naive model is WRONG. `Source1Color`/`Source1Alpha` are FACTOR choices that pull index(1)'s value in as a coefficient; they do not replace index(0) as the multiplicand. The confirmed equation is `result = src0 * factor(src1) + dst * dstFactor`. At the ISA level dual source is 'just an extra output register + one store (no distinct op)'.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder (equation) + EXP-0109-m4-stage-abi (correction) + EXP-0029-fragment-isa (ISA shape)",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01 (case dualsource_hw); experiments/EXP-0029-fragment-isa/raw/*.frag.hex (out_dualsrc)",
+     "label": "HW-VALIDATED (M4 equation) + OWN-SHADER-DIFF (G17P ISA shape)",
+     "target": "M4 / G16G for the equation; A18 Pro / G17P for the ISA shape",
+     "tested_range": "c0*c1 vs c0*c0 discriminated to 3 decimal places; the discriminating probe (sourceRGBBlendFactor=SourceColor) is a DISCLOSED single-run non-frozen supplementary probe, outside the two-run gate."
+    },
+    {
+     "fact": "Explicit fragment depth output genuinely overrides the interpolated rasterizer depth for all three MSL qualifiers under a compare function that cannot mask the write. Shader-supplied `[[depth(any)]]` output is LATE, not early.",
+     "experiment": "EXP-0109-m4-stage-abi + EXP-0091-m4-fragment-sample-discard (GLFS-A05)",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01 (depth_hw_any_250/750, depth_hw_less_250, depth_hw_greater_250); experiments/EXP-0091-m4-fragment-sample-discard/raw/m4_20260827_run01/e_shaderdepth_*.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 depth cases exact, both runs; probe z held at a constant 0.0 so any other buffer value is unambiguous. `[[early_fragment_tests]]` gives ran=0/32 in the fail region vs 32/32 for ordinary and shader-depth testing."
+    },
+    {
+     "fact": "`[[stencil]]` is a real MSL fragment output and its value overrides the encode-time `stencilReferenceValue` under MTLStencilOperationReplace. Values beyond 255 TRUNCATE to their low 8 bits (`value & 0xFF`), they do NOT clamp. `int` (signed) is rejected at compile time; a driver must materialize the value as `uint`/`ushort`.",
+     "experiment": "EXP-0109-m4-stage-abi (existence) + EXP-0117-m4-stage-abi-remainder (overflow)",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (stencilover_*)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "uint 0,1,127,254,255,256,257,511,65535,4294967295; ushort 300,255. 256 and 257 are the DECISIVE disambiguators (low byte != 255) and both match truncation, refuting clamp-to-255. 12/12 exact, both runs."
+    },
+    {
+     "fact": "A dedicated kill / target-mask instruction EXISTS and is not folded into any store: a 6-byte submission op `57 <B1> 54 <B3> <B4> <B5>` immediately followed by a 6-byte companion `07 02 54 01 <B4'> <B5'>`. It is emitted iff the shader calls `discard_fragment()` or writes `[[sample_mask]]`, never for an unrelated divergent branch. Its byte+4 bits[4:0] are a source-register select, splice-proven: value 0x00 reads the real mask; 0x01/0x02/0x04/0x08/0x10 read an always-zero register and kill the fragment on color, depth AND occlusion together.",
+     "experiment": "EXP-0091-m4-fragment-sample-discard (GLFS-A01)",
+     "artifact": "experiments/EXP-0091-m4-fragment-sample-discard/raw/m4_20260827_run01/splice_B4own_*_m1.gated.json; kernels/s_kill_probe.metal, op at file offset 13798",
+     "label": "HW-VALIDATED for byte+4; STRUCTURAL/UNKNOWN for the rest of the bit decode",
+     "target": "M4 / G16G",
+     "tested_range": "9 differential-compile localization probes; byte+4 swept over {0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0xFE,0xFF}; null splices on own byte+1/+3/+5 and companion byte+3/+4/+5 recorded. 78/78 cases byte-identical across 2 gated runs. B1 takes exactly two values, 0x1c (compile-time-provable unconditional) and 0x14 (everything else)."
+    },
+    {
+     "fact": "The same `0x57` opcode is SHARED between the vertex varying store and this fragment kill op, and the discriminator is byte+1's low three bits, NOT byte+2. On G17P: `byte+1 & 7 == 6` preserves the 8-byte VERTEX varying store; `== 4` or `== 5` preserves the 6-byte FRAGMENT kill/target-mask op; `== 3` or `== 7` FAULTS in the vertex form; `== 0,1,2` SILENTLY ZERO. byte+2 is a DON'T-CARE across all 256 values on four independent programs, so the `byte+2 == 0x54` the current descriptor leans on selects nothing.",
+     "experiment": "EXP-0155-g17p-emit-tex-frag sec.4.1 (resolving the collision EXP-0091 first reported)",
+     "artifact": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts.json -> db_defects",
+     "label": "HW-VALIDATED",
+     "target": "A18 Pro / G17P",
+     "tested_range": "byte+2: all 256 values on 4 programs (6-byte fragment form c_kill/c_mask and 8-byte vertex form c_iter/c_vary16). byte+1: two independent code paths (the 0x57 collision probe and the `vary_store.hint1` field sweep) produce the identical residue rule.",
+     "note": "This is the one place where an M4 finding (EXP-0091) was followed through to a direct G17P resolution."
+    },
+    {
+     "fact": "The slot an emitter must get right is `vary_store.out_slot`, NOT `vary_slot.slot`. `vary_slot.sel` (byte+1) leaves the pixel unchanged for exactly one value (0x0c) and moves it for all 255 others, while `vary_slot.slot` (byte+3) was inert across all 256 values on two different vertex programs. EXP-0172 then confirmed the positive half on hardware: `slot` IS live, but it is EXACTLY BIT 2 - all 128 values with bit 2 set move the observation and all 128 with it clear do not, with no exceptions in either run - and bit 2 is NOT where the compiler puts the index (its own baselines are 0x00/0x20/0x40, the varying index shifted left by 5).",
+     "experiment": "EXP-0155-g17p-emit-tex-frag sec.2.4/4.2 + EXP-0172-g17p-onefield-tail sec.2.3",
+     "artifact": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/bit_rules.json; experiments/EXP-0172-g17p-onefield-tail/analysis/field_verdicts.json",
+     "label": "HW-VALIDATED (`hardware-run`)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "EXP-0155: 256 values on two vertex programs (c_iter with 4 varyings, c_vary16 with 12). EXP-0172: 256 values x 4 arms x 2 gated runs, 100% per-value cross-run agreement on the one arm (vsrc) with strict detection power; the other three arms (vmany, vhalf, vflat) had no detection power and moved at 0 of 256.",
+     "note": "EXP-0172's own verdict note: 'it is a lever, but not the one an implementer wants' (DEF-0172-3)."
+    },
+    {
+     "fact": "`[[sample_mask]]`'s effective width is EXACTLY the configured sample count: the mask is the low N bits and every bit at position >= N is silently, uniformly inert - no aliasing, no wraparound, no fault, even at 0xFFFFFFFF. A driver may emit a naive all-ones mask for any legal N.",
+     "experiment": "EXP-0091-m4-fragment-sample-discard (22 cases) + EXP-0117-m4-stage-abi-remainder (14 cases)",
+     "artifact": "experiments/EXP-0091-m4-fragment-sample-discard/raw/m4_20260827_run01/msaa_*.gated.json; experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (samplemask_n{1,2,4}_*)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "N in {1,2,4}; masks 0,1,2,3,4,5,10,12,15,16,32,240,255,65535,2147483648,4294967295. Resolved fraction == popcount(mask & ((1<<N)-1))/N in 22/22 and 14/14 cases."
+    },
+    {
+     "fact": "Fragment discard has SPIR-V DEMOTE semantics (`discard_is_demote = true`): a discarded lane keeps executing, and its post-discard mutation reaches a surviving neighbour through `fwidth` (exactly 999.0 vs 1.0 control), through `quad_shuffle_xor` (the demoted lane's live post-discard register value), and through an implicit-LOD sample's shared quad derivative.",
+     "experiment": "EXP-0091-m4-fragment-sample-discard (GLFS-A02 / OPT-09)",
+     "artifact": "experiments/EXP-0091-m4-fragment-sample-discard/raw/m4_20260827_run01/d_*.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "3 paired demote probes (fwidth before/after, quad_shuffle, implicit-LOD texture) each with its own control, 78/78 byte-identical across 2 runs."
+    },
+    {
+     "fact": "Side-effect suppression for a demoted lane is INHERENT and complete across five channels - colour, depth, device-buffer store, global atomic, AND `[[sample_mask]]` write - all moving together deterministically for every suppressed lane.",
+     "experiment": "EXP-0091-m4-fragment-sample-discard (GLFS-A06, 4 channels) + EXP-0111-m4-fragment-semantics (FS-12, the sample-mask channel)",
+     "artifact": "experiments/EXP-0091-m4-fragment-sample-discard/raw/m4_20260827_run01/g6_suppress{,_control}.gated.json; experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/fs12_samplemask_{control,discard}.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "16/16 control lanes written vs 8/16 test lanes suppressed; atomic counter 8 vs 16; poisoned slot stays 0xEEEEEEEE. FS-12 at N=4: discarded pixel resolves to exactly 0.0."
+    },
+    {
+     "fact": "Output ORDERING: source-statement order of colour/depth/stencil struct-field computation is provably irrelevant (two functions computing identical values in opposite source order compile byte-identically). A real depth-test failure driven by the shader's own depth output completely suppresses colour AND stencil writes, and the stencil op that fires is exactly the one configured for that outcome - verified in BOTH op-assignment directions.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.3",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (fsorder_render_cmp, keep_replace, replace_keep)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "2 source orders (structural byte-identity + functional identity); 2 stencil-op assignments x 2 sides (pass/fail), both runs byte-identical."
+    },
+    {
+     "fact": "A per-fragment DIVERGENT render-target selection works, but its encoding is not understood: the compiled program contains only ONE `frag_color_store` with `rt_index = 0` (an immediate), preceded by `icmp_pred`+`sel`, and TWO `frag_tile_setup` brackets with selector bytes 0x0 and 0xc - which does not match EXP-0029's 0x0/0x4/0x8 fixed-RT-index table for ordinary static MRT. Hardware readback nevertheless proves correct independent routing to 2 and to 3 distinct targets.",
+     "experiment": "EXP-0111-m4-fragment-semantics (FS-11) + EXP-0121-m4-nir-contract (OPT-08)",
+     "artifact": "experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/dynidx_out_unroll_{scan,render}.gated.json",
+     "label": "PARTIAL / UNKNOWN mechanism (readback is HW-VALIDATED; the encoding is not explained)",
+     "target": "M4 / G16G",
+     "tested_range": "2-way and 3-way divergence, exact per-pixel readback 2/2 and 3/3. An array-typed fragment-output struct is REJECTED at compile time ('invalid return type ... for fragment function')."
+    },
+    {
+     "fact": "VS pre-raster special outputs, boundary behaviour: NaN in any position component discards the primitive; +Inf x or y discards while -Inf x or y produces a full fill; w = +0.0 and w = -0.0 behave identically. `[[point_size]]` is exact for 4..511 and CLAMPS 512, 513, 1000, 1e8, NaN and +Inf to the identical 511x511 footprint (ceiling confirmed independent of target size at 2000x2000); 0 and every negative-Inf value discards, while mid-negative values give anomalous off-centre squares that were recorded, not explained. `[[render_target_array_index]]` and `[[viewport_array_index]]` CLAMP every out-of-range value to exactly index 0 - not to N-1, not modulo, not discard.",
+     "experiment": "EXP-0097-m4-varying-capacity (GLPRE-A03)",
+     "artifact": "experiments/EXP-0097-m4-varying-capacity/raw/m4_20260828_run01/02_gated.jsonl (families position_special, point_size, layer_oob, viewport_oob)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "position_special 14 cases on a 4x4 target; point_size 20 cases on 600x600 (re-tested at 2000x2000); layer_oob 13 cases at N=4 and N=8; viewport_oob 8 cases at N=4. 140/140 cases byte-identical across 2 gated runs, zero CMDBUF_ERROR."
+    },
+    {
+     "fact": "Provoking vertex is FIXED to the first-fetched vertex of each assembled primitive (the D3D/Vulkan FIRST_VERTEX convention), per primitive, and Metal exposes no API to change it. A driver targeting GL's default LAST_VERTEX convention must emulate it (index rewrite / attribute duplication).",
+     "experiment": "EXP-0097-m4-varying-capacity (GLPRE-A03)",
+     "artifact": "experiments/EXP-0097-m4-varying-capacity/raw/m4_20260828_run01/02_gated.jsonl (family provoking, 3 cases)",
+     "label": "HW-VALIDATED (behaviour) + PUBLIC-negative (the API-absence half is explicitly 'a documented negative, not a proof of absence across the entire framework')",
+     "target": "M4 / G16G",
+     "tested_range": "3 cases: direct list -> vertex 0's colour; indices [2,1,0] -> vertex 2's colour (so it tracks which vertex was FETCHED first, not vertex_id==0); triangle strip -> second triangle takes vertex 1, its own first window vertex, NOT the newest vertex 3.",
+     "supersedes": "EXP-0029 (G17P) said only 'flat shading takes vertex 0's value'; EXP-0097 explicitly rules out that reading."
+    }
+   ],
+   "not_established": [
+    "Any G17P behavioural evidence for MRT count, dual-source, depth, stencil, sample-mask width, discard/demote, or output ordering. All of that is M4/G16G.",
+    "The role of `frag_color_store` byte+1 bit 7 (the 0x86 variant). EXP-0163: 'whether 0x80 marks a texture-dependency wait, a different tile path, or something else is not established here.'",
+    "`frag_color_pack.dst` - `untested` on G17P, and it is the single field blocking frag_color_pack from being emittable.",
+    "The encoding behind divergent RT routing (EXP-0111 FS-11), flagged 'a possible new hardware-capability lead worth a dedicated splice follow-up'.",
+    "Stencil-output suppression from a demoted lane - INFERRED by analogy only, 'no MSL surface exists to test it directly'.",
+    "Per-sample `[[sample_mask]]`-driven suppression of a SPECIFIC excluded sample's depth/stencil write (EXP-0117 sec.3.3: the uniform-mask mechanism is proven for COLOUR only).",
+    "Repeated/overlapping kill submissions from the same invocation, and whether a separate 'terminate' instruction exists (EXP-0091: 'not located or tested')."
+   ]
+  },
+
+  "3_sysvals": {
+   "scope": "FS and CS system values, their get_sr selectors, and their delivery path.",
+   "coverage_verdict": "GOOD on M4/G16G. On G17P the SELECTOR ITSELF is not emitter-grade: `get_sr.sr_sel` is labelled `untested`, so no system value can be emitted with confidence on the documentation target.",
+   "established": [
+    {
+     "fact": "The `get_sr` SR number is BYTE1 (bits [8:16]), correcting EXP-0010 which called byte0's high nibble the selector - that nibble is the DESTINATION GPR. byte0 bit 3 is a form/width modifier that does NOT change which SR is read.",
+     "experiment": "EXP-0031-sr-abi",
+     "artifact": "experiments/EXP-0031-sr-abi/raw/splice_validation_compute.txt",
+     "label": "HW-VALIDATED (splice)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "SR bytes {0x82, 0x85, 0x98, 0x9c, 0xa0, 0xa4} spliced on `hw_tidx` at grid=64/tg=64, all exact matches. No cross-run gate."
+    },
+    {
+     "fact": "`sr_sel` bit 7 is a structural discriminator over the FULL 256-value space. 0x80-0xFF reads the special-register file (16 named exactly, ~106 aliasing a known SR's pattern, 4 unclassified constants, 2 unclassified period-4 patterns). 0x00-0x7F instead materializes the SELECTOR BYTE ITSELF into the destination at a single fixed slot - an exact linear identity for all 128 values. No value in 0x00-0xFF raises a command-buffer error: the field has NO fault mode.",
+     "experiment": "EXP-0092-m4-sysval-abi (GLIO-A02)",
+     "artifact": "experiments/EXP-0092-m4-sysval-abi/raw/m4-20260828b-run01/04_results.jsonl (backend=srsweep), analysis.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "Exhaustive 0x00-0xFF (256 cases) x 2 gated runs, byte-identical. The MECHANISM behind the single-slot materialization is recorded UNKNOWN, not asserted."
+    },
+    {
+     "fact": "The GPR file's hard ceiling is EXACTLY 96 along the get_sr-dst / device_store-index_reg addressing path: registers 0..95 round-trip exactly; 96, 97, 100, 111, 120, 127 all fault (CMDBUF_ERROR / GPU Hang) deterministically; register 112 is GENUINELY NONDETERMINISTIC (5 faults / 3 silent all-zero successes over 8 informal repeats plus a run01/run02 split). There is no wraparound scheme.",
+     "experiment": "EXP-0092-m4-sysval-abi (GLIO-A02)",
+     "artifact": "experiments/EXP-0092-m4-sysval-abi/raw/m4-20260828b-run01/04_results.jsonl (backend=dstsweep)",
+     "label": "HW-VALIDATED for the 0-95/96-127 boundary; PARTIAL within 96-127",
+     "target": "M4 / G16G",
+     "tested_range": "23 register points, not exhaustive over 0..127. The formal `verify.py --captured` cross-run gate DOES NOT PASS for the full 300-case set because of reg_112; this is reported rather than force-closed.",
+     "g17p_corroboration": "EXP-0155 independently reproduced the same GPR>=96 boundary on G17P across 7 different fields (iter.dst, iter_at.dst, frag_color_pack.dst, simd_ballot.dst, simd_reduce.dst, simd_shuffle.dst, imageblock_store.src): (value & 0xC0) == 0xC0 with bit1 clear FAULTS, with bit1 set HANGS. Core count is throughput, not register file."
+    },
+    {
+     "fact": "SR 0x88 = base_vertex and 0x8a = base_instance, UPGRADED from `(inferred)` to HW-VALIDATED. `vertex_id` and `instance_id` are base-inclusive and wrap mod 2^32; base_vertex reads back as the unsigned reinterpretation of a negative host value.",
+     "experiment": "EXP-0092-m4-sysval-abi (GLIO-A03)",
+     "artifact": "experiments/EXP-0092-m4-sysval-abi/raw/m4-20260828b-run01/04_results.jsonl (backend=drawparam)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "9 cases: baseVertex 0/100/1000000/-5/-1/INT32_MAX, baseInstance 0/50/500000/UINT32_MAX with instanceCount 2 for the wrap. All 9 exact, both runs byte-identical.",
+     "note": "EXP-0031 (G17P) had assigned 0x88/0x8a by byte-diff on a NON-INDEXED, ZERO-BASE draw - indistinguishable from 'always reads zero'. The G17P side of this fact remains that weak byte-diff."
+    },
+    {
+     "fact": "`threadgroups_per_grid` (the load_num_workgroups lowering) reports exactly the requested count for direct dispatch and exactly the raw record for indirect dispatch, with no clamp, truncation or fault at any tested value including UINT32_MAX on one axis and a 65535x65535 product. A bare `get_sr 0xa8` returns threads_per_threadgroup.x, NOT the workgroup count - the real lowering is get_sr 0xa8/a9/aa + a device_load + a divide.",
+     "experiment": "EXP-0092-m4-sysval-abi (GLIO-A05), re-confirming RT-7's A18 finding on M4",
+     "artifact": "experiments/EXP-0092-m4-sysval-abi/raw/m4-20260828b-run01/04_results.jsonl (backend=numworkgroups)",
+     "label": "HW-VALIDATED for the numeric pass-through",
+     "target": "M4 / G16G",
+     "tested_range": "12 cases (6 direct, 6 indirect), both runs byte-identical. A zero on ANY axis means no invocation runs, so `indirect_all_zero` / `indirect_zero_x` are OBSERVED_NO_ORACLE, not confirmation of a (0,0,0) read."
+    },
+    {
+     "fact": "Fragment `get_sr` selectors: 0xa0 = integer pixel X and 0xa1 = integer pixel Y (splice-validated IN THE FRAGMENT STAGE by a mutual swap on a single-pixel triangle); 0xc5 = front_facing, HW-validated on both windings; 0x84 = helper-thread status. `point_coord` and `barycentric_coord` are INTERPOLATED (the 0x2f family), not get_sr; `primitive_id` is a flat tiler-output load. The SR namespace is stage-contextual - 0xa0/0xa1 mean 'position x/y for the running stage'.",
+     "experiment": "EXP-0031-sr-abi (table, G17P) + EXP-0111-m4-fragment-semantics FS-01 (the 0xa0/0xa1 splice, M4) + EXP-0091 GLFS-A03 (0x84)",
+     "artifact": "experiments/EXP-0031-sr-abi/raw/render_validation.txt; experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/poscoord_splice_{x_to_y,y_to_x}.gated.json",
+     "label": "0xc5 HW-VALIDATED on G17P; 0xa0/0xa1 INFERRED on G17P (byte-diff) and HW-VALIDATED on M4; 0x84 named but its raw bit pattern explicitly NOT validated",
+     "target": "mixed - see label",
+     "tested_range": "EXP-0111: single-pixel triangle at (2,1) of a 3x2 target; baseline (2.5,1.5); 0xa0->0xa1 gives (1.5,1.5); 0xa1->0xa0 gives (2.5,2.5). A clean mutual swap. 56/56 cases byte-identical across 2 gated runs.",
+     "note": "The compiler emits `cvt_i2f` on the get_sr result, so the SR delivers a RAW INTEGER; the +0.5 pixel-centre offset is the language's, not the hardware's."
+    },
+    {
+     "fact": "System values are NOT preloaded into uniform registers. Reading vertex_id/instance_id changes ONLY the shader code; the USC uniform preamble is byte-identical (0 words). What the preamble does preload is buffer/vertex base pointers and scalar constant uniforms.",
+     "experiment": "EXP-G1a-usc-sysval-uvs (G1-c)",
+     "artifact": "experiments/EXP-G1a-usc-sysval-uvs/raw/ana/, raw/pick*/",
+     "label": "DATA-TRACE-VALIDATED",
+     "target": "A18 Pro / G17P",
+     "tested_range": "34 draws, all status=4, 0 faults. Change-one-Metal-parameter byte-diffing of our own control BOs. No cross-run gate (2026-07-07)."
+    }
+   ],
+   "not_established": [
+    "`get_sr.sr_sel` is `untested` on G17P in tools/agx-isa/validation.json (EXP-0169, 256 dense values but only ONE carrier). `dp_width` and `dp_marker` are likewise `untested`. So `get_sr` is NOT emittable and no system value can be emitted on the documentation target.",
+    "`sample_id`: NOT-YET-CHARACTERIZED. It has no SR number; it goes through a 0x97 path and folds to 0 on a 1-sample target. Named as unresolved in EXP-0031, EXP-0092 (selector 0x97 reads a constant 32 on a compute dispatch, 'consistent with sample-ID being fragment-stage-only ... not proof of its fragment-stage semantics') and in the addendum as GLIO-A04.",
+    "draw-ID / multidraw: UNKNOWN. Metal exposes no multidraw primitive with a per-draw index visible to a vertex function, so no hardware test was possible. A driver's `load_draw_id` must be synthesized as a per-draw userspace-supplied uniform.",
+    "`get_sr 0x84`'s raw bit pattern for helper status - MSL's `simd_is_helper_thread()` canonicalizes through a language bool, so only the 0/1 semantic is established.",
+    "The three unexpected SR aliases (0x95/0xea -> simd_lane_id pattern, 0xf8 -> simd_group_id pattern) and the two period-4 structured values (0x83/0x94, candidate thread_index_in_quadgroup) - flagged candidates, explicitly not to be promoted.",
+    "The full get_sr suffix decode (dst-high bits + the 0xc/0x4 form bit) and the uniform-program get_sr encoding."
+   ]
+  },
+
+  "4_interpolation": {
+   "scope": "FS interpolation: center/centroid/sample, perspective/noperspective/flat, pull model, barycentrics.",
+   "coverage_verdict": "STRONG. Field-level maps exist on G17P; the semantic layer is M4. Two driver-safety facts here are load-bearing and easy to get wrong.",
+   "established": [
+    {
+     "fact": "Perspective correction is a MULTI-INSTRUCTION LOWERING, not a mode bit: linear/no-perspective is four `iter` with byte+6==0x00; perspective ADDS a W-denominator `iter` (byte+6==0x04), an `0xaf` reciprocal, and a per-component multiply. `iter` is 10 bytes (byte0 0x2f/0xaf, byte+2==0x54), one op per interpolated component; byte+5 is the source varying-slot as (slot<<1) and byte+6 is the mode. `iter_flat` is 6 bytes (byte0 0x1f) and loads the provoking-vertex attribute with no interpolation. The pull model is NOT a separate instruction: interpolate_at_center/centroid/sample compile byte-identically to the matching qualifier.",
+     "experiment": "EXP-0029-fragment-isa",
+     "artifact": "experiments/EXP-0029-fragment-isa/raw/validations.log sec.1-3, raw/*.frag.hex",
+     "label": "HW-VALIDATED (byte+5 slot splice: 0x00->0x02 switched the red output from color.x's x-gradient to color.y's y-gradient; flat renders a constant at all 16 pixels; perspective/linear/flat give three distinct pixels under w-varying geometry)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "27 authored kernels, 4x4 and 6x1 targets. No run count, no cross-run gate."
+    },
+    {
+     "fact": "`iter_at.loc` is BIT 1 ALONE: 0 = centroid, 1 = per-sample. Two equivalence classes of 128 values each; bits 0 and 2-7 are free. This is strictly better than db.json's {1: centroid, 3: sample} enum. The field only becomes live at >= 2 samples - at rasterSampleCount 1 it is 0/256 because centroid and sample are the same point.",
+     "experiment": "EXP-0163-g17p-inert-liveness (the pre-registered controlled test H2)",
+     "artifact": "experiments/EXP-0163-g17p-inert-liveness/analysis/field_verdicts_flat.json; carrier kernels/k_cent.metal built twice differing ONLY in rasterSampleCount",
+     "label": "HW-VALIDATED (`hardware-run`)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "256 values x 10 arms across carriers cent1/cent4/ms4cent/ms4out/atoff4/atoff1. 0/256 move at 1 sample on both cent1 arms and atoff1; 128/256 move at 4 samples on all seven 4-sample arms.",
+     "caveat": "EXP-0163 is PROVISIONAL - ONE gated run. run02 was deferred behind a coordinated quiet window."
+    },
+    {
+     "fact": "All seven MSL interpolation-qualifier spellings compile to seven byte-distinct fragment programs, with the length ordering EXP-0029 predicted (flat shortest; no-perspective shorter than perspective; centroid/sample longer than center). `interpolate_at_offset` is a distinct, much longer lowering (478 B vs 166-184).",
+     "experiment": "EXP-0109-m4-stage-abi",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01/04_results.jsonl (fsin_interp_*)",
+     "label": "OWN-SHADER-DIFF",
+     "target": "M4 / G16G",
+     "tested_range": "7 spellings, 7/7 distinct; 3 pull-model/qualifier pairs byte-for-byte identical. 2 gated runs byte-identical."
+    },
+    {
+     "fact": "Centroid and sample are behaviourally DIFFERENT and were directly discriminated: within one partially covered pixel at N=4, the two live per-sample invocations report IDENTICAL centroid values but MEASURABLY DIFFERENT sample values, each matching its own sub-pixel position. Center extrapolates past the primitive edge; centroid does not.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.6 (using EXP-0111's partial-coverage geometry)",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (case interp_centroid_extrap, per-sample forced); experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/interp_centroid_extrap.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "N=4, single pixel, triangle edge at NDC x=-0.2, 2 of 4 samples covered, pixel CENTRE provably outside coverage. sample_id 0 -> -0.24705887, sample_id 2 -> -0.74901962; centroid -0.24705887 for both; center 0.0039215088 for both. Both runs byte-identical."
+    },
+    {
+     "fact": "DRIVER-SAFETY FACT: `interpolate_at_offset` does NOT follow the MSL spec on this target. Every measured value matches the plane evaluated at an ABSOLUTE window-space pixel-local coordinate equal to (dx,dy) directly - origin at the pixel's TOP-LEFT corner, y DOWNWARD - with no clamping or wraparound up to |offset| = 2.0. A driver must transform (dx,dy) -> (dx+0.5, 0.5-dy).",
+     "experiment": "EXP-0111-m4-fragment-semantics (FS-08)",
+     "artifact": "experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/interp_offset_*.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": ">= 17 distinct offsets across X-only, Y-only and combined-XY, up to |offset| = 2.0. Internal control: interpolate_at_center() and center_perspective both read 0.0 in the same shader where interpolate_at_offset(float2(0,0)) reads -1.0. 56/56 cases byte-identical across 2 gated runs."
+    },
+    {
+     "fact": "DRIVER-SAFETY FACT: `barycentric_coord`'s lowering is INCOMPLETE unless the fragment shader consumes `[[position]]`. Without a position read the compiler emits 2 `iter` and ZERO `fspecial` - raw perspective NUMERATORS with the third derived as 1-b0-b1 and the normalize-by-sum step ABSENT (Model B). Consuming `[[position]]` in any form - even only storing it to a device buffer, never emitting it - adds the W-denominator iter + reciprocal + normalizing multiply, and the result becomes the standard perspective-correct value (Model C). MSL's own `[[barycentric_coord, center_perspective]]` qualifier is a COMPLETE NO-OP: byte-for-byte identical to the unqualified form. A clean-room backend must ALWAYS emit the full perspective sequence.",
+     "experiment": "EXP-0137-m4-bary-split-abi sec.1",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01, analysis/summary.json -> h1.discrimination",
+     "label": "HW-VALIDATED + OWN-SHADER-DIFF (structural)",
+     "target": "M4 / G16G",
+     "tested_range": "7-variant factorial (base, count3_const, count3_vary, attach3ctrl, pos2, posread_noout, pos3) x 2 independent asymmetric triangle/w geometries, plus 2 grammar-probe qualifier spellings. 29/29 cases byte-identical across 2 gated runs. Model B and Model C each match their half exactly in BOTH geometries.",
+     "convention": "barycentric_coord.x/.y/.z correspond to the primitive's vertices in EMISSION (assembly) order (vid%3 == 0,1,2) - the same convention independently established for primitive_id."
+    },
+    {
+     "fact": "`primitive_id` tracks primitive ASSEMBLY order (post-index-resolution), never raw index-buffer content, and RESETS TO 0 for each instance of an instanced draw rather than accumulating.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.5",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (pid_indexed_shuffled, pid_nonindexed, pid_instanced)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "Shuffled index buffer {9,10,11, 0,1,2, 3,4,5, 6,7,8} -> primid 1,2,3,0 by screen column; 2 geometrically disjoint instances both read 0,1,2,3. Poison clear value 999 proves the null detector works. Both runs byte-identical."
+    },
+    {
+     "fact": "Dynamically indexed fragment INPUTS have no register-sourced slot path. `iter`/`iter_flat`'s slot field is a compile-time immediate in every observed instance; an 8-way dynamic index lowers as 'materialize every candidate via its own static interpolation instruction, then select via ALU'.",
+     "experiment": "EXP-0111-m4-fragment-semantics (FS-10) + EXP-0121-m4-nir-contract (OPT-07)",
+     "artifact": "experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/dynidx_in_{select,control}_scan.gated.json",
+     "label": "STRUCTURAL negative + HW-VALIDATED readback",
+     "target": "M4 / G16G",
+     "tested_range": "4-way (EXP-0111, readback exactly [10,11,12,13]) extended to 8-way (EXP-0121, 8/8 exact). Observed iter slot values are small constants 0,6,8,10,12,14,16 - never a register."
+    },
+    {
+     "fact": "Derivatives are quad-local (2x2), proven decisively: a step split WITHIN a quad column-pair gives d=1000.0 for columns {0,1} and 0.0 for {2,3}; a step split exactly BETWEEN quad pairs gives d=0.0 for all 16 pixels. Helper invocations - both demoted and never-covered originals - participate correctly.",
+     "experiment": "EXP-0111-m4-fragment-semantics (FS-04, FS-06)",
+     "artifact": "experiments/EXP-0111-m4-fragment-semantics/raw/m4_20260828_run01/deriv_quadbound_axis{x,y}_{within,between}.gated.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 cases (x/y axis x within/between), 16/16 pixels exact each. Both runs byte-identical."
+    }
+   ],
+   "not_established": [
+    "`iter_at.grp` is `untested` on G17P and is the single field blocking iter_at from being emittable; `iter.b9` is `single-template-inference` and blocks iter.",
+    "`iter_flat` IS listed emittable, but its `_instruction` label is `corpus-correlation` - weaker than emitter-grade. EXP-0173 found the emittability rule NEVER READS the `_instruction` label, so this is an unearned pass.",
+    "Full bit-decode of `iter` byte+8 and the W-coefficient addressing (EXP-0029's own 'recommended next').",
+    "The exact instruction that supplies the +0.5 pixel-centre offset (EXP-0111 FS-01: 'was not further isolated').",
+    "The `0x92`/`0x90` derivative axis-byte anomaly: every dfdx-ONLY kernel (5/5) compiled to 0x90, contradicting docs/isa/encoding-tables.md's '0x92=dfdx'. Reported, not explained.",
+    "MSL-visible per-sample interpolation on G17P at all: EXP-0031 records sample_id folding to 0 on a 1-sample target and names 'MSAA pipeline to characterize sample_id' as its top recommended next; that MSAA work happened on M4 (EXP-0111/0117), never on G17P."
+   ]
+  },
+
+  "5_tilebuffer": {
+   "scope": "The tilebuffer ABI shared by FS, programmable blend, BG and EOT.",
+   "coverage_verdict": "MODERATE and target-lopsided. The instruction-level field map for `tile_read`/`tile_read_mrt` exists ONLY on M4. The BG/EOT program-record side is a documented negative: no such program was locatable at all.",
+   "established": [
+    {
+     "fact": "`tile_read` is the ld_tile analogue: byte0 0x67, byte+1 == 0x0e, 12 bytes, `67 0e 54 <dst> 00 <rt> 01 ce ...`. Programmable blending is proven in-shader: a `[[color(n)]]` fragment INPUT compiles to this op, and `src*src.a + dst*(1-src.a)` reproduces exactly over three different clear colours.",
+     "experiment": "EXP-0029-fragment-isa",
+     "artifact": "experiments/EXP-0029-fragment-isa/raw/validations.log sec.4",
+     "label": "HW-VALIDATED",
+     "target": "A18 Pro / G17P",
+     "tested_range": "3 clear colours, exact float readback. half4 tile read uses the same op. No cross-run gate."
+    },
+    {
+     "fact": "`tile_read` and `tile_read_mrt` have a complete legal-value map per field, and their failure mode is a SILENT ZERO, not a fault. byte+6 bit 0 is a READ-ENABLE: all 128 odd values are correct, all 128 even values give a silent zero. `rt_index` is correct only at 0x00,0x01,0x80,0x81 with one attachment bound - every other index silently returns zero. `tile_read_mrt.fmt` is correct only at {0x2e,0x2f,0x6e,0x6f,0xae,0xaf,0xee,0xef}: bits 0, 6 and 7 are don't-care and bits 1-5 are the format selector. b2 and b4 are fully inert over all 256 values.",
+     "experiment": "EXP-0147-m4-emit-pipeline-misc",
+     "artifact": "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl, raw/m4_20260828_run02/sweep.jsonl, analysis/field_verdicts.json",
+     "label": "HW-VALIDATED for read_en/rt_index/fmt; `untested` for b2/b4/b7/tail/b6_hi",
+     "target": "M4 / G16G",
+     "tested_range": "12,532 cases per run x 2 gated runs = 25,064; cross-run agreement 98.37%. Each byte swept densely over its full 8-bit range; `tail` over 1,075 cases of the 32-bit space.",
+     "driver_consequence": "In a BG/EOT program a wrong rt_index/dst/b6/fmt gives a BLACK TILE, not a loud failure."
+    },
+    {
+     "fact": "A real tilebuffer-read / attachment-write program can be CONSTRUCTED from our own MSL and executed. `f_eot_combine` (dst*2.0 + src) is behaviourally exact against a host oracle on 4/4 boundary cases and its 120 extracted bytes contain BOTH `tile_read` (67 0e 54) and `frag_color_store` (e7 06 54). A paired falsifier carrying frag_color_store but no tile_read returns a constant across all 8 dst values.",
+     "experiment": "EXP-0130-m4-bg-eot-construction",
+     "artifact": "experiments/EXP-0130-m4-bg-eot-construction/raw/m4_20260828_run01/records.jsonl, raw/m4_20260828_run02/records.jsonl; kernels/eot_construct.metal",
+     "label": "HW-VALIDATED (constructed, not decoded)",
+     "target": "M4 / G16G",
+     "tested_range": "23/23 records per run x 2 gated runs; 8 dst boundary cases (zero, small ints, large mixed-sign fractional, +-2^126, +-2^-120, signed-zero probe) x 2 functions, plus 4 (dst,src) pairs for the combine. Gates: selftest 14/14, seqtest 6/6, captured 10/10."
+    },
+    {
+     "fact": "NEGATIVE, driver-relevant: a PURE PASSTHROUGH fragment shape (`return dst;`) is ELIDED ENTIRELY by the compiler - 16 bytes, neither tile_read nor frag_color_store. A driver author cannot use an identity shader to exercise or validate the tilebuffer path. This independently reproduces EXP-0117's blend-side elision (src=Zero, dst=One compiles to a 16-byte stub) from a different code path.",
+     "experiment": "EXP-0130-m4-bg-eot-construction + EXP-0117-m4-stage-abi-remainder sec.1.1",
+     "artifact": "experiments/EXP-0130-m4-bg-eot-construction/raw/m4_20260828_run01/records.jsonl (f_eot_evict)",
+     "label": "OWN-SHADER-DIFF",
+     "target": "M4 / G16G",
+     "tested_range": "2 independent code paths (MSL identity return; blend-descriptor dst-passthrough), both runs byte-identical."
+    },
+    {
+     "fact": "NEGATIVE, bounded: no BG/EOT PROGRAM record, pointer or tag was locatable at the userspace<->kernel boundary for any tested configuration. Consequently EXP-0108 reports there is 'no register file, calling convention, or instruction-level tilebuffer-load/store ABI to characterize from this experiment's evidence'. Two hypotheses are left undistinguished: a fixed canonical routine whose address never changes, or genuinely fixed-function silicon/firmware.",
+     "experiment": "EXP-0108-m4-bg-eot-programs",
+     "artifact": "experiments/EXP-0108-m4-bg-eot-programs/raw/m4-20260828-run05/, raw/m4-20260828-run06/, analysis.json",
+     "label": "DATA-TRACE bounded negative",
+     "target": "M4 / G16G",
+     "tested_range": "40 cases over 11 axes (action 7, mrt 3, mrt-mixed 1, format 7, msaa 5, memoryless 1, depth 5, stencil 3, depth-stencil 1, empty 3, partial 4), 2 officially gated runs plus 2 earlier complete pairs = 6 gated runs. Partial-render magnitude up to 4M target pixels and ~600,000 triangles.",
+     "explicitly_not_refuted": "'a program could exist for a configuration outside this matrix'."
+    },
+    {
+     "fact": "Depth and stencil populate the SAME k-indexed 0x20-byte attachment descriptor array as colour, at k=ncolor and k=ncolor+1, and the presence of a depth or stencil attachment adds exactly +1 region each (memoryless depth adds none). A format change alone never adds or removes a region - including RGBA16Float, which would plausibly need conversion logic if any program-level conversion existed.",
+     "experiment": "EXP-0108-m4-bg-eot-programs sec.2.2-2.3 (and EXP-0132 for the promoted P1.1 form)",
+     "artifact": "experiments/EXP-0108-m4-bg-eot-programs/analysis.json",
+     "label": "region-count delta is gate-proven byte-exact; the descriptor-slot CONTENT is explicitly 'STRUCTURAL / doubly-corroborated, NOT byte-exact-gated'",
+     "target": "M4 / G16G",
+     "tested_range": "40 cases, 6 gated runs across 3 pairs; 7 formats tested for the no-delta claim."
+    }
+   ],
+   "not_established": [
+    "ANY G17P field-level evidence for `tile_read`/`tile_read_mrt` - every field's target is M4 in validation.json. Both instructions are NOT emittable (5 and 3 blocking fields).",
+    "`imageblock_load`: NOT ATTEMPTED on G17P because no carrier we can compile emits it. The explicit-layout fragment imageblock still does not compile; the programmable-blending route compiles to `tile_read` instead; a plain colour output compiles to frag_color_store or imageblock_store. All 5 of its fields stay `untested`. A tile shader dispatched with dispatchThreadsPerTile is the named next carrier.",
+    "Why the choice of texture-sample form changes the store encoding: the RGBA32Float colour output of an implicit-LOD sample carrier is encoded as `imageblock_store`, while the byte-for-byte equivalent explicit-LOD program emits `frag_color_store`. EXP-0155: 'not established and is a good follow-up'.",
+    "The `usc` low-bit tag (| 4 / | 8) and `rsrc_spec`'s Apple9 bit layout - both are PUBLIC-only inference from Mesa's M1/M2-class genxml, explicitly not asserted as Apple9 facts.",
+    "The fused `store_block_agx`-class EOT eviction instruction - whether it exists on Apple9 at all, and whether it is reachable from any public Metal API. UNKNOWN.",
+    "BG_LOAD construction as such, and the txf-against-self mechanism independently HW-validated in a BG role.",
+    "`n3_sample_read` (the fragment sample-id / sample-position read): b1 and b3 are `untested`, target M4, and it is not emittable."
+   ]
+  },
+
+  "6_calls": {
+   "scope": "Prolog/main/epilog calls and branches, calling convention, register allocation across a call.",
+   "coverage_verdict": "The SEMANTIC layer is good and partly on G17P. The EMISSION layer is not: `call` is not emittable and 4 of its 5 fields are `tokenization-only` - framing only, no value semantics.",
+   "established": [
+    {
+     "fact": "G17P has a real CALL/RETURN implemented in the CONTROL-FLOW family (byte0 low nibble 0xf), not a dedicated opcode group. CALL is `0f 05 54 1a 8f 00 56 <off40> 00` (14 B) and the target is EXACTLY (call_instruction_address + 4) + off40. RETURN is `8f <linkmode> 54 00` (4 B) with NO TARGET FIELD - the return address comes from a hardware link register / control-flow stack. Every out-of-line call is preceded by a 4-byte call-site/frame marker `43 00 00 01` and followed by a 6-byte reconverge `0f 06 04 02 00 00`; the call reuses the 0f 05 / 0f 06 execution-mask push/pop machinery.",
+     "experiment": "EXP-0035-function-abi",
+     "artifact": "experiments/EXP-0035-function-abi/raw/call_offset_verify.txt, raw/hwval.txt, new_descriptors.json",
+     "label": "HW-VALIDATED for the opcode, target formula and return; the byte 0x43 marker is 'byte-observed'",
+     "target": "A18 Pro / G17P",
+     "tested_range": "4 call sites at distinct distances (-104, -158, -552, -458), helper always at section offset 64. 3 levels of nesting. NO RUN COUNT and NO CROSS-RUN GATE - this experiment predates that regime.",
+     "correction_it_carries": "byte0 0x43 is the call/frame marker, correcting EXP-0030's claim that it was mesh-unique."
+    },
+    {
+     "fact": "Calling convention: arguments pass in consecutive 32-bit GPRs from r10 (arg0->r10, arg1->r11, ...); `half` args use the low 16 bits of their GPR; the return value comes back in r10 for float/int/half. For the arg counts tested there is no separate argument stack. The STACK FRAME IS THE PER-THREAD SCRATCH: a callee exceeding the 96-GPR file spills there, and a non-leaf callee also saves its link register there around inner calls.",
+     "experiment": "EXP-0035-function-abi (2 args) extended by EXP-0137-m4-bary-split-abi (5 args)",
+     "artifact": "experiments/EXP-0035-function-abi/raw/abi_and_frames.txt; experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (case callret_struct/callret_render)",
+     "label": "HW-VALIDATED for the argument side; STRUCTURAL for the multi-component return",
+     "target": "A18 Pro / G17P (EXP-0035, <=12 args) + M4 / G16G (EXP-0137, 5 args confirmed landing in raw dst registers 0xa..0xe = r10..r14)",
+     "tested_range": "EXP-0035: arg counts up to 12, nesting depth 3. EXP-0137: 5 scalar args, float4 return, 2 call sites, 29/29 cases byte-identical over 2 gated runs.",
+     "unresolved": "The EXACT PHYSICAL REGISTER NUMBERING of a multi-component (vector) return is NOT derived. The caller retrieves a float4 result via 4 distinct move-class ops (reg_move_c9 / rtq_state_move), a different class from the argument-setup path's falu2i / reg_move_c1. Flagged STRUCTURAL, open for DRV-ISA-01."
+    },
+    {
+     "fact": "The `byte+6` 0x54-vs-0x56 discrepancy between EXP-0109 and EXP-0035 is resolved on M4: byte+6 is UNIFORMLY 0x54 across six constructed call topologies (single call, 2 calls same callee, 2 calls different callees, 3 calls, an inflated-callee-body probe, and a nested non-leaf spilling frame) and across an off40 range of -84 to -154. This refutes a call-site-count explanation and a leaf-vs-nonleaf explanation. A toolchain-version difference is the leading candidate but is INFERRED and unprovable without the old toolchain.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.7",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (callabi_*)",
+     "label": "HW-VALIDATED on M4 for the invariance; INFERRED for the toolchain explanation",
+     "target": "M4 / G16G",
+     "tested_range": "6 topologies, both runs byte-identical. Disclosed limitation: the `k_far` attempt to isolate off40 magnitude did NOT change the offset, so magnitude/sign was only tested over the -84..-154 range the other five topologies happened to span."
+    },
+    {
+     "fact": "Call NESTING DEPTH 1..128 all execute correctly against an exact host oracle with zero faults. No depth limit was found in range. Recursion is lowered to ITERATION (a backward jump, no self-call), so unbounded recursion is not representable and call depth is statically bounded at compile time.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.7.3 (depth) + EXP-0035-function-abi (recursion)",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (calldepth_1..128), harness/gen_callchain.py",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G (depth) + A18 Pro / G17P (recursion lowering)",
+     "tested_range": "14 constructed depths 1,2,3,4,6,8,12,16,24,32,48,64,96,128 - 14/14 exact, both runs. Beyond 128 is UNTESTED, not 'unlimited'."
+    },
+    {
+     "fact": "`ret.linkmode` is measured on G17P over all 256 values (`hardware-run`). `pop_reconverge` is emittable with all fields emitter-grade. `frame_prologue`, `link_save_restore` and `spill_frame_marker` are emittable and their semantics are documented in docs/compiler-readiness.md from EXP-M4-14: frame_prologue.subop runs ONLY when bits[1:0] == 0b11; link_save_restore.scope passes at 0x81/0x83 and CORRUPTS the save / HANGS the restore at 0x00/0x80/0x01, with 0xff a GPU page fault; link_save_restore.dir_offset is 16-bit, correcting the DB's former 24-bit field.",
+     "experiment": "EXP-0156-g17p-emit-cf-mem (ret.linkmode) + EXP-M4-14 (frame semantics)",
+     "artifact": "tools/agx-isa/validation.json; docs/compiler-readiness.md sec. 'Function frames'",
+     "label": "hardware-run",
+     "target": "G17P for ret.linkmode; A18 for the three frame instructions",
+     "tested_range": "ret.linkmode 0..255 dense.",
+     "caveat": "EXP-0173 found `link_save_restore.b1`, `.marker` and `.scope` have ZERO FREE BITS - they are part of the match, not fields - so 3 of that instruction's 6 emitter-grade labels assert a choice the implementer does not have. Its real payload is the 16-bit dir_offset. `spill_frame_marker`'s EXACT ROLE IS UNRESOLVED, and EXP-0041 found its byte pattern `60 00 00 00` occurred ZERO times in every captured main including proven-spilling CS/VS/FS programs."
+    }
+   ],
+   "not_established": [
+    "`call` is NOT emittable. `b3`, `b5`, `b6` and `tail` are all `tokenization-only` - 'framing only (round-trips; no value semantics established)' - and only `offset` is emitter-grade, at `isolated-byte-diff` over 4 distances on A18. An implementer cannot emit a call.",
+    "`ret.scoreboard` is `corpus-correlation`: EXP-0172 swept 41 of 256 values on 1 arm in 1 run and DECLINED promotion in advance. `ret` is therefore not emittable.",
+    "The non-leaf frame (0x6f prologue + the 0x07 link save/restore pair + `8f 12` ret) is explicitly 'byte-diff (NOT HW-isolated)' in EXP-0035's own evidence table - 'structure clear; fields not splice-isolated'.",
+    "The INDIRECT call (`0f 80` + the 0x4b marshalling run): 'behaviour HW-validated; operand fields TBD'.",
+    "`byte+5`'s semantics beyond a 2-call nested frame (0x10 for the first nested call, 0x00 for the second) - INFERRED, not chased.",
+    "Whether the CALL boundary composes correctly under genuine register-pressure/spill conditions for a prolog/epilog-shaped callee specifically - cited from EXP-0035's general case, not re-stress-tested.",
+    "Any G17P replication of the M4 call facts (byte+6 invariance, depth 1..128, 5-argument convention)."
+   ]
+  },
+
+  "7_scratch": {
+   "scope": "Per-thread scratch as the call stack and spill area; the helper-program protocol P0.1 shares.",
+   "coverage_verdict": "The HELPER PROTOCOL IS EMPTY - a three-times-independent negative, and the experiments themselves conclude it is not observable from the macOS boundary. What IS established is the exact allocation ceiling and one silent-corruption failure mode.",
+   "established": [
+    {
+     "fact": "THREE INDEPENDENT NEGATIVES at three points in the process lifecycle. (1) EXP-0041, narrow BO allowlist at 208-576 B declared scratch: no scratch-correlated helper record, compute launch word, FS state word, or allocation change. (2) EXP-0107, wide-content dispatch-time sweep at 454x that pressure: bo_count (27) and bo_total_bytes (2,428,032) IDENTICAL across every successful K level in both runs; multiplying declared scratch by 32x-42x at fixed grid changes nothing in the address-free footprint - the aggregate registered-BO footprint tracks GRID SIZE ONLY. (3) EXP-0125, init-time lifecycle trace: the full address-free BO inventory is BYTE-IDENTICAL between a process that never spills and one that spills 98,320 B/thread, at all six checkpoints from DEVICE_CREATED to post-dispatch. Selector-5 ('shared pages') was never observed to be called at all.",
+     "experiment": "EXP-0041-scratch-helper-abi, EXP-0107-m4-scratch-helper-abi, EXP-0125-m4-scratch-helper-init",
+     "artifact": "experiments/EXP-0041-scratch-helper-abi/analysis/m4_20260817_repeatability.txt; experiments/EXP-0107-m4-scratch-helper-abi/raw/m4-20260827-run0{1,2}/02_cases.jsonl; experiments/EXP-0125-m4-scratch-helper-init/raw/m4-20260828-run0{1,2}/",
+     "label": "DATA-TRACE bounded negative (three independent methods)",
+     "target": "M4 / G16G (all three)",
+     "tested_range": "EXP-0041: 9 authored cases, 0-576 B, 2 runs. EXP-0107: 30 cases, 0-261,728 B declared, 64-4,194,304 threads, 2 runs, 30/30 gated keys identical. EXP-0125: 12 checkpoint records + 57 bisect trials + 72 concurrency trials, 2 runs.",
+     "own_conclusion": "'the scratch/helper mechanism is not observable from userspace's own IOKit resource-map boundary on macOS' and 'the helper program and scratch-pool layout most likely need to be constructed from first principles against the hardware's actual behavior ... not decoded from a macOS capture.'"
+    },
+    {
+     "fact": "The declared per-thread scratch CEILING is exact and stage-uniform: last success K=65,431 = 261,740 bytes; first failure K=65,432 = 261,744 bytes - a 4-byte (one array element) resolution, identical for CS, VS and FS. The failure is a clean nil from pipeline creation with the public error string 'Compute function exceeds available stack space'. It is a COMPILE-TIME property, determined before any dispatch parameter is specified. No fault, no hang, no silent wrong answer.",
+     "experiment": "EXP-0125-m4-scratch-helper-init (H3), refining EXP-0107's 261,728 B / K=65,430 endpoint",
+     "artifact": "experiments/EXP-0125-m4-scratch-helper-init/raw/m4-20260828-run0{1,2}/ (B family)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "K in [1,024, 131,072] bisected to adjacent-K resolution independently for CS/VS/FS; 57 gated trials + 3 results, byte-identical across 2 runs.",
+     "mesa_relation": "The ratio to Mesa's own byte->dword formula is 2.0032x. Mesa's AGX_MAX_SCRATCH_BLOCK_LOG4=6 is measured on this Apple9 hardware to be too high by very close to a factor of 2. The residual ~0.1-0.3% is reported, not resolved."
+    },
+    {
+     "fact": "A real, non-crash, non-timeout failure mode exists under concurrent pressure: above n_queues = 4 the dominant signature is CHECKSUM MISMATCH - SILENT NUMERICAL CORRUPTION, not a clean rejection. n_queues <= 4 is always clean (12/12 trials, both runs). The onset threshold is NOT a fixed constant across sessions (run01 first failures at 8, run02 clean through 16 and first failures at 32).",
+     "experiment": "EXP-0125-m4-scratch-helper-init (H4)",
+     "artifact": "experiments/EXP-0125-m4-scratch-helper-init/raw/m4-20260828-run0{1,2}/ (C family)",
+     "label": "DATA-TRACE / HW-PROBE; existence and signature established, MECHANISM not",
+     "target": "M4 / G16G",
+     "tested_range": "n_queues in {1,2,4,8,16,32}, 6 repeats each, K=24,576, grid=65,536, threadgroup=256; 72 trials per gated run x 2."
+    }
+   ],
+   "not_established": [
+    "Everything the helper protocol needs, quoting EXP-0107's own list: helper program binary/cfg/data tags and every cfg bit for VS/FS/CS/preamble; helper data input special registers and NEXT/ACK/NACK doorbell encodings; scratch header, per-core block list, block descriptor, alignment/address shift, bucket rules, maximum active subgroups, block size/count; topology/core-mask to helper-core mapping; reset/growth/concurrency semantics; proof that G16/G17 consume the existing drm_asahi_helper_program fields at all.",
+    "The trace vector's own blind spot: the interposer covers only IOServiceOpen / IOConnectCallMethod, and it logs only the PRESENCE of the firmware-shared submission-ring pages (selector 5), not their content. 'If a scratch/helper doorbell protocol lives there rather than in a sel-9-mapped BO, this experiment could not have found it.'",
+    "Any G17P replication of the ceiling, the negatives, or the concurrency failure mode.",
+    "Whether the CALL boundary composes with the spill mechanism for a prolog/epilog-shaped callee (see sub-area 6)."
+   ]
+  },
+
+  "8_linking": {
+   "scope": "Prolog/main/epilog live-ins/outs, calls/branches, register allocation, and resource merging across a split.",
+   "coverage_verdict": "The CONTRACT IS SPECIFIED and constructed - on M4 only - and it rests on a CALL instruction that is not emittable. This is the sub-area with the widest gap between 'we know what to do' and 'we can emit it'.",
+   "established": [
+    {
+     "fact": "There is NO native fixed-function or separately-loaded prolog/epilog unit. Metal's own compiler never produces a separately-addressed 'prolog' object for attribute fetch or an 'epilog' object for fragment output: every render/compute pipeline reports exactly [_agc.main.constant_program, _agc.main]. A Mesa-style prolog/epilog key-based variant split is a SOFTWARE organization choice, not something the Apple9 hardware ABI requires or exposes.",
+     "experiment": "EXP-0109-m4-stage-abi sec.5.1",
+     "artifact": "experiments/EXP-0109-m4-stage-abi/raw/m4-20260828-run01/04_results.jsonl (10 spot-checked cases spanning both stages)",
+     "label": "OWN-SHADER-DIFF (structural negative)",
+     "target": "M4 / G16G",
+     "tested_range": "10 cases: 3 vsfetch_format render pipelines, fsin_interp_persp, fsout_stencil_struct, fsout_depth_any, fsout_mrt_4, fsout_dualsource_struct, cs_preamble_with_constant, cs_preamble_no_constant. Both runs byte-identical."
+    },
+    {
+     "fact": "REFINEMENT of the above: given the right shape, Metal's own toolchain DOES emit a real out-of-line code object. A vertex helper performing a genuine memory load and a 2-call-site compute helper each produce THREE Mach-O regions with a real named local symbol and real call / frame_marker / pop_reconverge instructions; a single-call-site fragment epilog is inlined despite `[[clang::noinline]]` (confirmed unaffected by attribute spelling). EXP-0109's 10 cases all happened to land in the inlining regime.",
+     "experiment": "EXP-0137-m4-bary-split-abi sec.2.1",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (barystruct/prolog_struct/callret_struct region reports)",
+     "label": "OWN-SHADER-DIFF (structural), both runs byte-identical",
+     "target": "M4 / G16G",
+     "tested_range": "3 kernel shapes (fragment 1-call epilog; vertex 1-call fetch; compute 2-call helper). Apple's inlining HEURISTIC is explicitly out of scope and not characterized."
+    },
+    {
+     "fact": "The split-seam contract is CONSTRUCTED and numerically validated. Epilog seam: a branching blend computation forwarded across a real call boundary matches the standard blend arithmetic exactly in both branch modes. Prolog seam: a called fetch helper is exact in range and exactly zero out of range. Multi-value crossing: a 5-scalar-argument, float4-returning callee called from two sites is exact for every tested input, with each call site bracketed by frame_marker (43 00 00 01) before and pop_reconverge (0f 06 04 02 00 00) after.",
+     "experiment": "EXP-0137-m4-bary-split-abi sec.2.2",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (epilog_render_mode{0,1}, prolog_render, callret_render)",
+     "label": "HW-VALIDATED + STRUCTURAL",
+     "target": "M4 / G16G",
+     "tested_range": "2 blend modes x boundary values; 6 in-range fetch indices + 1 OOB; 4 threads x 2 call sites. 29/29 cases byte-identical across 2 gated runs."
+    },
+    {
+     "fact": "RESOURCE MERGING is not a real problem, and the reason is a proven negative: an entry-only MSL attribute (`[[color(0)]]`) placed on a NON-ENTRY helper parameter is syntactically ACCEPTED and semantically INERT - the parameter simply receives whatever value the caller forwarded. A genuinely out-of-line callee cannot and must not declare its own resource or stage-IO bindings; a driver must fix a single pipeline-wide binding table BEFORE generating any of prolog/main/epilog, and no runtime relocation or re-binding happens at the CALL boundary.",
+     "experiment": "EXP-0137-m4-bary-split-abi sec.2.2 (negctrl)",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (negctrl_struct, negctrl_render)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "callee readback exactly equals the caller's forwarded clear-colour value in every tested case - never a re-invoked tile read, never garbage. Both runs byte-identical.",
+     "disclosed_correction": "This refutes the experiment's own pre-registered H2d, which expected either outright rejection or unsafe silent garbage."
+    },
+    {
+     "fact": "Control flow INSIDE a called epilog works: the constructed branching add-vs-mul blend body executed correctly, so a driver's epilog generator may use ordinary conditional branches inside a genuinely out-of-line epilog object, not just straight-line code.",
+     "experiment": "EXP-0137-m4-bary-split-abi sec.2.3",
+     "artifact": "experiments/EXP-0137-m4-bary-split-abi/raw/m4-20260828-run01 (epilog_render_mode0/mode1)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "2 branch modes, exact arithmetic match, both runs byte-identical."
+    }
+   ],
+   "not_established": [
+    "The whole contract rests on the CALL/RETURN ABI, and `call` is NOT emittable (sub-area 6). A driver following this contract cannot currently generate the instruction it prescribes.",
+    "The exact physical register numbering of a multi-component CALL return - the one field of the contract EXP-0137 could not pin down.",
+    "Any G17P evidence at all for the split seam, the region count, or the inert-attribute negative.",
+    "Whether the seam composes under real register pressure for a prolog/epilog-shaped callee.",
+    "A genuinely split prolog/epilog pair generated end to end by our own emitter (as opposed to authored MSL compiled by Apple's compiler) - this is closure rule 6 for the row and no experiment has attempted it."
+   ]
+  },
+
+  "9_sideband": {
+   "scope": "The pipeline-wide state that links stages: USC binding grammar, UVS slot linkage, varying budget, and the fixed-function words that must agree with the shader.",
+   "coverage_verdict": "PARTIAL. The G17P side is one ungated 2026-07-07 DATA-TRACE; the capacity side is M4 and its byte-level generalization is explicitly INFERRED.",
+   "established": [
+    {
+     "fact": "There is NO G13-style single tagged 'USC control-word list'. Binding is split across three structures: (1) textures + samplers into a Tier-2 argument buffer with a 2-pointer header [texture-array VA][sampler-array VA] followed by 32-byte texture descriptors then 8-byte sampler descriptors, where the header itself is the count/split field (num_textures = (samp_ptr - tex_ptr)/0x20); (2) buffers into a table of 8-byte LE GPU VAs in binding-index order; (3) uniform preload into a per-stage USC uniform-preamble program led by tagged 8-byte words - 0x0088_00XX register/shader-config with XX = stage x 0x0c, 0x0042_XXXX uniform-data pointer, 0x0020_00XX uniform-slot count (+2 per preloaded resource).",
+     "experiment": "EXP-G1a-usc-sysval-uvs (G1-a)",
+     "artifact": "experiments/EXP-G1a-usc-sysval-uvs/raw/ana/, raw/pick*/",
+     "label": "DATA-TRACE-VALIDATED",
+     "target": "A18 Pro / G17P",
+     "tested_range": "34 draws, all status=4, 0 faults, change-one-resource-type byte-diffing from a byte-identical baseline. No cross-run gate."
+    },
+    {
+     "fact": "VS->FS UVS linkage is POSITIONAL and cross-stage-compacted: `[[position]]` occupies slots 0-3 and user varyings start at slot 4, one slot per scalar component in declaration order; the FS `iter` reads them by coefficient index; only varyings the FS actually consumes are emitted. HW-validated by reorder: an identical FS reading the middle UVS slot rendered 0.200 vs 0.302 depending only on which value the VS wrote there.",
+     "experiment": "EXP-G1a-usc-sysval-uvs (G1-e)",
+     "artifact": "experiments/EXP-G1a-usc-sysval-uvs/raw/ana/, raw/shaders/",
+     "label": "HW-VALIDATED (reorder)",
+     "target": "A18 Pro / G17P",
+     "tested_range": "linkA/linkB/vary3 kernels; no cross-run gate."
+    },
+    {
+     "fact": "The varying budget is EXACTLY 124 user scalar components consumed by the fragment function - per scalar, independent of declared vector width and of bit width (half vs float), and counted on POST-LINK LIVENESS, never on the raw declared struct size. N=125 gives a clean pipeline rejection naming the limit; N>=127 crashes Metal's out-of-process compiler service (XPC_ERROR_CONNECTION_INTERRUPTED). Clip distance is an INDEPENDENT budget of exactly 8 that is never shared with or counted against the varying budget. `cull_distance` is not a recognized MSL attribute at all and therefore consumes no budget.",
+     "experiment": "EXP-0097-m4-varying-capacity (GLIO-A01)",
+     "artifact": "experiments/EXP-0097-m4-varying-capacity/raw/m4_20260828_run01/02_gated.jsonl (families vary_scalar 52, vary_dce 6, clip_sweep 14, vary_clip_combo 5, cull_negative 1, vary_render_confirm 4)",
+     "label": "HW-VALIDATED at the Metal-API level",
+     "target": "M4 / G16G",
+     "tested_range": "float4 31 OK / 32 FAIL; float2 62 OK / 63 FAIL; float3 41 OK / 42 FAIL; half 124 OK / 125 FAIL. DCE: declared 500 used 10 OK, declared 200 used 200 FAIL, declared 150 used 124 OK / used 125 FAIL. Real draws at 124 float, 31 float4 and 62 float2 all summed correctly to 4 decimals - the max-legal pipeline both creates AND executes. 140/140 cases byte-identical across 2 gated runs."
+    }
+   ],
+   "not_established": [
+    "The generalized UVS byte field `0x58000+0x2c = 4 + total_user_varying_scalar_components` (ceiling 128) is explicitly labelled INFERRED - EXP-G1a HW-validated it only for nvary 0..8, and EXP-0097 did not re-capture the byte at the new 124-scalar boundary.",
+    "The mismatch between Metal's 124-component validator limit and the hardware field: EXP-0097 notes 'EXP-G1a's 0x57 varying-store 9-bit slot field structurally reaches 511' and that bypassing the validator via hand-assembled UVS stores was declared OUT OF SCOPE. Whether the hardware accepts more than 124 is UNKNOWN.",
+    "Packed / integer-typed varyings (int, uint, short) - all legal MSL varying types, none swept.",
+    "The inverse linkage direction: an FS stage_in requesting a varying the VS never wrote.",
+    "Any gated (two-run) capture of the USC binding grammar or the UVS linkage; both rest on a single 2026-07-07 experiment.",
+    "docs/mesa-userspace-requirements.md's own P0.8 row ('Fast-link prolog/epilog') still lists the state-baking split as pending: 'vertex-input formats, polygon stipple, sample-mask, cull-distance, color-format conv'."
+   ]
+  },
+
+  "10_epilogs": {
+   "scope": "Recovered and experimentally validated blend/logic/format-conversion semantics for all advertised factors, operations, RGB/alpha separation, dual source, write masks, constants, alpha-to-coverage/one, min/max, sRGB, normalized/integer/float conversion, NaNs, and MSAA/sample masks. Specify what an epilog generator must emit.",
+   "coverage_verdict": "The single best-covered piece of P0.8 BY VOLUME, and the worst-attached: it is entirely M4/G16G, it has NO PROVENANCE.md row, and none of it is in the normative docs.",
+   "established": [
+    {
+     "fact": "All 19 advertised MTLBlendFactor values match the standard GPU blend-factor formula table exactly, in both the source and the destination role, including SourceAlphaSaturated's RGB-role min(srcA, 1-dstA) diverging correctly from its alpha-role pin at 1.0. All 5 MTLBlendOperation values match exactly, and RGB/alpha ops are independently selectable. None requires software emulation.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.2-1.3",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01/04_results.jsonl (blendfac_src_*, blendfac_dst_*, blendop_*), analysis/decode.py, analysis/summary.json",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "23/23 factor cases (19 in the source role with dst pinned to Zero, 4 dst-role spot checks) and 5/5 op cases, on an RGBA32Float target for exact float32 readback, src=(0.7,0.4,0.2,0.9), dst=(0.3,0.6,0.8,0.1), blendConstant=(0.25,0.75,0.5,0.6), Source1=(0.5,0.6,0.7,0.8). Tolerance 1e-3, actual agreement well under. Both runs byte-identical."
+    },
+    {
+     "fact": "THE SYNTHESIS RULE an epilog generator must implement, read directly off Metal's own compiler: classify the configured (sourceFactor, destinationFactor, op) triple at pipeline-build time and emit `tile_read` ONLY IF the destination's true numeric value is required. Structurally confirmed: blending disabled and blending enabled with src=One/dst=Zero compile to LITERALLY THE SAME 56 bytes; src=Zero/dst=One (a dst-identity) compiles to a 16-byte stub with only a frag_tile_setup + fence and no store at all; only a genuinely data-dependent configuration is longer and contains tile_read. The dependence is evaluated from the pipeline descriptor alone - no shader-source change is involved.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.1",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (blendstruct_off, blendstruct_on_srconly, blendstruct_on_dstonly, blendstruct_on_both)",
+     "label": "OWN-SHADER-DIFF (structural), both runs byte-identical",
+     "target": "M4 / G16G",
+     "tested_range": "4 blend-state variants compiled from the SAME MSL source (f_solid) through identical pipeline-descriptor variation."
+    },
+    {
+     "fact": "LOGIC OPS - a Vulkan VK_LOGIC_OP_* capability the fixed-function-shaped Metal blend descriptor cannot express at all - were INDEPENDENTLY CONSTRUCTED as a programmable epilog and are bit-exact. The working template: (1) declare the output attachment ALSO as a `[[color(n)]]` fragment INPUT, which forces `tile_read`; (2) compute the result with ordinary bitwise ALU against the read-back destination; (3) return it as the ordinary `[[color(n)]]` output, which emits `frag_color_store`. No special hardware mode, descriptor field or fixed-function unit exists or is required.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.10",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (f_logic_and/or/xor/inv/copy on an R32Uint attachment, two-pass render with loadAction=Load)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "8/8 constructed cases exact, both runs: AND F0F0F0F0&FF00FF00, AND identity boundary 0&FFFFFFFF, OR 0F0F0F0F|F0F0F0F0, XOR AAAAAAAA^55555555, XOR self-cancel FFFFFFFF^FFFFFFFF, INVERT of 0 and of all-ones, COPY control."
+    },
+    {
+     "fact": "MTLColorWriteMask is a genuine per-channel gate applied independently of blend math, and its bit layout is A=0x1, B=0x2, G=0x4, R=0x8 - NOT the naive R=0x1 ordering. Out-of-range bits (0x20) are SILENTLY INERT, unlike the strictly validated factor/op enums.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.5",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (writemask_*)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "9 mask values: None(0x0), Alpha(0x1), Blue(0x2), Green(0x4), Red(0x8), All(0xf), Red|Alpha(0x9), Unspecialized(0x10), invalid(0x20). Blending disabled to isolate the mask. Both runs byte-identical.",
+     "cross_check": "docs/cmdstream/README.md records the COMMAND-STREAM side as 0x58000+0x5c bits[3:0] bit-reversed RGBA (R->bit3 ... A->bit0), consistent with this API-side layout."
+    },
+    {
+     "fact": "The blend constant is NOT CLAMPED to [0,1] despite the documented legal range: raw IEEE floats pass through, including -0.5 and 1.5. A driver must clamp itself if its target API contract requires it.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.6",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (blendconst_*)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 constants: (0,0,0,0), (1,1,1,1), (-0.5,...), (1.5,...), all exact, both runs."
+    },
+    {
+     "fact": "sRGB attachments BLEND IN LINEAR SPACE: the destination is decoded to linear on load, the blend math runs on linear values, and the store re-encodes to sRGB. An epilog generator targeting an sRGB attachment must apply that same load/blend/store-encode discipline, never blend the encoded bytes.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.7",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (sRGB vs UNorm, pure store and real Add blend)",
+     "label": "HW-VALIDATED, exact to the nearest 8-bit quantization step",
+     "target": "M4 / G16G",
+     "tested_range": "4 cases: sRGB pure store 0.5 -> 188 (predicted 187.9); UNorm pure store 0.5 -> 128; sRGB Add 0.5+0.2 -> 218 (predicted 217.8); UNorm Add -> 178. Both runs."
+    },
+    {
+     "fact": "Blending on an INTEGER pixel format is a HARD CONSTRUCTION-TIME ERROR: `blendingEnabled=YES` on R32Uint raises a fatal process-aborting assertion, with a paired same-format blending-disabled POSITIVE control that succeeds. There is no fallback path. Likewise MTLBlendFactor=20 and MTLBlendOperation=6 (one past Unspecialized) both fatally abort the process - not a graceful NSError.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.4, 1.7",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (fmtreject_r32uint_blend_{off,on}, blendfac_src_invalid20, blendop_invalid6)",
+     "label": "HW-VALIDATED (API-level), deterministic stderr text cross-run-compared and matched",
+     "target": "M4 / G16G",
+     "tested_range": "5 designed fatal-abort cases, each contained to its own subprocess, reproduced identically in both gated runs."
+    },
+    {
+     "fact": "Alpha-to-coverage's derived sample-coverage fraction equals the shader's alpha EXACTLY at quarter-sample granularity (no ordered-dither approximation observed), and the shader's own alpha is still written to whichever samples pass, so resolved alpha = coverageFraction x shaderAlpha. alphaToOne forces resolved alpha to exactly 1.0. Both are native; no emulation needed.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.8",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (f_alpha_out, N=4, hardware box-filter resolve)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "alpha 0.0, 0.25, 0.5, 0.75, 1.0 -> resolved alpha 0.0, 0.0625, 0.25, 0.5625, 1.0 (exactly alpha^2). alphaToOne tested as a paired enabled/disabled control at N=1. Both runs."
+    },
+    {
+     "fact": "The blend ALU is IEEE-754-compliant for NaN and Infinity through Add, with no flush-to-zero, no clamping and NO PAYLOAD CANONICALIZATION - the exact input NaN bit pattern reappears unchanged even when added to a nonzero finite value.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.9",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01 (RGBA32Float exact bit readback)",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 bit patterns: qNaN 0x7FC00000 with dst 0.0 and with dst 2.0, +Inf 0x7F800000, -Inf 0xFF800000. All bit-identical in output, both runs."
+    },
+    {
+     "fact": "macOS 26.0's new Unspecialized sentinel family behaves exactly as documented and was independently constructed: MTLBlendFactorUnspecialized(19) behaves as One in the source role and Zero in the destination role; MTLBlendOperationUnspecialized(5) behaves as Add; MTLColorWriteMaskUnspecialized(0x10) behaves as All.",
+     "experiment": "EXP-0117-m4-stage-abi-remainder sec.1.4",
+     "artifact": "experiments/EXP-0117-m4-stage-abi-remainder/raw/m4-20260828-run01",
+     "label": "HW-VALIDATED",
+     "target": "M4 / G16G",
+     "tested_range": "4 sentinel cases, each isolated so the sentinel's own contribution is the only variable. Both runs."
+    }
+   ],
+   "not_established": [
+    "ANY of it on G17P. This entire sub-area is M4/G16G.",
+    "None of it has a PROVENANCE.md row: EXP-0117 owns no row (its only mention is inside EXP-0130's row).",
+    "None of it is in the normative docs: EXP-0117 is cited under docs/ only in passing, inside another experiment's entry in docs/pipeline/README.md. The 19-factor table, the write-mask bit layout, the sRGB rule, the alpha-to-coverage relation, the NaN behaviour and the epilog synthesis rule are all absent from the deliverable.",
+    "Exhaustiveness: 'not every (factor, factor, op) triple was constructed (only isolating single-factor and single-op cases, plus a handful of combined cases)'.",
+    "FORMAT conversion across advertised formats - spot-checked at RGBA16Float, RGBA8Unorm and sRGB only, not swept across every advertised pixel format. (P1.2 / EXP-0133's 138-format x 11-axis matrix and EXP-0079's rounding rules are the adjacent evidence, but they are a different row and were not run as epilog conversion.)",
+    "MSAA-vs-blend timing: whether the blend equation applies pre- or post-resolve for a multisampled target. Not attempted.",
+    "Metal 4's native MTL4BlendStateUnspecialized deferred-specialization workflow - a flagged high-value lead, read from public headers only, never exercised.",
+    "Any epilog generated by OUR emitter rather than by Apple's compiler from our MSL. Closure rule 1 for this row ('generated, not merely decoded') and rule 6 ('independently generated and consumed without a captured Apple template') are both unmet: every epilog in EXP-0117 and EXP-0137 is Apple's compiler's output from our source."
+   ]
+  }
+ },
+
+ "closure_rule_status": {
+  "_rules_source": "docs/P0-P1-CLOSURE.md 'Closure rules'",
+  "rule1_generated_not_decoded": "NOT MET. No P0.8 object - not a fragment epilog, not a varying store, not a prolog - has been generated by our own emitter and executed. Every construction in EXP-0117, EXP-0130 and EXP-0137 is Apple's compiler compiling our MSL. EXP-0155/0163/0172 splice OUR OWN compiled bytes, which establishes field semantics but is not whole-object generation.",
+  "rule2_complete_artifacts": "PARTIALLY MET. EXP-0092/0097/0107/0109/0111/0117/0125/0130/0137/0147/0155/0163/0172 all carry PRE_REGISTRATION + CAPTURE_CONTRACT + two gated runs + manifest. EXP-0029, EXP-0031, EXP-0035 and EXP-G1a - which carry ALL the G17P evidence in this row except the emit wave - predate that regime and have NO run count and NO cross-run gate. EXP-0050 and EXP-0071 are quarantined.",
+  "rule3_provenance": "NOT MET for the bulk of the evidence. EXP-0109 (57 cases), EXP-0117 (148 cases), EXP-0111 (56 cases) and EXP-0108 (40 cases) own NO PROVENANCE.md row. EXP-0109's and EXP-0117's only appearances are inside other experiments' rows.",
+  "rule4_normative_docs": "NOT MET. docs/mesa-userspace-requirements.md line 181 is the P0.8 doc row and still reads 'partial' with an open pending list. The intended destination `docs/abi/` does not exist. EXP-0117's entire body is absent from docs/; EXP-0109 appears in docs/isa/README.md only inside EXP-0137's entry.",
+  "rule5_adversarial_or_second_method": "MET for several sub-areas and not for others. Strong: interpolation (EXP-0137's factorial with two independent geometries plus a structural disassembly mechanism); the 0x57 collision (two independent code paths agreeing exactly, on two targets); the scratch negative (three independent methods). Weak: calls (EXP-0035 is single-method and ungated), sideband (EXP-G1a is single-method and ungated), epilogs (single experiment, single target).",
+  "rule6_independently_generated_object": "NOT MET. No fragment program, epilog, prolog or varying-store block has been independently generated and consumed without Apple's compiler producing it. This is the same wall EXP-0173 recorded for the row set as a whole."
+ },
+
+ "clean_room_boundaries": {
+  "_definition": "A question that can only be answered by inspecting Apple's own shaders or binaries is a BOUNDARY, not a gap. It is recorded as out of scope with its reason, exactly as EXP-0134 did for the compression codec and SFU-04.",
+  "boundaries": [
+   {
+    "question": "What Apple's own BG / EOT / partial-BG / partial-EOT programs contain.",
+    "why_out_of_scope": "Those are Apple-authored precompiled shaders. CLAUDE.md forbids inspecting them and forbids committing them. EXP-0108 searched for a program RECORD at the userspace<->kernel data boundary - which is lawful DATA-TRACE - and found none; it explicitly did not and must not read any Apple-authored program bytes. EXP-0108's own framing: if such a program exists, 'the Linux driver's equivalent, if it needs one at all, is likely to be its OWN synthesized routine consuming these same descriptor fields directly, rather than a reverse-engineered copy of an Apple-authored one'.",
+    "consequence_for_the_driver": "The BG/EOT program must be CONSTRUCTED, and EXP-0130 shows it can be: a tilebuffer-read / ALU / attachment-write core built from our own MSL is behaviourally exact. What stays unknown is the surrounding usc/rsrc_spec registration, which is a P0.4/P0.5 problem, not an ABI one."
+   },
+   {
+    "question": "The scratch / helper-program protocol's binary, cfg and data field values.",
+    "why_out_of_scope_partially": "Not a clean-room boundary in the forbidden-source sense, but a HOST-OBSERVABILITY boundary that behaves like one. Three independent lawful methods (EXP-0041, EXP-0107, EXP-0125) reach the same negative; EXP-0125's conclusion is that 'the scratch/helper mechanism is not observable from userspace's own IOKit resource-map boundary on macOS'. Going further would mean reading Apple's kernel/firmware code, which is forbidden outright.",
+    "consequence_for_the_driver": "EXP-0125: the helper program and scratch-pool layout 'most likely need to be constructed from first principles against the hardware's actual behavior ... not decoded from a macOS capture'. EXP-0041's safe fallback stands: reject or avoid shaders and preambles requiring scratch until constructed. Guessing helper values, or declaring the fields kernel-owned, would not satisfy the unchanged UAPI."
+   },
+   {
+    "question": "Whether the hardware has a second interpolation, derivative or blend mode that Metal never emits.",
+    "why_out_of_scope_for_now": "EXP-0111 FS-05 states the general form of this boundary precisely: 'no MSL-level probe can distinguish \"the hardware has only one mode\" from \"the hardware has a second mode Metal simply never emits\" - there is no compiler-reachable starting point to perturb', and an unmotivated blind bit sweep 'would be closer to random fault-hunting than a falsifiable test'.",
+    "consequence_for_the_driver": "This is a bounded UNKNOWN, not a missing measurement. The Rosenzweig extrapolate-and-test method still applies wherever a MOTIVATED hypothesis exists - EXP-0147 found matrix multiply-subtract exactly that way - but it needs a hypothesis, not a sweep.",
+    "note": "The inert-field sweeps (EXP-0163, EXP-0172) are the partial answer: they turn 'Metal always emits this value' into a measured don't-care envelope, which is the strongest statement available without a hypothesis."
+   },
+   {
+    "question": "Apple's inlining heuristic - why a fragment epilog is inlined while a vertex fetch helper is kept out of line.",
+    "why_out_of_scope": "EXP-0137 declared it out of scope in its own pre-registration: 'it is not a hardware fact and a driver's own backend controls its own out-of-lining unconditionally regardless of what Apple's compiler happens to choose.' Answering it would mean studying Apple's compiler.",
+    "consequence_for_the_driver": "None. The driver picks its own out-of-lining policy."
+   }
+  ]
+ }
+}
