@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 519,
+   "hardware-run": 525,
    "isolated-byte-diff": 81,
-   "corpus-correlation": 91,
-   "tokenization-only": 150,
-   "single-template-inference": 19,
+   "corpus-correlation": 89,
+   "tokenization-only": 149,
+   "single-template-inference": 21,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 202
+   "untested": 197
   },
   "by_label_pct": {
-   "hardware-run": 48.9,
+   "hardware-run": 49.4,
    "isolated-byte-diff": 7.6,
-   "corpus-correlation": 8.6,
-   "tokenization-only": 14.1,
-   "single-template-inference": 1.8,
+   "corpus-correlation": 8.4,
+   "tokenization-only": 14.0,
+   "single-template-inference": 2.0,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 19.0
+   "untested": 18.5
   },
-  "emittable_instructions": 42,
+  "emittable_instructions": 47,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -50,12 +50,14 @@
    "falu3_ext",
    "falu_acc",
    "frag_depth_store",
+   "frame_marker_compact",
    "frame_prologue",
    "fspecial",
    "h_coord_hi",
    "h_coord_hi_ext",
    "hminmax",
    "iminmax",
+   "irotate",
    "isel10",
    "iter_flat",
    "iunary",
@@ -77,10 +79,13 @@
    "sr_read_wide",
    "stop",
    "tex_addr_setup",
+   "tex_deriv",
+   "tex_sample",
    "uniform_mov",
+   "vary_slot",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 130,
+  "decodable_not_yet_emittable": 125,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -91,7 +96,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 42
+  "emittable_of_emitter_relevant": 47
  },
  "instructions": {
   "falu2": {
@@ -344,15 +349,15 @@
     "width": 4
    },
    "imm_flag": {
-    "label": "untested",
-    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "label": "single-template-inference",
+    "range": "0..1 -- BOTH values, i.e. the full encodable range; 8 arms x 2 gated runs",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0172"
     ],
-    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+    "note": "INERT. Both values executed at 15 occurrences over two structurally different carriers spanning the immediate value domain, both signs, fadd/fmul/fma, and both operand provenances; nothing observable changed. NOT emitter-grade (rule 8): we know the value that works because the compiler always emits 1, and we cannot say what the bit controls. db.json's prose calls it part of the immediate mantissa; isadb's own imm_decode never reads it (DEF-0172-2). The b16 form of falu2i was never emitted by any carrier, so the null does not cover it.",
     "values_dispatched": 2,
-    "distinct_bytes": 2,
+    "distinct_bytes": 16,
     "encodable_range": 2,
     "start": 8,
     "width": 1
@@ -3317,15 +3322,15 @@
     ]
    },
    "form": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "label": "single-template-inference",
+    "range": "0..1 -- BOTH values, i.e. the full encodable range; 8 arms x 2 gated runs, spanning both of the field's own baseline values AND both SR width classes",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0172"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "INERT in BOTH directions. 0->1 and 1->0 tested, on scalar-SR and uint3-position-in-grid carriers -- the datapath WIDTH dimension db.json says the bit controls. No observable effect either way. This does not confirm db.json's 'datapath/width modifier' reading; it fails to find any effect for it. NOT emitter-grade (rule 8).",
     "values_dispatched": 2,
-    "distinct_bytes": 2,
+    "distinct_bytes": 16,
     "encodable_range": 2,
     "start": 3,
     "width": 1
@@ -3555,13 +3560,18 @@
     "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@t1_2, where the field is demonstrably live (252/252 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "coord": {
-    "label": "corpus-correlation",
-    "range": "op+1 coordinate register, located; the extra index operand (slice/face/z/sample/ref) selected via op+3 is byte-diff only, NOT splice-validated",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 4 arms x 2 gated runs",
+    "target": "G17P",
     "evidence": [
-     "EXP-0016",
-     "EXP-0034"
-    ]
+     "EXP-0172"
+    ],
+    "note": "LIVE. An operand byte (reg << 1) | is32: the moved set is reproduced with ZERO exceptions by (v & 1) and ((v >> 1) mod 16) in {6, 8, 10, 14}. Pointing the coordinate at a register the program does not keep live yields a SILENT unchanged result, never a fault. EXP-0155's 73-93 % cross-run instability is resolved: on derivative-free carriers the per-value partition is 100 % reproducible across runs.",
+    "values_dispatched": 256,
+    "distinct_bytes": 1024,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "variant": {
     "label": "hardware-run",
@@ -3787,13 +3797,18 @@
     "note": ""
    },
    "dstsrc": {
-    "label": "untested",
-    "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+    "label": "hardware-run",
+    "range": "39 of 65 sampled 24-bit values on each of 4 arms x 2 gated runs (0, 1, 2, max-1, max, every power of two, every all-ones prefix, 16 hashed interior samples); the sweep STOPPED at the reproduced hang values 0x3FFFF / 0x7FFFF",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0172"
     ],
-    "note": "EXP-0164 withheld: 65 values dispatched, 2 carrier(s) tested, 30 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "LIVE. A packed destination+source operand: 37 of the 39 values compared across runs change the derivative result on every arm, identically in both runs. HAZARD: dstsrc = 0x3FFFF and 0x7FFFF hang the device (reproduced, majority-of-3).",
+    "values_dispatched": 65,
+    "distinct_bytes": 214,
+    "encodable_range": 64,
+    "start": 16,
+    "width": 24
    },
    "src_comp": {
     "label": "hardware-run",
@@ -3955,12 +3970,17 @@
    },
    "cache": {
     "label": "single-template-inference",
-    "range": "0..1 dense (all 2 values) x 8 arms",
+    "range": "0..1 -- both values of the SINGLE BIT db.json models at bit 17; the other seven bits of byte+2 are unmodelled and UNTESTED. 16 arms x 2 gated runs",
     "target": "G17P",
     "evidence": [
-     "EXP-0163"
+     "EXP-0172"
     ],
-    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 4 structurally different carriers (sball, scache, sdiv, stype), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
+    "note": "INERT, but the claim covers TWO VALUES OF ONE BIT, not the byte: byte+2 is 0x54 in every occurrence and db.json models only bit 17 of it. Reconfirmed on the new last-use carrier. NOT emitter-grade (rule 8).",
+    "values_dispatched": 2,
+    "distinct_bytes": 32,
+    "encodable_range": 2,
+    "start": 17,
+    "width": 1
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -4050,12 +4070,17 @@
    },
    "cache": {
     "label": "single-template-inference",
-    "range": "0..255 dense (all 256 values) x 4 arms",
+    "range": "0..255 dense (all 256 values), 6 arms x 2 gated runs, including a carrier whose every operand is dead immediately after its single use",
     "target": "G17P",
     "evidence": [
-     "EXP-0163"
+     "EXP-0172"
     ],
-    "note": "INERT-ROBUST over the stated envelope: every value executed on 4 arms across 3 structurally different carriers (sball, scache, sdiv), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
+    "note": "INERT across 256 values x 6 arms, including `deadsrc`, where every operand is loaded, used ONCE and dead immediately after -- the last-use dimension in which all four of EXP-0163's carriers were identical. Stronger negative, same label: NOT emitter-grade (rule 8).",
+    "values_dispatched": 256,
+    "distinct_bytes": 1536,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -5759,13 +5784,18 @@
     ]
    },
    "src": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
+    "label": "hardware-run",
+    "range": "0..245 dense executed, 2 arms x 2 gated runs; 246 and 247 are a REPRODUCED device hang and stopped the sweep at 248 of 256",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0172"
     ],
-    "note": "EXP-0164 withheld: 249 values dispatched, 2 carrier(s) tested, 125 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "LIVE. A source-register byte: 244 of 248 executed values change the stored value, on both a 1-sample and a 4-sample carrier. HAZARD: src = 246 and 247 hang the device (reproduced). NOTE: this does NOT make imageblock_store emittable -- b4 is still single-template-inference.",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "b4": {
     "label": "single-template-inference",
@@ -6218,11 +6248,17 @@
    },
    "scoreboard": {
     "label": "corpus-correlation",
-    "range": "{0x22,0x26,0x02,0x06,0x2a} observed; bit5=wait-set present, bit2=second-slot (located, not spliced)",
-    "target": "M4",
+    "range": "41 of 256 values on 1 arm in 1 run; promotion was declined in advance",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0172"
+    ],
+    "note": "PROMOTION DECLINED IN ADVANCE, and the sweep confirms why the decline was right rather than overturning it. The byte MOVES the observation -- but this harness reads back after command-buffer completion, which flushes, so movement proves general sensitivity to the byte, not ordering-specific power. Three prior experiments declined this family for the same reason; a promotion here would need an ordering observable, which does not exist yet.",
+    "values_dispatched": 41,
+    "distinct_bytes": 41,
+    "encodable_range": 41,
+    "start": 24,
+    "width": 8
    }
   },
   "call_indirect": {
@@ -6512,13 +6548,18 @@
     "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}; ok at {32 values}"
    },
    "b2": {
-    "label": "untested",
-    "range": "256 values tested (dense over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "TWO of 256 dispatched values are legal (byte+2 in {0x54, 0x56}; the descriptor's own match pins the other 7 bits -- DEF-0172-1). BOTH legal values executed on all 5 arms x 2 gated runs, i.e. the full encodable range",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0172"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "LIVE over its two legal values, and ASYMMETRIC: 0x56 -> 0x54 changes the observation on all three arms whose baseline is 0x56; 0x54 -> 0x56 changes nothing on either arm whose baseline is 0x54. Both directions were tested. The modelled 8-bit width is a fiction (DEF-0172-1).",
+    "values_dispatched": 256,
+    "distinct_bytes": 1280,
+    "encodable_range": 2,
+    "start": 16,
+    "width": 8
    },
    "operands": {
     "label": "isolated-byte-diff",
@@ -7111,14 +7152,18 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) on the `rot` carrier, run01 + run03; PARTIAL (8 of 256) on four other carriers, where b1 = 3 and b1 = 7 HANG the device",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0172"
+    ],
+    "note": "LIVE: 152 of 256 values change the observation, identically in run01 and run03. b1 = 0x00 is the 4-byte spill_frame_marker, a different instruction. HAZARD: b1 = 3 and b1 = 7 hang the device on four of five carriers.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    }
   },
   "cubearray_coord_const": {
@@ -9936,12 +9981,18 @@
     "note": ""
    },
    "slot": {
-    "label": "corpus-correlation",
-    "range": "byte+3 monotone, tracks the following store's slot",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 4 arms x 2 gated runs; the observable effect is bit 2 only, and only on the memory-sourced-varying carrier",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0172"
+    ],
+    "note": "LIVE, but only bit 2 and only on one of four carriers. All 128 values with bit 2 set move the observation; all 128 with it clear do not; the other seven bits -- including bits 5-6, where the COMPILER encodes the varying index -- did nothing on any carrier (DEF-0172-3). An implementer should treat vary_store.out_slot as the slot lever, per EXP-0155.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "vtx_coord_xform": {

@@ -150,3 +150,19 @@ advance and its arm was drowning in `InnocentVictim` retries.
   The four arms that DID hang stay excluded and `frame_marker_compact.b1` is reported PARTIAL on
   them. **Hang courtesy: `b1 = 3` and `b1 = 7` hang on `scache`/`srnarrow`/`vhalf`/`vsrc` but did
   NOT hang on `rot`; run03 touches only `rot`.**
+
+## 2026-08-30 10:05 UTC — M7: VERDICTS, RESULTS.md, manifest — experiment COMPLETE
+- `analysis/verdicts.py` recomputes every verdict from `raw/`, never from a run manifest.
+- **6 fields promoted to `hardware-run`; 5 instructions move across the emittable line:**
+  `tex_sample`, `tex_deriv`, `vary_slot`, `irotate`, `frame_marker_compact`.
+  `imageblock_store.src` is promoted but does NOT close its instruction (`b4` still blocks).
+- 2 fields proven inert on carriers spanning their controlled dimension → `single-template-inference`
+  (rule 8, NOT emitter grade): `falu2i.imm_flag`, `get_sr.form`. Plus `simd_ballot.cache` /
+  `simd_shuffle.cache`, reconfirmed on the NEW last-use carrier.
+- 1 field `untested` for lack of detection power (`n4_cf_word.b3` — and the whole instruction),
+  1 declined in advance (`ret.scoreboard`), 4 declined before device time with measured reasons.
+- **Coverage bar met: 12 of 12 rows carry `values_dispatched`, `distinct_bytes`, `encodable_range`,
+  `start`, `width`; 0 UNDER-COVERED; every span matches the live repo `db.json`.**
+- 4 db defects reported (DEF-0172-1..4), 2 prior ones reconfirmed. `db.json`, `validation.json`,
+  `docs/` and `PROVENANCE.md` were NOT edited; nothing was committed.
+- All artifacts pulled back from the neo: `raw/` 12 MB, 3 gated runs + the pre-freeze census.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""manifest.py -- EXP-0163: regenerate manifest.json (artifact hashes + metadata).
+"""manifest.py -- EXP-0172 (forked from OUR OWN EXP-0163): regenerate manifest.json (artifact hashes + metadata).
 
     python3 analysis/manifest.py
 """

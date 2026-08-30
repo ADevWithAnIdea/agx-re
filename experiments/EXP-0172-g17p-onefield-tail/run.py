@@ -3,11 +3,11 @@
 
     python3 run.py --run-id g17p_YYYYMMDD_runNN [--smoke-only] [--deadline-s N]
 
-THE QUESTION.  22 fields moved nothing in either of EXP-0155's two gated runs.
-Is any of them genuinely a don't-care, or was the CARRIER simply unable to
-exercise it?  For each field this driver runs the same dense 0..2^w sweep on
-several STRUCTURALLY DIFFERENT carriers chosen (see harness/arms.py `why`) to
-make that field's plausible function reachable.
+THE QUESTION.  Of the instructions ONE FIELD AWAY from emittable, can an emitter
+CHOOSE that field's value and get documented hardware behaviour?  For each field
+this driver runs a dense 0..2^w sweep (boundaries + powers of two + interior
+samples above 8 bits) on several STRUCTURALLY DIFFERENT carriers chosen (see
+harness/carriers.py `why`) to differ in the dimension that field controls.
 
 THE THING THAT MAKES A NULL MEAN ANYTHING.  Before any sweep, every arm runs a
 DETECTION PROFILE: for every field the DB defines on that instruction, splice

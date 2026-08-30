@@ -206,7 +206,9 @@ def gather(recs, cid, span, fname):
             out["per_byte"][bb] = {
                 "n": len(dense),
                 "distinct_bytes": len(set(r["bytes"] for r in dense.values())),
-                "moved": sum(1 for r in dense.values() if moved(r))}
+                "moved": sum(1 for r in dense.values() if moved(r)),
+                "accept_n": sum(1 for r in dense.values()
+                                if r["outcome"] == "ok")}
             out["bytes"] |= set(r["bytes"] for r in dense.values())
     else:
         dense = dict((r["value"], r) for r in recs
@@ -222,7 +224,9 @@ def gather(recs, cid, span, fname):
         out["anchor_sub"] = (anchor[b0] >> (start % 8)) & ((1 << width) - 1)
         out["per_byte"][b0] = {
             "n": len(dense), "distinct_bytes": len(seen),
-            "moved": sum(1 for r in dense.values() if moved(r))}
+            "moved": sum(1 for r in dense.values() if moved(r)),
+            "accept_n": sum(1 for r in dense.values()
+                            if r["outcome"] == "ok")}
     return out
 
 
@@ -269,11 +273,17 @@ def analyse_key(key, runs, gates, arms):
             "carrier": g["carrier"], "probe": g["probe"],
             "subvalues_common": len(common),
             "encodable_range": 1 << width,
-            "values_dispatched": (A["dispatched"] +
-                                  sum(pb["n"] for pb in A["per_byte"].values())),
+            # COVERAGE, per the coordinator's schema: `values_dispatched` and
+            # `distinct_bytes` are about THIS FIELD's own values, so
+            # distinct_bytes < values_dispatched is the DEF-0166-1
+            # under-coverage signature and distinct_bytes == encodable_range is
+            # completeness. The number of distinct encodings of the whole
+            # containing BYTE is carried separately.
+            "values_dispatched": len(A["subs"]),
+            "distinct_bytes": len(set(r["bytes"] for r in A["subs"].values())),
+            "byte_sweep_distinct_encodings": len(A["bytes"]),
             "wide_values_dispatched": A["dispatched"],
             "wide_distinct_bytes": len(A.get("wide_bytes", A["bytes"])),
-            "distinct_bytes": len(A["bytes"]),
             "anchor_subvalue": A["anchor_sub"],
             "per_byte_dense": A["per_byte"],
             "agree": agree, "disagree": disagree,
@@ -314,8 +324,9 @@ def analyse_key(key, runs, gates, arms):
     any_moved = any(v["moved"] > 0 for v in percar.values())
 
     def ok_gate(c):
-        cov = (c["distinct_bytes"] >= 256 and
-               c["subvalues_common"] == c["encodable_range"]) if not multi \
+        cov = (c["distinct_bytes"] == c["encodable_range"] and
+               c["subvalues_common"] == c["encodable_range"] and
+               c["byte_sweep_distinct_encodings"] == 256) if not multi \
             else (c["wide_values_dispatched"] == c["wide_distinct_bytes"] and
                   all(pb["distinct_bytes"] == 256
                       for pb in c["per_byte_dense"].values()))
@@ -355,7 +366,24 @@ def analyse_key(key, runs, gates, arms):
                           c["accept_set_size"],
                           (" = %s" % c["accept_set"]
                            if c["accept_set_size"] <= 24 else ""),
-                          json.dumps(c["outcomes"], sort_keys=True)))
+                          json.dumps(c["outcomes"], sort_keys=True))
+                       + (" CAVEAT (EXP-0166 6.2): a SINGLETON accept-set "
+                          "establishes 'every other value breaks THIS carrier', "
+                          "NOT an operand/sub-op map -- and for a sub-op "
+                          "selector a non-ok outcome may simply mean 'a "
+                          "different function', not 'invalid'."
+                          if c["accept_set_size"] == 1 else "")
+                       + ((" The accept-set is empty BY CONSTRUCTION: this "
+                           "field spans %d bytes, its anchor composite value "
+                           "0x%x is not a member of the FIELD-SWEEP-PROTOCOL "
+                           "3.3 sample set, so no sampled value can reproduce "
+                           "the baseline. The per-byte DENSE accept counts are "
+                           "%s." % (b1 - b0 + 1, c["anchor_subvalue"],
+                                    json.dumps(dict(
+                                        (b, pb["accept_n"]) for b, pb
+                                        in c["per_byte_dense"].items()),
+                                        sort_keys=True)))
+                          if multi and c["accept_set_size"] == 0 else ""))
     elif not any_moved:
         dim = DIMENSIONS.get(fname)
         strong = (len(styles) >= 2 and len(probes) >= 2 and dim is not None)
@@ -373,7 +401,9 @@ def analyse_key(key, runs, gates, arms):
             row["label"] = "isolated-byte-diff"
             row["note"] = base + ("The carriers DO differ in the dimension "
                                   "this field would control (%s), across %d "
-                                  "distinct probe anchors, so an emitter may "
+                                  "INDEPENDENT compiler-emitted anchors of "
+                                  "this instruction (not one template), so an "
+                                  "emitter may "
                                   "choose ANY value of this field. Labelled "
                                   "isolated-byte-diff, not hardware-run: the "
                                   "field was proven ACCEPTED at every "

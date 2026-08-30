@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""census.py -- EXP-0163 PRE-FREEZE calibration.
+"""census.py -- EXP-0172 PRE-FREEZE calibration (forked from OUR OWN EXP-0163).
 
 Builds every carrier in harness/carriers.py from OUR OWN MSL on the device,
 extracts the compiled `_agc.main` bytes for each stage, tokenizes them with
@@ -14,7 +14,7 @@ verdict may cite it.  Its job is to answer, before the contract is frozen:
   * does the occurrence carry a DIFFERENT field context from EXP-0155's arm --
     which is the whole premise of this experiment?
 
-Usage (on the neo):  AGXRE_REPO=$HOME/agxre python3 analysis/census.py
+Usage (on the neo):  AGXRE_REPO=$HOME/agxre/EXP-0172 python3 analysis/census.py
 
 CLEAN-ROOM: OWN-SHADER.  Only bytes compiled from kernels/*.metal are decoded.
 """

@@ -211,6 +211,121 @@ EXACT_RULES = {
    "the device on four of the five carriers.",
 }
 
+# `range` is what an implementer may extrapolate over, and `note` is what they
+# must know.  Authored per field so neither is a formula: a generated
+# "0..255 dense" would be a LIE for irotate.b2, where 254 of the 256 dispatched
+# values are a different instruction.
+RANGE = {
+ "falu2i.imm_flag":
+   "0..1 -- BOTH values, i.e. the full encodable range; 8 arms x 2 gated runs",
+ "get_sr.form":
+   "0..1 -- BOTH values, i.e. the full encodable range; 8 arms x 2 gated runs, "
+   "spanning both of the field's own baseline values AND both SR width classes",
+ "tex_sample.coord":
+   "0..255 dense (all 256 values), 4 arms x 2 gated runs",
+ "vary_slot.slot":
+   "0..255 dense (all 256 values), 4 arms x 2 gated runs; the observable effect "
+   "is bit 2 only, and only on the memory-sourced-varying carrier",
+ "tex_deriv.dstsrc":
+   "39 of 65 sampled 24-bit values on each of 4 arms x 2 gated runs (0, 1, 2, "
+   "max-1, max, every power of two, every all-ones prefix, 16 hashed interior "
+   "samples); the sweep STOPPED at the reproduced hang values 0x3FFFF / 0x7FFFF",
+ "imageblock_store.src":
+   "0..245 dense executed, 2 arms x 2 gated runs; 246 and 247 are a REPRODUCED "
+   "device hang and stopped the sweep at 248 of 256",
+ "irotate.b2":
+   "TWO of 256 dispatched values are legal (byte+2 in {0x54, 0x56}; the "
+   "descriptor's own match pins the other 7 bits -- DEF-0172-1). BOTH legal "
+   "values executed on all 5 arms x 2 gated runs, i.e. the full encodable range",
+ "frame_marker_compact.b1":
+   "0..255 dense (all 256 values) on the `rot` carrier, run01 + run03; PARTIAL "
+   "(8 of 256) on four other carriers, where b1 = 3 and b1 = 7 HANG the device",
+ "simd_ballot.cache":
+   "0..255 dense (all 256 values), 6 arms x 2 gated runs, including a carrier "
+   "whose every operand is dead immediately after its single use",
+ "simd_shuffle.cache":
+   "0..1 -- both values of the SINGLE BIT db.json models at bit 17; the other "
+   "seven bits of byte+2 are unmodelled and UNTESTED. 16 arms x 2 gated runs",
+ "n4_cf_word.b3":
+   "0..255 dense on 3 arms x 2 gated runs -- but NO arm had detection power, so "
+   "the coverage does not license a verdict",
+ "ret.scoreboard":
+   "41 of 256 values on 1 arm in 1 run; promotion was declined in advance",
+}
+
+NOTE = {
+ "falu2i.imm_flag":
+   "INERT. Both values executed at 15 occurrences over two structurally different "
+   "carriers spanning the immediate value domain, both signs, fadd/fmul/fma, and "
+   "both operand provenances; nothing observable changed. NOT emitter-grade (rule "
+   "8): we know the value that works because the compiler always emits 1, and we "
+   "cannot say what the bit controls. db.json's prose calls it part of the "
+   "immediate mantissa; isadb's own imm_decode never reads it (DEF-0172-2). The "
+   "b16 form of falu2i was never emitted by any carrier, so the null does not "
+   "cover it.",
+ "get_sr.form":
+   "INERT in BOTH directions. 0->1 and 1->0 tested, on scalar-SR and "
+   "uint3-position-in-grid carriers -- the datapath WIDTH dimension db.json says "
+   "the bit controls. No observable effect either way. This does not confirm "
+   "db.json's 'datapath/width modifier' reading; it fails to find any effect for "
+   "it. NOT emitter-grade (rule 8).",
+ "tex_sample.coord":
+   "LIVE. An operand byte (reg << 1) | is32: the moved set is reproduced with "
+   "ZERO exceptions by (v & 1) and ((v >> 1) mod 16) in {6, 8, 10, 14}. Pointing "
+   "the coordinate at a register the program does not keep live yields a SILENT "
+   "unchanged result, never a fault. EXP-0155's 73-93 % cross-run instability is "
+   "resolved: on derivative-free carriers the per-value partition is 100 % "
+   "reproducible across runs.",
+ "vary_slot.slot":
+   "LIVE, but only bit 2 and only on one of four carriers. All 128 values with "
+   "bit 2 set move the observation; all 128 with it clear do not; the other seven "
+   "bits -- including bits 5-6, where the COMPILER encodes the varying index -- "
+   "did nothing on any carrier (DEF-0172-3). An implementer should treat "
+   "vary_store.out_slot as the slot lever, per EXP-0155.",
+ "tex_deriv.dstsrc":
+   "LIVE. A packed destination+source operand: 37 of the 39 values compared "
+   "across runs change the derivative result on every arm, identically in both "
+   "runs. HAZARD: dstsrc = 0x3FFFF and 0x7FFFF hang the device (reproduced, "
+   "majority-of-3).",
+ "imageblock_store.src":
+   "LIVE. A source-register byte: 244 of 248 executed values change the stored "
+   "value, on both a 1-sample and a 4-sample carrier. HAZARD: src = 246 and 247 "
+   "hang the device (reproduced). NOTE: this does NOT make imageblock_store "
+   "emittable -- b4 is still single-template-inference.",
+ "irotate.b2":
+   "LIVE over its two legal values, and ASYMMETRIC: 0x56 -> 0x54 changes the "
+   "observation on all three arms whose baseline is 0x56; 0x54 -> 0x56 changes "
+   "nothing on either arm whose baseline is 0x54. Both directions were tested. "
+   "The modelled 8-bit width is a fiction (DEF-0172-1).",
+ "frame_marker_compact.b1":
+   "LIVE: 152 of 256 values change the observation, identically in run01 and "
+   "run03. b1 = 0x00 is the 4-byte spill_frame_marker, a different instruction. "
+   "HAZARD: b1 = 3 and b1 = 7 hang the device on four of five carriers.",
+ "simd_ballot.cache":
+   "INERT across 256 values x 6 arms, including `deadsrc`, where every operand is "
+   "loaded, used ONCE and dead immediately after -- the last-use dimension in "
+   "which all four of EXP-0163's carriers were identical. Stronger negative, same "
+   "label: NOT emitter-grade (rule 8).",
+ "simd_shuffle.cache":
+   "INERT, but the claim covers TWO VALUES OF ONE BIT, not the byte: byte+2 is "
+   "0x54 in every occurrence and db.json models only bit 17 of it. Reconfirmed on "
+   "the new last-use carrier. NOT emitter-grade (rule 8).",
+ "n4_cf_word.b3":
+   "UNDERPOWERED, not inert. The full detection profile -- every modelled field "
+   "complemented AND zeroed -- moved nothing on any of 3 carriers with nested "
+   "divergence, reconvergence and barriers, in both runs. Either the word is a "
+   "genuine no-op or its effect is invisible to a readback taken after "
+   "command-buffer completion. A successor needs a divergence observable, not a "
+   "bigger sweep (DEF-0172-4).",
+ "ret.scoreboard":
+   "PROMOTION DECLINED IN ADVANCE, and the sweep confirms why the decline was "
+   "right rather than overturning it. The byte MOVES the observation -- but this "
+   "harness reads back after command-buffer completion, which flushes, so "
+   "movement proves general sensitivity to the byte, not ordering-specific power. "
+   "Three prior experiments declined this family for the same reason; a promotion "
+   "here would need an ordering observable, which does not exist yet.",
+}
+
 DB_DEFECTS = {
  "DEF-0172-1 irotate.b2 is ONE bit, not eight": {
    "what": "db.json models byte+2 of irotate as an 8-bit field `b2`, but the "
@@ -533,9 +648,8 @@ def main():
                 "values whose patched bytes RE-DECODE as the same mnemonic in "
                 "context; the rest are dispatched and recorded but are a different "
                 "instruction (DEF-0170-1)",
-            "range": (f"0..{(1 << width) - 1} dense (all {1 << width} values)"
-                      if width and width <= 8 else
-                      f"boundaries + powers of two + 16 interior samples of {width} bits"),
+            "range": RANGE.get(fkey, ""),
+            "note": NOTE.get(fkey, ""),
             "gate": gate,
             "exact_rules": EXACT_RULES.get(fkey, ""),
             "rule2_dimension": dim,
