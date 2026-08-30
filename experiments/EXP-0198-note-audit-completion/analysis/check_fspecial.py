@@ -89,7 +89,7 @@ def regmap(run, arm, rawfield):
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     out = {}
 
     # ---------- destination map: byte+3, recorded as `src` -----------------
@@ -187,45 +187,71 @@ def main():
         m, f = k.split(".", 1)
         return val["instructions"][m][f].get("note") or ""
 
+    def N(k, rx, n=1):
+        """Claimed numbers are parsed OUT OF THE NOTE, never transcribed by hand,
+        so a changed note changes the verdict (see analysis/negative_control.py)."""
+        mo = re.search(rx, note(k))
+        if not mo:
+            return None if n == 1 else (None,) * n
+        return int(mo.group(1)) if n == 1 else tuple(int(g) for g in mo.groups())
+
     def add(k, claims):
         out[k] = {"label": val["instructions"][k.split(".")[0]][k.split(".", 1)[1]].get("label"),
                   "note": note(k), "claims": claims,
                   "verdict": "SUPPORTED" if all(c["ok"] for c in claims) else "CONTRADICTED"}
 
+    dN = N("fspecial.dst", r"Destination map from the 16-register dump: (\d+)/(\d+) fit", 2)
+    dHang, dTot, dVic = N("fspecial.dst",
+        r"(\d+) of those (\d+) values gave a genuine kIOGPUCommandBufferCallbackErrorHang, "
+        r"(\d+) were only ever observed as innocent victims", 3)
     add("fspecial.dst", [
-        {"claim": "28/28 fit, 0 misfits, in BOTH gated runs (v=0..29 -> r0..r14)",
-         "raw": dst_fit,
-         "ok": all(dst_fit[r]["fits"] == 28 and not dst_fit[r]["misfits"] for r in GATED)},
+        {"claim": "N/N fit, 0 misfits, in BOTH gated runs (v=0..29 -> r0..r14)",
+         "claimed": list(dN), "raw": dst_fit,
+         "ok": (dN[0] == dN[1]
+                and all(dst_fit[r]["fits"] == dN[0] and not dst_fit[r]["misfits"]
+                        for r in GATED))},
         {"claim": "v=12/13 write r6 and are invisible (seed aliasing)",
          "raw": {r: dst_fit[r]["invisible_seed_alias"] for r in GATED},
          "ok": all(dst_fit[r]["invisible_seed_alias"] == [12, 13] for r in GATED)},
-        {"claim": "v>=192: 45 hangs, 19 victim-only, none worked (64 values)",
+        {"claim": "v>=192: N hangs, M victim-only, none worked (K values)",
+         "claimed": {"hang": dHang, "of": dTot, "victim_only": dVic},
          "raw": danger,
-         "ok": (danger["n_cases"] == 64 and danger["hang"] == 45
-                and danger["victim_only"] == 19 and danger["worked"] == 0)},
+         "ok": (danger["n_cases"] == dTot and danger["hang"] == dHang
+                and danger["victim_only"] == dVic and danger["worked"] == 0)},
         {"claim": "cited EXP-0165 scripts exist", "raw": exists,
          "ok": all(exists.values())}])
 
+    sN = N("fspecial.src", r"Source map from the 16-register dump: (\d+)/(\d+) fit", 2)
+    sRel = N("fspecial.src", r"\((\d+)/\d+ where src != dst\)")
     add("fspecial.src", [
-        {"claim": "60/60 fit, 0 misfits, in BOTH gated runs (v=0..59 -> r0..r14)",
-         "raw": src_fit,
-         "ok": all(src_fit[r]["fits"] == 60 and not src_fit[r]["misfits"] for r in GATED)},
-        {"claim": "56/56 where src != dst are released to zero",
+        {"claim": "N/N fit, 0 misfits, in BOTH gated runs (v=0..59 -> r0..r14)",
+         "claimed": list(sN), "raw": src_fit,
+         "ok": (sN[0] == sN[1]
+                and all(src_fit[r]["fits"] == sN[0] and not src_fit[r]["misfits"]
+                        for r in GATED))},
+        {"claim": "M/M where src != dst are released to zero", "claimed": sRel,
          "raw": {r: src_fit[r]["released_to_zero"] for r in GATED},
-         "ok": all(src_fit[r]["released_to_zero"] == 56 for r in GATED)}])
+         "ok": all(src_fit[r]["released_to_zero"] == sRel for r in GATED)}])
 
+    ro, re_ = (N("fspecial.roundmode", r"(\d+)/(\d+) odd values all-NaN", 2),
+               N("fspecial.roundmode", r"(\d+)/(\d+) even values bit-matching the baseline", 2))
     add("fspecial.roundmode", [
-        {"claim": "128/128 odd all-NaN and 128/128 even bit-matching baseline, "
+        {"claim": "N/N odd all-NaN and M/M even bit-matching baseline, "
                   "two carriers x two gated runs",
-         "raw": rm,
-         "ok": all(v["odd"] == 128 and v["odd_all_nan"] == 128
-                   and v["even"] == 128 and v["even_bitmatch_baseline"] == 128
-                   for v in rm.values())}])
+         "claimed": {"odd": list(ro), "even": list(re_)}, "raw": rm,
+         "ok": (ro[0] == ro[1] and re_[0] == re_[1]
+                and all(v["odd"] == ro[1] and v["odd_all_nan"] == ro[0]
+                        and v["even"] == re_[1] and v["even_bitmatch_baseline"] == re_[0]
+                        for v in rm.values()))}])
 
+    WORDNUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
+    _mo = re.search(r"identical in all (\d+) pairs, (\w+) carriers", note("fspecial.fnclass"))
+    fp = (int(_mo.group(1)), WORDNUM.get(_mo.group(2), -1)) if _mo else (None, None)
     add("fspecial.fnclass", [
-        {"claim": "bit 3 DON'T-CARE: v and v+8 identical in all 8 pairs, three carriers",
-         "raw": fn,
-         "ok": all(v["pairs"] == 8 and v["identical"] == 8 for v in fn.values())}])
+        {"claim": "bit 3 DON'T-CARE: v and v+8 identical in all N pairs, M carriers",
+         "claimed": list(fp), "raw": fn,
+         "ok": (all(v["pairs"] == fp[0] and v["identical"] == fp[0] for v in fn.values())
+                and len({k.split("|")[1] for k in fn}) == fp[1])}])
 
     out["_gen03"] = gen_info
     json.dump(out, open(os.path.join(HERE, "check_fspecial.json"), "w"), indent=1, sort_keys=True)

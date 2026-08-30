@@ -76,7 +76,7 @@ def scan_exp(expdir):
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     nc = set(json.load(open(os.path.join(
         ROOT, "experiments/EXP-0196-note-integrity-audit/work/not_checked.json"))))
     wf = json.load(open(os.path.join(

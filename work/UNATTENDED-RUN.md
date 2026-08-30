@@ -246,6 +246,34 @@ What the data actually says: all **566** blocking field-labels sit at `untested`
 promoted from *already-committed* raw captures without new device time is now an open audit
 (EXP-0194), not a number I get to assert. The expected answer is zero.
 
+## Target composition of the emitter-grade set — measured
+
+Of the **544** emitter-grade fields, by the target each row declares:
+
+| target | fields | |
+|---|---:|---|
+| **G17P** | **376** | the actual documentation target |
+| M4 | 152 | valid on its own target; counts toward the headline |
+| A18 | 11 | |
+| M4+A18 | 3 | |
+| G16G+G17P | 2 | |
+
+**69% of the emitter-grade corpus is now measured on G17P.** That is the structural product of
+the 2026-08-28 pivot: at the start of that day the corpus was overwhelmingly M4 evidence being
+counted toward a G17P goal.
+
+The **166 non-G17P rows remain the standing target debt** — they are not wrong, but closure is
+measured against full G17P, and EXP-0193 separately established that the promotion criterion is
+**target-blind** (two rows recorded G17P are Case A only via M4 arms).
+
+**A negative result about my own instrument, recorded so nobody repeats it:** I wrote a scan to
+find emitter-grade rows whose cited experiments show no evidence on the declared target. It
+returned **1**, against EXP-0197's carefully derived **4** — and its one hit (`tex_sample.tex_slot`)
+is very likely a false positive of my own crude target detection, which string-matches
+manifests and READMEs and fails on the older experiment layouts. **The audit's instrument is
+better than mine, so its number stands and mine is discarded rather than published.** The four
+rows it names are in `PROVENANCE.md` as a named debt.
+
 ## What is fragile about the 543 — stated, not resolved
 
 EXP-0193 measured two things about the surviving population and **handed both over as questions

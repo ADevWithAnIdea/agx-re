@@ -235,6 +235,9 @@ TARGETS.append({
     "region_select": "main",
     "group": "cl",
     "mnemonic": "stop", "field": "reserved",
+    "dimension": "program TERMINATION, measured at a CONSTRUCTED MID-PROGRAM "
+                 "terminator. This entry exists because the census refuted H6's "
+                 "assumption that one occurs naturally.",
     # THE POSITIVE CONTROL THE CENSUS SAID WE HAD TO BUILD.
     #
     # H6 assumed a kernel with an out-of-line callee would place the callee AFTER
@@ -260,6 +263,7 @@ TARGETS.append({
     #     `stop.reserved` is reported UNRESOLVED, never "inert".
     "carriers": ["cl_leaf", "cl_chain", "cl_ldacross"],
     "from_mnemonic": "frame_marker",
+    "force_always": True,
     "force": [(0, 8, 0x0e)],
     "force_note": "frame_marker (4 B, OPTIONAL per EXP-0179) overwritten with a "
                   "synthesized `stop`: byte0 0x43 -> 0x0e",

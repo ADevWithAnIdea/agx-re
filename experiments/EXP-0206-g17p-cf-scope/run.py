@@ -108,12 +108,15 @@ class CarrierRunner:
             p.write_bytes(blob)
             self.ins[idx] = str(p)
         self.timeout = REQ_TIMEOUT
-        arch, off, main = L.compile_carrier(
+        arch, regions = L.compile_carrier(
             BIN, HERE / self.spec["metal"], self.spec["func"], WORK / "arch")
         self.archive = arch
-        self.main_off = off
-        self.main = main
-        self.main_sha = hashlib.sha256(main).hexdigest()
+        # A kernel with an out-of-line callee puts the callee in its OWN symbol
+        # region; `_agc.main` holds the CALL but not the callee's RETURN. Every
+        # region is carved and splice-addressed separately.
+        self.regions = regions
+        self.region_sha = {rn: hashlib.sha256(r["bytes"]).hexdigest()[:16]
+                           for rn, r in regions.items()}
         self.base = Path(arch).read_bytes()
         self.oracle_h = h8(self.spec["oracle"])
         exe = str(BIN / "agxrun_persist")
@@ -139,23 +142,26 @@ class CarrierRunner:
         v = (v & ~mask) | ((value & ((1 << width) - 1)) << start)
         return v.to_bytes(len(raw), "little")
 
-    def mutate(self, off, length, ops):
+    def mutate(self, region, off, length, ops):
         """ops = [(start, width, value), ...] applied in order to the SAME
-        instruction. `force` pre-mutations (e.g. ret byte+2 0x54 -> 0x56, which
-        synthesizes the `ret_luse` descriptor from a real compiled `ret`) come
-        first; the swept field comes last."""
-        m = bytearray(self.main)
+        instruction of ONE region. `force` pre-mutations (ret byte+2 0x54 -> 0x56,
+        which synthesizes the `ret_luse` descriptor from a real compiled `ret`;
+        frame_marker byte0 0x43 -> 0x0e, which synthesizes a MID-PROGRAM stop over
+        an instruction EXP-0179 established is optional) come first; the swept
+        field comes last."""
+        m = bytearray(self.regions[region]["bytes"])
         if off is None:
             return bytes(m)
-        raw = bytes(self.main[off:off + length])
+        raw = bytes(m[off:off + length])
         for (s, w, v) in ops:
             raw = self.patch_instr(raw, s, w, v)
         m[off:off + length] = raw
         return bytes(m)
 
-    def blob_from_main(self, main_bytes):
+    def blob(self, region, region_bytes):
         b = bytearray(self.base)
-        b[self.main_off:self.main_off + len(main_bytes)] = main_bytes
+        a = self.regions[region]["abs"]
+        b[a:a + len(region_bytes)] = region_bytes
         return bytes(b)
 
     def submit(self, blob):
@@ -349,16 +355,17 @@ def main():
             continue
         emit(sweep, {"carrier": carrier, "outcome": "carrier_ready",
                      "role": "meta", "ts": time.time(),
-                     "meta": {"device": cr.device, "main_len": len(cr.main),
-                              "main_sha256": cr.main_sha,
-                              "main_off": cr.main_off,
+                     "meta": {"device": cr.device,
+                              "regions": {rn: {"abs": r["abs"], "len": r["len"],
+                                               "sha16": cr.region_sha[rn]}
+                                          for rn, r in cr.regions.items()},
                               "oracle_h": cr.oracle_h,
                               "oracle_vals": cr.spec["oracle"],
                               "archive_sha256":
                                   hashlib.sha256(cr.base).hexdigest()}})
 
         def baseline(tag):
-            r = cr.measure(cr.blob_from_main(cr.mutate(None, 0, [])))
+            r = cr.measure(bytes(cr.base))
             emit(sweep, {"carrier": carrier, "arm": tag, "instr": "-",
                          "field": "_baseline", "value": -1, "bytes": "",
                          "token": None, "observed": r["observed"],
@@ -375,6 +382,7 @@ def main():
 
         baseline("carrier_open")
         for a in carms:
+            reg = a["region"]
             off, ilen = a["off"], a["len"]
             start, width = a["start"], a["width"]
             force = [tuple(x) for x in a.get("force", [])]
@@ -385,11 +393,12 @@ def main():
             # If the arm is a SYNTHESIZED descriptor (ret -> ret_luse), measure
             # the construction itself before sweeping it.
             if force:
-                mm = cr.mutate(off, ilen, force)
-                r = cr.measure(cr.blob_from_main(mm))
+                mm = cr.mutate(reg, off, ilen, force)
+                r = cr.measure(cr.blob(reg, mm))
                 emit(sweep, {"carrier": carrier, "arm": a["arm"],
                              "instr": a["instr"], "field": "_force_baseline",
-                             "value": -1, "bytes": mm[off:off + ilen].hex(),
+                             "value": -1, "region": reg,
+                             "bytes": mm[off:off + ilen].hex(),
                              "token": L.token_at(mm, off),
                              "observed": r["observed"], "vals": r["vals"],
                              "oracle": {"oh": cr.oracle_h, "expect_match": True},
@@ -404,11 +413,12 @@ def main():
                              "note": a.get("force_note", ""), "ts": time.time()})
             expect = a.get("expect") or {}
             for n, v in enumerate(vals):
-                mm = cr.mutate(off, ilen, force + [(start, width, v)])
-                r = cr.measure(cr.blob_from_main(mm))
+                mm = cr.mutate(reg, off, ilen, force + [(start, width, v)])
+                r = cr.measure(cr.blob(reg, mm))
                 em = expect.get(str(v), expect.get(v))
                 rec = {
                     "carrier": carrier, "arm": a["arm"], "key": a["key"],
+                    "region": reg, "synthesized": a.get("synthesized"),
                     "instr": a["instr"], "field": a["field"], "value": v,
                     "bytes": mm[off:off + ilen].hex(),
                     "token": L.token_at(mm, off),

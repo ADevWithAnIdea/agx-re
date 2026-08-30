@@ -71,8 +71,15 @@ def main():
         return 4
 
     c = json.load(open(os.path.join(EXP, "CAPTURE_CONTRACT.json")))
+    # ABSENT entries are files the contract lists but that do not exist yet
+    # (harness/arms200.json before the calibration generates it). They are
+    # skipped here and the count says so, rather than reported as a missing
+    # push -- a check that cries wolf gets ignored.
     want = {k: v for k, v in c["authored_sha256"].items()
-            if k.startswith(PUSHED_PREFIXES)}
+            if k.startswith(PUSHED_PREFIXES) and v != "ABSENT"}
+    skipped = sorted(k for k, v in c["authored_sha256"].items() if v == "ABSENT")
+    if skipped:
+        print("not yet generated, skipped: %s" % ", ".join(skipped))
     paths = " ".join("%s/%s" % (REMOTE, k) for k in sorted(want))
     r = subprocess.run(["sshpass", "-e", "ssh"] + SSHOPT + ["%s@%s" % (USER, NEO),
                        "cd $HOME && shasum -a 256 %s 2>&1" % paths],

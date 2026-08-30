@@ -19,7 +19,7 @@ EXPS = os.path.join(ROOT, "experiments")
 sys.path.insert(0, os.path.join(ROOT, "tools", "agx-isa"))
 import isadb  # noqa: E402  (our own disassembler, on our own byte strings)
 
-val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
 db = json.load(open(os.path.join(ROOT, "tools/agx-isa/db.json")))
 OUT = {}
 

@@ -32,7 +32,7 @@ def j(p):
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     r0192 = j("EXP-0192-fault-as-movement/analysis/reclassify.json")
     r0193 = j("EXP-0193-stable-live-sweep/analysis/reclassify.json")
     g0191 = j("EXP-0191-detection-gate/analysis/gate_results.json")

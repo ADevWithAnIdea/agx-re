@@ -65,8 +65,18 @@ def bytegroup(carrier, field, prefix):
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     out = {}
+
+    def N(key, rx, n=1):
+        """Pull the claimed number(s) OUT OF THE NOTE TEXT, so the check is a test
+        of the note and not of a constant transcribed by the auditor."""
+        m, f = key.split(".", 1)
+        mo = re.search(rx, val["instructions"][m][f].get("note") or "")
+        if not mo:
+            return None if n == 1 else (None,) * n
+        return int(mo.group(1)) if n == 1 else tuple(int(g) for g in mo.groups())
+
 
     def add(key, claims):
         r = val["instructions"][key.split(".")[0]][key.split(".", 1)[1]]
@@ -77,46 +87,53 @@ def main():
     acq, _ = cases("pixel_order", "flags")
     rel, _ = cases("pixel_order_rel", "flags")
     a_ok, r_ok = okset(acq), okset(rel)
+    cA = N("pixel_order.flags", r"ACQUIRE: correct iff bit0==0 AND \(v & 0x0e\)!=0 \((\d+)/256\)")
+    cR = N("pixel_order.flags", r"RELEASE: correct iff \(v & 0x0f\)>=2 \((\d+)/256\)")
     add("pixel_order.flags", [
-        {"claim": "ACQUIRE rule bit0==0 AND (v&0x0e)!=0, 112/256",
+        {"claim": "ACQUIRE rule bit0==0 AND (v&0x0e)!=0, N/256", "claimed": cA,
          "raw": {"n_ok": len(a_ok), "n_cases": len(acq), "hist": hist(acq)},
          "ok": (a_ok == {v for v in range(256) if (v & 1) == 0 and (v & 0x0e) != 0}
-                and len(a_ok) == 112 and len(acq) == 256)},
-        {"claim": "RELEASE rule (v&0x0f)>=2, 224/256",
+                and len(a_ok) == cA and len(acq) == 256)},
+        {"claim": "RELEASE rule (v&0x0f)>=2, N/256", "claimed": cR,
          "raw": {"n_ok": len(r_ok), "n_cases": len(rel), "hist": hist(rel)},
          "ok": (r_ok == {v for v in range(256) if (v & 0x0f) >= 2}
-                and len(r_ok) == 224 and len(rel) == 256)}])
+                and len(r_ok) == cR and len(rel) == 256)}])
 
     # ---- pixel_order.scope -------------------------------------------------
     acq, _ = cases("pixel_order", "scope")
     rel, _ = cases("pixel_order_rel", "scope")
     a_ok, r_ok = okset(acq), okset(rel)
+    sA = N("pixel_order.scope", r"ACQUIRE member: correct iff bit4==1 AND \(bit6 XOR bit7\)==1 \((\d+)/256")
+    sR = N("pixel_order.scope", r"RELEASE member: correct iff bit4==1 AND bit7==1 \((\d+)/256")
     add("pixel_order.scope", [
         {"claim": "ACQUIRE bit4==1 AND (bit6 XOR bit7)==1, 64/256, baseline 0x50",
          "raw": {"n_ok": len(a_ok), "n_cases": len(acq), "hist": hist(acq),
                  "baseline_in_ok": 0x50 in a_ok},
          "ok": (a_ok == {v for v in range(256)
                          if (v >> 4) & 1 and (((v >> 6) & 1) ^ ((v >> 7) & 1))}
-                and len(a_ok) == 64 and 0x50 in a_ok)},
+                and len(a_ok) == sA and 0x50 in a_ok)},
         {"claim": "RELEASE bit4==1 AND bit7==1, 64/256, baseline 0xd0",
          "raw": {"n_ok": len(r_ok), "n_cases": len(rel), "hist": hist(rel),
                  "baseline_in_ok": 0xd0 in r_ok},
          "ok": (r_ok == {v for v in range(256)
                          if (v >> 4) & 1 and (v >> 7) & 1}
-                and len(r_ok) == 64 and 0xd0 in r_ok)}])
+                and len(r_ok) == sR and 0xd0 in r_ok)}])
 
     # ---- vtx_coord_xform.mode ---------------------------------------------
     c1, _ = cases("vtx_coord_xform", "mode")
     ok = okset(c1)
     h = hist(c1)
+    cOK = N("vtx_coord_xform.mode", r"in \{0x22,0xe2\} \((\d+)/256")
+    cND, cWR = N("vtx_coord_xform.mode",
+                 r"(\d+) of 256 values SUPPRESS THE DRAW ENTIRELY.*?; (\d+) give a wrong pixel", 2)
     add("vtx_coord_xform.mode", [
-        {"claim": "(mode & 0xf3) in {0x22,0xe2}, 8/256, baseline 0x22",
+        {"claim": "(mode & 0xf3) in {0x22,0xe2}, N/256, baseline 0x22", "claimed": cOK,
          "raw": {"n_ok": len(ok), "ok_values": sorted(ok), "hist": h},
          "ok": (ok == {v for v in range(256) if (v & 0xf3) in (0x22, 0xe2)}
-                and len(ok) == 8 and 0x22 in ok)},
-        {"claim": "240 of 256 no_draw; 8 wrong pixel",
+                and len(ok) == cOK and 0x22 in ok)},
+        {"claim": "N of 256 no_draw; M wrong pixel", "claimed": [cND, cWR],
          "raw": h,
-         "ok": (h.get("no_draw") == 240 and h.get("wrong_value") == 8)}])
+         "ok": (h.get("no_draw") == cND and h.get("wrong_value") == cWR)}])
 
     # ---- vtx_coord_xform.sel ----------------------------------------------
     c1, c2 = cases("vtx_coord_xform", "sel")
@@ -125,40 +142,46 @@ def main():
     hang = [r for r in faults if "Hang" in json.dumps(r.get("observed"))
             or "Hang" in (r.get("note") or "")]
     n_unstable = intra_unstable(c1, c2)
+    g4 = N("vtx_coord_xform.sel",
+           r"(\d+) of 256 correct, (\d+) no_draw, (\d+) genuine 'Caused GPU Hang Error' faults, (\d+) wrong", 4)
+    gi = N("vtx_coord_xform.sel", r"Intra-run (\d+)/(\d+) stable", 2)
     add("vtx_coord_xform.sel", [
-        {"claim": "91 ok, 143 no_draw, 19 faults, 1 wrong_value",
+        {"claim": "N ok, M no_draw, K faults, J wrong_value", "claimed": list(g4),
          "raw": {"hist": h, "n_cases": len(c1)},
-         "ok": (h.get("ok") == 91 and h.get("no_draw") == 143
-                and h.get("fault") == 19 and h.get("wrong_value") == 1)},
-        {"claim": "Intra-run 255/256 stable",
+         "ok": (h.get("ok") == g4[0] and h.get("no_draw") == g4[1]
+                and h.get("fault") == g4[2] and h.get("wrong_value") == g4[3])},
+        {"claim": "Intra-run N/M stable", "claimed": list(gi),
          "raw": {"n_cases": len(c1), "intra_stable": len(c1) - n_unstable},
-         "ok": (len(c1) == 256 and len(c1) - n_unstable == 255)}])
+         "ok": (len(c1) == gi[1] and len(c1) - n_unstable == gi[0])}])
 
     # ---- vtx_coord_xform.operand ------------------------------------------
     c1, _ = cases("vtx_coord_xform", "operand")
     per = {b: bytegroup("vtx_coord_xform", "operand", "byte%d" % b) for b in range(5)}
     ph = {b: dict(collections.Counter(r["outcome"] for r in per[b].values()))
           for b in per}
+    oN = N("vtx_coord_xform.operand", r"Intra-run (\d+)/(\d+) stable", 2)
+    oF = N("vtx_coord_xform.operand", r"byte 3 is fault-prone \((\d+) faults\)")
     add("vtx_coord_xform.operand", [
-        {"claim": "5x256 per byte + structured whole-field values, 1339 cases",
+        {"claim": "5x256 per byte + structured whole-field values, N cases",
+         "claimed": oN[1],
          "raw": {"n_cases": len(c1),
                  "per_byte_counts": {b: len(per[b]) for b in per},
                  "whole": sum(1 for v in c1 if v.startswith("whole"))},
-         "ok": (len(c1) == 1339 and all(len(per[b]) == 256 for b in per))},
+         "ok": (len(c1) == oN[1] and all(len(per[b]) == 256 for b in per))},
         {"claim": "bytes 0 and 4 FULLY INERT (256/256 each)",
          "raw": {"byte0": ph[0], "byte4": ph[4]},
          "ok": (ph[0].get("ok") == 256 and ph[4].get("ok") == 256)},
-        {"claim": "byte 3 fault-prone (17 faults)",
-         "raw": ph[3], "ok": ph[3].get("fault") == 17},
+        {"claim": "byte 3 fault-prone (N faults)", "claimed": oF,
+         "raw": ph[3], "ok": ph[3].get("fault") == oF},
         {"claim": "bytes 1-2 mix correct with no_draw",
          "raw": {"byte1": ph[1], "byte2": ph[2]},
          "ok": (ph[1].get("ok", 0) > 0 and ph[1].get("no_draw", 0) > 0
                 and ph[2].get("ok", 0) > 0 and ph[2].get("no_draw", 0) > 0)},
-        {"claim": "Intra-run 1339/1339 stable",
+        {"claim": "Intra-run N/M stable", "claimed": list(oN),
          "raw": {"n_cases": len(c1),
                  "intra_stable": len(c1) - intra_unstable(c1, cases("vtx_coord_xform", "operand")[1])},
-         "ok": (len(c1) == 1339
-                and intra_unstable(c1, cases("vtx_coord_xform", "operand")[1]) == 0)}])
+         "ok": (len(c1) == oN[1]
+                and len(c1) - intra_unstable(c1, cases("vtx_coord_xform", "operand")[1]) == oN[0])}])
 
     # ---- n3_sample_read.tail ----------------------------------------------
     c1, c2 = cases("n3_sample_read", "tail")
@@ -167,19 +190,22 @@ def main():
     f0 = [r for r in per[0].values() if r["outcome"] == "fault"]
     hang0 = [r for r in f0 if "Hang" in json.dumps(r.get("observed"))
              or "Hang" in (r.get("note") or "")]
+    tN = N("n3_sample_read.tail", r"Intra-run (\d+)/(\d+) stable", 2)
+    tF = N("n3_sample_read.tail", r"where (\d+) values fault")
     add("n3_sample_read.tail", [
-        {"claim": "6x256 per byte + structured whole-field values, 1603 cases",
+        {"claim": "6x256 per byte + structured whole-field values, N cases",
+         "claimed": tN[1],
          "raw": {"n_cases": len(c1), "per_byte_counts": {b: len(per[b]) for b in per}},
-         "ok": (len(c1) == 1603 and all(len(per[b]) == 256 for b in per))},
+         "ok": (len(c1) == tN[1] and all(len(per[b]) == 256 for b in per))},
         {"claim": "bytes 1-5 FULLY INERT (256/256 each)",
          "raw": {b: ph[b] for b in range(1, 6)},
          "ok": all(ph[b].get("ok") == 256 for b in range(1, 6))},
-        {"claim": "byte 0: 53 values fault",
+        {"claim": "byte 0: N values fault", "claimed": tF,
          "raw": {"byte0": ph[0], "faults_with_Hang_string": len(hang0)},
-         "ok": ph[0].get("fault") == 53},
-        {"claim": "Intra-run 1603/1603 stable",
+         "ok": ph[0].get("fault") == tF},
+        {"claim": "Intra-run N/M stable", "claimed": list(tN),
          "raw": {"n_cases": len(c1), "intra_stable": len(c1) - intra_unstable(c1, c2)},
-         "ok": (len(c1) == 1603 and intra_unstable(c1, c2) == 0)}])
+         "ok": (len(c1) == tN[1] and len(c1) - intra_unstable(c1, c2) == tN[0])}])
 
     json.dump(out, open(os.path.join(HERE, "check_0147.json"), "w"), indent=1, sort_keys=True)
     c = collections.Counter(v["verdict"] for v in out.values())

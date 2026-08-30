@@ -32,3 +32,17 @@
   about our own source, not a hardware claim.
 - `k_cs_alu` (copysign of ALU-sourced operands) emits **no** 4-byte `copysign` at all; it is
   carried as a null carrier and reported, not silently dropped.
+
+## 2026-08-30 — gate amendment made DURING run01, BEFORE any verdict was computed
+`analysis/verdicts.py` originally dropped hard outcomes (`fault`, `hang`,
+`measurement_failure`, `invalid_run`, `nondeterministic`) from the cross-run comparison
+entirely. That is a LENIENCY, not a strictness: a value that faults in run01 and runs clean
+in run02 would fall out of `common` instead of counting as the disagreement it is, and
+`falu3.op` has 32 values that are documented reproducible faults. PRE_REGISTRATION section 7
+says agreement is measured "over the values common to both runs", and a faulting value IS a
+common value carrying the observation "it faulted".
+
+AMENDED: hard outcomes now enter the cross-run comparison as their own class
+(`hard:<outcome>`), while still being EXCLUDED from `moved` (control C5 -- a GPU fault is not
+movement). Made while run01 was still executing and before `verdicts.py` had been run against
+any capture. Contract re-frozen; the amended file is hashed in CAPTURE_CONTRACT.json.

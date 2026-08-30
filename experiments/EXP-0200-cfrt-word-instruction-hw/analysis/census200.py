@@ -13,6 +13,15 @@ Compiles every carrier from OUR OWN MSL and reports, per carrier:
     reported separately as `sig_hits`, as an upper bound only: a signature hit
     may sit INTERIOR to a longer token and be no carrier at all (EXP-0148's
     `cubearray_coord_const` is exactly that shape).
+  * `sig_holes[mnemonic]` -- the AMENDED source of 4-byte transparency holes
+    (PRE_REGISTRATION.md 7.4, amendment A1). The pinned tokenizer's walk stops
+    at 60-62 tokens on EVERY intersection_query carrier (EXP-0187 4.2,
+    EXP-0157 measured the same), so `walk_holes` is empty for all three 4-byte
+    targets on every RT carrier -- a tokenizer limitation, NOT evidence of
+    absence. A signature hit is promoted to a hole only if it is
+    PARCEL-ALIGNED and `decode_one` AT THAT OFFSET returns that mnemonic with
+    the descriptor's own length. Both numbers are reported so the promotion is
+    auditable.
   * `ruler_candidates` -- runs of consecutive walked instructions summing to
     exactly 8 bytes in the 2 %..75 % window. Which of them are usable is decided
     on the DEVICE by run200.py --probe-holes, not here.
@@ -54,7 +63,7 @@ def main():
                "n_tokens": len(bounds), "leftover_hex": leftover,
                "walk": [{"off": o, "len": l, "mnemonic": m}
                         for (o, l, m) in bounds],
-               "walk_holes": {}, "sig_hits": {},
+               "walk_holes": {}, "sig_hits": {}, "sig_holes": {},
                "ruler_candidates": L.find_runs(bounds, len(main), 8, 0.02, 0.75)}
         for mn in TARGETS:
             hits = L.find_occurrences(main, mn)
@@ -65,12 +74,24 @@ def main():
                     holes.append({"off": o, "len": l,
                                   "bytes": main[o:o + l].hex()})
             rec["walk_holes"][mn] = holes
+            sig = []
+            for h in hits:
+                if not h["parcel_aligned"]:
+                    continue
+                tok = L.token_at(main, h["off"])
+                if tok.get("mnemonic") == mn and tok.get("length") == h["len"]:
+                    sig.append({"off": h["off"], "len": h["len"],
+                                "bytes": h["bytes"], "decode_one": tok})
+            rec["sig_holes"][mn] = sig
         out[name] = rec
         print("%-10s tokens=%-4d ruler_cand=%-3d  %s"
               % (name, len(bounds), len(rec["ruler_candidates"]),
-                 " ".join("%s:%d/%d" % (m, len(rec["walk_holes"][m]),
-                                        rec["sig_hits"][m]) for m in TARGETS)))
-    p = EXP / "raw" / "prefreeze" / "census200.json"
+                 " ".join("%s:w%d/s%d/h%d" % (m, len(rec["walk_holes"][m]),
+                                              rec["sig_hits"][m],
+                                              len(rec["sig_holes"][m]))
+                          for m in TARGETS)))
+    out_name = sys.argv[1] if len(sys.argv) > 1 else "census200.json"
+    p = EXP / "raw" / "prefreeze" / out_name
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(out, indent=1, sort_keys=True))
     print("wrote", p)

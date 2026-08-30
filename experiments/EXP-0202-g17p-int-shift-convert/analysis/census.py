@@ -34,6 +34,14 @@ import carriers202 as C      # noqa: E402
 import locate202 as L        # noqa: E402
 
 TARGETS = ["shift_amt_move", "irotate", "ibitcount", "iunary", "cvt_f2i"]
+# The whole compact-move family that shares byte+1 = src_reg(7) + src_flag(1) at
+# bit 15, plus `uniform_mov`, whose byte+1 is an EIGHT-bit uniform index with no
+# flag at all. If the compiler ever sets bit 15 anywhere in this family, the
+# source-class dimension is demonstrated rather than asserted -- and if it never
+# does, that is the finding.
+SRCFLAG_FAMILY = ["reg_move_c0", "reg_move_c1", "reg_move_c9", "reg_move_c2var",
+                  "b_alu10_lo6", "b_alu10_lo7", "b_alu10_loe", "b_alu10_lof",
+                  "shift_amt_move", "uniform_mov"]
 FIELDS = {
     "shift_amt_move": ["dst", "src_reg", "src_flag", "kind", "op_desc"],
     "irotate": ["b2", "operands", "tail"],
@@ -46,6 +54,35 @@ BIN = EXP / "work" / "bin"
 
 def bits(raw, start, width):
     return (int.from_bytes(raw, "little") >> start) & ((1 << width) - 1)
+
+
+def walk(main_bytes):
+    """Sequential tokenizer walk from offset 0 -> the set of REAL instruction
+    boundaries, plus the decoded stream.
+
+    A signature scan alone finds byte patterns, not instructions: a window that
+    starts in the MIDDLE of a longer instruction can satisfy a loose descriptor's
+    match and decode cleanly. `iunary` is exactly that kind of descriptor (one
+    match constraint: byte0 == 0x27), so without this every popcount's interior
+    would be offered as an `iunary` arm. Two fields were withdrawn on 2026-08-30
+    after their movement turned out to be a different instruction; this is the
+    same failure one step earlier."""
+    offs, stream, off, guard = set(), [], 0, 0
+    n = len(main_bytes)
+    while off < n and guard < 100000:
+        guard += 1
+        try:
+            rec, length = L.isadb.decode_one(bytes(main_bytes), off)
+        except Exception:                                       # noqa: BLE001
+            off += 2
+            continue
+        if not length or length <= 0:
+            off += 2
+            continue
+        offs.add(off)
+        stream.append({"off": off, "mnemonic": rec.get("mnemonic"), "len": length})
+        off += length
+    return offs, stream
 
 
 def main():
@@ -63,6 +100,9 @@ def main():
             out["drops"].append({"carrier": name, "why": "compile failed"})
             continue
         rec["main_len"] = len(main_bytes)
+        boundaries, stream = walk(main_bytes)
+        rec["n_instructions_walked"] = len(stream)
+        rec["walk_covers_bytes"] = sum(x["len"] for x in stream)
         rec["occurrences"] = {}
         for mn in TARGETS:
             hits = L.find_occurrences(main_bytes, mn)
@@ -75,7 +115,9 @@ def main():
                 # byte0==0x27 catch-all whose signature `ibitcount` also
                 # satisfies, so signature alone would mis-attribute every
                 # popcount to `iunary`.
-                h["tokenizer_agrees"] = (tok.get("mnemonic") == mn)
+                h["at_boundary"] = h["off"] in boundaries
+                h["tokenizer_agrees"] = (tok.get("mnemonic") == mn
+                                         and h["off"] in boundaries)
                 fv = {}
                 raw = bytes(main_bytes[h["off"]:h["off"] + h["len"]])
                 for f in FIELDS[mn]:
@@ -108,6 +150,38 @@ def main():
                     "distinct_values": sorted(seen),
                     "n_distinct": len(seen),
                     "where": {str(k): v[:6] for k, v in sorted(seen.items())}}
+
+    # The source-class dimension, across the WHOLE compact-move family.
+    fam = {}
+    for name, rec in out["carriers"].items():
+        if "main_len" not in rec:
+            continue
+        try:
+            arch, off, mb = L.compile_carrier(
+                BIN, EXP / C.CARRIERS[name]["metal"], C.CARRIERS[name]["func"],
+                EXP / "work" / "arch")
+        except Exception:                                       # noqa: BLE001
+            continue
+        bnd, _ = walk(mb)
+        for mn in SRCFLAG_FAMILY:
+            for h in L.find_occurrences(mb, mn):
+                if h["off"] not in bnd:
+                    continue
+                if L.token_at(mb, h["off"]).get("mnemonic") != mn:
+                    continue
+                raw = bytes(mb[h["off"]:h["off"] + h["len"]])
+                d = fam.setdefault(mn, {"n": 0, "src_flag": {}, "byte1": {},
+                                        "examples": []})
+                d["n"] += 1
+                if mn != "uniform_mov":
+                    sf = bits(raw, 15, 1)
+                    d["src_flag"][str(sf)] = d["src_flag"].get(str(sf), 0) + 1
+                b1 = bits(raw, 8, 8)
+                d["byte1"][str(b1)] = d["byte1"].get(str(b1), 0) + 1
+                if len(d["examples"]) < 8:
+                    d["examples"].append({"carrier": name, "off": h["off"],
+                                          "bytes": raw.hex()})
+    out["srcflag_family_census"] = fam
 
     # irotate: which byte of `operands` moves with the immediate amount?
     amt = {}

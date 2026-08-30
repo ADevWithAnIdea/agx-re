@@ -314,3 +314,40 @@ and is reported as a wall, not clipped by a budget — EXP-0187's `dst` wall is
 already known and is deliberately re-entered here at synthesized sites.
 `macvdmtool` is **forbidden**; if the neo stops answering the experiment STOPS
 and reports BLOCKED with where it was.
+
+---
+
+## 12. Amendments (append-only; each recorded BEFORE any gated capture)
+
+### A1 — 4-byte transparency holes may come from a signature scan (2026-08-30)
+
+**What changed.** §7.4's transparency-hole rule read "walked tokens of exactly 2
+or 4 bytes". It now also admits a hole from a **signature scan cross-checked
+with `decode_one`**, for the three 4-byte targets only.
+
+**Why, measured rather than assumed.** The pre-freeze census
+(`raw/prefreeze/census200.json`) found **zero** walk-confirmed holes for
+`rtq_pred`, `n4_cf_word` and `n4_rt_word` on every one of the ten carriers,
+while the same carriers carry 2..57 signature hits each. That is the tokenizer
+limitation EXP-0187 §4.2 and EXP-0157 both recorded — the pinned walk stops at
+60–62 tokens on every `intersection_query` program — and it is **not** evidence
+of absence. EXP-0187 swept `n4_rt_word.dst` at exactly such an offset and got a
+reproducible 64-of-256 command-buffer fault wall, which is only possible if the
+hardware decodes those bytes there. Without the amendment the 4-byte
+transparency arm would be empty through a tooling artefact.
+
+**The admission test** (implemented in `analysis/census200.py`, auditable in the
+census output, which reports walk / signature / promoted counts separately): a
+signature hit is promoted only if it is **parcel-aligned** *and* `decode_one` at
+that offset returns that mnemonic with the descriptor's own length.
+
+**Why it cannot manufacture a result.** Every transparency hole — walked or
+signature-derived — is screened at analysis time by its **own** `X_reach`
+control: a `stop` written into the hole must halt the program before the result
+store. A hole that does not is barred, and no substitution measured at it counts
+for anything. The amendment changes *where we look*, never *what counts*.
+
+**Unchanged:** the ruler arm, the gate in §8, the fill catalogue, `DST_VALUES`,
+`B3_VALUES`, and the whole of target 1. The contract is re-frozen as v2; v1 is
+retained at `raw/prefreeze/CAPTURE_CONTRACT.v1.json` and the pre-registration
+revision is carried forward verbatim.

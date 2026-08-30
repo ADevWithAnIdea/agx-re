@@ -2,7 +2,8 @@
  "n3_sample_read.tail": {
   "claims": [
    {
-    "claim": "6x256 per byte + structured whole-field values, 1603 cases",
+    "claim": "6x256 per byte + structured whole-field values, N cases",
+    "claimed": 1603,
     "ok": true,
     "raw": {
      "n_cases": 1603,
@@ -38,7 +39,8 @@
     }
    },
    {
-    "claim": "byte 0: 53 values fault",
+    "claim": "byte 0: N values fault",
+    "claimed": 53,
     "ok": true,
     "raw": {
      "byte0": {
@@ -50,7 +52,11 @@
     }
    },
    {
-    "claim": "Intra-run 1603/1603 stable",
+    "claim": "Intra-run N/M stable",
+    "claimed": [
+     1603,
+     1603
+    ],
     "ok": true,
     "raw": {
      "intra_stable": 1603,
@@ -65,7 +71,8 @@
  "pixel_order.flags": {
   "claims": [
    {
-    "claim": "ACQUIRE rule bit0==0 AND (v&0x0e)!=0, 112/256",
+    "claim": "ACQUIRE rule bit0==0 AND (v&0x0e)!=0, N/256",
+    "claimed": 112,
     "ok": true,
     "raw": {
      "hist": {
@@ -77,7 +84,8 @@
     }
    },
    {
-    "claim": "RELEASE rule (v&0x0f)>=2, 224/256",
+    "claim": "RELEASE rule (v&0x0f)>=2, N/256",
+    "claimed": 224,
     "ok": true,
     "raw": {
      "hist": {
@@ -129,7 +137,8 @@
  "vtx_coord_xform.mode": {
   "claims": [
    {
-    "claim": "(mode & 0xf3) in {0x22,0xe2}, 8/256, baseline 0x22",
+    "claim": "(mode & 0xf3) in {0x22,0xe2}, N/256, baseline 0x22",
+    "claimed": 8,
     "ok": true,
     "raw": {
      "hist": {
@@ -151,7 +160,11 @@
     }
    },
    {
-    "claim": "240 of 256 no_draw; 8 wrong pixel",
+    "claim": "N of 256 no_draw; M wrong pixel",
+    "claimed": [
+     240,
+     8
+    ],
     "ok": true,
     "raw": {
      "no_draw": 240,
@@ -167,7 +180,8 @@
  "vtx_coord_xform.operand": {
   "claims": [
    {
-    "claim": "5x256 per byte + structured whole-field values, 1339 cases",
+    "claim": "5x256 per byte + structured whole-field values, N cases",
+    "claimed": 1339,
     "ok": true,
     "raw": {
      "n_cases": 1339,
@@ -194,7 +208,8 @@
     }
    },
    {
-    "claim": "byte 3 fault-prone (17 faults)",
+    "claim": "byte 3 fault-prone (N faults)",
+    "claimed": 17,
     "ok": true,
     "raw": {
      "fault": 17,
@@ -218,7 +233,11 @@
     }
    },
    {
-    "claim": "Intra-run 1339/1339 stable",
+    "claim": "Intra-run N/M stable",
+    "claimed": [
+     1339,
+     1339
+    ],
     "ok": true,
     "raw": {
      "intra_stable": 1339,
@@ -233,7 +252,13 @@
  "vtx_coord_xform.sel": {
   "claims": [
    {
-    "claim": "91 ok, 143 no_draw, 19 faults, 1 wrong_value",
+    "claim": "N ok, M no_draw, K faults, J wrong_value",
+    "claimed": [
+     91,
+     143,
+     19,
+     1
+    ],
     "ok": true,
     "raw": {
      "hist": {
@@ -247,7 +272,11 @@
     }
    },
    {
-    "claim": "Intra-run 255/256 stable",
+    "claim": "Intra-run N/M stable",
+    "claimed": [
+     255,
+     256
+    ],
     "ok": true,
     "raw": {
      "intra_stable": 255,

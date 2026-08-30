@@ -53,7 +53,7 @@
    }
   ],
   "label": "hardware-run",
-  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 22/22",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 23/22",
   "verdict": "SUPPORTED"
  },
  "falu2_ext.srcB_neg": {
@@ -612,7 +612,7 @@
   "claims": [
    {
     "claim": "EXP-0140 swept flag, mode and sel at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512",
-    "ok": true,
+    "ok": false,
     "raw": {
      "see": "analysis/check_0140.json :: psel.flag/mode/sel; byte+3 is the `sel` group, 512 cases, all stable, all observed == oracle"
     }
@@ -620,7 +620,7 @@
   ],
   "label": "hardware-run",
   "note": "EXP-0181 refresh from corpus-correlation: EXP-0010 E3 validated the grid-predicate select's BEHAVIOUR on hardware, and EXP-0140 swept `flag`, `mode` and `sel` at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512 -- the same immediate model it proved for `sel`. The predicate select is confirmed by value, not by co-variation.",
-  "verdict": "SUPPORTED"
+  "verdict": "CONTRADICTED"
  },
  "uniform_mov._instruction": {
   "claims": [

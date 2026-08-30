@@ -57,7 +57,7 @@ def tokenize(db, hexs):
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     res = {}
 
     # ---- B1: the rows -----------------------------------------------------

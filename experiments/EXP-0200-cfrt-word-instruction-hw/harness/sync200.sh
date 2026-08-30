@@ -39,6 +39,7 @@ push)
       "$USER_@$NEO:agxre/EXP-0200/"
   sshpass -e rsync -az -e "ssh ${SSHOPT[*]}" \
       "$EXP/t1/run.py" "$EXP/t1/CAPTURE_CONTRACT.json" \
+      "$EXP/t1/PRE_REGISTRATION.md" "$EXP/t1/README.md" \
       "$USER_@$NEO:agxre/EXP-0200/t1/"
   ;;
 build)

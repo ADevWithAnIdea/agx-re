@@ -39,7 +39,7 @@ RX_AND_ZERO = re.compile(r"(\d+) of (\d+) cases fault and (\d+) silently zero")
 
 
 def main():
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     nc = set(json.load(open(os.path.join(
         ROOT, "experiments/EXP-0196-note-integrity-audit/work/not_checked.json"))))
     armraw = {a: load(a) for a in CFG}

@@ -101,25 +101,36 @@ def quiet(run_dirs):
 
 def arm_stats(recs, arm, run):
     """Per-value deterministic signature for one arm in one run, plus the
-    baseline signature captured immediately before the arm."""
+    baseline signature captured immediately before the arm.
+
+    Returns (baseline_sig, valid_sigs, hard_counter, token_mismatch_values,
+    all_sigs). `valid_sigs` feeds `moved`; `all_sigs` additionally carries hard
+    outcomes as their own class and feeds the cross-run comparison."""
     base = None
     for r in recs:
         if r["_run"] == run and r.get("field") == "_baseline" \
                 and r.get("arm") == arm + ":open":
             base = sig(r)
-    vals, hard, tokmis = {}, collections.Counter(), set()
+    vals, allv, hard, tokmis = {}, {}, collections.Counter(), set()
     for r in recs:
         if r["_run"] != run or r.get("arm") != arm or r.get("field") == "_baseline":
             continue
         oc = r.get("outcome")
         if oc in HARD:
             hard[oc] += 1
+            # A hard outcome is NOT movement (C5) and never enters `vals`, but it
+            # IS an observation about that value, so it enters the CROSS-RUN
+            # comparison as its own class. Otherwise a value that faults in one
+            # run and runs clean in the other silently drops out of `common`
+            # instead of counting as the disagreement it is.
+            allv[r["value"]] = "hard:" + str(oc)
             continue
         vals[r["value"]] = sig(r)
+        allv[r["value"]] = sig(r)
         tok = (r.get("token") or {}).get("mnemonic")
         if tok != r.get("instr"):
             tokmis.add(r["value"])
-    return base, vals, hard, tokmis
+    return base, vals, hard, tokmis, allv
 
 
 def analyse(recs, mnem, field, runs):
@@ -133,7 +144,7 @@ def analyse(recs, mnem, field, runs):
         fal = arm.rsplit("/", 1)[0] + "/_falsifier"
         entry = {"carrier": carrier, "occ": occ, "runs": {}}
         for run in runs:
-            base, vals, hard, tokmis = arm_stats(recs, arm, run)
+            base, vals, hard, tokmis, _all = arm_stats(recs, arm, run)
             moved = sorted(v for v, s in vals.items()
                            if base is not None and s != base and v not in tokmis)
             moved_by_token = sorted(v for v in tokmis
@@ -145,8 +156,8 @@ def analyse(recs, mnem, field, runs):
         # cross-run agreement over the values common to the first two runs
         agree_pct, dis, common = None, None, None
         if len(runs) >= 2:
-            _, va, _, _ = arm_stats(recs, arm, runs[0])
-            _, vb, _, _ = arm_stats(recs, arm, runs[1])
+            _, _, _, _, va = arm_stats(recs, arm, runs[0])
+            _, _, _, _, vb = arm_stats(recs, arm, runs[1])
             keys = set(va) & set(vb)
             d = [v for v in keys if va[v] != vb[v]]
             common, dis = len(keys), len(d)
@@ -154,12 +165,12 @@ def analyse(recs, mnem, field, runs):
         # controls
         cmoved = 0
         for run in runs:
-            cb, cv, _, _ = arm_stats(recs, ctl, run)
+            cb, cv, _, _, _ = arm_stats(recs, ctl, run)
             if cb is not None:
                 cmoved = max(cmoved, sum(1 for s in cv.values() if s != cb))
         fmoved = 0
         for run in runs:
-            fb, fv, _, _ = arm_stats(recs, fal, run)
+            fb, fv, _, _, _ = arm_stats(recs, fal, run)
             if fb is not None:
                 fmoved = max(fmoved, sum(1 for s in fv.values() if s != fb))
         # payload / encoding census, from raw only

@@ -1,0 +1,141 @@
+{
+ "abort_policy": "NO abort path: every value dispatches regardless of outcome. If TWO genuine hangs occur in one arm, that arm STOPS and is reported PARTIAL. macvdmtool is NEVER run; an unresponsive neo is reported BLOCKED.",
+ "case_matrix": {
+  "n_cases": 5296,
+  "sha256": "d34b2f121afb6d1308bd30a749802593f41a8f63f5f41288b2b059f410ad8e00"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "provenance": "OWN-SHADER + HW-PROBE"
+ },
+ "experiment": "EXP-0203-g17p-half-oracle",
+ "forced_labels": {
+  "half_alu_fma12.ext": "untested -- 64 bits wide, 2048 of 2^64 sampled; findings go to db_defects"
+ },
+ "frozen_utc": "2026-08-30T19:09:22Z",
+ "gate_note": "A capture is valid if the AUTHORED BLOB HASHES below match; repo HEAD moving because a sibling experiment lands is NOT contamination (SUBAGENT_BRIEF).",
+ "gate_on_head": false,
+ "oracle": {
+  "fma12_model": "abs(a)*b-c  ->  r[byte0>>4].lo, high half preserved",
+  "fma12_model_provenance": "fitted OFFLINE from our own committed EXP-0180 raw (g17p_run02, 256/256 on each of two carriers) BEFORE this contract was frozen",
+  "halfpack_candidates": [
+   "hi=fp16(B+A)",
+   "lo=fp16(B+A)",
+   "hi=fp16(B*A)",
+   "hi=B",
+   "hi=A",
+   "pack(A<<16|B)",
+   "pack(B<<16|A)"
+  ],
+  "halfpack_model_primary": "hi=fp16(B+A) -> r[byte0>>4].hi, low half preserved",
+  "precision": "binary64 evaluation, ONE rounding to binary16 RNE (fused). The two-rounding prediction is recorded per case as `alt2r`.",
+  "subnormal_and_overflow": "flagged per case; a flush-to-zero result is a HARDWARE fact and is not charged against the field",
+  "unseeded_registers": "predicted to read 0; verified per run by __ctl_unseeded"
+ },
+ "promotion_gate": {
+  "G1": "dense over encodable_range; distinct_bytes == dispatched; mutation differs from anchor ONLY inside the db.json span",
+  "G2": "valid observation for every value in BOTH gated runs",
+  "G3": "cross-run agreement >= 0.99 per value",
+  "G4": "moved >= 2*disagree AND moved > 0  (NOT 2*max(disagree,1))",
+  "G5": ">= 2 distinct predicted post-digests AND oracle match rate >= 0.99 in BOTH runs",
+  "G6": "every falsifier NON-matched, and the same-dimension liveness control fired (>=6/8 oracle matches and >=2 distinct observations)",
+  "G7": "tokenized mnemonic and surviving-marker count equal the anchor's"
+ },
+ "raw_schema": {
+  "append_only": true,
+  "file": "raw/<run>/sweep.jsonl",
+  "fsync_per_record": true,
+  "one_object_per_case": true,
+  "outcome_domain": [
+   "measurement_failed",
+   "hang",
+   "fault",
+   "undecodable",
+   "carrier_dead",
+   "invalid_run",
+   "silent_zero",
+   "wrong_value",
+   "ok"
+  ],
+  "required_keys": [
+   "arm",
+   "instr",
+   "field",
+   "value",
+   "byte_index",
+   "fstart",
+   "fwidth",
+   "bytes",
+   "anchor",
+   "carrier",
+   "layout",
+   "seeds",
+   "observed",
+   "oracle",
+   "oracle_match",
+   "oracle_match_alt2r",
+   "null_match",
+   "outcome",
+   "status",
+   "fault_class",
+   "victim",
+   "seed_ok",
+   "sentinel_bad",
+   "tok_instr",
+   "tok_len",
+   "rt_ok",
+   "hw_markers",
+   "identity_changed",
+   "attempts",
+   "resp_raw",
+   "seq",
+   "t"
+  ]
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision_at_freeze": "ff747ca3a2a526a8f96360846f1eeaed3fa26821",
+ "runs": {
+  "gated": [
+   "g17p_run01",
+   "g17p_run02"
+  ],
+  "pilot": [
+   "pilot01"
+  ],
+  "reuse_policy": "run ids are NEVER reused or topped up; a partial capture is retained and a replacement takes a NEW id"
+ },
+ "source_sha256": {
+  "PRE_REGISTRATION.md": "17a550cf9e842c8663c2328b10e9c77084fe31c5f967f050521c2eed52329153",
+  "analysis/fit_model_offline.py": "fdc010456944d1244fa8070b8594425567416ec43930ab291a610f1c31f8e87d",
+  "analysis/verdicts.py": "722adcc41f9aaa966dd4536649dc37a72b1b6e7ac9f6ae916705173aa8765b31",
+  "harness/casematrix.py": "1cf84ffdc18f4dc9ab732c9a27b9e8a1d147610e6702aac4c56923de34042e73",
+  "harness/isa_helpers.py": "b68e3ee5bb31a806e4b6a2adee3b2988f4ac9d628b6a13390ebb028826a054a1",
+  "harness/oracle.py": "ea6f1e83639cf504cfc7362f909e97d60c32f08fd48fa153f04f306ddfb9c7ca",
+  "harness/procsample.py": "1ea8940479b4a0fa8fb8f82022ed4dc873114ffa2ff6db0ec52e8b5c305fa09e",
+  "harness/run.py": "7fd461912f6afda9c6fb308c4e79280bb26220beb5c1eb2b8d3630dd1dc8a4c5",
+  "harness/saferunner.py": "050c1a772dc2511519e266b232c8e30d97dc59a49101d282ca8b935873e9c15d",
+  "harness/selftest.py": "cb25111c1cae525bbf4b4ec326693232fcf64c99daa4c732c5f2f4c64e814817",
+  "harness/verify_remote.py": "c461cb9e9a950e8dafd98738aab0054848126f47311a3460627b375d9e2b2942",
+  "kernels/carrier_a.metal": "5d1ec03cd87a461fa1aa685a1ef128d9a52837a76217d6cf08663ac62b136f84",
+  "kernels/carrier_b.metal": "943403b42053da9e5db134c11af8f6308c3e0a0ba533070b94cb8f6ccb7f8234",
+  "kernels/probes.metal": "8ab2e7577b0b5aec9f68822af65ebbe0b1f1bf2bed79aaab86910abb0857e102",
+  "work/frozen/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "work/frozen/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "work/stub/fakerunner.py": "495d7d62c3e2dfc50935fe21f0d913bccf47a37a14326831428c0c11087c1245"
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "host": "192.168.170.254",
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro / G17P",
+  "os": "macOS 26.6"
+ },
+ "timeouts": {
+  "attempts_per_case": 3,
+  "per_request_s": 8.0,
+  "remote_wrapper": "perl -e 'alarm N; exec @ARGV'",
+  "shdump_s": 300
+ }
+}

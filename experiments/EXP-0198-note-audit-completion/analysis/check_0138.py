@@ -41,7 +41,7 @@ def load(run):
 
 def main():
     A, B = load(RUNS[0]), load(RUNS[1])
-    val = json.load(open(os.path.join(ROOT, "tools/agx-isa/validation.json")))
+    val = json.load(open(os.environ.get("EXP0198_VALIDATION", os.path.join(ROOT, "tools/agx-isa/validation.json"))))
     fv = json.load(open(os.path.join(EXP, "analysis", "field_verdicts.json")))
     out = {}
     for k in KEYS:

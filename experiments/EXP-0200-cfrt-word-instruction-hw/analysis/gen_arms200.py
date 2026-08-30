@@ -34,7 +34,25 @@ TRANSPARENCY ARMS (the substitution measurement).
   A transparency hole is a WALKED token of exactly 2 or 4 bytes whose mnemonic
   is one of the six target words (or `pad_operand`, admitted only as an extra
   2-byte slot, never as a target). At most TRANSPARENCY_HOLES_PER_MNEMONIC per
-  (carrier, mnemonic), earliest first. Each gets
+  (carrier, mnemonic), earliest first.
+
+  AMENDMENT A1 (recorded pre-freeze, before any gated capture; PRE_REGISTRATION
+  7.4). The pre-freeze census measured **zero** walk-confirmed holes for all
+  three 4-byte targets on every carrier, while the same carriers carry 2..57
+  signature hits each. That is the tokenizer limitation EXP-0187 4.2 and
+  EXP-0157 both recorded -- the walk stops at 60-62 tokens on every
+  intersection_query program -- and NOT evidence of absence: EXP-0187 measured
+  `n4_rt_word.dst` at exactly such an offset and got a reproducible 64-of-256
+  command-buffer fault wall out of it, which is only possible if the hardware
+  decodes those bytes there. Without the amendment the 4-byte transparency arm
+  would be empty by tooling artefact.
+  So a 4-byte hole may ALSO come from `census.sig_holes[mnemonic]`, which
+  admits a signature hit only if it is PARCEL-ALIGNED and `decode_one` at that
+  offset returns that mnemonic with the descriptor's own length. Walked holes
+  are still preferred and taken first. The amendment cannot manufacture a
+  result: every transparency hole is screened by its OWN `X_reach` control at
+  analysis time, and a hole whose stop does not halt the program supports
+  nothing. Each gets
   `harness/words200.py:transparency_fills`, which always includes its own
   reachability control and its own over-length control, so an arm that turns out
   to be off the executed path is visible in its OWN record rather than being
@@ -113,7 +131,13 @@ def main():
     # main-bytes are needed for the transparency holes; recompiling is not
     # possible off-device, so the census result is read from the probe run's
     # carrier_ready records via analysis/census200.py output instead.
-    census = json.loads((EXP / "raw" / "prefreeze" / "census200.json").read_text())
+    # AMENDMENT A1 re-ran the census to add `sig_holes`; the ORIGINAL
+    # census200.json is retained untouched (raw/ is append-only) and the v2 file
+    # is preferred when present. Both are committed.
+    cpath = EXP / "raw" / "prefreeze" / "census200.v2.json"
+    if not cpath.exists():
+        cpath = EXP / "raw" / "prefreeze" / "census200.json"
+    census = json.loads(cpath.read_text())
 
     for carrier in sorted(C.CARRIERS):
         if not base_ok.get(carrier):
@@ -150,8 +174,13 @@ def main():
         # ---- transparency arms ------------------------------------------
         cc = census.get(carrier, {})
         for mn in TARGET_MNEMONICS_2B + TARGET_MNEMONICS_4B + ("pad_operand",):
-            holes = cc.get("walk_holes", {}).get(mn, [])[
-                :TRANSPARENCY_HOLES_PER_MNEMONIC]
+            holes = list(cc.get("walk_holes", {}).get(mn, []))
+            if mn in TARGET_MNEMONICS_4B:
+                # AMENDMENT A1: walked holes first, then signature-verified ones.
+                seen = {h["off"] for h in holes}
+                holes += [h for h in cc.get("sig_holes", {}).get(mn, [])
+                          if h["off"] not in seen]
+            holes = holes[:TRANSPARENCY_HOLES_PER_MNEMONIC]
             for h in holes:
                 orig = bytes.fromhex(h["bytes"])
                 try:
