@@ -1,0 +1,535 @@
+{
+ "lost": [
+  "falu3",
+  "falu3_ext",
+  "frag_color_pack",
+  "frame_prologue",
+  "fspecial_est",
+  "get_sr",
+  "h_coord_hi_ext",
+  "irotate",
+  "iunary",
+  "link_save_restore",
+  "rt_query_traverse",
+  "shift_amt_move",
+  "simd_reduce",
+  "spill_frame_marker",
+  "tex_addr_setup",
+  "tex_deriv",
+  "tex_sample"
+ ],
+ "detail": [
+  {
+   "mnemonic": "falu3",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0160",
+     "max_values_dispatched": 256,
+     "moved_total": 428
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu3_ext",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0160",
+     "max_values_dispatched": 256,
+     "moved_total": 450
+    }
+   ]
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "srcA",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": "no-field-records",
+     "evidence": "EXP-0171",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "get_sr",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "dst_hi",
+     "start": 29,
+     "width": 3,
+     "bucket": "INERT-SINGLE",
+     "reason": null,
+     "evidence": "EXP-0168",
+     "max_values_dispatched": 8,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "irotate",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "operands",
+     "start": 24,
+     "width": 40,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0146,EXP-0166",
+     "max_values_dispatched": 1276,
+     "moved_total": 2365
+    }
+   ]
+  },
+  {
+   "mnemonic": "shift_amt_move",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "src_flag",
+     "start": 15,
+     "width": 1,
+     "bucket": "INERT-SINGLE",
+     "reason": null,
+     "evidence": "EXP-0168",
+     "max_values_dispatched": 2,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "dstsrc",
+     "start": 16,
+     "width": 24,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0172",
+     "max_values_dispatched": 65,
+     "moved_total": 198
+    }
+   ]
+  },
+  {
+   "mnemonic": "tex_sample",
+   "n": 1,
+   "blocking": [
+    {
+     "field": "mode",
+     "start": 80,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": "no-field-records",
+     "evidence": "RT-5-isa-tex-simd-mat-rt-frag-falsify,EXP-0016",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "n": 2,
+   "blocking": [
+    {
+     "field": "src_gate_select",
+     "start": 64,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "conv_scale",
+     "start": 72,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "iunary",
+   "n": 2,
+   "blocking": [
+    {
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "opsel",
+     "start": 16,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "n": 2,
+   "blocking": [
+    {
+     "field": "op",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-field-records",
+     "evidence": "EXP-0018,EXP-O2D",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "dtype",
+     "start": 56,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-field-records",
+     "evidence": "EXP-0018,RT-ISA-FIX",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "frame_prologue",
+   "n": 3,
+   "blocking": [
+    {
+     "field": "subop",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "marker",
+     "start": 16,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "frame_size",
+     "start": 24,
+     "width": 24,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "h_coord_hi_ext",
+   "n": 3,
+   "blocking": [
+    {
+     "field": "srcB",
+     "start": 24,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0157",
+     "max_values_dispatched": 255,
+     "moved_total": 274
+    },
+    {
+     "field": "ext",
+     "start": 32,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0157",
+     "max_values_dispatched": 255,
+     "moved_total": 232
+    },
+    {
+     "field": "tail",
+     "start": 48,
+     "width": 16,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0157",
+     "max_values_dispatched": 584,
+     "moved_total": 413
+    }
+   ]
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "n": 3,
+   "blocking": [
+    {
+     "field": "b3",
+     "start": 24,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "dir_offset",
+     "start": 40,
+     "width": 16,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "reserved7",
+     "start": 56,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "spill_frame_marker",
+   "n": 3,
+   "blocking": [
+    {
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "b2",
+     "start": 16,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "b3",
+     "start": 24,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "rt_query_traverse",
+   "n": 4,
+   "blocking": [
+    {
+     "field": "dst",
+     "start": 4,
+     "width": 4,
+     "bucket": "UNSTABLE",
+     "reason": null,
+     "evidence": "EXP-0184",
+     "max_values_dispatched": 16,
+     "moved_total": 1318
+    },
+    {
+     "field": "opA",
+     "start": 24,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "sel",
+     "start": 32,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "opB",
+     "start": 56,
+     "width": 8,
+     "bucket": "UNSTABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  },
+  {
+   "mnemonic": "tex_addr_setup",
+   "n": 11,
+   "blocking": [
+    {
+     "field": "form",
+     "start": 8,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "cache",
+     "start": 17,
+     "width": 1,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_reg",
+     "start": 24,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_hi",
+     "start": 32,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_reg2",
+     "start": 40,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "rsv6",
+     "start": 48,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_mode",
+     "start": 56,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "src_desc",
+     "start": 64,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_desc9",
+     "start": 72,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "op_cnt",
+     "start": 80,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    },
+    {
+     "field": "rsv11",
+     "start": 88,
+     "width": 8,
+     "bucket": "UNVERIFIABLE",
+     "reason": "no-raw",
+     "evidence": "EXP-M4-14",
+     "max_values_dispatched": 0,
+     "moved_total": 0
+    }
+   ]
+  }
+ ]
+}

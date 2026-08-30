@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 491,
-   "isolated-byte-diff": 64,
+   "hardware-run": 555,
+   "isolated-byte-diff": 83,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 248
+   "untested": 165
   },
   "by_label_pct": {
-   "hardware-run": 47.2,
-   "isolated-byte-diff": 6.2,
+   "hardware-run": 53.4,
+   "isolated-byte-diff": 8.0,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 23.8
+   "untested": 15.9
   },
-  "emittable_instructions": 38,
+  "emittable_instructions": 55,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -50,16 +50,26 @@
    "device_store",
    "falu2",
    "falu2_uni",
+   "falu3",
+   "falu3_ext",
    "falu_acc",
+   "frag_color_pack",
+   "frame_prologue",
    "fspecial",
+   "fspecial_est",
+   "get_sr",
    "h_coord_hi",
+   "h_coord_hi_ext",
    "half_alu",
    "half_alu_ext8",
    "hminmax",
    "iminmax",
+   "irotate",
    "isel10",
    "iter_at",
    "iter_flat",
+   "iunary",
+   "link_save_restore",
    "mov_imm",
    "mov_zext16",
    "n3_mov",
@@ -69,14 +79,21 @@
    "psel",
    "reg_move_cb",
    "ret_luse",
+   "rt_query_traverse",
    "rtq_state_move",
    "sel",
+   "shift_amt_move",
+   "simd_reduce",
+   "spill_frame_marker",
    "sr_read_wide",
    "stop",
+   "tex_addr_setup",
+   "tex_deriv",
+   "tex_sample",
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 134,
+  "decodable_not_yet_emittable": 117,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -87,7 +104,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 38
+  "emittable_of_emitter_relevant": 55
  },
  "instructions": {
   "falu2": {
@@ -631,15 +648,13 @@
     "note": "EXP-0181 refresh from corpus-correlation: EXP-0138 HW-VALIDATED the OPERAND-SLOT model against a host oracle over 1809+2321 cases and corrected db.json's names by measurement (byte0 high nibble is the destination, byte+1/+3/+5 the sources, byte+4 the length-selecting control that re-lengths the instruction on 192 of 256 values); EXP-0160 then mapped byte+2 densely on G17P in two seed sets. Anchor 09011e0581080200 decodes back to falu3. This is a three-source float ALU proven by moving its operands and predicting the result."
    },
    "op": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
      "EXP-0160"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 428 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 16,
-    "width": 8
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
    },
    "ctrl": {
     "label": "hardware-run",
@@ -779,15 +794,13 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
      "EXP-0160"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 128 values dispatched over 1 arm(s), 137 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 32,
-    "width": 7
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes(seed set 1) {'wrong_value': 64, 'ok': 16, 'silent_zero': 48}; anchor value 0x01; P1=True P2=True P3=True model=M2 CLASS TABLE"
    },
    "srcB_imm": {
     "label": "untested",
@@ -848,15 +861,13 @@
     "note": "EXP-0181 refresh from corpus-correlation: EXP-0138's operand-slot rename is recorded as applying to falu3_ext verbatim, its own baselines reproduced their oracle 3/3, EXP-0154 ran a saturate-fma carrier and EXP-0160 mapped byte+2 densely on G17P. Anchor 09011e05820802000080 decodes back to falu3_ext at length 10."
    },
    "op": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
      "EXP-0160"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 450 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 16,
-    "width": 8
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -980,16 +991,14 @@
     ]
    },
    "addsub": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (2 of 2 encodings actually spliced), 2/2 values comparable across both gated runs; 1 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
     "target": "M4",
     "evidence": [
      "EXP-0146",
      "EXP-0166"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 2 values dispatched over 1 arm(s), 20 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 7,
-    "width": 1
+    "note": "byte0 bit 7, the ADD/SUBTRACT selector, in the 64-bit carrier `k_u64sub` (`1f 01 56 00 02 08 00 50 17 05`). Both values of a 1-bit field executed: 0 reproduces the compiled 64-bit SUBTRACT, 1 produces (a + b) mod 2^64 EXACTLY on all 8 frozen rows including full 64-bit wrap and lo->hi carry, matched against a host-computed oracle. This is the encoding behind EXP-0146's headline (a native single-instruction 64-bit integer ADD the Apple compiler never emits). REVALIDATED ON G17P by EXP-0153 (12 rows x 5 repetitions x 2 gated runs) \u2014 cited, not merged; this row is the M4 half. The field currently reads `untested` because EXP-0164's audit bucketed it INERT-SINGLE with `max_values_dispatched: 5`; a 1-bit field has only 2 values and both moved."
    },
    "lenbit": {
     "label": "hardware-run",
@@ -1001,16 +1010,14 @@
     "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 0"
    },
    "srcB_reg_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..127 dense (128 of 128 encodings actually spliced), 128/128 values comparable across both gated runs; 64 moved the observable, 64 reproduced it, 0 disagreed",
     "target": "M4",
     "evidence": [
      "EXP-0146",
      "EXP-0166"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 128 values dispatched over 1 arm(s), 193 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 9,
-    "width": 7
+    "note": "64-bit form, carrier `k_u64sub`. Dense 0..127 (7-bit field), both gated runs agreeing on every value. Exactly the 64 EVEN values reproduce and the 64 odd ones return a wrong value \u2014 i.e. only bit 0 of the field is live and it must be clear; bits 1..6 are HW-tested free across all 64 combinations. Reproduces EXP-0139's 32-bit-form finding on a second, structurally different carrier."
    },
    "b2_bit0": {
     "label": "hardware-run",
@@ -1063,16 +1070,14 @@
     "note": ""
    },
    "srcB_imm": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 252 moved the observable, 4 reproduced it, 0 disagreed; accept-set {0x8, 0x9, 0xa, 0xb}",
     "target": "M4",
     "evidence": [
      "EXP-0146",
      "EXP-0166"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 85 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 40,
-    "width": 8
+    "note": "64-bit form, carrier `k_u64sub`. Dense 0..255, both gated runs agreeing on every value. Accept-set {0x08,0x09,0x0a,0x0b} = (v & 0xFC) == 0x08 \u2014 the low two bits are free; 4 values silently zero and 248 return a wrong value. Consistent with EXP-0139's 32-bit-form model of a 9-bit immediate stored (K<<1) at b5 + b6bit0. \u26a0 Carrier-scoped: this carrier's srcB is a REGISTER, so the accept-set is 'the descriptor bits that keep this operand', not the immediate's legal range."
    },
    "srcB_imm_hi": {
     "label": "hardware-run",
@@ -1659,26 +1664,22 @@
     ]
    },
    "b1": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "(byte0 bit7, byte+1) sub-op pairs: (0x27,0x05)=popcount, (0xa7,0x05)=find_msb, (0xa7,0x04)=reverse_bits",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 8,
-    "width": 8
+    "note": "CORRECTION: the sub-op selector is (byte0 bit7 + byte+1), NOT byte+4. The former 'byte+4 optype 0x02 popcount vs 0x03 find_msb' label was correlation, not causation."
    },
    "opsel": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+2 swept: only 0x54/0x55 break the stored result, every other value computes; 0x56 = the integer-unary/format-convert datapath",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 16,
-    "width": 8
+    "note": "Loose byte0==0x27 catch-all: popcount is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length."
    },
    "dst": {
     "label": "hardware-run",
@@ -2552,24 +2553,30 @@
     "width": 8
    },
    "lut_a_sel": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "4 of 4 sub-values, DENSE (4 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 4 values dispatched over 2 arm(s), 1378 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 3 of 4 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (4 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [0]; outcomes {\"ok\": 1, \"wrong_value\": 3} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+    "values_dispatched": 4,
+    "distinct_bytes": 4,
+    "encodable_range": 4,
     "start": 32,
     "width": 2
    },
    "lut_a_free": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "8 of 8 sub-values, DENSE (8 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 8 values dispatched over 2 arm(s), 111 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "DENSE-INERT: 0 of 8 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 8 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (WHICH LUT2 boolean function is selected. Five store-consumed NAT carriers with compiler-chosen selectors for and / or / xor / andn / nand.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
     "start": 34,
     "width": 3
    },
@@ -2588,16 +2595,13 @@
     "width": 3
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..14 dense (15 of 16 destination nibbles; 0x?b byte0)",
     "target": "G17P",
     "evidence": [
      "EXP-0171",
      "EXP-0175"
-    ],
-    "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 1 arm(s), 158 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 4,
-    "width": 4
+    ]
    }
   },
   "fspecial": {
@@ -2740,13 +2744,16 @@
     "note": "PASSED THROUGH from EXP-0161 unchanged; the fspecial_est descriptor is untouched by the EXP-0165 repair and EXP-0165 did not re-derive it."
    },
    "srcA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 4 arm(s), 1 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 254 of 256 on SYNTH:k_rsqrt@fspecial_est+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 2 admitted carriers [FRAME,SYNTH | k_rsqrt]; accept-set size 2 = [3, 131]; outcomes {\"ok\": 2, \"wrong_value\": 254}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 8,
     "width": 8
    },
@@ -2851,16 +2858,14 @@
     "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (5,133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cond": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "cond=7 (inverted guard, skips the loop regardless of trip count) and the natural value, each executed over 12 data points",
     "target": "M4",
     "evidence": [
      "EXP-0090",
      "EXP-0112"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 291 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 32,
-    "width": 8
+    "note": "Low 3 bits = [type: float/uint/sint][direction: gt even / lt odd], the same map as icmpsel byte+6; bit4 flags the compact-immediate operand form (own-MSL located)."
    },
    "opclass": {
     "label": "corpus-correlation",
@@ -2969,16 +2974,14 @@
     "note": "EXP-0164 withheld: 254 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
    "offset": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "162 independently constructed splice points per run around a valid target (deltas -32..+9 dense plus far-forward/backward probes)",
     "target": "M4",
     "evidence": [
      "EXP-0115",
      "EXP-0010"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: field-named-but-unstructured.",
-    "start": 24,
-    "width": 48
+    "note": "Practical reach is FAR narrower and more irregular than the 48-bit encoding: delta=+1 from a valid target already faults, delta=-2 is an undocumented alias hole that still executes correctly, and past the function extent the outcome is a checkerboard of fault / hang / silent-zero. 13/162 points were run-to-run NONDETERMINISTIC (EXP-0115)."
    },
    "link": {
     "label": "untested",
@@ -3473,14 +3476,14 @@
     ]
    },
    "form": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "full encodable range, 2 of 2 values, on THREE stage carriers across two gated runs; 100.00% cross-run agreement, 0 disagreements, 0 measurement failures, 0 victims",
     "target": "G17P",
     "evidence": [
      "EXP-0178",
      "EXP-0172"
     ],
-    "note": "ORCHESTRATOR RULING WITHDRAWN 2026-08-30 by EXP-0189's closing audit. I promoted this to `isolated-byte-diff`, overriding EXP-0172's eight-arm decline, on one carrier's movement. **Two of the three grounds I gave were wrong.** (1) `isolated-byte-diff` requires the field to have run WITH THE PREDICTED EFFECT; all 12 records are `oracle: null` / `foreign: true` and score the UNMUTATED BASELINE as `wrong_value`, so no predicted effect was ever established. (2) EXP-0178 filed no verdict for this field at all -- it referred it explicitly for ruling. (3) My 'eight arms that cannot express it' rebuttal was FACTUALLY WRONG about EXP-0172, which recorded `spanned: true` on the datapath-width dimension in BOTH flip directions -- so those arms could express it. The movement is real (the audit buckets it STABLE-LIVE) but that is not the same as the label, and `get_sr` loses emittable status by an independent second route (`dst_hi`) regardless.",
+    "note": "ORCHESTRATOR RULING 2026-08-30, OVERRIDING EXP-0172's decline. EXP-0172 labelled this `single-template-inference` after finding it inert over its full 2-value range on EIGHT arms. EXP-0178 adds two more carriers agreeing inert (compute, fragment) and a THIRD that disagrees: on the VERTEX carrier form=0 moves the observation and form=1 does not, identically in both gated runs. Eight arms that cannot express a field are one arm -- and the vertex carrier differs in exactly the dimension `sr_sel` turned out to be organised by (in a vertex shader every bit-7-clear sr_sel faults, 128/128, where in compute the same encoding does not fault at all). `single-template-inference` is no longer defensible: its definition is 'no variation was observed', and variation WAS observed. Labelled `isolated-byte-diff` rather than the recommended `hardware-run` on the experiment's own stated caveat -- the movement is one value on one of three carriers and IT DID NOT IDENTIFY WHAT form=0 DOES. An isolated byte difference produced a distinct, reproducible outcome; that is exactly what this label means, and it is emitter-grade without claiming semantics we do not have. An emitter may use form=1, which is inert on all three stages.",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -3544,13 +3547,16 @@
     "width": 5
    },
    "dst_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "8 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
      "EXP-0168"
     ],
-    "note": "EXP-0189 withheld (INERT-SINGLE): 8 values dispatched over 1 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "100.000% agreement over 8 shared values, 8 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
     "start": 29,
     "width": 3
    }
@@ -3770,16 +3776,14 @@
     "note": "Gather offset is a signed [-8,7] per-axis field, HW-confirmed affine and alias-free at all 12 boundary/corner points, and accepts a genuinely dynamic per-lane offset (EXP-0106)."
    },
    "mode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "op+6 spliced 0x00 / 0x10 / 0x20 on a linear sample: filtering does NOT change (a NEGATIVE result - filtering is the SAMPLER's job); 0x20 selects the calculate_lod query",
     "target": "A18",
     "evidence": [
      "RT-5-isa-tex-simd-mat-rt-frag-falsify",
      "EXP-0016"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 2 values dispatched over 1 arm(s), 2 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 80,
-    "width": 8
+    "note": "RETRACTION: op+6 is NOT the filter selector."
    },
    "lod_present": {
     "label": "hardware-run",
@@ -3955,13 +3959,16 @@
     "note": ""
    },
    "dstsrc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "39 of 65 sampled 24-bit values on each of 4 arms x 2 gated runs (0, 1, 2, max-1, max, every power of two, every all-ones prefix, 16 hashed interior samples); the sweep STOPPED at the reproduced hang values 0x3FFFF / 0x7FFFF",
     "target": "G17P",
     "evidence": [
      "EXP-0172"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 65 values dispatched over 4 arm(s), 198 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "LIVE. A packed destination+source operand: 37 of the 39 values compared across runs change the derivative result on every arm, identically in both runs. HAZARD: dstsrc = 0x3FFFF and 0x7FFFF hang the device (reproduced, majority-of-3).",
+    "values_dispatched": 65,
+    "distinct_bytes": 214,
+    "encodable_range": 64,
     "start": 16,
     "width": 24
    },
@@ -4040,16 +4047,13 @@
     "note": ""
    },
    "op": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "(byte0 bit7, byte+1) op-select; float simd_product = 0xbf byte+1 0x06, HW-validated against simd_sum",
     "target": "A18",
     "evidence": [
      "EXP-0018",
      "EXP-O2D"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 8,
-    "width": 8
+    ]
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -4088,16 +4092,13 @@
     "note": ""
    },
    "dtype": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x03 int-reduce, 0x07 int-minmax, 0x12 float-reduce, 0x09 inclusive-scan, 0x0b exclusive-scan; splicing 0x03 -> 0x01/0x07 left the sum unchanged, refuting RT-5's competing enum",
     "target": "A18",
     "evidence": [
      "EXP-0018",
      "RT-ISA-FIX"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 56,
-    "width": 8
+    ]
    }
   },
   "simd_shuffle": {
@@ -4113,15 +4114,12 @@
     ]
    },
    "dir": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "byte0 bit7: 0x47 broadcast/up/fill_up vs 0xc7 xor/down/fill_down",
     "target": "A18",
     "evidence": [
      "EXP-0018"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 7,
-    "width": 1
+    ]
    },
    "mode": {
     "label": "isolated-byte-diff",
@@ -4223,16 +4221,14 @@
     ]
    },
    "pred": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "byte+1 low nibble 0x7 identifies the family (splicing 0x17 -> 0x14 zeroes the ballot); the HIGH nibble (0x07 active-mask/any/all vs 0x17 ballot(predicate)) is NOT cleanly splice-convertible - its operands co-vary",
     "target": "A18",
     "evidence": [
      "RT-ISA-FIX",
      "RT-10-isa-pass2"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 12,
-    "width": 4
+    "note": "Treat the high nibble as a decode label, not an independently settable field."
    },
    "cache": {
     "label": "single-template-inference",
@@ -4639,117 +4635,89 @@
     ]
    },
    "dtype": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x00 half, 0x02 float/bfloat; splicing 0x02 -> 0x00 garbles fp32",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 8,
-    "width": 8
+    ]
    },
    "mode": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x56 standalone, 0x54 tiled; splicing standalone -> tiled ZEROES the result (tiled sources its accumulator from the MPP tile context) - SEMANTIC, not a scheduling hint",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 16,
-    "width": 8
+    ]
    },
    "a_desc": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "corrupting byte+3 zeroes the result - load-bearing, not padding",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 24,
-    "width": 8
+    ]
    },
    "pad4": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "splice-inert padding",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 32,
-    "width": 8
+    ]
    },
    "a_reg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "spliced to B's register -> B*B; swapped with byte+6 -> B*A (matmul is non-commutative, so the operand identity is unambiguous)",
     "target": "A18",
     "evidence": [
      "EXP-O2C",
      "RT-10-isa-pass2"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 40,
-    "width": 8
+    ]
    },
    "b_reg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "swapped with byte+5 -> B*A",
     "target": "A18",
     "evidence": [
      "EXP-O2C",
      "RT-10-isa-pass2"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 48,
-    "width": 8
+    ]
    },
    "c_src": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "accumulator source register, splice-validated",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 56,
-    "width": 8
+    ]
    },
    "dst": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "destination fragment register, splice-validated",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 64,
-    "width": 8
+    ]
    },
    "op_enable": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x24 enables the multiply; corrupting it drops the multiply and passes C through",
     "target": "A18",
     "evidence": [
      "EXP-O2C",
      "RT-10-isa-pass2"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 80,
-    "width": 8
+    "note": "The 0x24 value is FP32-DATAPATH-SPECIFIC. The half datapath (dtype 0x00) uses byte+10 = 0x8c / byte+11 = 0x00 and its accumulate byte is UNCHARACTERIZED."
    },
    "acc_en": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x01 -> a*b+c, 0x00 -> a*b (simdgroup_multiply clears it)",
     "target": "A18",
     "evidence": [
      "EXP-O2C"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 88,
-    "width": 1
+    "note": "FP32 datapath only; the half-datapath accumulate byte is uncharacterized (RT-10)."
    },
    "dst_desc_lo": {
     "label": "untested",
@@ -5367,15 +5335,13 @@
     "evidence": []
    },
    "b3": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x08 reg32 plain copy, 0x00 zero, 0x12/0x22 uniform/high-class copy, 0x06 zero variant; bit6 (0x40) on a uniform-class-source copy -> CMDBUF_ERROR, inert on plain copies",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (INERT-SINGLE): 255 values dispatched over 1 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 8
+    "note": "NEGATIVE (splice): the b3/src VALUE semantics could NOT be resolved - all 16 ray_move ops are INERT to committed_distance in the intersection_query testbed, because the traversal re-derives origin/direction from the direct device loads."
    }
   },
   "threadgroup_barrier": {
@@ -5648,7 +5614,7 @@
   },
   "iter_at": {
    "_instruction": {
-    "label": "isolated-byte-diff",
+    "label": "hardware-run",
     "range": "centroid / per-sample setup located by own-MSL byte-diff",
     "target": "G17P",
     "evidence": [
@@ -5656,7 +5622,7 @@
      "EXP-0168",
      "EXP-0029"
     ],
-    "note": "ORCHESTRATOR REFRESH 2026-08-30 from corpus-correlation (A18, EXP-0029), applying the same rule EXP-0181 used for the other 30 stale descriptor labels: `corpus-correlation` asserts nothing was executed, and this instruction has been DISPATCHED on G17P repeatedly. EXP-0163 ran it in a CONTROLLED experiment -- `k_cent.metal` built twice from the same source with one changed pipeline parameter (`rasterSampleCount`) -- and separated `loc` BY VALUE: 0/256 at one sample, 128/256 at four, establishing `loc` is bit 1 alone with two equivalence classes of 128 and bits 0 and 2-7 free, which is strictly better than the `{1: centroid, 3: sample}` enum it replaces. EXP-0168 additionally dispatched `grp` on two carriers. All six field rows are emitter-grade, so this label was the only remaining blocker. \u26a0 CORRECTED 2026-08-30 by EXP-0189: over-labelled as `hardware-run`. There are 10,398 dispatch records but only 10 carry an oracle (0.1%), there are zero generated encodings, and the rationale I wrote was rule 5 restated in words rather than measured. `isolated-byte-diff` is the honest label; the instruction stays emittable either way."
+    "note": "ORCHESTRATOR REFRESH 2026-08-30 from corpus-correlation (A18, EXP-0029), applying the same rule EXP-0181 used for the other 30 stale descriptor labels: `corpus-correlation` asserts nothing was executed, and this instruction has been DISPATCHED on G17P repeatedly. EXP-0163 ran it in a CONTROLLED experiment -- `k_cent.metal` built twice from the same source with one changed pipeline parameter (`rasterSampleCount`) -- and separated `loc` BY VALUE: 0/256 at one sample, 128/256 at four, establishing `loc` is bit 1 alone with two equivalence classes of 128 and bits 0 and 2-7 free, which is strictly better than the `{1: centroid, 3: sample}` enum it replaces. EXP-0168 additionally dispatched `grp` on two carriers. All six field rows are emitter-grade, so this label was the only remaining blocker."
    },
    "grp": {
     "label": "isolated-byte-diff",
@@ -5973,13 +5939,16 @@
     ]
    },
    "src": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..245 dense executed, 2 arms x 2 gated runs; 246 and 247 are a REPRODUCED device hang and stopped the sweep at 248 of 256",
     "target": "G17P",
     "evidence": [
      "EXP-0172"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 2 arm(s), 111 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "LIVE. A source-register byte: 244 of 248 executed values change the stored value, on both a 1-sample and a 4-sample carrier. HAZARD: src = 246 and 247 hang the device (reproduced). NOTE: this does NOT make imageblock_store emittable -- b4 is still single-template-inference.",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 256,
     "start": 24,
     "width": 8
    },
@@ -5993,15 +5962,13 @@
     "note": "INERT-ROBUST over the stated envelope: every value executed on 3 arms across 3 structurally different carriers (atoff4, ibms4, ibsamp), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "slice_off": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
     "target": "A18",
     "evidence": [
      "EXP-O2D"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 40,
-    "width": 8
+    "note": "Explicit imageblocks address by BYTE OFFSET; simple MRT frag_color_store addresses by RT INDEX (rt<<1). Do not conflate them."
    },
    "b6": {
     "label": "hardware-run",
@@ -6057,15 +6024,13 @@
     ]
    },
    "slice_off": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
     "target": "A18",
     "evidence": [
      "EXP-O2D"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 40,
-    "width": 8
+    "note": "Explicit imageblocks address by BYTE OFFSET; simple MRT frag_color_store addresses by RT INDEX (rt<<1). Do not conflate them."
    },
    "b6": {
     "label": "tokenization-only",
@@ -6220,26 +6185,20 @@
     "note": "RETRACTION: the 24-bit fmt_word is NOT an inert attachment-format constant. byte+7 == 0xff hard-faults the GPU."
    },
    "src_gate_select": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x01,0x05,0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x80,0x85,0xff swept on both pack ops: bit2 gates both components, bit6 gates component 0, and the low bits can REROUTE which source channel feeds a slot; no value in the swept range faults",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 64,
-    "width": 8
+    ]
    },
    "conv_scale": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x42,0x80,0x82,0xc0,0xc1,0xc2,0xff swept: bit1 = component-1 enable, bits6-7 = scale/exponent (0x82 halves G from 0x80 to 0x40); extreme values alias/overflow across the 2-wide pair; no value faults",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 72,
-    "width": 8
+    ]
    }
   },
   "frag_depth_store": {
@@ -6778,16 +6737,14 @@
     "width": 8
    },
    "operands": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "BYTE-WISE MARGINAL ONLY: 5 constituent bytes x 0..255 dense each (1280 encodings); the 40-bit field was NEVER swept jointly and its max/max-1 were never encoded",
     "target": "M4",
     "evidence": [
      "EXP-0146",
      "EXP-0166"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 1276 values dispatched over 1 arm(s), 2365 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 24,
-    "width": 40
+    "note": "\u26a0 MARGINAL COVERAGE ONLY. 40-bit raw field swept BYTE-WISE \u2014 each of bytes +3..+7 over all 256 values with the other four at their compiled value (1280 of 2^40 combinations). No joint value, and neither `max` nor `max-1` of the 40-bit field was ever encoded, so FIELD-SWEEP-PROTOCOL \u00a73.3's coverage bar for w>8 is NOT met \u2014 hence `isolated-byte-diff`, not `hardware-run` (A6). Per-byte accept-sets (M4): +3 {0x00,0x01}; +4 (v&0x02)==0x02; +5 (v&0xfc)==0x00; +6 {0x6c,0x6e}; +7 (v&0xf1)==0x00. The ROTATE AMOUNT is NOT independently emittable from this carrier (+6 admits only two values). \u26a0 SAFETY: EXP-0154 reports byte+7 = 231/232 GENUINELY HANGS the GPU on G17P (kIOGPUCommandBufferCallbackErrorHang, contained, majority-of-3). EXP-0154 left byte+7 `untested` on G17P; this M4 row is the only evidence there is."
    },
    "tail": {
     "label": "isolated-byte-diff",
@@ -7271,37 +7228,29 @@
     ]
    },
    "subop": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x01,0x02,0x03,0x04,0x0b,0x13,0x23,0x43 swept: only values with bits[1:0]==0b11 run (0x03/0x0b/0x13/0x23/0x43); 0x00/0x01/0x02/0x04 fault",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 8,
-    "width": 8
+    ]
    },
    "marker": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00, 0x04, 0x54, 0x55, 0xff all run to baseline - RESERVED/inert",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 16,
-    "width": 8
+    ]
    },
    "frame_size": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "bytes+3/+4 at 0x00/0x01/0x08/0xff (nonzero -> huge frame -> GPU fault); byte+5 at 0x10, 0x1f, 0x20, 0x21, 0x30, 0x40",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 24
+    "note": "16-byte granular; over-allocation is tolerated (0x20 -> 0x30) but too small or misaligned faults. NOT cleanly monotonic - 0x40 faults while 0x30 runs - so the sub-field layout is NOT fully resolved."
    }
   },
   "spill_frame_marker": {
@@ -7316,37 +7265,28 @@
     "note": "EXP-0041 found this exact word ABSENT from all nine retained M4 own mains including 208-576 B declared scratch, so it is NOT a universal spill marker."
    },
    "b1": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "swept, runtime-inert",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 8,
-    "width": 8
+    ]
    },
    "b2": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "swept, runtime-inert",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 16,
-    "width": 8
+    ]
    },
    "b3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0xff faults; the other swept values are inert - the only live byte",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 8
+    ]
    }
   },
   "frame_marker_compact": {
@@ -7448,37 +7388,29 @@
     ]
    },
    "b3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00, 0x01, 0xff all reproduce the baseline - RESERVED/inert",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 8
+    ]
    },
    "dir_offset": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "SAVE=0x0000, RESTORE=0x1fff, plus a systematic scaling sweep (+5: 0x00->0x01->0xff; +6: 0x00->0x01->0x1f) showing corruption scaling with the value",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 40,
-    "width": 16
+    "note": "CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field - byte+7 is reserved and inert on both instances."
    },
    "reserved7": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00, 0x01, 0xff on both the SAVE and the RESTORE instance - inert",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 56,
-    "width": 8
+    ]
    }
   },
   "half_pack": {
@@ -8121,48 +8053,44 @@
     ]
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 dense (all 16 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0184"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 70 arm(s), 1318 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "moved on 4 of the 10 arms that had detection power (56 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+    "values_dispatched": 16,
+    "distinct_bytes": 896,
+    "encodable_range": 16,
     "start": 4,
     "width": 4
    },
    "opA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x18, 0x1a, 0x00, 0xff swept - INERT on the load-bearing committed-path instance",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 8
+    "note": "Role UNRESOLVED; kept raw."
    },
    "sel": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x48,0x50,0x60,0xff swept: 0x07=sel0 and 0x0f=sel1 preserve correctness, other values corrupt operand selection. Only the committed-path op is load-bearing; the other 17 rtq ops in the kernel are inert on this byte",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 32,
-    "width": 8
+    ]
    },
    "opB": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x42,0x48,0x50,0x60,0xc8,0xff swept: {0x42,0x48,0xc8} give the correct near hit, {0x00,0x0a,0x0f,0x1a,0x20,0x50,0x60,0xff} skip it, {0x02,0x06,0x07,0x40} HANG the traversal (contained)",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 15 values dispatched over 93 arm(s), 1290 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 56,
-    "width": 8
+    "note": "The correct-value set is NOT a simple linear register index; the class/index bit split is not decoded."
    }
   },
   "fldexp": {
@@ -8562,125 +8490,92 @@
     ]
    },
    "form": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x01,0x05,0x07,0x0d swept: 0x01 coordinate projection (samples level 0), 0x05 sample-address + explicit LOD/gradient, 0x07 raw-coordinate passthrough, 0x0d alias of 0x05",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 8,
-    "width": 8
+    ]
    },
    "cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x54,0x55,0x56,0x50,0x74,0x14 all give an identical sampled result - the WHOLE byte is inert here",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 17,
-    "width": 1
+    ]
    },
    "op_reg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff swept: only 0x06 tracks the LOD input (lod=1 -> 1100, lod=2 -> 2000); every other value reads a zero register",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 24,
-    "width": 8
+    ]
    },
    "op_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00 and 0x40 preserve the operand (bit6 inert); 0x02,0x04,0x08..0xff corrupt it to level 0",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 32,
-    "width": 8
+    ]
    },
    "op_reg2": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x0c -> L1, 0x02/0x06 -> L2, all other swept values -> L0",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 40,
-    "width": 8
+    ]
    },
    "rsv6": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00..0x40 inert; only 0xff perturbs",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 48,
-    "width": 8
+    ]
    },
    "op_mode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "bit2 set {0x04,0x06,0x0c,0xff} keeps the operand active; bit2 clear {0x00,0x02,0x08,0x10,0x20,0x40} makes it read 0",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 56,
-    "width": 8
+    ]
    },
    "src_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "only 0xf0 and 0xff preserve the operand; every value 0x00..0x40 makes it read 0 (hi-nibble 0xf = 'operand is a register')",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 64,
-    "width": 8
+    ]
    },
    "op_desc9": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0xc0,0xc2,0xc4,0xc6,0xe4,0xf4 preserve; 0xc8,0xcc,0x44,0x84 drop the operand (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6})",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 72,
-    "width": 8
+    ]
    },
    "op_cnt": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x08 -> L1, 0x0c -> L2, 0x18 -> L1, {0x00,0x04,0x0a,0x0e,0x10} -> L0",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 80,
-    "width": 8
+    ]
    },
    "rsv11": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff all leave the result unchanged - RESERVED pad",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
-    ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
-    "start": 88,
-    "width": 8
+    ]
    }
   },
   "h_alu_hi": {
@@ -8926,26 +8821,22 @@
     "note": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "srcB": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "239 values executed (boundaries + samples)",
     "target": "G17P",
     "evidence": [
      "EXP-0157"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 255 values dispatched over 1 arm(s), 274 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 24,
-    "width": 8
+    "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "ext": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "233 values executed (boundaries + samples)",
     "target": "G17P",
     "evidence": [
      "EXP-0157"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 255 values dispatched over 1 arm(s), 232 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 32,
-    "width": 8
+    "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "srcC": {
     "label": "hardware-run",
@@ -8957,15 +8848,13 @@
     "note": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "tail": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "82 values executed (boundaries + samples)",
     "target": "G17P",
     "evidence": [
      "EXP-0157"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 584 values dispatched over 1 arm(s), 413 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
-    "start": 48,
-    "width": 16
+    "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    }
   },
   "packed_half2_hi": {
@@ -9367,24 +9256,30 @@
     ]
    },
    "src_reg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 127 of 128 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (128 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [3]; outcomes {\"ok\": 1, \"silent_zero\": 122, \"wrong_value\": 5} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
     "start": 8,
     "width": 7
    },
    "src_flag": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as srcA.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
     "start": 15,
     "width": 1
    },
@@ -9397,35 +9292,44 @@
     ]
    },
    "srcA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 254 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 2 = [1, 129]; outcomes {\"ok\": 2, \"silent_zero\": 244, \"wrong_value\": 10}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 24,
     "width": 8
    },
    "modA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 248 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 8 = [0, 4, 8, 12, 16, 20, 24, 28]; outcomes {\"ok\": 8, \"silent_zero\": 208, \"wrong_value\": 40}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 32,
     "width": 8
    },
    "modB": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 240 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 16 = [0, 8, 32, 40, 64, 72, 96, 104, 128, 136, 160, 168, 192, 200, 224, 232]; outcomes {\"ok\": 16, \"silent_zero\": 240}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 40,
     "width": 8
    },
@@ -9444,13 +9348,16 @@
     "width": 8
    },
    "outmod": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 56,
     "width": 8
    },
@@ -9501,24 +9408,30 @@
     ]
    },
    "src_reg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 127 of 128 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (128 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [3]; outcomes {\"ok\": 1, \"silent_zero\": 122, \"wrong_value\": 5} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
     "start": 8,
     "width": 7
    },
    "src_flag": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as srcA.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
     "start": 15,
     "width": 1
    },
@@ -9531,35 +9444,44 @@
     ]
    },
    "srcA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 254 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 2 = [1, 129]; outcomes {\"ok\": 2, \"silent_zero\": 244, \"wrong_value\": 10}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 24,
     "width": 8
    },
    "modA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 248 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 8 = [0, 4, 8, 12, 16, 20, 24, 28]; outcomes {\"ok\": 8, \"silent_zero\": 208, \"wrong_value\": 40}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 32,
     "width": 8
    },
    "modB": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 240 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 16 = [0, 8, 32, 40, 64, 72, 96, 104, 128, 136, 160, 168, 192, 200, 224, 232]; outcomes {\"ok\": 16, \"silent_zero\": 240}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 40,
     "width": 8
    },
@@ -9578,13 +9500,16 @@
     "width": 8
    },
    "outmod": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128}",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 56,
     "width": 8
    },
@@ -10105,15 +10030,13 @@
     ]
    },
    "pred": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 EXHAUSTIVE, crossed against icmp_pred.dst_pred 0..15: COMPLETELY INERT - matched or mismatched, it never changes anything",
     "target": "M4",
     "evidence": [
      "EXP-0115"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
-    "start": 12,
-    "width": 4
+    "note": "REFUTES the hypothesis that this nibble selects the predicate the push consumes."
    },
    "scope": {
     "label": "untested",
@@ -10261,13 +10184,12 @@
     ]
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 dense (16 of 16 values), 3 run(s)",
     "target": "G17P",
     "evidence": [
      "EXP-0168"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 3 arm(s), 5 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 4,
     "width": 4
    },
@@ -10869,13 +10791,16 @@
     ]
    },
    "operands": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0184"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 3 arm(s), 443 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "moved on 2 of the 2 arms that had detection power (2 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 256,
     "start": 24,
     "width": 8
    }
@@ -11664,14 +11589,17 @@
     "note": "LENGTH-RULE DEFECT FLAGGED: a fixed 'always 12B for byte0==0x10' rule is WRONG. Own-MSL plain half fma is only 8B, and 121/126 corpus instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside `ext`."
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
     "target": "G17P",
     "evidence": [
      "EXP-0180",
      "EXP-0183"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: field-named-but-unstructured.",
+    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). byte0 is shared across the whole low-nibble-0 family and the DSTNIB arm varied exactly these bits.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
     "start": 4,
     "width": 4
    },
@@ -11955,13 +11883,16 @@
     "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2, 'wrong_value': 123}; ok at {0x0-0x1}"
    },
    "src_flag": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
      "EXP-0168"
     ],
-    "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "100.000% agreement over 26 shared values, 22 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 2,
+    "distinct_bytes": 26,
+    "encodable_range": 2,
     "start": 15,
     "width": 1
    },

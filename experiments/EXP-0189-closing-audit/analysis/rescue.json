@@ -1,0 +1,1164 @@
+{
+ "R1_underscore_touched": [
+  "half_alu_ext8.dst",
+  "mov_zext16.src_reg"
+ ],
+ "R2_citation_touched": [
+  "call.offset",
+  "device_load.base_slot",
+  "device_load.idx_off",
+  "falu_srcmod12b.ctrl",
+  "falu_srcmod12b.opsel",
+  "frag_color_pack.src_present_mask",
+  "frag_color_store.rt_index",
+  "frag_color_store.src",
+  "fspecial_est.srcA",
+  "fspecial_est.subop",
+  "half_alu.dst",
+  "iadd2.srcA",
+  "ibfe.srcA",
+  "icmp_pred.cond",
+  "icmp_pred.dst_pred",
+  "ilogic.dst",
+  "ilogic.lut_a_free",
+  "ilogic.lut_a_sel",
+  "ilogic.lut_a_z",
+  "ilogic.outmod",
+  "imageblock_store.slice_off",
+  "iter.mode",
+  "iter.src_slot",
+  "mov_zext16.src_reg",
+  "ray_move.b3",
+  "rt_query_traverse.opB",
+  "simd_ballot.pred",
+  "simd_shuffle.dir",
+  "simd_shuffle.lane",
+  "simd_shuffle.mode",
+  "stop.reserved",
+  "tex_deriv.axis",
+  "tex_sample.mode",
+  "tex_sample.result_desc",
+  "tex_sample.samp_slot_offset",
+  "tex_sample.tex_slot",
+  "tex_sample.variant",
+  "vary_store.out_slot",
+  "vary_store.src"
+ ],
+ "_meta": {
+  "buckets_after_rescue": {
+   "INERT-MULTI": 4,
+   "INERT-SINGLE": 1,
+   "STABLE-LIVE": 25,
+   "UNSTABLE": 7,
+   "UNVERIFIABLE": 3
+  },
+  "experiment": "EXP-0189-closing-audit",
+  "n_cleared_the_frozen_rule": 29,
+  "n_still_unverifiable": 57,
+  "n_touched_by_R1_underscore": 2,
+  "n_touched_by_R2_citation": 39,
+  "n_unverifiable_in_audit": 94,
+  "n_with_widened_evidence": 40,
+  "thresholds_frozen": {
+   "min_agree_pct": 99.0,
+   "min_common": 2,
+   "moved_over_disagree": 2.0
+  }
+ },
+ "emittability": {
+  "strict": {
+   "emittable": 33,
+   "lost_vs_published": [
+    "call",
+    "falu3",
+    "falu3_ext",
+    "frag_color_pack",
+    "frame_prologue",
+    "fspecial_est",
+    "get_sr",
+    "h_coord_hi_ext",
+    "half_alu",
+    "half_alu_ext8",
+    "irotate",
+    "iunary",
+    "link_save_restore",
+    "mov_zext16",
+    "rt_query_traverse",
+    "shift_amt_move",
+    "simd_reduce",
+    "spill_frame_marker",
+    "stop",
+    "tex_addr_setup",
+    "tex_deriv",
+    "tex_sample"
+   ],
+   "mnemonics": [
+    "atomic_mem",
+    "bf_add_dst",
+    "bf_alu",
+    "bf_fma_dst",
+    "carry_gen",
+    "cvt_bf16",
+    "cvt_f2h",
+    "cvt_f2h_dst",
+    "cvt_i2f",
+    "device_store",
+    "falu2",
+    "falu2_uni",
+    "falu_acc",
+    "fspecial",
+    "h_coord_hi",
+    "hminmax",
+    "iminmax",
+    "isel10",
+    "iter_at",
+    "iter_flat",
+    "mov_imm",
+    "n3_mov",
+    "pack_convert",
+    "pixel_order",
+    "pop_reconverge",
+    "psel",
+    "reg_move_cb",
+    "ret_luse",
+    "rtq_state_move",
+    "sel",
+    "sr_read_wide",
+    "uniform_mov",
+    "vtx_coord_xform"
+   ],
+   "n_fields_withheld": 111
+  },
+  "strict_after_rescue": {
+   "emittable": 38,
+   "lost_vs_published": [
+    "falu3",
+    "falu3_ext",
+    "frag_color_pack",
+    "frame_prologue",
+    "fspecial_est",
+    "get_sr",
+    "h_coord_hi_ext",
+    "irotate",
+    "iunary",
+    "link_save_restore",
+    "rt_query_traverse",
+    "shift_amt_move",
+    "simd_reduce",
+    "spill_frame_marker",
+    "tex_addr_setup",
+    "tex_deriv",
+    "tex_sample"
+   ],
+   "mnemonics": [
+    "atomic_mem",
+    "bf_add_dst",
+    "bf_alu",
+    "bf_fma_dst",
+    "call",
+    "carry_gen",
+    "cvt_bf16",
+    "cvt_f2h",
+    "cvt_f2h_dst",
+    "cvt_i2f",
+    "device_store",
+    "falu2",
+    "falu2_uni",
+    "falu_acc",
+    "fspecial",
+    "h_coord_hi",
+    "half_alu",
+    "half_alu_ext8",
+    "hminmax",
+    "iminmax",
+    "isel10",
+    "iter_at",
+    "iter_flat",
+    "mov_imm",
+    "mov_zext16",
+    "n3_mov",
+    "pack_convert",
+    "pixel_order",
+    "pop_reconverge",
+    "psel",
+    "reg_move_cb",
+    "ret_luse",
+    "rtq_state_move",
+    "sel",
+    "sr_read_wide",
+    "stop",
+    "uniform_mov",
+    "vtx_coord_xform"
+   ],
+   "n_fields_withheld": 82
+  },
+  "strict_after_rescue_fields_only": {
+   "emittable": 38,
+   "lost_vs_published": [
+    "falu3",
+    "falu3_ext",
+    "frag_color_pack",
+    "frame_prologue",
+    "fspecial_est",
+    "get_sr",
+    "h_coord_hi_ext",
+    "irotate",
+    "iunary",
+    "link_save_restore",
+    "rt_query_traverse",
+    "shift_amt_move",
+    "simd_reduce",
+    "spill_frame_marker",
+    "tex_addr_setup",
+    "tex_deriv",
+    "tex_sample"
+   ],
+   "mnemonics": [
+    "atomic_mem",
+    "bf_add_dst",
+    "bf_alu",
+    "bf_fma_dst",
+    "call",
+    "carry_gen",
+    "cvt_bf16",
+    "cvt_f2h",
+    "cvt_f2h_dst",
+    "cvt_i2f",
+    "device_store",
+    "falu2",
+    "falu2_uni",
+    "falu_acc",
+    "fspecial",
+    "h_coord_hi",
+    "half_alu",
+    "half_alu_ext8",
+    "hminmax",
+    "iminmax",
+    "isel10",
+    "iter_at",
+    "iter_flat",
+    "mov_imm",
+    "mov_zext16",
+    "n3_mov",
+    "pack_convert",
+    "pixel_order",
+    "pop_reconverge",
+    "psel",
+    "reg_move_cb",
+    "ret_luse",
+    "rtq_state_move",
+    "sel",
+    "sr_read_wide",
+    "stop",
+    "uniform_mov",
+    "vtx_coord_xform"
+   ],
+   "n_fields_withheld": 82
+  }
+ },
+ "rescued": {
+  "call.offset": {
+   "cited_dirs": [
+    "EXP-0035-function-abi"
+   ],
+   "max_values": 48,
+   "moved_total": 46,
+   "n_arms_tested": 8,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run01/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run03/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0179-g17p-call"
+   ],
+   "underscore_dirs": []
+  },
+  "device_load.base_slot": {
+   "cited_dirs": [
+    "EXP-0083-m4-base-slot-census",
+    "EXP-0010-control-flow"
+   ],
+   "max_values": 16,
+   "moved_total": 4,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0141-m4-emit-mem"
+   ],
+   "underscore_dirs": []
+  },
+  "device_load.idx_off": {
+   "cited_dirs": [
+    "EXP-0082-m4-mem-offset-semantics",
+    "EXP-0100-m4-threadgroup-addressing"
+   ],
+   "max_values": 14,
+   "moved_total": 20,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0141-m4-emit-mem"
+   ],
+   "underscore_dirs": []
+  },
+  "falu_srcmod12b.ctrl": {
+   "cited_dirs": [
+    "EXP-0119-m4-lifecycle-field-map",
+    "EXP-0089-m4-register-lifecycle-model"
+   ],
+   "max_values": 82,
+   "moved_total": 56,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0138-m4-emit-falu"
+   ],
+   "underscore_dirs": []
+  },
+  "falu_srcmod12b.opsel": {
+   "cited_dirs": [
+    "EXP-0119-m4-lifecycle-field-map"
+   ],
+   "max_values": 7,
+   "moved_total": 9,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0138-m4-emit-falu"
+   ],
+   "underscore_dirs": []
+  },
+  "frag_color_pack.src_present_mask": {
+   "cited_dirs": [
+    "EXP-M4-14-a18-splice"
+   ],
+   "max_values": 8,
+   "moved_total": 115,
+   "n_arms_tested": 8,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-raw",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_MAPPING_fcpdst_hangtolerant/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp01/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/superseded/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "underscore_dirs": []
+  },
+  "frag_color_store.rt_index": {
+   "cited_dirs": [
+    "EXP-0029-fragment-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 0,
+   "n_arms_tested": 2,
+   "new_bucket": "INERT-MULTI",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "underscore_dirs": []
+  },
+  "frag_color_store.src": {
+   "cited_dirs": [
+    "EXP-0029-fragment-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 8,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "underscore_dirs": []
+  },
+  "fspecial_est.srcA": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 256,
+   "moved_total": 1,
+   "n_arms_tested": 4,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp01/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp02/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp03/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0138-m4-emit-falu",
+    "EXP-0154-g17p-emit-alu",
+    "EXP-0161-g17p-carry-fspecial"
+   ],
+   "underscore_dirs": []
+  },
+  "fspecial_est.subop": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 256,
+   "moved_total": 32,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp01/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp02/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp03/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0138-m4-emit-falu",
+    "EXP-0154-g17p-emit-alu",
+    "EXP-0161-g17p-carry-fspecial"
+   ],
+   "underscore_dirs": []
+  },
+  "half_alu.dst": {
+   "cited_dirs": [
+    "EXP-0180-g17p-halfalu-rerecord",
+    "EXP-0183-halfalu-descriptor"
+   ],
+   "max_values": 16,
+   "moved_total": 6,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0138-m4-emit-falu"
+   ],
+   "underscore_dirs": []
+  },
+  "half_alu_ext8.dst": {
+   "cited_dirs": [
+    "EXP-0180-g17p-halfalu-rerecord",
+    "EXP-0183-halfalu-descriptor"
+   ],
+   "max_values": 16,
+   "moved_total": 56,
+   "n_arms_tested": 2,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/",
+    "experiments/EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/"
+   ],
+   "uncited_dirs_with_records": [],
+   "underscore_dirs": [
+    "EXP-0180-g17p-halfalu-rerecord"
+   ]
+  },
+  "iadd2.srcA": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 256,
+   "moved_total": 1047,
+   "n_arms_tested": 3,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run01/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0139-m4-emit-ialu",
+    "EXP-0146-m4-emit-int-misc",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "ibfe.srcA": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 256,
+   "moved_total": 519,
+   "n_arms_tested": 3,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0139-m4-emit-ialu",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "icmp_pred.cond": {
+   "cited_dirs": [
+    "EXP-0090-m4-handbuilt-program-suite",
+    "EXP-0112-m4-program-generator"
+   ],
+   "max_values": 256,
+   "moved_total": 291,
+   "n_arms_tested": 1,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0139-m4-emit-ialu"
+   ],
+   "underscore_dirs": []
+  },
+  "icmp_pred.dst_pred": {
+   "cited_dirs": [
+    "EXP-0104-m4-controlflow-simd",
+    "EXP-0115-m4-controlflow-simd-deferred",
+    "RT-ISA-FIX"
+   ],
+   "max_values": 16,
+   "moved_total": 10,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0139-m4-emit-ialu"
+   ],
+   "underscore_dirs": []
+  },
+  "ilogic.dst": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca",
+    "EXP-0175-db-defects-2"
+   ],
+   "max_values": 16,
+   "moved_total": 158,
+   "n_arms_tested": 1,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc"
+   ],
+   "underscore_dirs": []
+  },
+  "ilogic.lut_a_free": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 8,
+   "moved_total": 111,
+   "n_arms_tested": 2,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "ilogic.lut_a_sel": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 4,
+   "moved_total": 1378,
+   "n_arms_tested": 2,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "ilogic.lut_a_z": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 8,
+   "moved_total": 474,
+   "n_arms_tested": 2,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "ilogic.outmod": {
+   "cited_dirs": [
+    "EXP-0171-g17p-ilogic-srca"
+   ],
+   "max_values": 256,
+   "moved_total": 384,
+   "n_arms_tested": 2,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc",
+    "EXP-0154-g17p-emit-alu"
+   ],
+   "underscore_dirs": []
+  },
+  "imageblock_store.slice_off": {
+   "cited_dirs": [
+    "EXP-O2D-compute-frag-tail"
+   ],
+   "max_values": 0,
+   "moved_total": 0,
+   "n_arms_tested": 0,
+   "new_bucket": "UNVERIFIABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "iter.mode": {
+   "cited_dirs": [
+    "EXP-0029-fragment-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 0,
+   "n_arms_tested": 3,
+   "new_bucket": "INERT-MULTI",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/",
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run04/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0155-g17p-emit-tex-frag",
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "underscore_dirs": []
+  },
+  "iter.src_slot": {
+   "cited_dirs": [
+    "EXP-0029-fragment-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 8,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "underscore_dirs": []
+  },
+  "mov_zext16.src_reg": {
+   "cited_dirs": [
+    "EXP-0161-g17p-carry-fspecial",
+    "EXP-0165-db-defect-repair"
+   ],
+   "max_values": 16,
+   "moved_total": 297,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/",
+    "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_adj01/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0146-m4-emit-int-misc"
+   ],
+   "underscore_dirs": [
+    "EXP-0161-g17p-carry-fspecial"
+   ]
+  },
+  "ray_move.b3": {
+   "cited_dirs": [
+    "EXP-M4-14-a18-splice"
+   ],
+   "max_values": 255,
+   "moved_total": 0,
+   "n_arms_tested": 1,
+   "new_bucket": "INERT-SINGLE",
+   "old_reason": "no-raw",
+   "raw_files": [
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_raymove01/",
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_raymove02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0157-g17p-emit-misc"
+   ],
+   "underscore_dirs": []
+  },
+  "rt_query_traverse.opB": {
+   "cited_dirs": [
+    "EXP-M4-14-a18-splice"
+   ],
+   "max_values": 15,
+   "moved_total": 1290,
+   "n_arms_tested": 93,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-raw",
+   "raw_files": [
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/prefreeze/",
+    "experiments/EXP-0187-g17p-rtword-census/raw/g17p_20260830_run01/",
+    "experiments/EXP-0187-g17p-rtword-census/raw/g17p_20260830_run02/",
+    "experiments/EXP-0187-g17p-rtword-census/raw/prefreeze/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0184-g17p-onefield-b",
+    "EXP-0187-g17p-rtword-census"
+   ],
+   "underscore_dirs": []
+  },
+  "simd_ballot.pred": {
+   "cited_dirs": [
+    "RT-ISA-FIX",
+    "RT-10-isa-pass2"
+   ],
+   "max_values": 0,
+   "moved_total": 0,
+   "n_arms_tested": 0,
+   "new_bucket": "UNVERIFIABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "simd_shuffle.dir": {
+   "cited_dirs": [
+    "EXP-0018-atomics-subgroup"
+   ],
+   "max_values": 0,
+   "moved_total": 0,
+   "n_arms_tested": 0,
+   "new_bucket": "UNVERIFIABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "simd_shuffle.lane": {
+   "cited_dirs": [
+    "EXP-0104-m4-controlflow-simd",
+    "EXP-0115-m4-controlflow-simd-deferred"
+   ],
+   "max_values": 2,
+   "moved_total": 34,
+   "n_arms_tested": 23,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "field-named-but-unstructured",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "simd_shuffle.mode": {
+   "cited_dirs": [
+    "EXP-0018-atomics-subgroup",
+    "EXP-O2D-compute-frag-tail"
+   ],
+   "max_values": 2,
+   "moved_total": 10,
+   "n_arms_tested": 22,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "stop.reserved": {
+   "cited_dirs": [
+    "EXP-0003-hw-testbed",
+    "EXP-0010-control-flow"
+   ],
+   "max_values": 807,
+   "moved_total": 0,
+   "n_arms_tested": 2,
+   "new_bucket": "INERT-MULTI",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_deriv.axis": {
+   "cited_dirs": [
+    "EXP-0016-texture-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 0,
+   "n_arms_tested": 4,
+   "new_bucket": "INERT-MULTI",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_sample.mode": {
+   "cited_dirs": [
+    "RT-5-isa-tex-simd-mat-rt-frag-falsify",
+    "EXP-0016-texture-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 2,
+   "n_arms_tested": 1,
+   "new_bucket": "UNSTABLE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_sample.result_desc": {
+   "cited_dirs": [
+    "EXP-0034-texture-variants"
+   ],
+   "max_values": 2,
+   "moved_total": 8,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_sample.samp_slot_offset": {
+   "cited_dirs": [
+    "EXP-0016-texture-isa",
+    "EXP-0034-texture-variants",
+    "EXP-0106-m4-texture-isa-semantics"
+   ],
+   "max_values": 2,
+   "moved_total": 6,
+   "n_arms_tested": 3,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_sample.tex_slot": {
+   "cited_dirs": [
+    "EXP-0114-m4-texture-deferred",
+    "EXP-0016-texture-isa"
+   ],
+   "max_values": 2,
+   "moved_total": 2,
+   "n_arms_tested": 1,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "tex_sample.variant": {
+   "cited_dirs": [
+    "EXP-0016-texture-isa",
+    "EXP-0034-texture-variants",
+    "EXP-M4-10-isa-coverage"
+   ],
+   "max_values": 2,
+   "moved_total": 4,
+   "n_arms_tested": 4,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "underscore_dirs": []
+  },
+  "vary_store.out_slot": {
+   "cited_dirs": [
+    "EXP-0037-varying-texmath"
+   ],
+   "max_values": 8,
+   "moved_total": 24,
+   "n_arms_tested": 8,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean07/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean08/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean09/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "underscore_dirs": []
+  },
+  "vary_store.src": {
+   "cited_dirs": [
+    "EXP-0037-varying-texmath"
+   ],
+   "max_values": 2,
+   "moved_total": 10,
+   "n_arms_tested": 9,
+   "new_bucket": "STABLE-LIVE",
+   "old_reason": "no-field-records",
+   "raw_files": [
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/",
+    "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean07/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean08/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean09/"
+   ],
+   "uncited_dirs_with_records": [
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "underscore_dirs": []
+  }
+ },
+ "still_unverifiable": [
+  "b_alu10_loe.modA",
+  "b_alu10_loe.modB",
+  "b_alu10_loe.outmod",
+  "b_alu10_loe.srcA",
+  "b_alu10_loe.src_flag",
+  "b_alu10_loe.src_reg",
+  "b_alu10_lof.modA",
+  "b_alu10_lof.modB",
+  "b_alu10_lof.outmod",
+  "b_alu10_lof.srcA",
+  "b_alu10_lof.src_flag",
+  "b_alu10_lof.src_reg",
+  "frag_color_pack.conv_scale",
+  "frag_color_pack.src_gate_select",
+  "frame_prologue.frame_size",
+  "frame_prologue.marker",
+  "frame_prologue.subop",
+  "half_alu_fma12.dst",
+  "if_push_pred.pred",
+  "imageblock_load.slice_off",
+  "imageblock_store.slice_off",
+  "iunary.b1",
+  "iunary.opsel",
+  "jump.offset",
+  "link_save_restore.b3",
+  "link_save_restore.dir_offset",
+  "link_save_restore.reserved7",
+  "matrix_mac.a_desc",
+  "matrix_mac.a_reg",
+  "matrix_mac.acc_en",
+  "matrix_mac.b_reg",
+  "matrix_mac.c_src",
+  "matrix_mac.dst",
+  "matrix_mac.dtype",
+  "matrix_mac.mode",
+  "matrix_mac.op_enable",
+  "matrix_mac.pad4",
+  "rt_query_traverse.opA",
+  "rt_query_traverse.sel",
+  "simd_ballot.pred",
+  "simd_reduce.dtype",
+  "simd_reduce.op",
+  "simd_shuffle.dir",
+  "spill_frame_marker.b1",
+  "spill_frame_marker.b2",
+  "spill_frame_marker.b3",
+  "tex_addr_setup.cache",
+  "tex_addr_setup.form",
+  "tex_addr_setup.op_cnt",
+  "tex_addr_setup.op_desc9",
+  "tex_addr_setup.op_hi",
+  "tex_addr_setup.op_mode",
+  "tex_addr_setup.op_reg",
+  "tex_addr_setup.op_reg2",
+  "tex_addr_setup.rsv11",
+  "tex_addr_setup.rsv6",
+  "tex_addr_setup.src_desc"
+ ]
+}
