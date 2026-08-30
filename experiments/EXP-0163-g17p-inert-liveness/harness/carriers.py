@@ -192,20 +192,6 @@ CARRIERS = {
         why="contiguous vs scattered data descriptors and 16-/32-bit, float/"
             "integer write data, versus one contiguous float4 source"),
 
-    # ---- ADDENDUM (post-run01): a THIRD tex_write program -----------------
-    "twrt": dict(
-        kind="render", src="kernels/k_twrt.metal", color_format=125,
-        samples=1, width=W, height=H, buf0=BUF_TEX,
-        tex_sample=(8, 8), tex_write=(8, 8), tex_write_arr=(8, 8, 4),
-        tex_write_3d=(8, 8, 4),
-        why="ADDENDUM: twdim and twtype are two programs, one short of the "
-            "pre-registered >=3-carrier bar for tex_write.amode / rsv11, and "
-            "they share the property that every write uses a CONSTANT "
-            "compile-time coordinate with no control flow.  This third program "
-            "writes with runtime-computed coordinates, with data of texture-unit "
-            "provenance, from inside a loop, and to a 3D destination with a "
-            "runtime depth"),
-
     # ---- SIMD (simd_ballot.cache, simd_shuffle.cache/rsv9) ----------------
     "scache": dict(
         kind="compute", src="kernels/k_scache.metal", function="k_simd",

@@ -248,74 +248,95 @@ kernel void k_shl_var(device const uint* a [[buffer(0)]],
 
 // ============================================ in-place-splice carriers =======
 // These are NOT lifted. Control-flow and memory instructions reference the
-// kernel's own branch targets and buffer bindings, so their fields are swept by
-// mutating ONE field IN PLACE inside the compiled form of the kernel below and
-// dispatching THAT kernel with real inputs. The observable is the kernel's own
-// output buffer.
+// kernel's own branch displacements and buffer bindings, so their fields are
+// swept by mutating ONE field IN PLACE inside the compiled form of the kernel
+// below and dispatching THAT kernel with real inputs. The observable is the
+// kernel's own POISONED output buffer.
+//
+// WHY THE STORES ARE INSIDE THE BRANCHES. EXP-0140's if_push carrier is the
+// cautionary case: its MSL `if/else` assigned a value, so the compiler lowered
+// it to `isel10` -- a SELECT, which exercises no execution-mask stack at all --
+// and its whole mask-stack liveness argument rested on the loop instead. A
+// divergent STORE cannot be if-converted away; it has to be predicated by the
+// execution mask. So every region below writes its own output slot, and against
+// a 0xDEADBEEF-poisoned buffer the read-back IS the per-lane execution mask:
+// a slot still holding poison is a region that lane did not execute. That makes
+// the observable exactly the thing `if_push.scope` is claimed to control.
 
-// if_push.scope — the field ping-pongs 0x54/0x56 with NESTING PARITY, so the
-// dimension it controls is the reconvergence-mask BANK. A single, non-nested
-// `if` has only one live scope and cannot express a bank choice at all: there
-// is nothing for a wrong bank to collide with. k_if_flat is kept only as the
-// blind negative control; k_if_nest2 and k_if_loop are the carriers that can
-// actually see it, and both are observed PER LANE.
 kernel void k_if_flat(device const uint* a [[buffer(0)]],
                       device uint* out     [[buffer(1)]],
                       uint g [[thread_position_in_grid]]) {
-    uint v = 1u;
-    if (a[g] > 100u) { v = 2u; }
-    out[g] = v;
+    // ONE non-nested scope. Kept ONLY as the blind negative control: with a
+    // single live scope there is no second mask bank for a wrong bank to
+    // collide with, so this carrier cannot express `scope` even in principle.
+    out[g * 8u + 0u] = 0xA0u + g;
+    if (a[g] > 100u) { out[g * 8u + 1u] = 0xA1u + g; }
+    out[g * 8u + 6u] = 0xA6u + g;               // reconvergence witness
 }
 
 kernel void k_if_nest2(device const uint* a [[buffer(0)]],
                        device uint* out     [[buffer(1)]],
                        uint g [[thread_position_in_grid]]) {
-    uint v = 1u;
-    if (a[g] > 100u) {                       // outer scope (even parity)
-        v = 2u;
-        if (a[g] > 200u) {                   // inner scope (odd parity)
-            v = 3u;
+    out[g * 8u + 0u] = 0xA0u + g;               // every lane
+    if (a[g] > 100u) {                          // outer scope (even parity)
+        out[g * 8u + 1u] = 0xA1u + g;
+        if (a[g] > 200u) {                      // inner scope (odd parity)
+            out[g * 8u + 2u] = 0xA2u + g;
         }
-        v += 10u;                            // executes iff outer taken
+        out[g * 8u + 5u] = 0xA5u + g;           // post-inner, still in outer
     }
-    out[g] = v + 100u;                       // executes for EVERY lane:
-                                             // a broken reconvergence shows here
+    out[g * 8u + 6u] = 0xA6u + g;               // every lane: a broken
+                                                // reconvergence shows HERE
 }
 
 kernel void k_if_nest3(device const uint* a [[buffer(0)]],
                        device uint* out     [[buffer(1)]],
                        uint g [[thread_position_in_grid]]) {
-    uint v = 1u;
+    // THREE genuine nesting levels, so the 0x54 / 0x56 nesting-parity model
+    // db.json describes is actually instantiated: an inner push forced to the
+    // outer's bank has an outer mask to destroy.
+    out[g * 8u + 0u] = 0xA0u + g;
     if (a[g] > 50u) {
-        v = 2u;
+        out[g * 8u + 1u] = 0xA1u + g;
         if (a[g] > 100u) {
-            v = 3u;
-            if (a[g] > 200u) { v = 4u; }
-            v += 10u;
+            out[g * 8u + 2u] = 0xA2u + g;
+            if (a[g] > 200u) {
+                out[g * 8u + 3u] = 0xA3u + g;
+            }
+            out[g * 8u + 4u] = 0xA4u + g;       // back in level 2
         }
-        v += 100u;
+        out[g * 8u + 5u] = 0xA5u + g;           // back in level 1
     }
-    out[g] = v + 1000u;
+    out[g * 8u + 6u] = 0xA6u + g;               // back at level 0, EVERY lane
 }
 
 kernel void k_if_loop(device const uint* a [[buffer(0)]],
                       device uint* out     [[buffer(1)]],
                       uint g [[thread_position_in_grid]]) {
-    uint v = 0u;
-    if (a[g] > 100u) {                       // scope_kind 0x01 guard
-        for (uint i = 0u; i < 3u; ++i) {     // scope_kind 0x1a loop scope
-            v += a[g] + i;
+    // scope_kind 0x01 (conditional-skip guard) wrapping scope_kind 0x1a
+    // (loop-iteration scope): the two KINDS nested, which the flat and the
+    // pure-nest carriers do not produce.
+    out[g * 8u + 0u] = 0xA0u + g;
+    if (a[g] > 100u) {
+        for (uint i = 0u; i < 3u; ++i) {
+            out[g * 8u + 1u + i] = 0xB0u + g + i * 0x10u;
         }
+        out[g * 8u + 5u] = 0xA5u + g;
     }
-    out[g] = v + 7u;
+    out[g * 8u + 6u] = 0xA6u + g;
 }
 
 // atomic_mem.addr_desc_hi is byte+6 bits 6..7, sitting immediately above the
-// 7-bit operand-register field (oper_reg_lo at bit47 + oper_reg_hi at bits
-// 48..53). The obvious hypothesis is that they extend the operand register
-// number, which is UNTESTABLE at a low register index — EXP-0141 tested exactly
-// one, index 3. k_atomic_lo keeps the operand in a low register; k_atomic_hi
-// puts enough values live that the operand must land in a high one.
+// 7-bit operand-register field (`oper_reg_lo` at bit47 + `oper_reg_hi` at bits
+// 48..53). The obvious hypothesis is that those two bits extend the operand
+// register number -- which is UNTESTABLE at a low register index, and EXP-0141
+// tested exactly one (index 3, its own range note says "0x01/0x41/0x81/0xC1 all
+// select index 3"). So the dimension is the OPERAND REGISTER NUMBER, and the
+// pair below differs in exactly it: k_atomic_lo keeps the operand in a low
+// register, k_atomic_hi keeps enough scalars simultaneously live that the
+// operand must be allocated high. The scalars are named, not an array, because
+// a dynamically indexed array goes to scratch memory instead of registers.
+
 kernel void k_atomic_lo(device atomic_uint* at [[buffer(0)]],
                         device const uint* b   [[buffer(1)]],
                         device uint* out       [[buffer(2)]],
@@ -327,13 +348,37 @@ kernel void k_atomic_hi(device atomic_uint* at [[buffer(0)]],
                         device const uint* b   [[buffer(1)]],
                         device uint* out       [[buffer(2)]],
                         uint g [[thread_position_in_grid]]) {
-    uint acc = 0u;
-    uint keep[16];
-    for (uint i = 0u; i < 16u; ++i) { keep[i] = b[g * 16u + i]; acc += keep[i]; }
-    uint prev = atomic_fetch_add_explicit(&at[g], keep[13], memory_order_relaxed);
-    uint mix = 0u;
-    for (uint i = 0u; i < 16u; ++i) mix = mix * 3u + keep[i];
-    out[g] = prev + acc + mix;
+    uint k00 = b[g * 24u +  0u], k01 = b[g * 24u +  1u], k02 = b[g * 24u +  2u];
+    uint k03 = b[g * 24u +  3u], k04 = b[g * 24u +  4u], k05 = b[g * 24u +  5u];
+    uint k06 = b[g * 24u +  6u], k07 = b[g * 24u +  7u], k08 = b[g * 24u +  8u];
+    uint k09 = b[g * 24u +  9u], k10 = b[g * 24u + 10u], k11 = b[g * 24u + 11u];
+    uint k12 = b[g * 24u + 12u], k13 = b[g * 24u + 13u], k14 = b[g * 24u + 14u];
+    uint k15 = b[g * 24u + 15u], k16 = b[g * 24u + 16u], k17 = b[g * 24u + 17u];
+    uint k18 = b[g * 24u + 18u], k19 = b[g * 24u + 19u], k20 = b[g * 24u + 20u];
+    uint k21 = b[g * 24u + 21u], k22 = b[g * 24u + 22u], k23 = b[g * 24u + 23u];
+    // the atomic operand is one of the late-defined scalars, and every other
+    // scalar is still live afterwards, so it cannot be allocated low
+    uint prev = atomic_fetch_add_explicit(&at[g], k21, memory_order_relaxed);
+    uint mix = k00;
+    mix = mix * 3u + k01; mix = mix * 3u + k02; mix = mix * 3u + k03;
+    mix = mix * 3u + k04; mix = mix * 3u + k05; mix = mix * 3u + k06;
+    mix = mix * 3u + k07; mix = mix * 3u + k08; mix = mix * 3u + k09;
+    mix = mix * 3u + k10; mix = mix * 3u + k11; mix = mix * 3u + k12;
+    mix = mix * 3u + k13; mix = mix * 3u + k14; mix = mix * 3u + k15;
+    mix = mix * 3u + k16; mix = mix * 3u + k17; mix = mix * 3u + k18;
+    mix = mix * 3u + k19; mix = mix * 3u + k20; mix = mix * 3u + k22;
+    mix = mix * 3u + k23;
+    out[g * 2u + 0u] = prev;
+    out[g * 2u + 1u] = mix;
+}
+
+kernel void k_atomic_min(device atomic_uint* at [[buffer(0)]],
+                         device const uint* b   [[buffer(1)]],
+                         device uint* out       [[buffer(2)]],
+                         uint g [[thread_position_in_grid]]) {
+    // a different atomic OP in the same 5-bit `op` selector, so the arm has a
+    // second carrier that differs in the operation as well as the register
+    out[g] = atomic_fetch_min_explicit(&at[g], b[g], memory_order_relaxed);
 }
 
 // -------------------------------------------------------- matrix (stretch) --

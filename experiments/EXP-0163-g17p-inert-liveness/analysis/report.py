@@ -15,6 +15,10 @@ import carriers as CA  # noqa: E402
 
 V = json.load(open(os.path.join(HERE, "field_verdicts.json")))
 try:
+    FLAT = json.load(open(os.path.join(HERE, "field_verdicts_flat.json")))
+except FileNotFoundError:
+    FLAT = {}
+try:
     R = json.load(open(os.path.join(HERE, "bit_rules.json")))
 except FileNotFoundError:
     R = {}
@@ -36,14 +40,15 @@ def rule_for(field_key):
     return rows
 
 print("### Bucket summary\n")
-print("| field | bucket | live on | inert on (carriers w/ proven detection power) |")
-print("|---|---|---|---|")
+print("| field | bucket | label | live on | inert on (carriers w/ proven detection power) |")
+print("|---|---|---|---|---|")
 buckets = collections.Counter()
 for k, v in sorted(F.items()):
     buckets[v["bucket"]] += 1
     live = ", ".join(a.split("@")[1] for a in v["live_arms"]) or "—"
     inert = ", ".join(v["inert_carriers"]) or "—"
-    print(f"| `{k}` | **{v['bucket']}** | {live[:90]} | {inert[:90]} |")
+    lab = FLAT.get(k, {}).get("label", "?")
+    print(f"| `{k}` | **{v['bucket']}** | `{lab}` | {live[:80]} | {inert[:80]} |")
 print()
 print("Totals: " + ", ".join(f"**{b}** {n}" for b, n in sorted(buckets.items())))
 print(f"\nRuns compared: {', '.join(runs)}\n")

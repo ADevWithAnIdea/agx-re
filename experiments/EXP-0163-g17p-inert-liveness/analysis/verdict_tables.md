@@ -1,27 +1,27 @@
 ### Bucket summary
 
-| field | bucket | live on | inert on (carriers w/ proven detection power) |
-|---|---|---|---|
-| `frag_color_store.store_mode` | **INERT-ROBUST** | — | cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat |
-| `frag_tile_setup.access` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `frag_tile_setup.b5` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `frag_tile_setup.sel` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `imageblock_store.b4` | **INERT-ROBUST** | — | atoff4, ibms4, ibsamp |
-| `iter.b9` | **INERT-ROBUST** | — | atoff1, cent4, mrt3, vflat, vhalf, vmany |
-| `iter_at.loc` | **LIVE** | cent4/fragment#0, cent4/fragment#1, cent4/fragment#2, atoff4/fragment#0, atoff4/fragment#1 | atoff1, cent1 |
-| `simd_ballot.cache` | **INERT-ROBUST** | — | sball, scache, sdiv |
-| `simd_shuffle.cache` | **INERT-ROBUST** | — | sball, scache, sdiv, stype |
-| `simd_shuffle.rsv9` | **LIVE** | stype/compute#13, stype/compute#15 | sball, scache, sdiv, stype |
-| `tex_coord_setup.b5` | **LIVE** | bits/fragment#0, bits/fragment#1, fclass/fragment#1, vsrc/vertex#0, vsrc/vertex#1, vhalf/v | fclass |
-| `tex_coord_setup.b6` | **LIVE** | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
-| `tex_coord_setup.b8` | **LIVE** | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
-| `tex_coord_setup.b9` | **INERT-ROBUST** | — | bits, fclass, ms4out, sball, vhalf, vsrc |
-| `tex_coord_setup.idx` | **LIVE** | vsrc/vertex#0 | bits, fclass, ms4out, sball, vhalf, vsrc |
-| `tex_write.amode` | **STILL-UNDERPOWERED** | — | twdim, twtype |
-| `tex_write.rsv11` | **STILL-UNDERPOWERED** | — | twdim, twtype |
-| `vary_store.b7` | **INERT-ROBUST** | — | vclip, vflat, vhalf, vmany, vsrc |
-| `vary_store.hint2` | **INERT-ROBUST** | — | vclip, vflat, vhalf, vmany, vsrc |
-| `vary_store.hint6` | **LIVE** | vmany/vertex#9, vmany/vertex#16, vhalf/vertex#0, vhalf/vertex#6, vflat/vertex#4, vsrc/vert | vclip, vmany |
+| field | bucket | label | live on | inert on (carriers w/ proven detection power) |
+|---|---|---|---|---|
+| `frag_color_store.store_mode` | **INERT-ROBUST** | `single-template-inference` | — | cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat |
+| `frag_tile_setup.access` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `frag_tile_setup.b5` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `frag_tile_setup.sel` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `imageblock_store.b4` | **INERT-ROBUST** | `single-template-inference` | — | atoff4, ibms4, ibsamp |
+| `iter.b9` | **INERT-ROBUST** | `single-template-inference` | — | atoff1, cent4, mrt3, vflat, vhalf, vmany |
+| `iter_at.loc` | **LIVE** | `hardware-run` | cent4/fragment#0, cent4/fragment#1, cent4/fragment#2, atoff4/fragment#0, atoff4/ | atoff1, cent1 |
+| `simd_ballot.cache` | **INERT-ROBUST** | `single-template-inference` | — | sball, scache, sdiv |
+| `simd_shuffle.cache` | **INERT-ROBUST** | `single-template-inference` | — | sball, scache, sdiv, stype |
+| `simd_shuffle.rsv9` | **LIVE** | `hardware-run` | stype/compute#13, stype/compute#15 | sball, scache, sdiv, stype |
+| `tex_coord_setup.b5` | **LIVE** | `hardware-run` | bits/fragment#0, bits/fragment#1, fclass/fragment#1, vsrc/vertex#0, vsrc/vertex# | fclass |
+| `tex_coord_setup.b6` | **LIVE** | `hardware-run` | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
+| `tex_coord_setup.b8` | **LIVE** | `hardware-run` | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
+| `tex_coord_setup.b9` | **INERT-ROBUST** | `single-template-inference` | — | bits, fclass, ms4out, sball, vhalf, vsrc |
+| `tex_coord_setup.idx` | **LIVE** | `hardware-run` | vsrc/vertex#0 | bits, fclass, ms4out, sball, vhalf, vsrc |
+| `tex_write.amode` | **STILL-UNDERPOWERED** | `untested` | — | twdim, twtype |
+| `tex_write.rsv11` | **STILL-UNDERPOWERED** | `untested` | — | twdim, twtype |
+| `vary_store.b7` | **INERT-ROBUST** | `single-template-inference` | — | vclip, vflat, vhalf, vmany, vsrc |
+| `vary_store.hint2` | **INERT-ROBUST** | `single-template-inference` | — | vclip, vflat, vhalf, vmany, vsrc |
+| `vary_store.hint6` | **LIVE** | `hardware-run` | vmany/vertex#9, vmany/vertex#16, vhalf/vertex#0, vhalf/vertex#6, vflat/vertex#4, | vclip, vmany |
 
 Totals: **INERT-ROBUST** 11, **LIVE** 7, **STILL-UNDERPOWERED** 2
 

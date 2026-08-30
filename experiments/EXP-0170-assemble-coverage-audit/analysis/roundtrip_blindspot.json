@@ -1,0 +1,1160 @@
+{
+ "_meta": {
+  "generated_by": "EXP-0170/analysis/roundtrip_blindspot.py",
+  "suite": "tools/agx-isa/roundtrip_test.py",
+  "assembler_under_test": "locally re-implemented PRE-DEF-0166-1 (OR-only) isadb.assemble()"
+ },
+ "Q1_test_A_asm_of_disasm_equals_bytes": {
+  "cases": 173,
+  "failures_under_defective_assembler": 0,
+  "verdict": "BLIND -- passes unchanged with the defective assembler"
+ },
+ "Q2_test_B_disasm_of_asm_equals_fields": {
+  "cases": 37,
+  "failures_under_defective_assembler": 0,
+  "cases_touching_an_overlapping_field": 9,
+  "cases_that_would_have_caught_it": 0,
+  "verdict": "BLIND -- passes unchanged with the defective assembler"
+ },
+ "Q3_corpus_coverage_of_the_53": {
+  "instructions_with_an_overlapping_field": 42,
+  "of_those_present_in_the_SYNTH_corpus": [
+   "falu3",
+   "fspecial_est",
+   "ray_move",
+   "rt_intersect",
+   "rt_transform_test"
+  ],
+  "of_those_present_in_the_REAL corpus": [
+   "coord_madf",
+   "falu2_uni",
+   "falu3",
+   "fspecial_est",
+   "funary",
+   "irotate",
+   "iter",
+   "iter_at",
+   "link_save_restore",
+   "pack_convert",
+   "pixel_order",
+   "ray_move",
+   "rt_intersect",
+   "rt_transform_test",
+   "tex_coord_setup",
+   "unpack_convert",
+   "vary_store"
+  ],
+  "synth_cases_that_could_have_caught_it": []
+ },
+ "test_A_rows": [
+  {
+   "label": "fadd  (09 05 1c 01 00 c0)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fmul  (09 05 1d 01 00 c0)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fadd-nofast (09 01 1c 05 00 c0)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fsub  (09 01 1c 05 00 c8)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fadd-dst3 (39 05 04 01 00 c0)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fadd-map5 (59 09 1c 0b 00 c0)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "faddi 1.0 (09 b1 14 01 80 c0)",
+   "mnemonic": "falu2i",
+   "ok": true
+  },
+  {
+   "label": "faddi 2.0 (09 c1 14 01 80 c0)",
+   "mnemonic": "falu2i",
+   "ok": true
+  },
+  {
+   "label": "fsubi 1.0 (09 b1 1c 01 80 c0)",
+   "mnemonic": "falu2i",
+   "ok": true
+  },
+  {
+   "label": "fma   (09 01 1e 05 81 08 02 c0)",
+   "mnemonic": "falu3",
+   "ok": true
+  },
+  {
+   "label": "fmax  (12 03 1e 05 00 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "fmin  (12 03 1e 05 01 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "fneg  (0b 01 0e 09 02 0a 00 80 00 00)",
+   "mnemonic": "funary",
+   "ok": true
+  },
+  {
+   "label": "fabs  (0b 01 0e 09 02 02 00 80 00 00)",
+   "mnemonic": "funary",
+   "ok": true
+  },
+  {
+   "label": "load  (67 10 54 00 ...)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "store (e7 00 54 00 ...)",
+   "mnemonic": "device_store",
+   "ok": true
+  },
+  {
+   "label": "load32 (copy1 device i32)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "load8  (ld_char device i8)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "load64 (ld_long device i64)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "load4x (vec4i device .4)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "store4x(vec4i device .4)",
+   "mnemonic": "device_store",
+   "ok": true
+  },
+  {
+   "label": "tg_store (threadgroup +1=02)",
+   "mnemonic": "device_store",
+   "ok": true
+  },
+  {
+   "label": "tg_load  (threadgroup +1=02)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "preamble (1c a0 10 06)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "preamble (0c a0 10 06)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "stop  (0e 00 00 00)",
+   "mnemonic": "stop",
+   "ok": true
+  },
+  {
+   "label": "iadd  (9f 01 56 00 02 08 00 a8 17 05)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "isub  (1f 01 56 00 02 00 10 a8 17 05)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "imul  (9f 00 56 ... 12B)",
+   "mnemonic": "imad",
+   "ok": true
+  },
+  {
+   "label": "imad  (9f 00 56 ... 12B)",
+   "mnemonic": "imad",
+   "ok": true
+  },
+  {
+   "label": "iaddi5 (9f 01 56 00 02 0a 00 88 15 04)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "iaddi255 (... fe 01 ...)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "imin  (02 01 1e 05 07 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "imax  (02 01 1e 05 06 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "umin  (02 01 1e 05 05 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "umax  (02 01 1e 05 04 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "iand  (0b 05 1f 01 00 00 00 80 00 00)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "ixor  (0b 05 1e 01 02 08 00 80 00 00)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "popcnt(27 05 56 00 02 00 5c 04)",
+   "mnemonic": "ibitcount",
+   "ok": true
+  },
+  {
+   "label": "matmad_f32 (cf 02 56 ... acc=1)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matmul_f32 (cf 02 56 ... acc=0)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matmad_f16 (cf 00 56 ... half)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matmac_mpp (cf 02 54 ... tiled)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "ishr  (a7 01 56 00 02 00 08 78 62 00)",
+   "mnemonic": "ishift",
+   "ok": true
+  },
+  {
+   "label": "ibfe  (a7 00 56 ... 12B)",
+   "mnemonic": "ibfe",
+   "ok": true
+  },
+  {
+   "label": "icmp  (12 03 1d 05 ... 14B)",
+   "mnemonic": "icmpsel",
+   "ok": true
+  },
+  {
+   "label": "cvt_f2i (27 07 56 .. 10B)",
+   "mnemonic": "cvt_f2i",
+   "ok": true
+  },
+  {
+   "label": "cvt_f2u (27 07 56 .. 10B)",
+   "mnemonic": "cvt_f2i",
+   "ok": true
+  },
+  {
+   "label": "cvt_i2f (a7 07 56 .. 8B)",
+   "mnemonic": "cvt_i2f",
+   "ok": true
+  },
+  {
+   "label": "cvt_u2f (a7 07 56 .. 8B)",
+   "mnemonic": "cvt_i2f",
+   "ok": true
+  },
+  {
+   "label": "cvt_f2h (11 03 1c 81 00 c2)",
+   "mnemonic": "cvt_f2h",
+   "ok": true
+  },
+  {
+   "label": "cvt_h2f (09 00 1c 81 00 c2)",
+   "mnemonic": "falu2",
+   "ok": true
+  },
+  {
+   "label": "fspecial exp2 (af 02 56 ..)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial log2 (2f 02 56 ..)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial floor (2f 00 56 .. b8=02)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial ceil  (2f 00 56 .. b8=04)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial rcp  (af 00 fast 1/x)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial rsqrt(af 01 fast)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial sqrt (2f 01 fast)",
+   "mnemonic": "fspecial",
+   "ok": true
+  },
+  {
+   "label": "fspecial_est rcp  (29 81 25 09)",
+   "mnemonic": "fspecial_est",
+   "ok": true
+  },
+  {
+   "label": "fspecial_est rsqrt(29 81 25 0b)",
+   "mnemonic": "fspecial_est",
+   "ok": true
+  },
+  {
+   "label": "fspecial_est sqrt (29 81 25 0d)",
+   "mnemonic": "fspecial_est",
+   "ok": true
+  },
+  {
+   "label": "ilogic AND (0b 05 1f 01 ..)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "ilogic OR  (0b 05 1f 01 0208 ..)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "ilogic XOR (0b 05 1e 01 0208 ..)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "ilogic NAND(0b 05 1e 01 0308 ..)",
+   "mnemonic": "ilogic",
+   "ok": true
+  },
+  {
+   "label": "ashr_i (a7 01 56 .. >>2 signed 10B)",
+   "mnemonic": "ishift",
+   "ok": true
+  },
+  {
+   "label": "lshr_i (a7 00 56 .. >>2 unsigned 12B)",
+   "mnemonic": "ibfe",
+   "ok": true
+  },
+  {
+   "label": "icmp_lt  (12 03 1d .. s< b6=07)",
+   "mnemonic": "icmpsel",
+   "ok": true
+  },
+  {
+   "label": "ucmp_lt  (12 03 1d .. u< b6=05)",
+   "mnemonic": "icmpsel",
+   "ok": true
+  },
+  {
+   "label": "fcmp_lt  (12 03 1d .. f< b6=03)",
+   "mnemonic": "icmpsel",
+   "ok": true
+  },
+  {
+   "label": "icmp_eq  (12 03 1d .. == b4=26)",
+   "mnemonic": "icmpsel",
+   "ok": true
+  },
+  {
+   "label": "icmp_pred (0a 01 22 82 14 22)",
+   "mnemonic": "icmp_pred",
+   "ok": true
+  },
+  {
+   "label": "sel   (16 c2 a0 c8)",
+   "mnemonic": "sel",
+   "ok": true
+  },
+  {
+   "label": "psel  (05 22 a0 de)",
+   "mnemonic": "psel",
+   "ok": true
+  },
+  {
+   "label": "jump  (0f 00 54 d4 ff ff ff ff ff 00)",
+   "mnemonic": "jump",
+   "ok": true
+  },
+  {
+   "label": "get_sr(1c a0 10 06)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "get_sr r34 (24 aa 10 46)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "get_sr r64 (0c 9d 50 86)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce sum  (bf 01 56..14 03)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce or   (bf 00 56..14 03)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce and  (3f 00 56..14 03)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce max  (bf 02 56..14 07)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce fadd (3f 06 56..14 12)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce excl (bf 01 56..14 0b)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "quad_reduce sum  (b7 01 56..14 03)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "quad_reduce min  (37 02 56..14 07)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "simd_shuffle bcast0 (47 04 56..)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "simd_shuffle bcast5 (47 04 56..0a)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "simd_shuffle xor1  (c7 04 56..02)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "quad_shuffle bcast0 (47 00 56..)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "simd_ballot (17 07 56..)",
+   "mnemonic": "simd_ballot",
+   "ok": true
+  },
+  {
+   "label": "atomic_rmw add  (67 11 54..20)",
+   "mnemonic": "atomic_rmw",
+   "ok": true
+  },
+  {
+   "label": "atomic_rmw smax (67 11 54..28)",
+   "mnemonic": "atomic_rmw",
+   "ok": true
+  },
+  {
+   "label": "atomic_mem xchg (67 01 56..3c)",
+   "mnemonic": "atomic_mem",
+   "ok": true
+  },
+  {
+   "label": "rt_intersect const-origin (d4 ea 90 ..)",
+   "mnemonic": "rt_intersect",
+   "ok": true
+  },
+  {
+   "label": "rt_intersect dyn-origin  (a4 ea 10 ..)",
+   "mnemonic": "rt_intersect",
+   "ok": true
+  },
+  {
+   "label": "rt_intersect +fntable    (24 ea d0 ..)",
+   "mnemonic": "rt_intersect",
+   "ok": true
+  },
+  {
+   "label": "rt_intersect result-read (34 ea 10 ..)",
+   "mnemonic": "rt_intersect",
+   "ok": true
+  },
+  {
+   "label": "rt_as_load (df 02 54 ..)",
+   "mnemonic": "rt_as_load",
+   "ok": true
+  },
+  {
+   "label": "barrier tgmem (07 04 54 61 09 00)",
+   "mnemonic": "threadgroup_barrier",
+   "ok": true
+  },
+  {
+   "label": "barrier device (07 04 54 85 08 00)",
+   "mnemonic": "threadgroup_barrier",
+   "ok": true
+  },
+  {
+   "label": "falu_acc (09 01 38 11)",
+   "mnemonic": "falu_acc",
+   "ok": true
+  },
+  {
+   "label": "falu2_uni a+uniform (09 0d 14 01 80 c0)",
+   "mnemonic": "falu2_uni",
+   "ok": true
+  },
+  {
+   "label": "falu_acc 0x18 form (19 0b 18 09)",
+   "mnemonic": "falu_acc",
+   "ok": true
+  },
+  {
+   "label": "spill_frame_marker (60 00 00 00)",
+   "mnemonic": "spill_frame_marker",
+   "ok": true
+  },
+  {
+   "label": "device_load a[i0] (67 00 46 0a ..)",
+   "mnemonic": "device_load",
+   "ok": true
+  },
+  {
+   "label": "iadd2 add (9f 01 56 .. a8 17 05)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "iadd2 sub (1f 01 56 .. a8 17 05)",
+   "mnemonic": "iadd2",
+   "ok": true
+  },
+  {
+   "label": "iter center (2f 0d 54 .. m0)",
+   "mnemonic": "iter",
+   "ok": true
+  },
+  {
+   "label": "iter perspW (2f 0d 54 .. m4)",
+   "mnemonic": "iter",
+   "ok": true
+  },
+  {
+   "label": "iter_at centroid (af 14 54 .. 01)",
+   "mnemonic": "iter_at",
+   "ok": true
+  },
+  {
+   "label": "iter_at sample   (af 04 54 .. 03)",
+   "mnemonic": "iter_at",
+   "ok": true
+  },
+  {
+   "label": "iter_flat (1f 0b 54 0b 00 05)",
+   "mnemonic": "iter_flat",
+   "ok": true
+  },
+  {
+   "label": "frag_color_store (e7 06 54 ..)",
+   "mnemonic": "frag_color_store",
+   "ok": true
+  },
+  {
+   "label": "tile_read (67 0e 54 ..)",
+   "mnemonic": "tile_read",
+   "ok": true
+  },
+  {
+   "label": "frag_tile_setup (87 02 54 0c 08)",
+   "mnemonic": "frag_tile_setup",
+   "ok": true
+  },
+  {
+   "label": "frag_color_pack (97 0c 54 ..)",
+   "mnemonic": "frag_color_pack",
+   "ok": true
+  },
+  {
+   "label": "pixel_order acquire (07 14 54 50 06)",
+   "mnemonic": "pixel_order",
+   "ok": true
+  },
+  {
+   "label": "pixel_order release (07 04 54 d0 06)",
+   "mnemonic": "pixel_order",
+   "ok": true
+  },
+  {
+   "label": "get_sr tgpg (24 a8 10 06)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "get_sr lane (54 82 14 66)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "mov_imm 32 (0c 20)",
+   "mnemonic": "mov_imm",
+   "ok": true
+  },
+  {
+   "label": "half_alu hadd (10 85 24 84 00 c0)",
+   "mnemonic": "half_alu",
+   "ok": true
+  },
+  {
+   "label": "ibitcount popcount (27 05 56 ..)",
+   "mnemonic": "ibitcount",
+   "ok": true
+  },
+  {
+   "label": "ibitcount find_msb (a7 05 56 ..)",
+   "mnemonic": "ibitcount",
+   "ok": true
+  },
+  {
+   "label": "irotate imm (27 01 56 .. 12B)",
+   "mnemonic": "irotate",
+   "ok": true
+  },
+  {
+   "label": "pack_convert (97 04 56 ..)",
+   "mnemonic": "pack_convert",
+   "ok": true
+  },
+  {
+   "label": "unpack_convert (17 04 56 ..)",
+   "mnemonic": "unpack_convert",
+   "ok": true
+  },
+  {
+   "label": "iminmax_chain (22 01 1e 05 07 c0)",
+   "mnemonic": "iminmax",
+   "ok": true
+  },
+  {
+   "label": "frame_marker (43 00 00 01)",
+   "mnemonic": "frame_marker",
+   "ok": true
+  },
+  {
+   "label": "call (0f 05 54 1a 8f 10 54 54 ..)",
+   "mnemonic": "call",
+   "ok": true
+  },
+  {
+   "label": "ret leaf (8f 02 54 00)",
+   "mnemonic": "ret",
+   "ok": true
+  },
+  {
+   "label": "call_indirect (0f 80 85 02 07 02)",
+   "mnemonic": "call_indirect",
+   "ok": true
+  },
+  {
+   "label": "vary_store pos (57 26 54 00 00 40 49 00)",
+   "mnemonic": "vary_store",
+   "ok": true
+  },
+  {
+   "label": "vary_store varying (57 06 56 0a a0 40 48 00)",
+   "mnemonic": "vary_store",
+   "ok": true
+  },
+  {
+   "label": "tex_coord_setup (5b 03 2f 00 42 00 00 14 00 00)",
+   "mnemonic": "tex_coord_setup",
+   "ok": true
+  },
+  {
+   "label": "coord_madf (2e 87 23 a0 42 00 00 06 02 00)",
+   "mnemonic": "coord_madf",
+   "ok": true
+  },
+  {
+   "label": "carry_gen (32 01 35 03 22 81)",
+   "mnemonic": "carry_gen",
+   "ok": true
+  },
+  {
+   "label": "frame_prologue (6f 03 04 00 00 20)",
+   "mnemonic": "frame_prologue",
+   "ok": true
+  },
+  {
+   "label": "link_save (07 00 54 00 81 00 00 00)",
+   "mnemonic": "link_save_restore",
+   "ok": true
+  },
+  {
+   "label": "link_restore (07 00 54 00 81 ff 1f 00)",
+   "mnemonic": "link_save_restore",
+   "ok": true
+  },
+  {
+   "label": "half_pack (18 05 18 03)",
+   "mnemonic": "half_pack",
+   "ok": true
+  },
+  {
+   "label": "simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03)",
+   "mnemonic": "simd_reduce",
+   "ok": true
+  },
+  {
+   "label": "unpack_convert 0x54 cache (17 04 54 ..)",
+   "mnemonic": "unpack_convert",
+   "ok": true
+  },
+  {
+   "label": "simd_ballot(pred) (17 17 54 ..)",
+   "mnemonic": "simd_ballot",
+   "ok": true
+  },
+  {
+   "label": "simd_active_mask (17 07 54 ..)",
+   "mnemonic": "simd_ballot",
+   "ok": true
+  },
+  {
+   "label": "simd_shuffle bcast3 0x54 (47 04 54 ..)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "simd_shuffle xor3  0x54 (c7 04 54 ..)",
+   "mnemonic": "simd_shuffle",
+   "ok": true
+  },
+  {
+   "label": "jump back-edge (0f 00 54 ..)",
+   "mnemonic": "jump",
+   "ok": true
+  },
+  {
+   "label": "jump_cond guard (0f 01 54 5c ..)",
+   "mnemonic": "jump_cond",
+   "ok": true
+  },
+  {
+   "label": "if_push (0f 05 54 01)",
+   "mnemonic": "if_push",
+   "ok": true
+  },
+  {
+   "label": "pop_reconverge (0f 06 04 02 00 00)",
+   "mnemonic": "pop_reconverge",
+   "ok": true
+  },
+  {
+   "label": "cf_merge (8f 04 54 22)",
+   "mnemonic": "ret",
+   "ok": true
+  },
+  {
+   "label": "scoreboard_fence pre-call (07 22 02 00)",
+   "mnemonic": "scoreboard_fence",
+   "ok": true
+  },
+  {
+   "label": "scoreboard_fence CF (07 02 00 00)",
+   "mnemonic": "scoreboard_fence",
+   "ok": true
+  },
+  {
+   "label": "matrix_mac mad_f32 (cf 02 56 .. dst=byte+8)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matrix_mac mul_f32 (cf 02 56 .. acc=0)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matrix_mac mad_f16 (cf 00 56 .. half)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "matrix_mac mpp_tiled (cf 02 54 ..)",
+   "mnemonic": "matrix_mac",
+   "ok": true
+  },
+  {
+   "label": "rt_intersect motion (a4 ea 10 46 bb ..)",
+   "mnemonic": "rt_intersect",
+   "ok": true
+  },
+  {
+   "label": "rt_ray_mem (5f 02 54 ..)",
+   "mnemonic": "rt_ray_mem",
+   "ok": true
+  },
+  {
+   "label": "rt_transform_test (e2 95 27 81 22 ..)",
+   "mnemonic": "rt_transform_test",
+   "ok": true
+  },
+  {
+   "label": "ray_move copy (eb 50 81 08)",
+   "mnemonic": "ray_move",
+   "ok": true
+  },
+  {
+   "label": "bf_alu bf_add (11 02 1c 02 09 00 c0 81)",
+   "mnemonic": "bf_alu",
+   "ok": true
+  },
+  {
+   "label": "bf_alu bf_mul (11 02 1d 02 09 00 c0 81)",
+   "mnemonic": "bf_alu",
+   "ok": true
+  },
+  {
+   "label": "imageblock_store (e7 16 54 04 05 00 01 0e ..)",
+   "mnemonic": "imageblock_store",
+   "ok": true
+  },
+  {
+   "label": "imageblock_load (67 16 54 04 05 00 01 8e ..)",
+   "mnemonic": "imageblock_load",
+   "ok": true
+  },
+  {
+   "label": "mem_fence device (07 04 54 84 0a 00)",
+   "mnemonic": "mem_fence",
+   "ok": true
+  },
+  {
+   "label": "get_sr helper (04 84 11 06)",
+   "mnemonic": "get_sr",
+   "ok": true
+  },
+  {
+   "label": "frame_marker_compact (60 00)",
+   "mnemonic": "frame_marker_compact",
+   "ok": true
+  },
+  {
+   "label": "cubearray_coord_const (f0 c0 04 00)",
+   "mnemonic": "cubearray_coord_const",
+   "ok": true
+  },
+  {
+   "label": "tg_addr_compute (1c 02 00 00 00 00)",
+   "mnemonic": "tg_addr_compute",
+   "ok": true
+  }
+ ],
+ "test_B_rows": [
+  {
+   "mnemonic": "falu2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu2i",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu2i",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu3",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "op"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "falu3",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "op"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "iminmax",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "iadd2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "iadd2",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "iminmax",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "iminmax",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "cvt_f2i",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "cvt_i2f",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "cvt_f2h",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "fspecial",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "fspecial",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "fspecial",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "subop"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "subop"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "ilogic",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "ilogic",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "atomic_rmw",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "rt_intersect",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "subop"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "rt_intersect",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "subop"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "rt_intersect",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "subop"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "marker",
+    "subop",
+    "cmpmode"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "ray_move",
+   "ok": true,
+   "fields_with_match_overlap": [
+    "form"
+   ],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "bf_alu",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "bf_alu",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "b_alu14_c83",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  },
+  {
+   "mnemonic": "b_alu14_c83",
+   "ok": true,
+   "fields_with_match_overlap": [],
+   "fields_that_would_catch": []
+  }
+ ]
+}

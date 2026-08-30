@@ -179,3 +179,45 @@ the Addendum A pair (run03/run04, `--mnem tex_write`, ~1 min).
   `work/` cleaned of transfer archives.
 
 Still PAUSED on the device.  Nothing of mine is running on the neo.
+
+## 2026-08-30 — M4c: orchestrator overruled the INERT-ROBUST label; three fixes applied
+
+Device work still PAUSED (EXP-0167 has not reported).  All four items from the
+orchestrator addressed:
+
+1. **Label overruled, in the direction I flagged.** The eleven INERT-ROBUST
+   fields now carry **`single-template-inference`**, not `hardware-run`.
+   Reason, recorded in `_meta.label_policy` and in RESULTS §1: `hardware-run` is
+   one of the two labels `validate_labels.py` counts as EMITTER-GRADE, and
+   emitter-grade asserts an implementer may CHOOSE the value — but our own
+   `emitter_guidance` for these eleven says *emit the compiler-observed value*,
+   a captured-template dependency that Definition-of-Done rule 1 forbids.  A
+   negative result must not be able to inflate the emittable count.
+   **The measurement is NOT downgraded**: a new `hardware_evidence` block per
+   field records the method, values executed per arm, arms with proven detection
+   power, distinct carriers, total hardware observations, and the note that the
+   CODEX-ladder equivalent of the *observation* is `HW-VALIDATED` while the
+   field LABEL is set by what an emitter may do with it.
+   LIVE → `hardware-run` and STILL-UNDERPOWERED → `untested` stand.
+2. **`cent1`/`cent4` stated exactly** in RESULTS §2, as a table with real
+   hashes: vertex byte-identical (166 B, `sha256 9f5c0d0c…` both sides),
+   fragment NOT (174 B `28c22e96…` vs 482 B `a4bbec1f…`).  Explicitly called a
+   controlled comparison, not a byte-for-byte splice pair; the earlier overclaim
+   is named as such in the text.
+3. **The `0x86` decode miss is now RESULTS §4b, a first-class finding** with the
+   full 14-byte example beside the correctly-decoded 12-byte store, four reasons
+   the current `device_store` decode is impossible, the structural reading
+   (`0x86 = 0x06|0x80` as a third variant bit beside the documented
+   `0x16 = 0x06|0x10`), the consequence for existing censuses, and a **proposed
+   match fix** — match the low nibble of byte+1 (`[[0,8,231],[8,4,6]]`) and add
+   a `store_variant` high-nibble field — marked PROPOSAL ONLY and INFERRED,
+   since nothing here swept byte+1.  **`db.json` was not edited.**
+4. **Collision check done and recorded.** EXP-0165's repair (commit `4a54e9bb`)
+   left **all ten** of this experiment's target instructions byte-identical in
+   `length`, `match` and field layout, so these verdicts merge into the repaired
+   database unchanged.  Also verified the pin holds: the device copy still
+   hashes to the frozen `db.json sha256 83b83a350ece33b8…` while the repo's has
+   moved to `07ad894d3e7041ea…` — not contamination, since the gate is the
+   authored blob hashes, not `HEAD`.
+
+Queued, unchanged: run02 (frozen contract), then the Addendum A pair.

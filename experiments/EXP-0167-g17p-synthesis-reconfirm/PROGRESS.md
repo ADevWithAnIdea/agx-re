@@ -71,3 +71,42 @@ in its own bucket rather than asserting it belongs to someone else. First v2 sam
 `n_mine` 5–6, `n_foreign` **0**, `n_unresolved_unreadable` **0**, 3 idle `MTLCompilerService`.
 **v1 is left running and UNMODIFIED for the whole experiment** so both records cover the same
 window and can be compared; its file is append-only and is not edited.
+
+## 2026-08-30T08:15Z — MILESTONE: iso01 complete, and it alone reproduces the 233
+289 cases, **257 matched, 285 as-predicted, `zero_copied_and_matched` = 233 in a SINGLE run**.
+`outcome_counts`: ok 257, silent_zero 15, wrong_value 12, no_write 2, **fault 3**.
+**Zero `InnocentVictim`, zero victim retries.** Only 3 cases needed revalidation and they are
+exactly the three deliberate fault arms (`regb_R126_faultarm`, `regb_R127_faultarm`,
+`adv_iadd_dst_reg96`), each 3/3 fault. **7 of 7 cascade witnesses OK.**
+For contrast, EXP-0158 run03: 51 victims / 30 faults / 328 retries; run04: 70 / 44 / 636.
+Raw pulled back to the repo.
+
+## 2026-08-30T08:22Z — MILESTONE: DEF-0166-1 ledger check — CLEAN, both ways
+`analysis/assemble_defect_check.py` (no GPU). Wrapped the PINNED pre-fix `assemble()`,
+recorded all **204,044** calls made while building the corpus (**2,396** distinct
+`(mnemonic, field-values)` pairs over 18 mnemonics), and:
+1. re-assembled each with the **corrected** algorithm over the same pinned descriptors —
+   **0 differences**. DEF-0166-1 altered no emitted field in this corpus.
+2. the stronger test `assert_round_trip()` cannot do: **disassembled** each emitted
+   instruction and compared the decoded value against the value the generator **requested** —
+   **0 mismatches**. Every field carries the value the ledger says was computed.
+Also measured: the 289 cases contain **277 distinct programs** — 11 `CF` cases share one
+program (they vary only their input buffers) and `dag_002_n4`/`dagi_002_n4`,
+`dag_003_n5`/`dagi_003_n5` coincide. Reported as a corpus qualification.
+
+## 2026-08-30T08:30Z — MILESTONE: iso02 complete, CROSS-RUN GATE PASSES
+iso02: identical dispatch summary to iso01. **`verify.py --captured` PASSES** —
+`01_results.jsonl` **byte-identical** across iso01 and iso02,
+sha256 `434f00b5ff8912efb21f9651829faf2976b12ed59fac09f0ad93c468de9dea73`.
+The 4 unexpected mismatches are exactly EXP-0158's 4 known `IADD_SYNTH` failures, with
+identical observed values in both runs (44 / poison / 22 / 120).
+
+## 2026-08-30T08:36Z — MILESTONE: witness-gated 5-repeat pass — ZERO nondeterminism
+48 cases (the 20 named watch cases ∪ every non-`ok` case) × 5 reps = **240 witness-gated
+observations**. **0 MIXED outcomes. 0 discarded attempts — the witness never failed once.**
+EXP-0158's equivalent pass: **102 of 174 MIXED**, and its first attempt produced 427
+`ErrorHang` observations in streaks.
+**All 15 fragile watch cases, and `dag_040_n20`, are `ok` 5/5.** `dag_040_n20` — `ok`/`victim`
+in EXP-0158's gated pair and **`fault` 5/5** in its witness-gated pass — is `ok` 5/5 here.
+Every failure is deterministic 5/5 in its own class.
+Stratified top-up launched: 100 further cases × 5 reps.

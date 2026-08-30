@@ -64,3 +64,86 @@ rt_query_traverse 3, simd_shuffle 3, spill_frame_marker 3, frag_color_store 2,
 iter 2, simd_reduce 2, vary_store 2, call 1, if_push_pred 1,
 imageblock_load 1, imageblock_store 1, jump 1, ray_move 1, rt_intersect 1,
 simd_ballot 1, tex_deriv 1  = 64 fields.
+
+## 2026-08-30 — M4: harness written, offline code test green, contract FROZEN
+Built (all authored here, structure reused-and-cited from EXP-0154/0141/0140/0138):
+  kernels/probes.metal        28 authored probe kernels
+  kernels/carrier_dag.metal   SYNTH host (3 buffers)
+  kernels/carrier_uni.metal   uniform-preloaded host (our own EXP-0138 body, verbatim)
+  harness/isa_helpers.py      3 seed provenances, sentinels, program builder,
+                              the inline-minifloat host oracle
+  harness/anchors.py          compile + tokenize + resolve arms (rule, not offsets)
+  harness/casematrix.py       arms, carriers, coverage, ladder, falu2 crossings
+  harness/run.py              gated driver + the semantic oracle
+  harness/smoke.py            pilot S1-S5 incl. the liveness ladder
+  harness/procsample.py       measures the quiet window instead of claiming it
+  harness/selftest.py         OFFLINE code test (no device, NOT evidence)
+  analysis/collect_raw.py     byte-identical copy of EXP-0164's indexer
+  analysis/recitation.py      the 12 citation-recoverable fields
+  analysis/verdicts.py        raw -> field_verdicts.json + reproduction.json
+  analysis/reindex_check.py   THE ACCEPTANCE TEST
+
+`python3 harness/selftest.py` -> 0 checks failed (66 checks). It verifies: matrix
+determinism; set_field/get_field exactness and non-overlap across every falu2 field;
+dense coverage of all 29 falu2/falu2i fields; the crossings; that the host-side
+inline_minifloat reproduces EXP-0138's ten HW-confirmed points; that all three
+program shapes build; that every reg_move SYNTH base tokenizes as its target
+descriptor; and that every (arm,carrier) has a falsifier + >=2 ladder steps.
+
+Matrix estimate 38,660 cases/gated run. At EXP-0154's MEASURED G17P throughput
+(44.9 cases/s, from its own per-record timestamps) that is ~15 min/run, ~35 min for
+the pair + pilot + anchor compiles.
+
+CAPTURE_CONTRACT.json frozen: 18 authored blobs sha256'd, gate is the blob hashes
+and NOT live HEAD, gated run ids fixed, promotion gate identical to EXP-0164's
+audit.py::stable_live.
+
+COURTESY WARNING for the orchestrator (FIELD-SWEEP-PROTOCOL 7 "courtesy"):
+the DSTORE arm sweeps device_store.base_slot 0..255, i.e. stores through unbound
+binding slots. Faults are expected and are results. If it wedges the device it will
+be this arm.
+
+STATUS: BLOCKED on the device. Messaging the orchestrator for (a) the SSH password,
+(b) a ~75-minute quiet window, (c) a ruling on whether get_sr.dst_hi is one of
+EXP-0168's 12 "one-field-away" fields.
+
+## 2026-08-30 — M5: self-falsification of my own headline, and the coordinator's rulings
+Tried to break the §1 finding before reporting it, and found a real caveat.
+EXP-0164's gate (`stable_live`) has NO coverage term — `THIN_COMMON=8` exists in
+audit.py but only sets an informational `thin_cross_run` flag and the gate never
+consults it (audit.py:28, :188). So RECOVERABLE-BY-CITATION means "clears
+EXP-0164's gate", NOT "meets the evidence-classification §2 hardware-run range
+bar". Measured against each field's encodable range:
+  FULL RANGE (4): falu2.srcB_reg 64/64, falu2.srcB_reg_top 2/2,
+                  ibitcount.srcdesc 256/256, icmp_pred.dst_pred 16/16
+  THIN     (8): falu_srcmod12b.opsel 7/8, .ctrl 62/128, falu2.opsel 2/8,
+                device_load.base_slot 16/256, ibitcount.op_enable 16/256,
+                falu2.srcA_reg 2/64, ibitcount.form 8/256,
+                device_load.idx_off 14/2048
+For the 8, the citation fix repairs ATTRIBUTION and leaves RANGE open. falu2.*,
+ibitcount.* and icmp_pred.* are swept densely by my matrix anyway (I sweep every
+field of every target descriptor), so their range closes on G17P for free;
+falu_srcmod12b.* and device_load.* are in no arm of mine and stay open.
+Recorded as amendment_04. RESULTS §1 now carries the coverage table.
+
+Coordinator rulings applied:
+  R1 get_sr.dst_hi is MINE; get_sr.form is EXP-0172's -> FOREIGN_FIELDS is now
+     per-descriptor {"dst" (any), "get_sr.form"}. Device field count still 57.
+     (amendment_02)
+  R2 the re-citation finding is his to act on; keep it quarantined from the
+     re-record verdicts. Already so — separate file, separate RESULTS section.
+  R3 icmp_pred.cond stays in device scope; re-measure, do not argue 97.66% past
+     the bar. Unchanged.
+  Concurrency: gated runs go UNLOCKED alongside EXP-0168/0171/0172; offline
+     adjudication (poison + both sentinels + 16-GPR dump, EXP-0160's filter)
+     becomes the primary defence and procsample.py measures what was actually
+     running. (amendment_01)
+  Scheduling: TWO gated pairs. run01/run02 = every arm except DSTORE.
+     run03/run04 = DSTORE only, LAST, after pair 1 is pulled back and after
+     telling the orchestrator so others are held off. verdicts.py now takes N
+     runs and pairs PER FIELD by most-distinct-values (EXP-0164 cross_run's own
+     rule) so the DSTORE pair is not diluted. (amendment_03)
+
+selftest still green (0 failures). Contract re-frozen, 18 authored blobs.
+STATUS: still BLOCKED on the device — EXP-0167 then EXP-0163 are ahead of me.
+Credentials received; SSHPASS only, never written to any file.

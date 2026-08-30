@@ -303,24 +303,75 @@ flat["secondary_byte_probes"] = {
 
 flat["db_defects"] = {
  "frag_color_store.byte+1 == 0x86 is not decoded": {
-   "what": ("db.json matches frag_color_store on byte+1 == 0x06 exactly and "
+   "severity": "HIGH -- a decode MISS, not a mislabel: it silently corrupts "
+               "every occurrence census run against the current descriptor",
+   "what": ("db.json matches frag_color_store on byte+1 == 0x06 EXACTLY and "
             "imageblock_store on 0x16.  Carrier `texcube` (four texture samples "
-            "then a float4 return into an RGBA32Float attachment) emits "
-            "`e7 86 54 00 00 00 01 2e 00 00 00 00 07 02` -- byte-for-byte a "
-            "single-RT colour store in its first twelve bytes (store_mode 0x54, "
-            "mask 0x01, fmt 0x2e = RGBA32Float) but with byte+1 = 0x86.  "
-            "db.json falls through and decodes it as a 14-byte COMPUTE "
-            "device_store, which is impossible: that fragment program has no "
-            "writable device buffer, and the op is preceded by the ordinary "
-            "0x87 frag_tile_setup store bracket."),
-   "why_it_matters": ("every frag_color_store occurrence census -- EXP-0155's "
-                      "and this one's -- silently omits the 0x86 form, so any "
+            "of a 2D, a 3D, a cube and a 2D-array texture, then a float4 return "
+            "into an RGBA32Float attachment) emits, at fragment offset 188: "
+            "`e7 86 54 00 00 00 01 2e 00 00 00 00 07 02`.  Its first TWELVE "
+            "bytes are identical to a correctly-decoded plain colour store "
+            "(`e7 06 54 00 00 00 01 2e 00 00 00 00`, carrier `bits`) EXCEPT "
+            "byte+1: same store_mode 0x54, same src 0x00, same rt_index 0x00, "
+            "same mask 0x01, same fmt 0x2e (the RGBA32Float attachment format "
+            "descriptor), same zero slice_addr.  It is preceded by the ordinary "
+            "0x87 frag_tile_setup store bracket at offset 182 "
+            "(`87 02 54 0c 08 00`), exactly like every other colour store here."),
+   "current_decode_is_impossible_because": [
+     "device_store is the COMPUTE device-buffer store, and texcube's fragment "
+     "stage has no writable device buffer at all -- its only buffer is "
+     "`device const float *u [[buffer(0)]]`, read-only",
+     "the fragment returns a float4 into an RGBA32Float attachment, so that "
+     "store must exist, and this is the only 0xe7 in the program",
+     "byte+7 is 0x2e, the documented RGBA32Float ATTACHMENT format descriptor "
+     "-- a colour-store field, not a device-store field",
+     "consuming 14 bytes instead of 12 swallows the following `07 02`, so "
+     "anything after it is mis-framed",
+   ],
+   "why_it_matters": ("every frag_color_store occurrence census -- EXP-0155's, "
+                      "this experiment's, and any other -- silently omits the "
+                      "0x86 form because it was counted as a device_store.  Any "
                       "claim of the shape 'frag_color_store always has X' is "
-                      "unquantified over it."),
-   "structure": ("0x16 = 0x06|0x10 is already documented as the first-store-"
-                 "after-tile-setup marker; 0x86 = 0x06|0x80 is a THIRD variant "
-                 "bit in the same byte, role unknown."),
-   "evidence": "raw/prefreeze/census_run3.json -> texcube.stages.fragment",
+                      "therefore UNQUANTIFIED over that form.  This "
+                      "experiment's own eight frag_color_store arms are "
+                      "unaffected (all are 0x06 forms, located and verified "
+                      "against frozen bytes), but the POPULATION they were "
+                      "drawn from was incomplete."),
+   "structure": ("db.json already documents 0x16 = 0x06|0x10 as 'the 0x10 bit "
+                 "marking the FIRST store after a 0x87 tile-access setup'.  "
+                 "0x86 = 0x06|0x80 is a THIRD variant bit in the same byte and "
+                 "its role is UNKNOWN.  The only correlate this carrier set "
+                 "offers is that texcube is the only fragment stage here doing "
+                 "four texture samples before its store; whether 0x80 marks a "
+                 "texture-dependency wait, a different tile path, or something "
+                 "else is NOT established."),
+   "proposed_fix": {
+     "status": "PROPOSAL ONLY -- db.json is the orchestrator's file and was "
+               "NOT edited by this experiment",
+     "collision_check": ("EXP-0165 finished repairing db.json at commit "
+                         "4a54e9bb and is done with the file, so this does not "
+                         "collide.  Verified: that repair left ALL TEN of this "
+                         "experiment's target instructions byte-identical in "
+                         "length, match and field layout, so these verdicts "
+                         "merge into the repaired db unchanged."),
+     "change_1": ("frag_color_store.match: [[0,8,231],[8,8,6]] -> "
+                  "[[0,8,231],[8,4,6]] -- match only the LOW NIBBLE of byte+1 "
+                  "as 0x6, which 0x06, 0x16 and 0x86 all share"),
+     "change_2": ("add field `store_variant` at start 12 width 4 (the high "
+                  "nibble of byte+1): 0x0 plain, 0x1 first-after-tile-setup, "
+                  "0x8 the newly observed form; label it "
+                  "single-template-inference until swept"),
+     "change_3": ("keep imageblock_store's more specific match ahead of "
+                  "frag_color_store so the 0x16 form still resolves to "
+                  "imageblock_store"),
+     "caveat": ("INFERRED, not validated: this is consistent with all three "
+                "observed byte+1 values and with the existing 12-byte length, "
+                "but NOTHING in this experiment swept byte+1.  A successor "
+                "should sweep it before the nibble split is relied on."),
+   },
+   "evidence": ("raw/prefreeze/census_run3.json -> texcube.stages.fragment "
+                "(complete program hex, tokenization status, every decoded "
+                "occurrence); written up as RESULTS.md sec.4b"),
    "status": "REPORTED, NOT SWEPT -- outside this experiment's frozen arm list",
  },
  "simd_shuffle.byte+2 is only 1 bit wide in db.json": {

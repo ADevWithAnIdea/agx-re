@@ -5,35 +5,54 @@
    "RECORDS-BUT-FAILS-GATE": 3,
    "RECOVERABLE-BY-CITATION": 12
   },
+  "coverage_caveat": "EXP-0164's gate (stable_live) has NO coverage term: THIN_COMMON=8 exists in audit.py but only sets an informational `thin_cross_run` flag and is never consulted by stable_live. So `RECOVERABLE-BY-CITATION` means 'clears EXP-0164's gate', NOT 'meets the docs/evidence-classification.md section 2 `hardware-run` range bar', which asks for the full encodable range or at minimum boundaries plus interior samples. `coverage` below is the fraction of the field's encodable range the passing arm actually dispatched. A field that clears the gate on 2 of 64 values has had its ATTRIBUTION defect fixed by a citation change and still has an open RANGE question.",
   "gate": "EXP-0164 audit.py::stable_live, thresholds copied verbatim",
   "generated_by": "EXP-0169/analysis/recitation.py",
   "note": "A PASS here is an AUDITABILITY finding about the citation list, not a new hardware claim, and not a substitute for the fresh gated capture where the field is load-bearing.",
   "question": "of EXP-0164's 144 UNVERIFIABLE fields, how many already have attributable per-value records in the corpus under an experiment their validation.json `evidence` list does not cite?",
-  "raw_index": "work/raw_index.json.gz (EXP-0164 collect_raw.py, unmodified)"
+  "raw_index": "work/raw_index.json.gz (EXP-0164 collect_raw.py, unmodified)",
+  "recoverable_full_range": 4,
+  "recoverable_thin_range": 8
  },
  "bf_alu.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2D"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "call.offset": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0035"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "device_load.base_slot": {
+  "best_arm": "EXP-0141-m4-emit-mem|synth|L_base_slot",
+  "best_coverage_pct": 6.2,
   "cited_evidence": [
    "EXP-0083",
    "EXP-0010"
   ],
+  "encodable_range": 256,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "synth|L_base_slot",
@@ -41,6 +60,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 6.2,
     "cross_run": {
      "agree": 16,
      "agree_pct": 100.0,
@@ -53,9 +73,13 @@
      "runA": "m4-20260828-run11",
      "runB": "m4-20260828-run12"
     },
+    "encodable_range": 256,
     "exp": "EXP-0141-m4-emit-mem",
+    "field_width": 8,
+    "full_range": false,
     "moved_total": 4,
     "n_gated_runs": 2,
+    "n_values_gated": 16,
     "n_values_max": 16,
     "stable_live": true
    }
@@ -74,13 +98,19 @@
     "n_values_max": 16
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 16,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 8
  },
  "device_load.idx_off": {
+  "best_arm": "EXP-0141-m4-emit-mem|synth|L_idx_off",
+  "best_coverage_pct": 0.7,
   "cited_evidence": [
    "EXP-0082",
    "EXP-0100"
   ],
+  "encodable_range": 2048,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "synth|L_idx_off",
@@ -88,6 +118,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 0.7,
     "cross_run": {
      "agree": 14,
      "agree_pct": 100.0,
@@ -100,9 +131,13 @@
      "runA": "m4-20260828-run11",
      "runB": "m4-20260828-run12"
     },
+    "encodable_range": 2048,
     "exp": "EXP-0141-m4-emit-mem",
+    "field_width": 11,
+    "full_range": false,
     "moved_total": 20,
     "n_gated_runs": 2,
+    "n_values_gated": 14,
     "n_values_max": 14,
     "stable_live": true
    }
@@ -121,68 +156,108 @@
     "n_values_max": 14
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 14,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 11
  },
  "device_store.base_slot": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0083"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "device_store.idx_off": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0082",
    "EXP-0100"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "device_store.index_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0092"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.ctrl": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0105",
    "EXP-0113",
    "EXP-0119"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0112",
    "EXP-0090"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.mod_hi": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0105",
    "EXP-0099"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.opflags": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0086",
    "EXP-0089",
@@ -190,16 +265,24 @@
    "EXP-0105",
    "EXP-0119"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.opsel": {
+  "best_arm": "EXP-0153-g17p-revalidation|uni|B_modlo",
+  "best_coverage_pct": 25.0,
   "cited_evidence": [
    "EXP-0005",
    "EXP-0006"
   ],
+  "encodable_range": 8,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "uni|B_modlo",
@@ -207,6 +290,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 25.0,
     "cross_run": {
      "agree": 64,
      "agree_pct": 100.0,
@@ -219,9 +303,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 8,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 3,
+    "full_range": false,
     "moved_total": 63,
     "n_gated_runs": 2,
+    "n_values_gated": 2,
     "n_values_max": 2,
     "stable_live": true
    }
@@ -251,15 +339,21 @@
     "n_values_max": 2
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 2,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 3
  },
  "falu2.srcA_reg": {
+  "best_arm": "EXP-0153-g17p-revalidation|uni|B_modlo",
+  "best_coverage_pct": 3.1,
   "cited_evidence": [
    "EXP-0112",
    "EXP-0099",
    "EXP-0105",
    "EXP-0119"
   ],
+  "encodable_range": 64,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "uni|B_modlo",
@@ -267,6 +361,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 3.1,
     "cross_run": {
      "agree": 32,
      "agree_pct": 100.0,
@@ -279,9 +374,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 64,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 6,
+    "full_range": false,
     "moved_total": 15,
     "n_gated_runs": 2,
+    "n_values_gated": 2,
     "n_values_max": 2,
     "stable_live": true
    }
@@ -311,55 +410,85 @@
     "n_values_max": 2
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 2,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 6
  },
  "falu2.srcA_reg_top": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0099",
    "EXP-0105",
    "EXP-0113",
    "EXP-0119"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.srcA_size": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.srcB_imm": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006",
    "EXP-0020",
    "RT-1a-FIX"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.srcB_neg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-10"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2.srcB_reg": {
+  "best_arm": "EXP-0153-g17p-revalidation|uni|B_srcB_nongpr",
+  "best_coverage_pct": 100.0,
   "cited_evidence": [
    "EXP-0112",
    "EXP-0099",
    "EXP-0119"
   ],
+  "encodable_range": 64,
+  "full_encodable_range": true,
   "passing": [
    {
     "arm": "uni|B_modlo",
@@ -367,6 +496,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 4.7,
     "cross_run": {
      "agree": 48,
      "agree_pct": 100.0,
@@ -379,9 +509,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 64,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 6,
+    "full_range": false,
     "moved_total": 27,
     "n_gated_runs": 2,
+    "n_values_gated": 3,
     "n_values_max": 3,
     "stable_live": true
    },
@@ -391,6 +525,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 128,
      "agree_pct": 100.0,
@@ -403,9 +538,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 64,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 6,
+    "full_range": true,
     "moved_total": 204,
     "n_gated_runs": 2,
+    "n_values_gated": 64,
     "n_values_max": 64,
     "stable_live": true
    },
@@ -415,6 +554,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 128,
      "agree_pct": 100.0,
@@ -427,9 +567,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 64,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 6,
+    "full_range": true,
     "moved_total": 79,
     "n_gated_runs": 2,
+    "n_values_gated": 64,
     "n_values_max": 64,
     "stable_live": true
    }
@@ -481,13 +625,19 @@
     "n_values_max": 64
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 64,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 6
  },
  "falu2.srcB_reg_top": {
+  "best_arm": "EXP-0138-m4-emit-falu|carrier_uni",
+  "best_coverage_pct": 100.0,
   "cited_evidence": [
    "EXP-0099",
    "EXP-0119"
   ],
+  "encodable_range": 2,
+  "full_encodable_range": true,
   "passing": [
    {
     "arm": "carrier_uni",
@@ -495,6 +645,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 14,
      "agree_pct": 100.0,
@@ -507,9 +658,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run02"
     },
+    "encodable_range": 2,
     "exp": "EXP-0138-m4-emit-falu",
+    "field_width": 1,
+    "full_range": true,
     "moved_total": 42,
     "n_gated_runs": 6,
+    "n_values_gated": 2,
     "n_values_max": 2,
     "stable_live": true
    },
@@ -519,6 +674,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 128,
      "agree_pct": 100.0,
@@ -531,9 +687,13 @@
      "runA": "g17p-20260830-run01",
      "runB": "g17p-20260830-run03"
     },
+    "encodable_range": 2,
     "exp": "EXP-0153-g17p-revalidation",
+    "field_width": 1,
+    "full_range": true,
     "moved_total": 189,
     "n_gated_runs": 2,
+    "n_values_gated": 2,
     "n_values_max": 2,
     "stable_live": true
    }
@@ -574,125 +734,197 @@
     "n_values_max": 2
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 2,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 1
  },
  "falu2.srcB_size": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2_uni.uni_mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0020",
    "RT-1a-FIX"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0112",
    "EXP-0090"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.imm_exp": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006",
    "EXP-0090",
    "EXP-0112",
    "RT-1a-FIX"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.imm_mant": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006",
    "EXP-0090",
    "EXP-0112"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.imm_sign": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0090",
    "EXP-0112"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.opflags": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0119",
    "EXP-0090",
    "EXP-0086"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0090",
    "EXP-0112"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.srcA_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0105",
    "EXP-0112"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.srcA_reg_top": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0105",
    "EXP-0119"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu2i.srcA_size": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0006"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "falu_srcmod12b.ctrl": {
+  "best_arm": "EXP-0138-m4-emit-falu|carrier",
+  "best_coverage_pct": 48.4,
   "cited_evidence": [
    "EXP-0119",
    "EXP-0089"
   ],
+  "encodable_range": 128,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "carrier",
@@ -700,6 +932,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 48.4,
     "cross_run": {
      "agree": 62,
      "agree_pct": 100.0,
@@ -712,9 +945,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run05"
     },
+    "encodable_range": 128,
     "exp": "EXP-0138-m4-emit-falu",
+    "field_width": 7,
+    "full_range": false,
     "moved_total": 56,
     "n_gated_runs": 3,
+    "n_values_gated": 62,
     "n_values_max": 82,
     "stable_live": true
    }
@@ -733,12 +970,18 @@
     "n_values_max": 82
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 62,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 7
  },
  "falu_srcmod12b.opsel": {
+  "best_arm": "EXP-0138-m4-emit-falu|carrier",
+  "best_coverage_pct": 87.5,
   "cited_evidence": [
    "EXP-0119"
   ],
+  "encodable_range": 8,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "carrier",
@@ -746,6 +989,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 87.5,
     "cross_run": {
      "agree": 7,
      "agree_pct": 100.0,
@@ -758,9 +1002,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run05"
     },
+    "encodable_range": 8,
     "exp": "EXP-0138-m4-emit-falu",
+    "field_width": 3,
+    "full_range": false,
     "moved_total": 9,
     "n_gated_runs": 3,
+    "n_values_gated": 7,
     "n_values_max": 7,
     "stable_live": true
    }
@@ -779,231 +1027,381 @@
     "n_values_max": 7
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 7,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 3
  },
  "frag_color_pack.conv_scale": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frag_color_pack.src_gate_select": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frag_color_pack.src_present_mask": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frag_color_store.rt_index": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0029"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frag_color_store.src": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0029"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frame_prologue.frame_size": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frame_prologue.marker": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "frame_prologue.subop": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "get_sr.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0092"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "get_sr.dst_hi": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0092"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "get_sr.sr_sel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0092",
    "EXP-0031",
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14",
    "EXP-0033"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu.srcA": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu.srcB": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu.src_modifier": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.b5": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.op_valid_marker": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.rsv6": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.saturate": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.srcA": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_ext8.srcB_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_fma12.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "half_alu_fma12.srcA": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "ibitcount.form": {
+  "best_arm": "EXP-0139-m4-emit-ialu|SYNTH:carrier_dag@k|IBITCOUNT",
+  "best_coverage_pct": 3.1,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": 256,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "SYNTH:carrier_dag@k|IBITCOUNT",
@@ -1011,6 +1409,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 3.1,
     "cross_run": {
      "agree": 8,
      "agree_pct": 100.0,
@@ -1023,9 +1422,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run02"
     },
+    "encodable_range": 256,
     "exp": "EXP-0139-m4-emit-ialu",
+    "field_width": 8,
+    "full_range": false,
     "moved_total": 4,
     "n_gated_runs": 2,
+    "n_values_gated": 8,
     "n_values_max": 8,
     "stable_live": true
    }
@@ -1055,12 +1458,18 @@
     "n_values_max": 8
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 8,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 8
  },
  "ibitcount.op_enable": {
+  "best_arm": "EXP-0139-m4-emit-ialu|SYNTH:carrier_dag@k|IBITCOUNT",
+  "best_coverage_pct": 6.2,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": 256,
+  "full_encodable_range": false,
   "passing": [
    {
     "arm": "SYNTH:carrier_dag@k|IBITCOUNT",
@@ -1068,6 +1477,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 6.2,
     "cross_run": {
      "agree": 16,
      "agree_pct": 100.0,
@@ -1080,9 +1490,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run02"
     },
+    "encodable_range": 256,
     "exp": "EXP-0139-m4-emit-ialu",
+    "field_width": 8,
+    "full_range": false,
     "moved_total": 16,
     "n_gated_runs": 2,
+    "n_values_gated": 16,
     "n_values_max": 16,
     "stable_live": true
    }
@@ -1112,13 +1526,19 @@
     "n_values_max": 16
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 16,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 8
  },
  "ibitcount.srcdesc": {
+  "best_arm": "EXP-0139-m4-emit-ialu|SYNTH:carrier_dag@k|IBITCOUNT",
+  "best_coverage_pct": 100.0,
   "cited_evidence": [
    "EXP-M4-14",
    "EXP-0129"
   ],
+  "encodable_range": 256,
+  "full_encodable_range": true,
   "passing": [
    {
     "arm": "SYNTH:carrier_dag@k|IBITCOUNT",
@@ -1126,6 +1546,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 254,
      "agree_pct": 99.22,
@@ -1138,9 +1559,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run02"
     },
+    "encodable_range": 256,
     "exp": "EXP-0139-m4-emit-ialu",
+    "field_width": 8,
+    "full_range": true,
     "moved_total": 258,
     "n_gated_runs": 3,
+    "n_values_gated": 256,
     "n_values_max": 256,
     "stable_live": true
    }
@@ -1170,13 +1595,19 @@
     "n_values_max": 256
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 256,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 8
  },
  "icmp_pred.cond": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0090",
    "EXP-0112"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [
@@ -1192,14 +1623,20 @@
     "n_values_max": 256
    }
   ],
-  "verdict": "RECORDS-BUT-FAILS-GATE"
+  "values_dispatched": null,
+  "verdict": "RECORDS-BUT-FAILS-GATE",
+  "width": null
  },
  "icmp_pred.dst_pred": {
+  "best_arm": "EXP-0139-m4-emit-ialu|NAT:k_div@icmp_pred+0x0cc|ICMP_PRED",
+  "best_coverage_pct": 100.0,
   "cited_evidence": [
    "EXP-0104",
    "EXP-0115",
    "RT-ISA-FIX"
   ],
+  "encodable_range": 16,
+  "full_encodable_range": true,
   "passing": [
    {
     "arm": "NAT:k_div@icmp_pred+0x0cc|ICMP_PRED",
@@ -1207,6 +1644,7 @@
      "bit-exact"
     ],
     "cited": false,
+    "coverage_pct": 100.0,
     "cross_run": {
      "agree": 16,
      "agree_pct": 100.0,
@@ -1219,9 +1657,13 @@
      "runA": "m4_20260828_run01",
      "runB": "m4_20260828_run02"
     },
+    "encodable_range": 16,
     "exp": "EXP-0139-m4-emit-ialu",
+    "field_width": 4,
+    "full_range": true,
     "moved_total": 10,
     "n_gated_runs": 2,
+    "n_values_gated": 16,
     "n_values_max": 16,
     "stable_live": true
    }
@@ -1240,241 +1682,397 @@
     "n_values_max": 16
    }
   ],
-  "verdict": "RECOVERABLE-BY-CITATION"
+  "values_dispatched": 16,
+  "verdict": "RECOVERABLE-BY-CITATION",
+  "width": 4
  },
  "if_push_pred.pred": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0115"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "imageblock_load.slice_off": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2D"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "imageblock_store.slice_off": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2D"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "iter.mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0029"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "iter.src_slot": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0029"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "iunary.b1": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "iunary.opsel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "jump.offset": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0115",
    "EXP-0010"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.b1": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.b3": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.dir_offset": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.marker": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.reserved7": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "link_save_restore.scope": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.a_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.a_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C",
    "RT-10-isa-pass2"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.acc_en": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.b_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C",
    "RT-10-isa-pass2"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.c_src": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.dtype": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.op_enable": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C",
    "RT-10-isa-pass2"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "matrix_mac.pad4": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-O2C"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "mov_imm.imm_top": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0153"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "pixel_order.kind": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0093"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [
@@ -1490,12 +2088,18 @@
     "n_values_max": 256
    }
   ],
-  "verdict": "RECORDS-BUT-FAILS-GATE"
+  "values_dispatched": null,
+  "verdict": "RECORDS-BUT-FAILS-GATE",
+  "width": null
  },
  "ray_move.b3": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [
@@ -1511,524 +2115,862 @@
     "n_values_max": 255
    }
   ],
-  "verdict": "RECORDS-BUT-FAILS-GATE"
+  "values_dispatched": null,
+  "verdict": "RECORDS-BUT-FAILS-GATE",
+  "width": null
  },
  "reg_move_c0.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c0.op_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c0.src_class": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c0.src_flag": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c0.src_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0101",
    "EXP-0113"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c1.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c1.src_class": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c1.src_flag": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c1.src_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0101",
    "EXP-0113"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c2var.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c2var.op_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c2var.src_flag": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c2var.src_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c2var.subform": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c9.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c9.op_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c9.src_class": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c9.src_flag": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_c9.src_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0113"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_cb.b3": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_cb.dst": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_cb.form": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "reg_move_cb.src": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0140"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "raw-present-but-unattributable",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "rt_intersect.subop": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "RT-5-isa-tex-simd-mat-rt-frag-falsify"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "rt_query_traverse.opA": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "rt_query_traverse.opB": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "rt_query_traverse.sel": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_ballot.pred": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "RT-ISA-FIX",
    "RT-10-isa-pass2"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_reduce.dtype": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0018",
    "RT-ISA-FIX"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_reduce.op": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0018",
    "EXP-O2D"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_shuffle.dir": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0018"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_shuffle.lane": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0104",
    "EXP-0115"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "field-named-but-unstructured",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "simd_shuffle.mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0018",
    "EXP-O2D"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "spill_frame_marker.b1": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "spill_frame_marker.b2": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "spill_frame_marker.b3": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "stop.reserved": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0003",
    "EXP-0010"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.cache": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.form": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_cnt": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_desc9": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_hi": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_reg": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.op_reg2": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.rsv11": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.rsv6": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_addr_setup.src_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-M4-14"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-raw",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_deriv.axis": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0016"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_sample.mode": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "RT-5-isa-tex-simd-mat-rt-frag-falsify",
    "EXP-0016"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_sample.result_desc": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0034"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_sample.samp_slot_offset": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0016",
    "EXP-0034",
    "EXP-0106"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_sample.tex_slot": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0114",
    "EXP-0016"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "tex_sample.variant": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0016",
    "EXP-0034",
    "EXP-M4-10"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "vary_store.out_slot": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0037"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  },
  "vary_store.src": {
+  "best_arm": null,
+  "best_coverage_pct": null,
   "cited_evidence": [
    "EXP-0037"
   ],
+  "encodable_range": null,
+  "full_encodable_range": false,
   "passing": [],
   "reason_exp0164": "no-field-records",
   "records_anywhere": [],
-  "verdict": "NO-RECORDS-ANYWHERE"
+  "values_dispatched": null,
+  "verdict": "NO-RECORDS-ANYWHERE",
+  "width": null
  }
 }

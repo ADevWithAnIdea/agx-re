@@ -1,0 +1,197 @@
+{
+ "amendments": [
+  {
+   "consequence": "Offline adjudication becomes the primary defence, not the quiet machine: the 0xDEADBEEF poison, both sentinels and the full 16-GPR dump decide whether a dispatch really ran, per EXP-0160's evidence-validity filter (two agreeing clean dumps win outright -- contamination can destroy an observation but never fabricate a coherent one). harness/procsample.py records what was ACTUALLY running for the duration into raw/<run>/03_procsample.jsonl, so concurrency is a measurement rather than an assumption, and a contaminated stretch can be located by timestamp against sweep.jsonl's own `t`.",
+   "id": "amendment_01",
+   "touches": "WHEN the runs execute, and which anti-contamination instrument is primary. Nothing in program construction, splicing, poisoning, majority-of-3, victim classification, the sentinels, the oracles, outcome classification, the coverage rule or the promotion gate changes.",
+   "utc": "2026-08-30",
+   "what": "Both gated runs execute UNLOCKED and CONCURRENTLY with sibling experiments. PRE_REGISTRATION section 5 said they would run in an orchestrator-coordinated quiet window; that is superseded for every arm except DSTORE.",
+   "why": "Orchestrator ruling 2026-08-30. FIELD-SWEEP-PROTOCOL section 7 is the standing directive -- ordinary sweeps run unlocked; only CONFIRMATION passes need a quiet machine -- and serializing costs far more than the contamination does. EXP-0168, EXP-0171 and EXP-0172 run alongside."
+  },
+  {
+   "id": "amendment_02",
+   "touches": "which fields get a VERDICT. Every field is still swept; only the ruling is withheld. Device field count unchanged at 57.",
+   "utc": "2026-08-30",
+   "what": "`get_sr.dst_hi` CONFIRMED in this experiment's verdict scope. `get_sr.form` moved OUT: it belongs to EXP-0172 (a 'one-field-away' row). FOREIGN_FIELDS becomes per-descriptor: {'dst' (any descriptor, EXP-0168), 'get_sr.form' (EXP-0172)}.",
+   "why": "Orchestrator ruling 2026-08-30: EXP-0168 owns the field NAME `dst` exactly; `dst_hi` is a different name and a different bit span. get_sr is therefore touched by three experiments on DISJOINT fields."
+  },
+  {
+   "id": "amendment_03",
+   "touches": "run scheduling and analysis pairing. analysis/verdicts.py now accepts N run directories and, PER FIELD, uses the two runs that reached the most distinct attributed values -- EXP-0164 cross_run's own rule -- so the DSTORE pair is not diluted by pair 1. No case, encoding, oracle or gate changes.",
+   "utc": "2026-08-30",
+   "what": "TWO gated pairs instead of one. Pair 1 = g17p_20260830_run01 / run02, every arm EXCEPT DSTORE. Pair 2 = g17p_20260830_run03 / run04, DSTORE ONLY, run LAST, after pair 1's raw has been pulled back, and only after telling the orchestrator so the other agents are held off the machine for its duration.",
+   "why": "Orchestrator ruling 2026-08-30. The DSTORE arm sweeps device_store.base_slot 0..255, i.e. stores through UNBOUND binding slots -- exactly the hang-prone case FIELD-SWEEP-PROTOCOL section 7 carves out of the run-unlocked rule. Running it last means a wedge costs one arm, not the experiment."
+  },
+  {
+   "id": "amendment_04",
+   "touches": "analysis output only. No device behaviour, no gate, no case.",
+   "utc": "2026-08-30",
+   "what": "analysis/recitation.py now also reports, per citation-recoverable field, the fraction of the field's ENCODABLE RANGE the passing arm actually dispatched.",
+   "why": "Self-falsification of this experiment's own headline offline finding. EXP-0164's gate (stable_live) has NO coverage term -- THIN_COMMON=8 exists in audit.py but only sets an informational `thin_cross_run` flag and is never consulted by stable_live. So `RECOVERABLE-BY-CITATION` means 'clears EXP-0164's gate', NOT 'meets the docs/evidence-classification.md section 2 hardware-run RANGE bar'. Only 4 of the 12 clear it over the full encodable range; the other 8 clear it on as little as 2 of 64 values. Reporting the 12 without that column would have overstated them."
+  }
+ ],
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "a695ee8ee5e8e6af12f6f7b088436c8c1815a5fa0b52eee238e475f738da2a81",
+  "README.md": "55b68c37d491cc044ea3ba96d70c575468c2968023b4b0d5577f473572e525a5",
+  "analysis/collect_raw.py": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde",
+  "analysis/recitation.py": "2887d87b6842d514cddb0d4d9484d8b2f7eae737a0bdc401498671c3e080dead",
+  "analysis/reindex_check.py": "7b51ff5124671897e3cff6d4bdd5af0aaf4adec07411ead0bb7cbe2edab31fc1",
+  "analysis/verdicts.py": "805276a33bb8a5ed56d97921a32d92bd5536590a2d37bccebb32f1cea5b27040",
+  "harness/anchors.py": "9970eb33cd914424530e69b76f69458a1e214f90129d740b25b759cff39af847",
+  "harness/casematrix.py": "168646ff351ac6cdc8d19cf9ece7af1d990310df7366dbc58b5d63b4a9a14df3",
+  "harness/isa_helpers.py": "a9d5a745473777c36aa1f58c92c1bf3e0627cab4bbb7892b88bb0146030e6535",
+  "harness/procsample.py": "76513506031aebccc7250e46416dd36b2e3b7b2b214e7377775e194da183694d",
+  "harness/run.py": "2fd37eeccf4ae2a0acf14265c8304871d8ffb37fdc556ea841dc480a08b6ac75",
+  "harness/selftest.py": "db80d30cc575d740dac98cd91195772970203c6e366306e61af5cb9e5269fe28",
+  "harness/smoke.py": "32c7b74a5636b5b9c980d5aa54cabeac1b0fda24dc0fb41920bdfd0aef3c4df5",
+  "harness/sweeprun.py": "f8d696a73acafda789091af65c98ae27e24cbd77027c514fbc304791556636e0",
+  "harness/sync.sh": "9581628b1d812f3679f7a3517f57d6ec1325409e44606f5d8be6fa381a991d99",
+  "kernels/carrier_dag.metal": "533706f1890c7cd81571ce754ca89fedacd7562f4f2bac06b5844f6e17aef689",
+  "kernels/carrier_uni.metal": "d6c02a389aca776da386cebba5dddac6c2f597ee97c64c88d0b46f3e2f556b94",
+  "kernels/probes.metal": "ecd8491eeeda70604d7d8ed7ecbb7be60cf5a0a857a268ec275717343dc96431"
+ },
+ "carriers": {
+  "C1_alu": "ALU-sourced operands (mov_imm/falu2i), narrow, zero low halves",
+  "C2_load": "LOAD-sourced operands (device_load) with NON-ZERO low halves",
+  "C3_uni": "uniform register file preloaded; different buffer signature",
+  "C4_store": "as C1 with an 8256-word read-back for the device_store arm",
+  "NAT_kcmp": "icmp_pred spliced in place in its own compiled kernel"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/probes.metal + kernels/carrier_dag.metal + kernels/carrier_uni.metal (authored by us; carrier_uni's body is a verbatim copy of our own EXP-0138 carrier) and the AGX bytes the public runtime API compiled from them"
+ },
+ "concurrency": {
+  "held_window": "the DSTORE arm ONLY (amendment_03), because it stores through unbound binding slots",
+  "lease": "NOT taken - FIELD-SWEEP-PROTOCOL 7 forbids reinstating one",
+  "measured_not_claimed": "harness/procsample.py -> raw/<run>/03_procsample.jsonl",
+  "sweeps": "UNLOCKED and concurrent with EXP-0168/0171/0172 (amendment_01)"
+ },
+ "experiment": "EXP-0169-g17p-rerecord",
+ "frozen_utc": "2026-08-30",
+ "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF)",
+ "gated_runs": [
+  "g17p_20260830_run01",
+  "g17p_20260830_run02",
+  "g17p_20260830_run03 (DSTORE only)",
+  "g17p_20260830_run04 (DSTORE only)"
+ ],
+ "instruments": {
+  "oracle_tier1": "host-computed (inline minifloat / isadb.imm_decode) for falu2, falu2i",
+  "oracle_tier2": "unmutated anchor's full 16-GPR + sentinels + stray-word state",
+  "poison": "0xDEADBEEF over the whole read-back before every dispatch",
+  "quiet_window": "measured, not claimed: harness/procsample.py -> 03_procsample.jsonl",
+  "sentinels": [
+   "PRE in memory before the block",
+   "POST written after the block"
+  ]
+ },
+ "labels_allowed": "docs/evidence-classification.md section 2, and nothing else",
+ "matrix": {
+  "coverage": "FIELD-SWEEP-PROTOCOL 3.3: width<=8 -> all 2^w values; width>8 -> each constituent byte 0..255",
+  "estimated_cases": 38660,
+  "generator": "harness/casematrix.py::build_cases(anchor_report)",
+  "resolved_sha256": "RECORDED IN raw/<run>/00_env.json BEFORE THE FIRST GATED DISPATCH; must be identical in both gated runs",
+  "rule_frozen_here": true
+ },
+ "pilot_run": "pilot01",
+ "pinned_inputs_sha256": {
+  "EXP-0164/analysis/collect_raw.py": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde",
+  "EXP-0164/analysis/withhold_unverifiable.json": "79bfd5b986aae71d37de54e76293cbb5ae9554463019ecc1dd5e35f0fd7776cc",
+  "work/db.snapshot.json": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+  "work/validation.snapshot.json": "c40195cd9f65d9176c5bc518ede1c171cf3904c26ba81f7b93dc2414b1ad7091"
+ },
+ "promotion_gate": {
+  "gate_zero": "the (arm,carrier) liveness ladder must have passed first",
+  "identical_to": "EXP-0164/analysis/audit.py::stable_live",
+  "min_agree_pct": 99.0,
+  "min_common_values": 2,
+  "moved_over_disagree": 2.0
+ },
+ "raw_schema": {
+  "also": [
+   "raw/<run_id>/00_env.json",
+   "raw/<run_id>/00_arm_resolution.json",
+   "raw/<run_id>/01_progress.json",
+   "raw/<run_id>/02_summary.json",
+   "raw/<run_id>/03_procsample.jsonl",
+   "raw/<run_id>/baseline.jsonl"
+  ],
+  "field_is_a_db_field_name": true,
+  "instr_is_a_db_mnemonic": true,
+  "keys": [
+   "idx",
+   "seq",
+   "t",
+   "arm",
+   "carrier",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "mode",
+   "kind",
+   "cross",
+   "observed{regs,pre,post,stray,n_stray}",
+   "oracle{digest,sem}",
+   "match",
+   "sem_match",
+   "outcome",
+   "rt_ok",
+   "tok_instr",
+   "victim",
+   "sentinel_bad",
+   "attempts",
+   "predict",
+   "byte_index",
+   "fstart",
+   "fwidth",
+   "foreign",
+   "note"
+  ],
+  "outcome_enum": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "per_case_file": "raw/<run_id>/sweep.jsonl"
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision_at_freeze": "4b16d0b4f8f535c5a37e995aff83824984c3bb79",
+ "retries": {
+  "baseline_every_cases": 250,
+  "baseline_victim_attempts": 8,
+  "majority_of": 3
+ },
+ "scope": {
+  "citation_recoverable_fields": 12,
+  "device_fields": 57,
+  "foreign_fields_swept_not_ruled_on": [
+   "<descriptor>.dst (EXP-0168 owns the verdict)"
+  ],
+  "out_of_scope_fields": 64
+ },
+ "target": {
+  "accel": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "family": "Apple9",
+  "host": "users-MacBook-Neo.local",
+  "name": "A18 Pro / G17P",
+  "os": "macOS 26.6"
+ },
+ "timeouts_s": {
+  "baseline_backoff_max": 40.0,
+  "per_request": 8.0,
+  "shdump_compile": 300,
+  "ssh_pull": 900,
+  "ssh_push": 300
+ }
+}

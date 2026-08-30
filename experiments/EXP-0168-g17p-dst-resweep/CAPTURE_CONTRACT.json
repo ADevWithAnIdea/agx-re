@@ -1,0 +1,214 @@
+{
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "f76f699367a55b1a2517c5640ab219e031855d854ab28f08a8bf43a8122a2ee4",
+  "PROGRESS.md": "d60b5c44d4e1272562bfc8b77f4a4f9a5d17d2069b00345f952133e11f379623",
+  "analysis/rescore_0144.py": "e580e73b127a24d5f33140b0b03c14e501b1559c1b84f9d4f2767dd518e9eaf8",
+  "harness/anchors.py": "9ab0419706989685aaaf37f2930cc25bd05c60c6bbbbc816d335e4ed7659a581",
+  "harness/casematrix.py": "6ab56e2cc5972a9dddd6396f32fba1e69415bda9496ab36f4053686e0a395806",
+  "harness/dryrun.py": "d8f45a43946adedbce29575df7abb6347ab5b52ea2d377841a0f52dc026c9b19",
+  "harness/gfrun3.m": "22029a9330b20a57a5c4d77b313b1df8dc1a3d30057646d15f5fd1e1d9ec3897",
+  "harness/gpuwatch.py": "fc4f7ff8d61921e60d63e0ebd74c112193badc6f7724d213e61f9677b7762274",
+  "harness/isa_helpers.py": "b7f45b0d177503d58f61f952277e977781b1389f8d86523ff953f6f29f80f902",
+  "harness/run.py": "75c84ec246b4923db37fd56a3f60b54b8f0ff2549f3e4d4887382722792c4e1c",
+  "harness/runner3.py": "e73103238d14bc0c9e0e7017ce96a563d81f5362afb8fee611af1d342abd9cfe",
+  "harness/smoke.py": "86df16942c3ab6ce1e6b7b004dae458865a519372f5ea481e459ffd54b16b1d5",
+  "harness/sweeprun.py": "d25348d6fcfcfb683e1d9092e72faffe9c345f9eba632644d292c6d21e6976f8",
+  "harness/sync.sh": "ef0d9faec1244ea001cf5f6b06387c323f129afb08dd56d353ecceeedc19f528",
+  "kernels/carrier_dag.metal": "c9e4fb93d48c96a1369790d0bd11b44b6f211ae4dfeffeb6d710a74653c26449",
+  "kernels/probes.metal": "d20ac3760474fb0b60369f0155dda6fc35fd366b7e8f6f17cf3d3c6d85957e5f",
+  "kernels/r_fcp1.metal": "40badc9b9e89ac0b65ab5aaac8643b18ed8639f5936dcad6ca29331a9ad5243a",
+  "kernels/r_fcph.metal": "f420e31d4158cb8807615a9f127f052f325eaaf86bb71148a858cbd3af922a90",
+  "kernels/r_fcpmrt.metal": "baac645bf79bc9a936f46bca72dbb6626e231c47e21d7301285277175c673b57",
+  "kernels/r_rog2.metal": "502fd84cadfb3889955c05f74ef80783732731643805ab0285bca9f8c41bd310",
+  "kernels/r_rog8.metal": "12ce7d84f7c93c729091c2d3830806a1cdd0bb8fbe6ced5f4da825cc04de3c69",
+  "kernels/r_rogx.metal": "3533dc5b59260e49effa60a5b6d3bda49db858fc1c459b177dbf99bc12a9e491",
+  "kernels/r_v1.metal": "3709ac7fd3da1b5a6c914f95e2e898587ea2eb6635239549d1ac0b26387b308d",
+  "kernels/r_v4vec.metal": "956341989a9834b656c0aa464852e5bf0bc6addf989f242be21327f6fb6cb5f2",
+  "kernels/r_v8.metal": "30ce2964e4d09555ef2919a6eccb05463b0e566c95e020206eeb70052d4fb983",
+  "kernels/r_v8flat.metal": "77a900d0828007ae61d08e6e5ff3bf8dafabc1ce17bb38b5456398b7b1ca5c06",
+  "kernels/r_vsrc.metal": "8bd4af8494f30c786b8cd4c701a48499c30e8f740983516508b9d0dcc28387fd"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE",
+   "PUBLIC(IEEE-754/MSL definitions, used only to write host oracles)"
+  ],
+  "inputs": "kernels/probes.metal + kernels/carrier_dag.metal + kernels/r_*.metal (all authored by us) and the AGX machine code the public runtime API compiled from them"
+ },
+ "credentials": "the neo SSH password is held in-session only and appears in NO file in this repository, committed or not. harness/sync.sh reads it from an exported SSHPASS and never from a literal or a command line.",
+ "experiment": "EXP-0168-g17p-dst-resweep",
+ "frozen_utc": "2026-08-30T08:28:21Z",
+ "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF). The orchestrator commits sibling experiments continuously, so a cross-run gate written as 'HEAD must not move' would abort mid-sequence through no fault of this experiment (that happened to EXP-0082).",
+ "gated_runs": [
+  "g17p_20260830_run02",
+  "g17p_20260830_run03",
+  "g17p_20260830_run04"
+ ],
+ "matrix": {
+  "dryrun_fixture": "work/mkfake_anchors.py -- a TEST FIXTURE, never evidence; the real anchors are compiled on the target by harness/anchors.py",
+  "dryrun_matrix_sha256_against_local_fixture": "2ce2b126ea690ca5c23e05fe1c29da54383c6a9ee3e2d443b477be2e9f78c72a",
+  "generator": "harness/casematrix.py::build_cases(anchor_report)",
+  "note": "the GENERATOR is frozen here; the case LIST depends on the anchor report extracted on the target and its sha256 is recorded in PROGRESS.md before the first gated run"
+ },
+ "no_commit": "this agent does NOT git commit; the orchestrator reviews and commits",
+ "not_edited": [
+  "tools/agx-isa/db.json (EXP-0165 owns it)",
+  "tools/agx-isa/validation.json",
+  "docs/",
+  "PROVENANCE.md",
+  "CLAUDE.md",
+  "CODEX.md",
+  "any sibling experiment directory"
+ ],
+ "observation": {
+  "invalid_rule": "a read-back that is entirely poison, or whose PRE/POST/tail sentinel failed, or that carries an InnocentVictim-class OS string, is validity!=valid and is RE-RUN -- NEVER recorded as silent_zero. EXP-0160 saw 25 dispatches report STATUS OK and write nothing at all with no victim string.",
+  "layout": {
+   "POST_sentinel": 68,
+   "PRE_sentinel": 64,
+   "high_register_probe": 72,
+   "r0..r15": "words 0,4,...,60",
+   "tail_poison_region": "words 76..103, NEVER stored to"
+  },
+  "poison": "0xDEADBEEF on every word before every dispatch",
+  "read_back_words": 104,
+  "sentinels": "PRE is written to MEMORY BEFORE the block (so no later register write can destroy it) and POST is materialized AFTER the block. Neither can be zeroed by release-on-read, which is how EXP-0138 lost six sweeps to a sentinel in r11. The tail region is outside the register file entirely."
+ },
+ "pinned_toolchain": {
+  "why": "tools/agx-isa/db.json DRIFTS while sibling experiments extend the ISA (EXP-0165 owns it right now). EXP-0144's frozen matrix hash stopped reproducing for exactly this reason: its case labels were read from a db.json whose field NAMES later moved (pack_convert byte 7 was `fmt_word`, is now `b7`), so its committed raw can no longer be joined by label. This experiment pins a snapshot AND records the full instruction bytes on every case.",
+  "work/frozen/db.json": "07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0",
+  "work/frozen/isadb.py": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36"
+ },
+ "prefreeze": [
+  "raw/prefreeze/** -- anchor extraction and smoke/calibration, NEVER evidence",
+  "g17p_20260830_run01 reserved for smoke"
+ ],
+ "promotion_rule": {
+  "also_required": [
+   "liveness ladder passed in EVERY gated run (>=2 distinct observed digests)",
+   "falsifier FAILED in every gated run",
+   "dense coverage for width<=8",
+   "no case counted whose validity != valid",
+   "byte-mate control interpreted and reported"
+  ],
+  "cross_run_agreement_pct": 99.5,
+  "movement_over_disagreement": 4.0,
+  "orchestrator_bar": {
+   "cross_run_agreement_pct": 99.0,
+   "movement_over_disagreement": 2.0
+  },
+  "proven_dont_care": "a genuinely inert field can never satisfy the movement clause. It is recorded as `proven-dont-care` when dense coverage + >=2 carriers differing in the field's dimension, EACH PASSING ITS LADDER + 0 movement + >=99.5%% agreement + falsifier fired, and is reported to the orchestrator with the ladder numbers rather than labelled hardware-run unilaterally.",
+  "skip_placeholders": "cases not dispatched because a hang budget was exhausted are marked as placeholders and excluded from every count. EXP-0164 scored 248 of EXP-0144's pack_convert.b7 placeholders as measurements."
+ },
+ "quiet_window": {
+  "measured_by": "harness/gpuwatch.py -> raw/<run>/gpuwatch.jsonl",
+  "required_for": "the gated confirmation runs",
+  "why": "FIELD-SWEEP-PROTOCOL section 7 amended 2026-08-30: if you ask for a quiet window you must RECORD concurrent GPU activity for the duration, so 'the machine was quiet' is a measurement rather than a claim"
+ },
+ "raw_schema": {
+  "also": [
+   "raw/<run_id>/00_env.json",
+   "raw/<run_id>/01_progress.json",
+   "raw/<run_id>/02_summary.json",
+   "raw/<run_id>/baseline.jsonl",
+   "raw/<run_id>/gpuwatch.jsonl"
+  ],
+  "append_only": true,
+  "flush_and_fsync_per_record": true,
+  "outcome_enum": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "per_case": [
+   "idx",
+   "arm",
+   "role",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "anchor",
+   "byte_index",
+   "fstart",
+   "fwidth",
+   "cross_field",
+   "cross_value",
+   "style",
+   "dim",
+   "kind",
+   "occ",
+   "probe",
+   "block_lo",
+   "block_hi",
+   "tgt",
+   "observed",
+   "oracle",
+   "outcome",
+   "validity",
+   "match",
+   "moved",
+   "moved_slots",
+   "predicts",
+   "rt_ok",
+   "victim",
+   "os_class",
+   "error",
+   "attempts",
+   "note",
+   "seq",
+   "t"
+  ],
+  "role_enum": [
+   "sweep",
+   "ladder",
+   "bytemate",
+   "falsifier",
+   "baseline",
+   "arm_not_run"
+  ],
+  "validity_enum": [
+   "valid",
+   "invalid_poison",
+   "invalid_sentinel",
+   "invalid_victim",
+   "invalid_nodata"
+  ]
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision_at_freeze": "4b16d0b4f8f535c5a37e995aff83824984c3bb79",
+ "safety": {
+  "baseline_every": 300,
+  "declared_hazards": [
+   "if_push.scope sweeps control flow and may hang",
+   "atomic_mem sweeps device atomics and may hang",
+   "iter_at.grp is a known minefield: EXP-0155 hung at grp = 0x00, 0x01, 0x0f, 0x12, 0x16, 0x18 and EXP-0163 at 0x00 and 0x50, and BOTH tripped the two-hang stop rule, so no run has ever swept past ~25 of 256 values"
+  ],
+  "hang_cooldown_s": 2.0,
+  "macvdmtool": "FORBIDDEN to this agent without exception. If the neo stops answering: STOP and report BLOCKED.",
+  "majority_of": 3,
+  "max_hangs_per_arm": 6,
+  "max_hangs_per_field": 2
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "gpu_cores": 5,
+  "host": "users-MacBook-Neo.local (DHCP, 192.168.10.243 at freeze time)",
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro / G17P",
+  "note": "device identity is ALSO read from the live device into raw/<run>/00_env.json on every run and is never taken from this literal (EXP-0138/harness/run.py:110 hardcoded 'Apple M4 (G16G) local' into its own evidence file)",
+  "os": "macOS 26.6"
+ },
+ "timeouts_s": {
+  "compile": 300,
+  "dispatch": 8.0,
+  "pull": 900,
+  "scp": 300,
+  "ssh": 120
+ }
+}

@@ -126,3 +126,296 @@ dense 128..255 sweep across several dst values instead of a single point.
 whitelisted into liveness unconditionally at `analysis/verdicts.py:540`
 (`or mnem in ("jump",)`) — i.e. those two reached `hardware-run` without any
 field of `jump` ever moving in the carrier. EXP-0164 did not withhold them.
+
+## 2026-08-30 — M3: render/vertex archaeology. Reuse EXP-0163's harness; three
+##                 of my four render fields turn out to have the SAME defect.
+Read-only audit of `tools/agxtest/agxrender.m`, `EXP-0142`, `EXP-0143`,
+`EXP-0155`, `EXP-0163`.
+
+**Harness decision: fork `EXP-0163/harness/{gfrun2.m,runner2.py}`.** It is a
+strict superset of every other render harness here and is G17P-proven (39,233
+cases in 50.3 s on 2026-08-30). It already has: `--samples N` wired into BOTH
+the build-archive and the run pipeline descriptor, `--resolve`, MRT, layered
+targets, depth, occlusion, five writable-texture kinds, an `--out-buf` device
+buffer **bound to the vertex stage as well as the fragment stage**,
+vertex/fragment/compute splicing by absolute archive offset, `0xDEADBEEF`
+read-back poison on every surface, and an integrity sentinel that re-reads the
+patched archive from the filesystem and `memcmp`s every spliced window before
+dispatch. EXP-0142's `renderpersist.m` is the weak M4-era ancestor (4x4, no
+MSAA, no poison, no sentinel) and is NOT reused.
+
+**The EXP-0155 nulls I inherited are all the same defect as `iter_at.loc`:**
+- `iter_at@cent1_0` / `cent1_1` are TWO OCCURRENCES OF THE SAME INSTRUCTION IN
+  ONE PROGRAM, both on carrier `c_cent1` at `samples=1`. EXP-0155 even defined a
+  `c_cent4` (4-sample) carrier — and used it only for `iter`, never for
+  `iter_at`. One carrier, labelled two.
+- `fcp@pack0` / `pack1` likewise: one program, `color_format=80` (BGRA8Unorm),
+  `samples=1`, two occurrences, identical liveness control `("val",0x80)`.
+  `pack1` additionally drops `fmt_class` from its field list.
+- `vtx_out_pos.dst`/`slot` (EXP-0147, M4) were inert in a **single-varying**
+  carrier, and EXP-0147's own RESULTS.md leaves "`vtx_out_pos.slot` in a
+  multi-varying carrier" open as the named follow-up. `slot` selects WHICH
+  varying/output slot; with one varying there is nothing to select.
+**Rule this experiment adopts: an occurrence-replicate inside one program is not
+an adversarial replicate for any field whose meaning depends on pipeline state.**
+
+**Correction to carry forward.** EXP-0163's `RESULTS.md:57` says its cent1/cent4
+pair has "same compiled bytes". Its own `00_inputs.json` refutes that: same
+source sha256, but fragment binaries of **174 B (1 sample) vs 482 B (4 samples)**
+at different offsets. `rasterSampleCount` is an input to the shader compile. What
+is genuinely held constant is source, bound resources, probe pixels and every
+other pipeline field. EXP-0168 will state its render pairs that way and will not
+claim byte-identity it does not have.
+
+**`iter_at.grp` is a db.json DEFECT and a minefield, in that order.**
+`db.json` declares `grp` as 8 bits at start=0, but the descriptor's own match
+constant is `[0, 7, 47]` — bits 0..6 pinned to 0x2f. So **only bit 7 is free**;
+`grp` has exactly two legal values, 0x2f and 0xaf, and every other value is a
+DIFFERENT instruction, not a value of this field. That is the same
+declares-a-field-over-pinned-bits self-contradiction EXP-0162 fixed in
+`pixel_order`. It also explains the hang record: EXP-0163 hung on grp = 0x00 and
+0x50, EXP-0155 on 0x00, 0x01, 0x0f, 0x12, 0x16, 0x18, and BOTH runs tripped
+"FIELD STOPPED after 2 genuine hangs" — so `iter_at.grp` has never been swept
+past ~25 of 256 values on any run. EXP-0168 sweeps the two legal values densely,
+reports the descriptor defect, and opens the out-of-descriptor region only as a
+small, pre-declared, hang-budgeted arm (budget 2, then STOP) because a device
+reset costs every other agent on the machine.
+
+## 2026-08-30 — M4: EXP-0144 / EXP-0138 archaeology. Two of my seven UNSTABLE
+##                 rows are an AUDIT ARTIFACT, re-derivable offline for free.
+Read-only audit of `EXP-0144-m4-emit-pack/` and `EXP-0138-m4-emit-falu/`.
+
+**(a) `F` and `W` are NOT two carriers.** EXP-0164's arm key is
+`carrier|arm` (`EXP-0164/analysis/collect_raw.py:192-194`), and EXP-0144's
+`F`/`W` are ARM LETTERS over the SAME compiled program (`EXP-0144/harness/
+casematrix.py:6-17`): F = every byte, all 256 values; W = whole-field values for
+the >8-bit raw fields. So `withhold_unstable.json`'s "2 carrier(s) tested" for
+`pack_convert.b7` and `unpack_convert.dst` is one carrier counted twice.
+`n_arms_that_tested_the_field` counts (carrier, arm) pairs, not carriers
+(`EXP-0164/analysis/audit.py:139-141`).
+
+**(b) `pack_convert.b7` and `unpack_convert.dst` are NOT unstable. The gate
+compared the wrong two runs.** EXP-0164 selects the two gated runs with the most
+distinct attributed values, ties broken ALPHABETICALLY (`audit.py:78-80`), which
+picks `run03` — and `run03` is a capture EXP-0144 itself disowns
+(`EXP-0144/RESULTS.md:28-33`: everything promoted there comes from the
+`rv01__*` revalidation only). run03's cases that were skipped after two hangs
+were written with `outcome:"hang"`, and EXP-0164 treats only
+`{invalid_run, victim, skipped}` as contamination (`collect_raw.py:42,202`), so
+**248 skip placeholders for `pack_convert.b7` and 1024 for `unpack_convert` were
+scored as real observations.** Measured against the runs that actually measured:
+    pack_convert byte+7   run05 vs rv01 : 256 common, 0 disagreements (100.00%)
+    unpack_convert byte+3 run05 vs rv01 : 192 common, 2 disagreements (98.96%)
+and within rv01 both are 256/256 unanimous at 3 repetitions. **This is an
+analysis defect in the audit, not a hardware instability, and it needs no device
+time to settle.** EXP-0168 re-derives it in `analysis/rescore_0144.py` from the
+committed append-only raw, as an offline deliverable independent of the sweep.
+
+**(c) `cvt_f2h.op` and `cvt_f2i.dst` ARE genuinely noisy — but only at the
+fault/silent-zero boundary, inside the value region that already fails the emit
+rule.** `cvt_f2h.op`: 22/256 differ and every one is run03 `silent_zero` vs rv01
+`fault`, all with `(v & 7) == 7`. `cvt_f2i.dst`: 45 disagreements = 41 run03 skip
+placeholders + 4 genuine, and the 4 are hang/fault boundary flips. rv01
+within-run unanimity is 94.9% and 92.6%. A third gated run plus majority-of-5 in
+the flapping region should settle both.
+
+**(d) A real, unpublished hardware finding is sitting inside `cvt_f2h.op`.**
+`EXP-0144/analysis/byte_scans.json -> cvt_f2h.byte2`: **62 of 256 values turn the
+fp32->fp16 convert into an fp32->bfloat16 convert** (`f2bf_rne(v0)`), and 8
+values redirect the SOURCE to the second operand. So byte+2 is a combined
+format + source selector, not the "result-routing/source-cache mode" db.json
+attributes to the cvt_f2i sibling. EXP-0168 confirms or refutes this on G17P.
+
+**(e) Every EXP-0144 carrier for `cvt_f2h` and `cvt_f2i` is STANDALONE.** The
+consumed-vs-standalone distinction db.json attributes to byte+2 was never tested
+with a CONSUMING carrier for either op; the one consuming carrier it built
+(`c_i2f_src`) is a different instruction, and there the byte had no effect at any
+value (`EXP-0144/RESULTS.md:266-271`). `kernels/probes.metal`'s
+`k_f2h_consumed` / `k_f2i_consumed` are exactly this missing arm.
+
+**(f) `copysign.operands` read inert because the carrier had only TWO live float
+registers.** `EXP-0138/harness/families.py:73-74` + `kernels/probes.metal:32-34`:
+`k_copysign` loads a[t+0] and a[t+1], computes, and stores ONE word. A byte
+claimed to be a src/dst REGISTER descriptor cannot show anything in a carrier
+with a two-register operand space — and indeed the falsifier on byte+1 resolves
+exactly two outcomes (-5.0 and +5.0). `k_copysign_rp` (12+ simultaneously live
+values) plus the 16-register dump is the fix.
+Two db.json defects fall out of the same data and are recorded for the
+orchestrator, not acted on: byte+1 of `copysign` is a **live operand field**
+(240/256 silent-zero, 8 -> -5.0, 8 -> +5.0) yet db.json pins it as a match
+constant; and byte+2 (0x88) is a 256/256 don't-care also pinned as a match
+constant.
+
+**(g) `cvt_f2i.b9` is INERT-SINGLE, not UNSTABLE** — 256/256 `ok` in BOTH runs,
+one distinct observed word, rv01 unanimous. Like `copysign.operands` it does not
+need a third run; it needs a second, structurally different carrier.
+
+**(h) PORTABILITY TRAP, and it changes the harness.** EXP-0144's frozen matrix
+hash no longer reproduces on any host: `casematrix.py` reads the LIVE `db.json`,
+and EXP-0144's own findings were later written back into it, so the `field`
+LABEL STRINGS moved out from under the committed raw (`pack_convert` byte 7 was
+`fmt_word`, is now `b7`; `unpack_convert` byte 3 was `convert_desc`, is now
+`dst`). **EXP-0168 therefore (i) pins a `db.json`/`isadb.py` snapshot into
+`work/frozen/` with sha256 in CAPTURE_CONTRACT.json, and (ii) records the full
+instruction `bytes` on every case so attribution never depends on a label.**
+Also noted: `EXP-0138/harness/run.py:110` hardcodes `"host": "Apple M4 (G16G)
+local"` into its evidence file — EXP-0168 records the target from the live
+device, never from a literal.
+
+## 2026-08-30 — M5: the offline re-scoring RAN, and it lands three of the
+##                 withheld rows without touching the device.
+`analysis/rescore_0144.py` (no hardware; re-derives from EXP-0144's append-only
+`raw/`, which is M4/G16G data) -> `analysis/rescore_0144.json`.
+
+Per field, comparing every pair of runs that ACTUALLY DISPATCHED the value
+(placeholders excluded by "no attempts recorded", not by the `outcome` string):
+
+| field | audit said | best measured pair | common | agree | disagreements |
+|---|---|---|---|---|---|
+| `pack_convert.b7`    | 2.73%  (run03 vs run05) | run05 vs rv01 | 256 | **100.00%** | 0 |
+| `cvt_f2i.dst`        | 82.42% (run03 vs rv01)  | run02 vs rv01 | 225 | **99.56%**  | 1 (fault->hang) |
+| `cvt_f2i.b9`         | inert, 1 carrier        | run03 vs rv01 | 256 | **100.00%** | 0 |
+| `unpack_convert.dst` | 25.78% (run03 vs run05) | run05 vs rv01 | 192 | 98.96%      | 2 (hang->fault) |
+| `cvt_f2h.op`         | 91.41% (run03 vs rv01)  | run01 vs run04| 256 | 98.44%      | 4 |
+
+The cause is now measured rather than argued: for `pack_convert.b7`, run03 has
+**17 measured cases and 248 placeholders**; for `unpack_convert.dst`, run03 and
+run04 have **0 measured and 272 placeholders each**; for `cvt_f2i.dst`, run03 has
+41 placeholders and run04 has 265. Those placeholders carry `outcome:"hang"` and
+EXP-0164 scored them as observations.
+
+**Conclusions, stated at the strength the data supports:**
+- `pack_convert.b7` and `cvt_f2i.b9` clear the >=99% clause outright on M4 data
+  already committed. `cvt_f2i.dst` clears it at 99.56%. Their UNSTABLE/withheld
+  status is an artifact of which two runs the audit compared. This is a
+  RE-SCORING repair, not a third-gated-run repair, and it costs no device time.
+- `unpack_convert.dst` (98.96%, both disagreements hang->fault at 0xbe/0xbf, the
+  two hangs that stopped run05) and `cvt_f2h.op` (98.44% best, all disagreements
+  fault<->silent_zero) are genuinely short of the bar and DO need another
+  measured run.
+- **None of this promotes anything.** The underlying observations are M4/G16G.
+  EXP-0168's own G17P sweep is what will carry a target-correct label; this
+  result tells the orchestrator that two of the rows he withdrew were withdrawn
+  for the wrong reason, and it tells me which arms actually need device time.
+- `cvt_f2i.b9` is 256/256 `ok` with ONE distinct observed word in both runs: a
+  genuinely inert field. A field that is inert everywhere can never satisfy a
+  "movement >= 2x disagreements" clause, by construction. EXP-0168 pre-registers
+  a separate PROVEN-DONT-CARE verdict for that case, with its own criteria
+  (dense coverage + >=2 carriers each PASSING ITS LIVENESS LADDER + 0 movement +
+  >=99.5% cross-run agreement), and flags it to the orchestrator rather than
+  quietly labelling it `hardware-run`.
+
+## 2026-08-30 — M6: compute arm BUILT and dry-run clean, offline
+Authored and verified without touching the device:
+
+`harness/isa_helpers.py`  program construction. 104-word poisoned read-back:
+  r0..r15 at words 0,4,..,60; PRE sentinel 64; POST 68; high-register probe 72;
+  and a **28-word tail region no store ever targets** (76..103). PRE is written
+  to MEMORY BEFORE the block and POST is materialized AFTER it, so neither can
+  be destroyed by release-on-read — the trap that cost EXP-0138 six sweeps when
+  it seeded its sentinel in r11 and the instruction then read and zeroed it.
+`harness/anchors.py`      anchor extraction; probes may name a LIST of candidate
+  kernels, because which kernel the Apple compiler emits a given instruction
+  from is not under our control and an arm naming one kernel can silently lose
+  itself. An arm that finds no candidate is recorded `arm_not_run` WITH THE
+  REASON, never silently dropped.
+`harness/casematrix.py`   the frozen generator. 33 arms, each naming the
+  DIMENSION it varies and why that carrier can express the field.
+`harness/sweeprun.py`     two carrier styles (SYNTH+LIFTED / IN-PLACE), the
+  slot-pattern classifier, and `validity` kept strictly separate from `outcome`.
+`harness/run.py`          gated driver: majority-of-3, OS fault class on every
+  non-ok case, victim re-runs, baseline revalidation every 300, per-field hang
+  budget 2 / per-arm 6, resume-safe, flush+fsync per record.
+`harness/smoke.py`        PRE-FREEZE calibration incl. **S4: an empty program
+  must leave the WHOLE buffer poisoned**, which is what makes `invalid_poison`
+  distinguishable from `silent_zero` at all.
+`harness/gpuwatch.py`     samples the target process table into
+  `raw/<run>/gpuwatch.jsonl` for the duration, so "the machine was quiet" is a
+  measurement (FIELD-SWEEP-PROTOCOL section 7, amended today).
+`harness/dryrun.py`       offline: builds every arm's program, checks the record
+  schema, checks the oracle. **0 bad records; every arm builds.**
+`analysis/verdicts.py`    the pre-registered gate, and it refuses two things:
+  it never counts a skip placeholder as an observation, and it never labels a
+  genuinely inert field `hardware-run` on its own authority.
+
+Matrix against the local dry-run fixture: **10,587 cases**, roles
+sweep 8,736 / bytemate 1,312 / ladder 472 / falsifier 33 / baseline 33.
+At EXP-0154's measured G17P throughput (44.9 cases/s) that is **~4 minutes per
+gated run**; three runs plus smoke is well under 20 minutes of device time.
+
+Per-field dispatched values (best arm), from the dry run:
+  uniform_mov.dst 256 (16 dst x 14 FORMS + 16) . uniform_mov.form_b2 256 .
+  uniform_mov.opdesc_b3 256 . cvt_f2i.dst 512 . cvt_f2i.b9 512 .
+  unpack_convert.dst 768 . pack_convert.b7 768 . cvt_f2h.op 512 .
+  copysign.operands 512 . if_push.scope 1024 . mov_imm.byte1 1536 .
+  stop.b1/b2/b3 512 each + stop.reserved 132 . falu_acc.cache 84 (2 x 14 srcB
+  x 3 carriers) . shift_amt_move.src_flag 52 (2 x 13 src_reg x 2 carriers) .
+  atomic_mem.addr_desc_hi 108 (4 x 9 oper_reg x 3 carriers) .
+  get_sr.dst 16 / dst_hi 8 / form 2 . falu2i.dst 16.
+`falu2.dst` shows `arm_not_run` against the FIXTURE only — the fixture's
+hand-built falu2 bytes decode as `falu_compact4`. The real anchor comes from the
+device, and the multi-candidate mechanism will find falu2 wherever the compiler
+actually put it. If it genuinely has no own-MSL anchor in this probe set, that
+is reported as NOT REACHED, not as inert.
+
+`PRE_REGISTRATION.md` and `CAPTURE_CONTRACT.json` frozen (27 authored files
+hashed; a `work/frozen/` db.json+isadb.py snapshot pinned). Gate set at
+**>=99.5% agreement and movement >= 4x disagreements** — deliberately above the
+orchestrator's >=99% / >=2x — plus ladder-passed, falsifier-failed, dense
+coverage, and no case counted whose `validity != valid`.
+
+## 2026-08-30 — M7: bit surgery verified offline, and it turned up THREE MORE
+##                 descriptor defects of the `pixel_order` class
+`analysis/bitcheck.py` (no device) checks, exhaustively over every value, that
+`casematrix.set_field(anchor, v)` equals `isadb.assemble(fields with field=v)`
+for all 83 instruction/field pairs this experiment touches. If those two
+disagreed on bit order or placement, EVERY case would be mislabelled and no
+amount of hardware time could fix it.
+
+**79 fields agree exactly. 0 mismatches.** The harness's bit surgery is correct.
+
+The other 4 are a **first-class result**, not a harness bug: a field DECLARED
+over bits its own descriptor's `match` constant PINS. That is the same
+self-contradiction EXP-0162 fixed in `pixel_order.flags` — the field is
+undecodable and unemittable at every value outside the pin, because those values
+are a *different instruction*.
+
+| descriptor | field | declared bits | match pins |
+|---|---|---|---|
+| `iter_at` | `grp` | 0..7 | **0..6** — only bit 7 free; 2 legal values |
+| `pixel_order` | `scope` | 24..31 | 28..30 |
+| `reg_move_cb` | `form` | 16..23 | 16..19 |
+| `shift_amt_move` | `kind` | 16..23 | 16..19 |
+
+`iter_at.grp` I had already derived by hand (M3) and the orchestrator has
+confirmed it. **The other three are new** and are handed to him under
+`db_defects`; `db.json` is NOT edited here (EXP-0165 owns it). Two of them touch
+this experiment directly: `reg_move_cb.form` and `shift_amt_move.kind` are both
+byte+2, which I sweep as a whole BYTE rather than as the declared field, so the
+sweep is valid — but the analysis must record which swept values fall outside
+the descriptor rather than calling them values of the field.
+
+## 2026-08-30 — M7b: orchestrator rulings folded in
+- **GO on the compute arm as soon as EXP-0163 clears**; do not wait for the
+  render arm. Sweeps run unlocked alongside siblings; only confirmation passes
+  need the quiet machine.
+- The co-variation finding goes into `FIELD-SWEEP-PROTOCOL` section 3 as a rule.
+  His framing, which is sharper than mine and is adopted here: with `iter_at.loc`
+  the CARRIER could not express the field; with `uniform_mov.dst` the ORACLE
+  could not.
+- **The EXP-0144 re-score is accepted but those rows are NOT being restored** —
+  restoring an M4 row an hour before a G17P sweep supersedes it is churn. RESULTS
+  records them as "withdrawn for the wrong reason, superseded by this
+  experiment's own G17P measurement". A separate experiment checks how many of
+  the other 122 withdrawals hit the same systemic defect.
+- **`proven-dont-care` accepted as a reporting state**, and the label ruling is
+  now encoded in `analysis/verdicts.py` rather than argued in prose: an inert
+  field is emitter-grade only if the carriers differ in the dimension the field
+  controls AND the field's ROLE is known. Emitter-grade asserts the implementer
+  may CHOOSE the value, so a proven-inert-but-unknown-role field is
+  `single-template-inference`, never `hardware-run`.
+- `jump.branch_ctrl` / `jump.link` are already `untested` and `jump` is not in
+  the emittable list, so the unconditional liveness whitelist at EXP-0140
+  `verdicts.py:540` is not currently propping anything up. Kept in the write-up
+  as a named instance of the same class as the fan-out: **a gate that passes by
+  construction.**

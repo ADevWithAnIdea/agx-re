@@ -45,6 +45,7 @@ EXPDIR = os.path.abspath(os.path.join(EXP, ".."))
 WORK = os.path.join(EXP, "work")
 WITHHOLD = os.path.join(EXPDIR, "EXP-0164-inert-audit", "analysis",
                         "withhold_unverifiable.json")
+DBSNAP = os.path.join(WORK, "db.snapshot.json")
 
 # --- EXP-0164 PRE_REGISTRATION section 5, verbatim -------------------------
 NONGATED = re.compile(r"(prefreeze|smoke|pilot|quarantine|burned)", re.I)
@@ -81,6 +82,15 @@ def stable_live(c):
     return min(c["movedA"], c["movedB"]) >= MOVED_OVER_DISAGREE * c["disagreements"]
 
 
+def field_widths():
+    db = json.load(open(DBSNAP))
+    out = {}
+    for i in db["instructions"]:
+        for f in i.get("fields", []):
+            out["%s.%s" % (i["mnemonic"], f["name"])] = f["width"]
+    return out
+
+
 def cited(exp_dir, evidence):
     return any(exp_dir == e or exp_dir.startswith(e + "-") for e in evidence)
 
@@ -90,6 +100,7 @@ def main():
     index = idx["index"]
     partial = set(idx["_meta"]["partial_runs"])
     W = json.load(open(WITHHOLD))
+    WIDTH = field_widths()
     fields = sorted(k for k in W if k != "_meta")
 
     out = {"_meta": {
@@ -103,6 +114,18 @@ def main():
         "note": ("A PASS here is an AUDITABILITY finding about the citation "
                  "list, not a new hardware claim, and not a substitute for the "
                  "fresh gated capture where the field is load-bearing."),
+        "coverage_caveat": (
+            "EXP-0164's gate (stable_live) has NO coverage term: THIN_COMMON=8 "
+            "exists in audit.py but only sets an informational `thin_cross_run` "
+            "flag and is never consulted by stable_live. So `RECOVERABLE-BY-"
+            "CITATION` means 'clears EXP-0164's gate', NOT 'meets the "
+            "docs/evidence-classification.md section 2 `hardware-run` range bar', "
+            "which asks for the full encodable range or at minimum boundaries "
+            "plus interior samples. `coverage` below is the fraction of the "
+            "field's encodable range the passing arm actually dispatched. A "
+            "field that clears the gate on 2 of 64 values has had its "
+            "ATTRIBUTION defect fixed by a citation change and still has an "
+            "open RANGE question."),
     }}
     counts = collections.Counter()
     for key in fields:
@@ -131,6 +154,14 @@ def main():
                 rec2["cross_run"] = c
                 rec2["stable_live"] = stable_live(c)
                 if rec2["stable_live"]:
+                    w = WIDTH.get(key)
+                    nv = min(c["n_valuesA"], c["n_valuesB"])
+                    rec2["n_values_gated"] = nv
+                    rec2["field_width"] = w
+                    rec2["encodable_range"] = (1 << w) if w is not None else None
+                    rec2["coverage_pct"] = (round(100.0 * nv / (1 << w), 1)
+                                            if w is not None else None)
+                    rec2["full_range"] = bool(w is not None and nv >= (1 << w))
                     hits.append(rec2)
         if hits:
             verdict = ("RECOVERABLE-BY-CITATION"
@@ -141,17 +172,41 @@ def main():
         else:
             verdict = "NO-RECORDS-ANYWHERE"
         counts[verdict] += 1
+        best = None
+        for h in hits:
+            if best is None or (h.get("n_values_gated") or 0) > (best.get("n_values_gated") or 0):
+                best = h
+        best_cov = max([h.get("coverage_pct") or 0 for h in hits], default=None)
         out[key] = {"verdict": verdict,
+                    "full_encodable_range": any(h.get("full_range") for h in hits),
+                    "best_coverage_pct": best_cov,
+                    # explicit numerator / denominator so a range bar can be
+                    # applied by tool instead of re-derived from prose
+                    "values_dispatched": (best or {}).get("n_values_gated"),
+                    "encodable_range": (best or {}).get("encodable_range"),
+                    "width": (best or {}).get("field_width"),
+                    "best_arm": ("%s|%s" % (best["exp"], best["arm"])) if best else None,
                     "cited_evidence": ev,
                     "reason_exp0164": W[key]["reason"],
                     "passing": hits,
                     "records_anywhere": any_records}
     out["_meta"]["counts"] = dict(counts)
+    rec_full = sum(1 for k, v in out.items()
+                   if k != "_meta" and v["verdict"] == "RECOVERABLE-BY-CITATION"
+                   and v["full_encodable_range"])
+    rec_thin = sum(1 for k, v in out.items()
+                   if k != "_meta" and v["verdict"] == "RECOVERABLE-BY-CITATION"
+                   and not v["full_encodable_range"])
+    out["_meta"]["recoverable_full_range"] = rec_full
+    out["_meta"]["recoverable_thin_range"] = rec_thin
     dst = os.path.join(HERE, "recitation_recovery.json")
     with open(dst, "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=True)
     for k, v in sorted(counts.items()):
         print("%-32s %d" % (k, v))
+    print("  of RECOVERABLE-BY-CITATION: %d over the FULL encodable range, "
+          "%d on thin coverage (attribution fixed, RANGE still open)"
+          % (rec_full, rec_thin))
     print("-> " + dst)
     return 0
 

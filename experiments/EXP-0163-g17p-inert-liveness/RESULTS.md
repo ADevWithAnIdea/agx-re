@@ -38,6 +38,30 @@ carriers.** Of the 20 db.json fields on the list **[1-RUN]**:
 | **INERT-ROBUST** — inert across ≥3 structurally different carriers that each passed the strict detection profile | **11** | `frag_color_store.store_mode`, `frag_tile_setup.access` `.sel` `.b5`, `imageblock_store.b4`, `iter.b9`, `simd_ballot.cache`, `simd_shuffle.cache`, `tex_coord_setup.b9`, `vary_store.hint2` `.b7` |
 | **STILL-UNDERPOWERED** — could not be reached to the pre-registered bar | **2** | `tex_write.amode`, `tex_write.rsv11` |
 
+**Labels, and why the eleven negatives are deliberately labelled weaker than
+their evidence.** LIVE → `hardware-run`; STILL-UNDERPOWERED → `untested`;
+**INERT-ROBUST → `single-template-inference`, not `hardware-run`.** The eleven
+rest on a full dense hardware sweep, so by observation strength they are
+`HW-VALIDATED` — but `hardware-run` is one of the two labels
+`validate_labels.py` counts as **emitter-grade**, and emitter-grade asserts that
+an implementer may *choose* the value. Our own `emitter_guidance` for these
+eleven says the opposite: *emit the compiler-observed value*, which is a
+dependency on a captured template and is what Definition-of-Done rule 1 forbids.
+A negative result must not be able to inflate the emittable count.
+`single-template-inference` states the emitter's real position — we know the
+value that works because the compiler used it, we have hardware evidence the
+field is inert across a stated envelope, and we cannot say what it controls.
+**The measurement is not downgraded, only the claim about what an emitter may do
+with it**: the full strength of each negative is carried in `note`, `range`,
+`inert_arms.proven_live_controls` and the `hardware_evidence` block of
+`analysis/field_verdicts_flat.json`.
+
+A separate, first-class finding fell out of the pre-freeze census rather than
+the sweep: **`db.json` does not decode a fragment colour-store variant
+(`byte+1 == 0x86`) and mis-reads it as a 14-byte compute `device_store`**, which
+silently omits that form from every occurrence census ever run on the
+descriptor. Full example, argument and a proposed match fix in **§4b**.
+
 Seven of twenty is not a rounding error, and the seven were not found by luck:
 each was found by asking what the field would have to be *doing* for the program
 to notice, and then writing that program. The clearest case is a controlled
@@ -263,28 +287,28 @@ becomes meaningful when run02 lands.)
 
 ### Bucket summary
 
-| field | bucket | live on | inert on (carriers w/ proven detection power) |
-|---|---|---|---|
-| `frag_color_store.store_mode` | **INERT-ROBUST** | — | cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat |
-| `frag_tile_setup.access` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `frag_tile_setup.b5` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `frag_tile_setup.sel` | **INERT-ROBUST** | — | ibmrt, layer, mrt3, tileread, tilerw2 |
-| `imageblock_store.b4` | **INERT-ROBUST** | — | atoff4, ibms4, ibsamp |
-| `iter.b9` | **INERT-ROBUST** | — | atoff1, cent4, mrt3, vflat, vhalf, vmany |
-| `iter_at.loc` | **LIVE** | cent4/fragment#0, cent4/fragment#1, cent4/fragment#2, atoff4/fragment#0, atoff4/fragment#1 | atoff1, cent1 |
-| `simd_ballot.cache` | **INERT-ROBUST** | — | sball, scache, sdiv |
-| `simd_shuffle.cache` | **INERT-ROBUST** | — | sball, scache, sdiv, stype |
-| `simd_shuffle.rsv9` | **LIVE** | stype/compute#13, stype/compute#15 | sball, scache, sdiv, stype |
-| `tex_coord_setup.b5` | **LIVE** | bits/fragment#0, bits/fragment#1, fclass/fragment#1, vsrc/vertex#0, vsrc/vertex#1, vhalf/v | fclass |
-| `tex_coord_setup.b6` | **LIVE** | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
-| `tex_coord_setup.b8` | **LIVE** | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
-| `tex_coord_setup.b9` | **INERT-ROBUST** | — | bits, fclass, ms4out, sball, vhalf, vsrc |
-| `tex_coord_setup.idx` | **LIVE** | vsrc/vertex#0 | bits, fclass, ms4out, sball, vhalf, vsrc |
-| `tex_write.amode` | **STILL-UNDERPOWERED** | — | twdim, twtype |
-| `tex_write.rsv11` | **STILL-UNDERPOWERED** | — | twdim, twtype |
-| `vary_store.b7` | **INERT-ROBUST** | — | vclip, vflat, vhalf, vmany, vsrc |
-| `vary_store.hint2` | **INERT-ROBUST** | — | vclip, vflat, vhalf, vmany, vsrc |
-| `vary_store.hint6` | **LIVE** | vmany/vertex#9, vmany/vertex#16, vhalf/vertex#0, vhalf/vertex#6, vflat/vertex#4, vsrc/vert | vclip, vmany |
+| field | bucket | label | live on | inert on (carriers w/ proven detection power) |
+|---|---|---|---|---|
+| `frag_color_store.store_mode` | **INERT-ROBUST** | `single-template-inference` | — | cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat |
+| `frag_tile_setup.access` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `frag_tile_setup.b5` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `frag_tile_setup.sel` | **INERT-ROBUST** | `single-template-inference` | — | ibmrt, layer, mrt3, tileread, tilerw2 |
+| `imageblock_store.b4` | **INERT-ROBUST** | `single-template-inference` | — | atoff4, ibms4, ibsamp |
+| `iter.b9` | **INERT-ROBUST** | `single-template-inference` | — | atoff1, cent4, mrt3, vflat, vhalf, vmany |
+| `iter_at.loc` | **LIVE** | `hardware-run` | cent4/fragment#0, cent4/fragment#1, cent4/fragment#2, atoff4/fragment#0, atoff4/ | atoff1, cent1 |
+| `simd_ballot.cache` | **INERT-ROBUST** | `single-template-inference` | — | sball, scache, sdiv |
+| `simd_shuffle.cache` | **INERT-ROBUST** | `single-template-inference` | — | sball, scache, sdiv, stype |
+| `simd_shuffle.rsv9` | **LIVE** | `hardware-run` | stype/compute#13, stype/compute#15 | sball, scache, sdiv, stype |
+| `tex_coord_setup.b5` | **LIVE** | `hardware-run` | bits/fragment#0, bits/fragment#1, fclass/fragment#1, vsrc/vertex#0, vsrc/vertex# | fclass |
+| `tex_coord_setup.b6` | **LIVE** | `hardware-run` | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
+| `tex_coord_setup.b8` | **LIVE** | `hardware-run` | vsrc/vertex#0, vsrc/vertex#1, vhalf/vertex#0, ms4out/fragment#0 | bits, fclass, sball |
+| `tex_coord_setup.b9` | **INERT-ROBUST** | `single-template-inference` | — | bits, fclass, ms4out, sball, vhalf, vsrc |
+| `tex_coord_setup.idx` | **LIVE** | `hardware-run` | vsrc/vertex#0 | bits, fclass, ms4out, sball, vhalf, vsrc |
+| `tex_write.amode` | **STILL-UNDERPOWERED** | `untested` | — | twdim, twtype |
+| `tex_write.rsv11` | **STILL-UNDERPOWERED** | `untested` | — | twdim, twtype |
+| `vary_store.b7` | **INERT-ROBUST** | `single-template-inference` | — | vclip, vflat, vhalf, vmany, vsrc |
+| `vary_store.hint2` | **INERT-ROBUST** | `single-template-inference` | — | vclip, vflat, vhalf, vmany, vsrc |
+| `vary_store.hint6` | **LIVE** | `hardware-run` | vmany/vertex#9, vmany/vertex#16, vhalf/vertex#0, vhalf/vertex#6, vflat/vertex#4, | vclip, vmany |
 
 Totals: **INERT-ROBUST** 11, **LIVE** 7, **STILL-UNDERPOWERED** 2
 
@@ -452,6 +476,17 @@ EXP-0155's 0x57-collision arms rather than DB fields). Their status here:
 
 ## 7. Method integrity — what was checked, and one defect found
 
+- **The ISA database used is pinned and the pin is verifiable.** A copy of
+  `tools/agx-isa/{db.json,isadb.py}` was placed under `~/agxre/EXP-0163/tools/`
+  on the device and its hash frozen into `CAPTURE_CONTRACT.json`
+  (`db.json sha256 83b83a350ece33b8…`); the copy on the neo still hashes to
+  exactly that. The repo's `db.json` has since moved to
+  `07ad894d3e7041ea…` because **EXP-0165 repaired it at commit `4a54e9bb`** —
+  which is not contamination (the brief's rule is that a capture is valid if the
+  *authored blob hashes* match, not if `HEAD` stands still). Checked explicitly:
+  that repair left **all ten** of this experiment's target instructions
+  byte-identical in `length`, `match` and field layout, so these verdicts merge
+  into the repaired database unchanged.
 - **All 156 (arm, field) sweeps completed** in run01: 148 dense 256-value plus 8
   two-value (`simd_shuffle.cache` is 1 bit). 37,904 sweep cases plus 1,329
   baseline / detection-profile records = 39,233.

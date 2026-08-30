@@ -1,0 +1,863 @@
+{
+ "_meta": {
+  "coverage_keys": "every row carries values_dispatched / distinct_bytes / encodable_range / start / width / coverage_pct / thin / under_covered. THIN = values_dispatched < encodable_range. UNDER-COVERED = distinct_bytes < values_dispatched, which is the only signal that a sweep dispatched values it never actually encoded (DEF-0166-1).",
+  "experiment": "EXP-0169-g17p-rerecord",
+  "field_geometry_source": "work/db.snapshot.json",
+  "foreign_fields": "`dst` on every descriptor is EXP-0168's verdict (coordinator directive 2026-08-30). Swept here as this experiment's detection instrument; NO verdict emitted.",
+  "gate": "cross-run agreement >= 99% AND min(movedA,movedB) >= 2.0 x disagreements, over >= 2 common values; the (arm,carrier) liveness ladder must have passed first",
+  "gated_runs": [
+   "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun01",
+   "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun02"
+  ],
+  "labels": "docs/evidence-classification.md section 2, and nothing else",
+  "pairing": "per field, the two runs with the most distinct attributed values (EXP-0164 cross_run's own rule), so an arm captured in a separate later pair is not diluted by the earlier one",
+  "question": "does the ORIGINAL promotion recorded in validation.json reproduce in this fresh capture?",
+  "runs_meta": {
+   "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun01": {
+    "field_geometry_source": "work/db.snapshot.json",
+    "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun01",
+    "records": 16042
+   },
+   "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun02": {
+    "field_geometry_source": "work/db.snapshot.json",
+    "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0169-g17p-rerecord/work/vtest/vrun02",
+    "records": 16042
+   }
+  },
+  "target": "G17P"
+ },
+ "device_store.access_desc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.addr_mode": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.base_slot": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0083"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 census on the load path; store path probed at slots 0,3,31,32,63,127,128,255 - slot 128 writes are DISCARDED (mirror is load-only)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.elem_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.extmode": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.idx_off": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0082",
+   "EXP-0100"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "boundary points 0x1FF, 0x200, 0x3FF, 0x400, 0x7FF at idx 1023/1024 - all landed outside the 8 KiB target, which is exactly what the 16-byte store unit predicts",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.index_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0092"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; 112 is genuinely NONDETERMINISTIC (fault or silent-all-zero across byte-identical splices)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.reserved13": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.reserved7": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.space": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_desc_hi": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 step 1 (64 of 64)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_format": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_format_ext": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..127 step 1 (128 of 128)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.ctrl": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "all 7 bits individually at {0,1}: bits0/1 are the 0x09-group instruction-LENGTH selector (and therefore corrupt when flipped in place), bits2/3/4 inert, bits5/6 silent corruptors",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.mod_hi": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0099"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "bit44 at {0,1} (silent corrupt-to-zero, crossed against reg field 3 and 67); bits45-47 at all 8 values (no observable effect)",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.opflags": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0086",
+   "EXP-0089",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "each of bits 19..23 individually at {0,1}: 19=release srcA, 20=release srcB, 21=destination publication, 22/23=silent corrupt-to-zero",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0005",
+   "EXP-0006"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "3-bit field swept via a 256-value byte+2 sweep: 4=fadd and 5=fmul validated on all 8 don't-care combinations; 0b111 -> contained GPU hang",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+5 bit0, within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense (15-point sweep with poison-register controls); 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_reg_top": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67} and against opflags bit19 in {0,1}; reproduced in falu2i, falu2_ext (both slots), falu3_srcmod12 (both slots) and under 15-deep register pressure",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+5 bits[2:1], within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_imm": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0020",
+   "RT-1a-FIX"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_neg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-10"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1 (byte+5 0xc0 -> 0xc8 on a real add: 5+3 becomes 5-3)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense; 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_reg_top": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67} and against opflags bit20 in {0,1}",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.ctrl_lo": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0119",
+   "EXP-0036",
+   "EXP-M4-12",
+   "EXP-M4-13"
+  ],
+  "original_label": "tokenization-only",
+  "original_range": "framing only (round-trips; no value semantics established)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_exp": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112",
+   "RT-1a-FIX"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "8..15 (the valid minifloat domain, values +-{1/32..30} incl. both extremes); exp<8 is NOT an immediate - it is the falu2_uni uniform-source overload",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_flag": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_mant": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..7 exhaustive across the 16 spliced constants and the generated boundary-weighted immediate pool",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_sign": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0,1 (+-30.0 max/min and +-1.0/+-0.5 constructed and executed)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.mods": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.opflags": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0119",
+   "EXP-0090",
+   "EXP-0086"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "bit20 at {0,1} (source release, load-bearing); bits21-23 NOT tested in this form",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "4 (fadd) and 5 (fmul) of 8 encodable, both constructed and executed",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense; value 67 reads r3 (mod-64 alias); 64..112 alias; 126,127 fault",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_reg_top": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67}",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.op_desc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_flag": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "producer-independent and register-PAIR-quantized at every one of 4 tested pairs; src_reg is ALWAYS 0 in all 1545 corpus instances",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.op_desc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_flag": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "4 src_reg values (0,2,4,8) x 3 buffer-count variants: content was uniformly 0 in all 12 cases, both runs",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.op_desc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.src_flag": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.src_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.subform": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.op_desc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_flag": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "4 tested register pairs, both runs: X and X^1 read identical content, producer-independent",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.b3": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.form": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.src": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ }
+}

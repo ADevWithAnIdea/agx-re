@@ -59,9 +59,10 @@ def _find_isadb():
     verdicts against a descriptor the hardware never saw.
     """
     for cand in (EXP / "work" / "frozen",
-                 Path.home() / "agxre" / "EXP-0168" / "frozen",
-                 Path.home() / "agxre" / "tools" / "agx-isa",
-                 EXP.parents[1] / "tools" / "agx-isa"):
+                 EXP / "tools" / "agx-isa",                     # on the neo
+                 Path.home() / "agxre" / "EXP-0168" / "tools" / "agx-isa",
+                 EXP.parents[1] / "tools" / "agx-isa",          # on the repo host
+                 Path.home() / "agxre" / "tools" / "agx-isa"):
         if (cand / "isadb.py").exists() and (cand / "db.json").exists():
             return cand
     raise RuntimeError("cannot locate tools/agx-isa")
