@@ -252,6 +252,31 @@ def main():
             errors.append("coverage.%s=%r but the corrected metric yields %r"
                           % (key, cov[key], want))
 
+    # --- instruction-level label consistency (EXP-0173, DEF-0173-1) ------------
+    # The emittability rule reads only FIELD labels and never `_instruction`, so an
+    # instruction can be "emittable" while the descriptor itself is only
+    # corpus-correlated. 21 of 35 are in that state. This is NOT applied as a gate,
+    # because the `_instruction` labels are demonstrably STALE rather than
+    # authoritative: `mov_imm` is one of only two instructions proven end-to-end by
+    # EXP-0167 (a generated program containing it produced its exact host oracle) and
+    # its `_instruction` label still reads `corpus-correlation`. Silently demoting it
+    # would discard real evidence. So both numbers are REPORTED and the gap is named.
+    inst_weak = []
+    for m in val["coverage"].get("emittable_mnemonics", []):
+        il = (val["instructions"].get(m, {}).get("_instruction") or {}).get("label")
+        if il not in ("hardware-run", "isolated-byte-diff"):
+            inst_weak.append((m, il))
+    if not args.quiet:
+        print()
+        print("  INSTRUCTION-LABEL CONSISTENCY (reported, not gated -- DEF-0173-1)")
+        print("    emittable by field labels:                    %3d" % len(val["coverage"].get("emittable_mnemonics", [])))
+        print("    ... whose _instruction label is ALSO emitter-grade: %3d"
+              % (len(val["coverage"].get("emittable_mnemonics", [])) - len(inst_weak)))
+        if inst_weak:
+            print("    the gap (%d) -- refresh these from field/generation evidence:" % len(inst_weak))
+            for m, il in sorted(inst_weak):
+                print("      %-26s _instruction.label = %s" % (m, il))
+
     # --- coverage report (informational) -------------------------------------
     # A label says how the evidence was obtained; it does NOT say how much of the
     # field's encodable range was actually exercised. `range` is prose, so this can
@@ -288,6 +313,29 @@ def main():
                 print("      %s.%s  dispatched %d of %d" % (m, n, nv, enc))
         if not stuck and not thin and cov_rows:
             print("    no under-covered or thin rows among those that reported counts")
+
+    # --- evidence paths must EXIST (EXP-0173) ---------------------------------
+    # The validator never opened an evidence path, so a field promoted to
+    # hardware-run citing `EXP-9999/raw/does_not_exist/run.json` passed with exit 0.
+    # Citations are the clean-room paper trail; an unresolvable one is a defect.
+    import glob as _glob
+    _root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    _seen, _missing = {}, []
+    for m, entry in val["instructions"].items():
+        for n, r in entry.items():
+            if not isinstance(r, dict):
+                continue
+            for ev in (r.get("evidence") or []):
+                if not isinstance(ev, str) or not ev.startswith("EXP-"):
+                    continue
+                slug = ev.split("/")[0]
+                if slug not in _seen:
+                    _seen[slug] = bool(_glob.glob(os.path.join(_root, "experiments", slug + "*")))
+                if not _seen[slug]:
+                    _missing.append("%s.%s cites %s, which matches no experiment directory" % (m, n, ev))
+    if _missing:
+        for msg in sorted(set(_missing))[:20]:
+            errors.append("unresolvable evidence citation: %s" % msg)
 
     for w in warnings:
         print("WARN: %s" % w, file=sys.stderr)

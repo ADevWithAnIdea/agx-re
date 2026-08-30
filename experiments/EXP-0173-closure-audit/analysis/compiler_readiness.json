@@ -1,0 +1,2933 @@
+{
+ "_meta": {
+  "experiment": "EXP-0173",
+  "claim_under_test": "docs/compiler-readiness.md: the first blocker is nir_op_mov, because there is no validated GPR-to-GPR move",
+  "verdict": "CLAIM STILL HOLDS. No descriptor that moves one GPR to a DIFFERENT GPR is emittable. `mov_zext16` is emittable but its own committed semantics say it operates IN PLACE on ONE register used as both source and destination, so it cannot implement a copy. `uniform_mov` reads the uniform file, not a GPR, and is not emittable anyway. `n3_mov` is the real candidate and is blocked.",
+  "move_candidates": 49,
+  "emittable_move_candidates": [
+   "n2_op6"
+  ],
+  "emittable_move_candidates_REJECTED": [
+   {
+    "mnemonic": "n2_op6",
+    "why": "descriptor's own text says the operand value maps are unresolved ('needs-splice'), so no rule exists for WHICH value moves which register"
+   }
+  ],
+  "generated_and_run": [
+   "device_load",
+   "device_store",
+   "falu2",
+   "falu2i",
+   "get_sr",
+   "iadd2",
+   "icmp_pred",
+   "if_push",
+   "if_push_pred",
+   "isel10",
+   "jump",
+   "jump_cond",
+   "mov_imm",
+   "pop_reconverge",
+   "reg_move_c0",
+   "ret",
+   "scoreboard_fence",
+   "stop"
+  ],
+  "emittable_total": 35
+ },
+ "nir_minimum": [
+  [
+   "nir_op_mov (GPR->GPR)",
+   "a plain register-to-register copy: phi lowering, parallel copy, RA coalescing, spill reload all bottom out here"
+  ],
+  [
+   "nir_op_fadd / fmul (2-src float)",
+   "falu2 family"
+  ],
+  [
+   "nir_op_iadd (2-src int)",
+   "iadd2 family"
+  ],
+  [
+   "nir_load_global / store_global",
+   "device_load / device_store"
+  ],
+  [
+   "control flow (if/loop)",
+   "icmp_pred + if_push + jump_cond + pop_reconverge"
+  ]
+ ],
+ "move_candidates": [
+  {
+   "mnemonic": "falu2",
+   "length": 6,
+   "semantics_head": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up to 96 addressable 32-bit regs, EXP-0020). dst here is the c",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 15,
+   "blocking_fields": [
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA_size",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opflags",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_size",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ctrl",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_imm",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_neg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "mod_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA_reg_top",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_reg_top",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu2_uni",
+   "length": 6,
+   "semantics_head": "d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-invariant) register, not a GPR and not an immediate. Selected when bit39=1 AND byte+1's exponent nibble < 8 (bit",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 9,
+   "blocking_fields": [
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "usrc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opflags",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA_size",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ctrl_lo",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "uni_mode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "mods",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "funary",
+   "length": 10,
+   "semantics_head": "d = mod(a)   ; float source-modifier move. byte+5 selects the modifier: 0x00 = mov (copy), 0x02 = fabs (|a|), 0x0a = fneg (-a). (bit1 = abs-enable, bit3 = negate; negate requires b",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 6,
+   "blocking_fields": [
+    "b1 (tokenization-only)",
+    "op (untested)",
+    "srcA (untested)",
+    "srcmod (tokenization-only)",
+    "mod (corpus-correlation)",
+    "ext (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "b1",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "op",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcmod",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "mod",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "ext",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "iadd2",
+   "length": 10,
+   "semantics_head": "d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 14,
+   "blocking_fields": [
+    "b2_fmt (untested)",
+    "srcA (untested)"
+   ],
+   "fields": [
+    {
+     "name": "addsub",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "lenbit",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_reg_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b2_bit0",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "store_en",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b2_fmt",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opmode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_imm",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_imm_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB_ext",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "opc_tail",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opc_tail2",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "n2_op6",
+   "length": 6,
+   "semantics_head": "Compact 6-byte low-nibble-2 select/predicate/helper. dst = byte0 high nibble (reg-sweep PROVEN across r0..r15). src_desc (byte+1) = source/mode descriptor (bit7 = uniform/special-f",
+   "emittable": true,
+   "ever_generated_and_run": false,
+   "n_fields": 6,
+   "blocking_fields": [],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opA",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opB",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "imm_sel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "cvt_f2i",
+   "length": 10,
+   "semantics_head": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint). byte+3 = dst reg (dst<<1), byte+5 = src re",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 8,
+   "blocking_fields": [
+    "dst (untested)",
+    "b9 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "mode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "cvtop",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "signflag",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b9",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "fspecial",
+   "length": 10,
+   "semantics_head": "d[dst] = SFU(src). Function = (byte0 bit7 `fn_hi`, byte+1-lo `fnclass`). OPERAND BYTES CORRECTED ON HARDWARE -- EXP-0161 (G17P), re-derived independently in EXP-0165 (db_defects ::",
+   "emittable": true,
+   "ever_generated_and_run": false,
+   "n_fields": 11,
+   "blocking_fields": [],
+   "fields": [
+    {
+     "name": "fn_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fnclass",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_ext",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_cache",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fnsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "precsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "roundmode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "sched_flag",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "device_load",
+   "length": 14,
+   "semantics_head": "load a vector into destination register dst = dst_lo | (dst_ext9 << 2) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_of",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 14,
+   "blocking_fields": [
+    "addr_mode (untested)",
+    "access_desc (untested)",
+    "reserved7 (untested)",
+    "reserved13 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "space",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "addr_mode",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "extmode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "base_slot",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "index_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "access_desc",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "reserved7",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "ld_format",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst_lo",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst_ext9",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "idx_off",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ldform_hi11",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "elem_size",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "reserved13",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "device_store",
+   "length": 14,
+   "semantics_head": "store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * unit, base = buffer[base_slot] (+4). Element addressing shared with device_load (",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 13,
+   "blocking_fields": [
+    "access_desc (untested)",
+    "reserved7 (untested)",
+    "reserved13 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "space",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "addr_mode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "extmode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "base_slot",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "index_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "access_desc",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "reserved7",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "st_format",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "st_format_ext",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "idx_off",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "st_desc_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "elem_size",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "reserved13",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "get_sr",
+   "length": 4,
+   "semantics_head": "d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a G",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 6,
+   "blocking_fields": [
+    "form (untested)",
+    "dst (untested)",
+    "sr_sel (untested)",
+    "dp_width (untested)",
+    "dp_marker (untested)",
+    "dst_hi (untested)"
+   ],
+   "fields": [
+    {
+     "name": "form",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "sr_sel",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dp_width",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dp_marker",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst_hi",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "mov_imm",
+   "length": 2,
+   "semantics_head": "d[dst] = imm7  ; 2-byte move of a small immediate into a GPR. The compiler uses it for constant-folded built-ins (e.g. threads_per_simdgroup = 32 = 0x20). IMM WIDTH CORRECTED (EXP-",
+   "emittable": true,
+   "ever_generated_and_run": true,
+   "n_fields": 3,
+   "blocking_fields": [],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "imm7",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "imm_top",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "uniform_mov",
+   "length": 4,
+   "semantics_head": "d(GPR) = uniform_register[usrc]  ; copy a uniform (thread-invariant) register into a GPR. byte1 encodes the uniform source register; the uniform value was preloaded/precomputed by ",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 2,
+   "blocking_fields": [
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "usrc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "atomic_rmw",
+   "length": 14,
+   "semantics_head": "atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 um",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 17,
+   "blocking_fields": [
+    "amode (untested)",
+    "rsv3 (untested)",
+    "base_slot (untested)",
+    "addr_desc_hi (untested)",
+    "per_lane (untested)",
+    "op_msb (untested)"
+   ],
+   "fields": [
+    {
+     "name": "amode",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "rsv3",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "base_slot",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "index_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "oper_reg_lo",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "oper_reg_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "addr_desc_hi",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "ret_flag",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ret_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "idx_off",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rsv10",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rsv11",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op_lsb",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "per_lane",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_msb",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "amode_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "atomic_mem",
+   "length": 14,
+   "semantics_head": "atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match diff",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 17,
+   "blocking_fields": [
+    "addr_desc_hi (untested)"
+   ],
+   "fields": [
+    {
+     "name": "amode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rsv3",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "base_slot",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "index_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "oper_reg_lo",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "oper_reg_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "addr_desc_hi",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "ret_flag",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ret_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "idx_off",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rsv10",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rsv11",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op_lsb",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "per_lane",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op_msb",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "amode_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "matrix_mac",
+   "length": 12,
+   "semantics_head": "d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major).",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 15,
+   "blocking_fields": [
+    "dst_desc_lo (untested)",
+    "b11_rsv (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dtype",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "mode",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "a_desc",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "pad4",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "a_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "c_src",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst_desc_lo",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst_en",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op_enable",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "acc_en",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "c_neg_half",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "c_neg_all",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b11_rsv",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "rt_ray_mem",
+   "length": 14,
+   "semantics_head": "RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetch",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 12,
+   "blocking_fields": [
+    "mode (tokenization-only)",
+    "dst (untested)",
+    "addr_lo (untested)",
+    "addr_hi (untested)",
+    "flags (tokenization-only)",
+    "reserved7 (tokenization-only)",
+    "width (tokenization-only)",
+    "off_lo (tokenization-only)",
+    "field_off (corpus-correlation)",
+    "off_hi (tokenization-only)",
+    "elem_size (tokenization-only)",
+    "reserved13 (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "mode",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "addr_lo",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "addr_hi",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "flags",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "reserved7",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "width",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "off_lo",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "field_off",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "off_hi",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "elem_size",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "reserved13",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "ray_move",
+   "length": 4,
+   "semantics_head": "RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / m",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b3",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "iter",
+   "length": 10,
+   "semantics_head": "r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle varying/coefficient slot (sl",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 9,
+   "blocking_fields": [
+    "b9 (single-template-inference)"
+   ],
+   "fields": [
+    {
+     "name": "grp",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "lead",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "coeff_sel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_slot",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "mode",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "c7",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "loc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b9",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "length": 12,
+   "semantics_head": "store a fragment colour output to the tilebuffer / colour attachment. Memory-family store (byte0 0xe7) with the FRAGMENT variant byte+1==0x06 (compute device store is byte+1==0x00,",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 7,
+   "blocking_fields": [
+    "store_mode (single-template-inference)"
+   ],
+   "fields": [
+    {
+     "name": "store_mode",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "flags",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "rt_index",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "mask",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fmt",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "slice_addr",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "tile_read",
+   "length": 12,
+   "semantics_head": "read the CURRENT tilebuffer / colour-attachment value into a GPR \u2014 the ld_tile analogue for PROGRAMMABLE BLENDING (a fragment [[color(n)]] INPUT). Load-family op (byte0 0x67) with ",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 8,
+   "blocking_fields": [
+    "b2 (untested)",
+    "b4 (untested)",
+    "b6_hi (untested)",
+    "b7 (untested)",
+    "tail (untested)"
+   ],
+   "fields": [
+    {
+     "name": "b2",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "b4",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "rt_index",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "read_en",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b6_hi",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "b7",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "tail",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "length": 10,
+   "semantics_head": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode desc",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 9,
+   "blocking_fields": [
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "src_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fmt_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "mode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "comp_off",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "val",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_present_mask",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_gate_select",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "conv_scale",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "pixel_order",
+   "length": 6,
+   "semantics_head": "fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock). kind (byte+1): 0x14 acquire/wait, 0x04 release/signal. scope (byte+3): memory scope {0x50,0xd0} (bit7 differs)",
+   "emittable": true,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [],
+   "fields": [
+    {
+     "name": "kind",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "scope",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "flags",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b5",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "frame_marker",
+   "length": 4,
+   "semantics_head": "byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family (identical field layout to n3_mov; dst r4 is fixed by the matched byte0). TWO role",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "srcA_reg (corpus-correlation)",
+    "srcA_uni (corpus-correlation)",
+    "subform (corpus-correlation)",
+    "companion (corpus-correlation)"
+   ],
+   "fields": [
+    {
+     "name": "srcA_reg",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA_uni",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "subform",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "companion",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "call_indirect",
+   "length": 6,
+   "semantics_head": "INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Leader `0f 80 ..`: byte+1 0x80 selects the call-to-address variant of the control-f",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "b2 (tokenization-only)",
+    "target_lo (tokenization-only)",
+    "b4 (tokenization-only)",
+    "b5 (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "b2",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "target_lo",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "b4",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "b5",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "ibitcount",
+   "length": 8,
+   "semantics_head": "single-op bit-count / bit-scan (8B). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL iunary.metal popcount `27 05 56 00 02 00 5c 04`, inputs [15,16,65535,0x40000001], baseline popcoun",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 8,
+   "blocking_fields": [
+    "cache (untested)",
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "fn_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "cache",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_enable",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcdesc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "tail",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "pack_convert",
+   "length": 10,
+   "semantics_head": "packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byt",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 9,
+   "blocking_fields": [
+    "b7 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "src_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fmt_class",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "mode",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_lane0",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_lane1",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b7",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "cvt_enable",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "fmt_sel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "length": 8,
+   "semantics_head": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source c",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 8,
+   "blocking_fields": [
+    "src_class (untested)",
+    "cache (untested)",
+    "dst (untested)",
+    "src (untested)",
+    "opdesc (untested)",
+    "size (untested)",
+    "fmt_sel (untested)"
+   ],
+   "fields": [
+    {
+     "name": "src_class",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "cache",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "inert4",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "opdesc",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "size",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "fmt_sel",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "vary_store",
+   "length": 8,
+   "semantics_head": "uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 8,
+   "blocking_fields": [
+    "hint1 (untested)",
+    "hint2 (single-template-inference)",
+    "b5_tag (untested)",
+    "b7 (single-template-inference)"
+   ],
+   "fields": [
+    {
+     "name": "hint1",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "hint2",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "out_slot",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "out_slot_hi",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b5_tag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "hint6",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b7",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "n3_mov",
+   "length": 4,
+   "semantics_head": "d = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15) PROVEN by parallel-extend diffs. srcA_reg (byte+1 bits0",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (corpus-correlation)",
+    "srcA_reg (corpus-correlation)",
+    "srcA_uni (corpus-correlation)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA_reg",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA_uni",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "subform",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "companion",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "tile_read_mrt",
+   "length": 12,
+   "semantics_head": "fragment tilebuffer / attachment READ (byte+1==0x06). The plain-read sibling of tile_read (0x0e programmable-blend) and imageblock_load (0x16 first-access). byte+3 = destination GP",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 7,
+   "blocking_fields": [
+    "b4 (untested)",
+    "b6_hi (untested)",
+    "tail (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "isolated-byte-diff",
+     "emitter_grade": true
+    },
+    {
+     "name": "b4",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "rt_index",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "read_en",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b6_hi",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "fmt",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "tail",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "h_alu_hi",
+   "length": 6,
+   "semantics_head": "d.hi(half) = op(a, b) ; NATIVE fp16 float ALU writing the HIGH 16-bit half of the destination register (the .y lane of a packed half2). byte0 low-nibble 0x8 is the high-half siblin",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 7,
+   "blocking_fields": [
+    "ctrl (untested)",
+    "mods (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcA",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opsel",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "opflags",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "srcB",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "ctrl",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "mods",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "ray_move_copy6",
+   "length": 4,
+   "semantics_head": "RAY register-marshalling MOVE, bit6 copy form (4B). dst=byte0 hi nibble, src=byte+1, byte+2==0x41, byte+3==0x08 (32-bit register operand). The dominant move in the ray-struct marsh",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "optype",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "ray_move_zero6",
+   "length": 4,
+   "semantics_head": "RAY register-marshalling MOVE, bit6 zero form (4B). byte+2==0x40 -> writes a zero/const component in the bit6 source-class (the no-source counterpart of the 0x41 copy form).",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (untested)",
+    "b3 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b3",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "ray_move_zinit",
+   "length": 4,
+   "semantics_head": "RAY register-marshalling MOVE, zero-init form (4B). byte+2==0x80 -> zero/const component (e.g. const origin float3(0,0,0)) in the bit7 source-class. Sibling of ray_move (0x81).",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (untested)",
+    "form (corpus-correlation)",
+    "b3 (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "form",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "b3",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "length": 4,
+   "semantics_head": "Intersection-query compact register move (4B). byte+2==0x09, byte+3==0x00, byte+1 = source selector. Emitted once per intersection_query kernel, reading a fixed query-state / resul",
+   "emittable": true,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b3",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "funary_imm",
+   "length": 10,
+   "semantics_head": "Float source-modifier / integer-logic move with an immediate/operand tail (10B, byte+2==0x0f). src (byte+1) = primary source register: byte+1 low bit = size (b32=1) is set in 760/7",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 7,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (corpus-correlation)",
+    "form (tokenization-only)",
+    "srcB (tokenization-only)",
+    "lut_a (tokenization-only)",
+    "mod (tokenization-only)",
+    "modtail (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "form",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcB",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "lut_a",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "mod",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "modtail",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "b_alu10_loe",
+   "length": 10,
+   "semantics_head": "0x?b 10-byte modifier/logic ALU, byte+2 low-nibble 0xe (funary/ilogic/shift-prep base with a non-zero dst register; named forms funary(0x0e)/ilogic(0x1e) win by specificity, this c",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 11,
+   "blocking_fields": [
+    "dst (corpus-correlation)",
+    "src_reg (corpus-correlation)",
+    "src_flag (corpus-correlation)",
+    "opsel_hi (corpus-correlation)",
+    "srcA (corpus-correlation)",
+    "modA (tokenization-only)",
+    "modB (tokenization-only)",
+    "z6 (single-template-inference)",
+    "outmod (tokenization-only)",
+    "ext8 (corpus-correlation)",
+    "ext9 (single-template-inference)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "opsel_hi",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "modA",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "modB",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "z6",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    },
+    {
+     "name": "outmod",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "ext8",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "ext9",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "b_alu10_lof",
+   "length": 10,
+   "semantics_head": "0x?b 10-byte modifier/logic ALU, byte+2 low-nibble 0xf (funary_imm 0x0f / ilogic 0x1f base with a non-zero dst; named forms win by specificity, this covers 0x1f/0x3f/0x4f/0x6f/0x8f",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 11,
+   "blocking_fields": [
+    "dst (corpus-correlation)",
+    "src_reg (corpus-correlation)",
+    "src_flag (corpus-correlation)",
+    "opsel_hi (corpus-correlation)",
+    "srcA (corpus-correlation)",
+    "modA (tokenization-only)",
+    "modB (tokenization-only)",
+    "z6 (single-template-inference)",
+    "outmod (tokenization-only)",
+    "ext8 (corpus-correlation)",
+    "ext9 (single-template-inference)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "opsel_hi",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcA",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "modA",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "modB",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "z6",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    },
+    {
+     "name": "outmod",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "ext8",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "ext9",
+     "label": "single-template-inference",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_c0",
+   "length": 4,
+   "semantics_head": "Compact 4-byte register move, byte+2 low-nibble 0 (const-zero / scope-prep source-class family). dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register -- ALWAYS",
+   "emittable": false,
+   "ever_generated_and_run": true,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (untested)",
+    "src_reg (untested)",
+    "src_flag (untested)",
+    "src_class (untested)",
+    "op_desc (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_class",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_desc",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_c1",
+   "length": 4,
+   "semantics_head": "Compact 4-byte register move, byte+2 low-nibble 1. dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (untested)",
+    "src_reg (untested)",
+    "src_flag (untested)",
+    "src_class (untested)",
+    "op_desc (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_class",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_desc",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_c9",
+   "length": 4,
+   "semantics_head": "Compact 4-byte register move, byte+2 low-nibble 9 (RT-query / matrix-marshalling source-class family). dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register; sr",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (untested)",
+    "src_reg (untested)",
+    "src_flag (untested)",
+    "src_class (untested)",
+    "op_desc (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_class",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_desc",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_cb",
+   "length": 4,
+   "semantics_head": "Compact 4-byte pack / bitcast / convert move, byte+2 low-nibble 0xb (0x0b/0x1b/0x2b/0x3b). Appears in conversions_pack / bitcast_vec / pack_norm and the 64-bit int helpers. Family-",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 4,
+   "blocking_fields": [
+    "dst (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "form",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "b3",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "b_alu14_c83",
+   "length": 14,
+   "semantics_head": "Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form), distinct from the iadd2/imad 0x9f/0x1f family (byte+2==0x54). ENCODING (typed, no traversal recipe): form-selector (b",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 13,
+   "blocking_fields": [
+    "form (tokenization-only)",
+    "reg_a (tokenization-only)",
+    "reg_b (tokenization-only)",
+    "fmt4 (tokenization-only)",
+    "src_lo (tokenization-only)",
+    "fmt6 (tokenization-only)",
+    "srcB_reg (tokenization-only)",
+    "rsv8 (tokenization-only)",
+    "rsv9 (tokenization-only)",
+    "fmt10 (tokenization-only)",
+    "rsv11 (tokenization-only)",
+    "srcU_reg (tokenization-only)",
+    "srcU_desc (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "form",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "reg_a",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "reg_b",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "fmt4",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_lo",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "fmt6",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcB_reg",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "rsv8",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "rsv9",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "fmt10",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "rsv11",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcU_reg",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcU_desc",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "int_alu_ehi",
+   "length": 10,
+   "semantics_head": "Integer address/index ALU (0xef, 10B), the std140 uniform->storage matrix-copy form. dst=byte+3 (reg). All other bytes are LOCATED but role-typed 'mod' (flag/op-select/source-descr",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 7,
+   "blocking_fields": [
+    "flags (tokenization-only)",
+    "dst (corpus-correlation)",
+    "opmode (tokenization-only)",
+    "b5 (tokenization-only)",
+    "srcdesc (tokenization-only)",
+    "srcB (tokenization-only)",
+    "srcC (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "flags",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "dst",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "opmode",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "b5",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcdesc",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcB",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    },
+    {
+     "name": "srcC",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "copysign",
+   "length": 4,
+   "semantics_head": "d = copysign(a, b) = |a| with the sign bit of b (float). 4 bytes: 07 c2 88 <ops>. byte0 0x07 low-nibble-7 sign-combine ALU op; byte+3 carries the src/dst register operand descripto",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 1,
+   "blocking_fields": [
+    "operands (untested)"
+   ],
+   "fields": [
+    {
+     "name": "operands",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "n4_rt_word",
+   "length": 4,
+   "semantics_head": "4-byte intersection_query-context compact op `04 <d> 20 80` (byte+1 = 0x22/0x42 destination selector). Emitted before an if_push / frame_marker / reg_move in the ray-query traversa",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 1,
+   "blocking_fields": [
+    "dst (tokenization-only)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "tokenization-only",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu_compact4",
+   "length": 4,
+   "semantics_head": "4-byte COMPACT float ALU (accumulate / move; arithmetic-enable bit clear). The compiler emits it interleaved with the 6-byte falu2 forms for reductions and fast-math seeds. byte+2 ",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (untested)",
+    "src (untested)",
+    "opsel (untested)",
+    "opmode (corpus-correlation)",
+    "operand (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "opsel",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "opmode",
+     "label": "corpus-correlation",
+     "emitter_grade": false
+    },
+    {
+     "name": "operand",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  },
+  {
+   "mnemonic": "shift_amt_move",
+   "length": 4,
+   "semantics_head": "4-byte compact low-nibble-b move that stages a SHIFT / ROTATE amount (byte+2 low nibble == 0xc; seen as 0x1c shift, 0x3c rotate). dst = byte0 high nibble (r0..r15, lo=b family conv",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "src_flag (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_reg",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "src_flag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "kind",
+     "label": "hardware-run",
+     "emitter_grade": true
+    },
+    {
+     "name": "op_desc",
+     "label": "hardware-run",
+     "emitter_grade": true
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_c2var",
+   "length": 4,
+   "semantics_head": "4-byte compact low-nibble-b register move, byte+2 high-nibble==2 residual (observed byte+2 in {0x22,0x23,0x24,0x26,0x2a}). The (byte+2 hi-nibble 2) 'compact scalar / call-argument ",
+   "emittable": false,
+   "ever_generated_and_run": false,
+   "n_fields": 5,
+   "blocking_fields": [
+    "dst (untested)",
+    "src_reg (untested)",
+    "src_flag (untested)",
+    "subform (untested)",
+    "op_desc (untested)"
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_reg",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "src_flag",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "subform",
+     "label": "untested",
+     "emitter_grade": false
+    },
+    {
+     "name": "op_desc",
+     "label": "untested",
+     "emitter_grade": false
+    }
+   ]
+  }
+ ],
+ "emittability_rule_defect": {
+  "defect": "the emittable rule reads only FIELD labels; it never reads the `_instruction` label, so an instruction whose own identity/semantics evidence is weaker than emitter-grade still counts as emittable",
+  "emittable_with_non_emitter_grade_instruction_label": [
+   "bf_add_dst",
+   "cvt_bf16",
+   "cvt_f2h_dst",
+   "cvt_i2f",
+   "falu3",
+   "falu3_ext",
+   "frag_depth_store",
+   "h_coord_hi",
+   "h_coord_hi_ext",
+   "hminmax",
+   "iter_flat",
+   "mov_imm",
+   "mov_zext16",
+   "n2_op6",
+   "psel",
+   "ret_luse",
+   "rtq_state_move",
+   "sel",
+   "sfu_marker",
+   "sr_read_wide",
+   "vtx_coord_xform"
+  ],
+  "count": 21,
+  "of_which_tokenization_only": [
+   "sfu_marker"
+  ],
+  "emittable_whose_own_descriptor_text_warns": [
+   "cvt_i2f",
+   "falu3",
+   "falu3_ext",
+   "fspecial",
+   "h_coord_hi_ext",
+   "hminmax",
+   "iminmax",
+   "isel10",
+   "iunary",
+   "mov_zext16",
+   "n2_op6",
+   "pixel_order",
+   "psel",
+   "sfu_marker",
+   "spill_frame_marker",
+   "sr_read_wide",
+   "tex_addr_setup",
+   "vtx_coord_xform"
+  ],
+  "rows": [
+   {
+    "mnemonic": "bf_add_dst",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "cvt_bf16",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "cvt_f2h_dst",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "cvt_i2f",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "compile-only"
+    ]
+   },
+   {
+    "mnemonic": "falu3",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "needs splice"
+    ]
+   },
+   {
+    "mnemonic": "falu3_ext",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "frag_depth_store",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "fspecial",
+    "_instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "compile-only"
+    ]
+   },
+   {
+    "mnemonic": "h_coord_hi",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "h_coord_hi_ext",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "hminmax",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "iminmax",
+    "_instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "compile-only",
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "isel10",
+    "_instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "needs splice",
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "iter_flat",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "iunary",
+    "_instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "catch-all",
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "mov_imm",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "mov_zext16",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "compile-only"
+    ]
+   },
+   {
+    "mnemonic": "n2_op6",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "catch-all",
+     "compile-only",
+     "needs-splice",
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "pixel_order",
+    "_instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "needs splice"
+    ]
+   },
+   {
+    "mnemonic": "psel",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "needs splice"
+    ]
+   },
+   {
+    "mnemonic": "ret_luse",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "rtq_state_move",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "sel",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": []
+   },
+   {
+    "mnemonic": "sfu_marker",
+    "_instruction_label": "tokenization-only",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "compile-only"
+    ]
+   },
+   {
+    "mnemonic": "spill_frame_marker",
+    "_instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "unknown",
+     "unresolved"
+    ]
+   },
+   {
+    "mnemonic": "sr_read_wide",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "compile-only",
+     "not hw"
+    ]
+   },
+   {
+    "mnemonic": "tex_addr_setup",
+    "_instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "descriptor_self_warnings": [
+     "unresolved"
+    ]
+   },
+   {
+    "mnemonic": "vtx_coord_xform",
+    "_instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "descriptor_self_warnings": [
+     "not hw"
+    ]
+   }
+  ]
+ }
+}

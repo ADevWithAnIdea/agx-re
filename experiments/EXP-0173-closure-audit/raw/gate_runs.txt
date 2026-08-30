@@ -1,0 +1,152 @@
+=== EXP-0173 gate transcript, frozen rev 2792d7ca, 2026-08-30T09:31:34Z ===
+
+----- CMD: python3 tools/agx-isa/validate_labels.py
+----- EXIT: 0
+
+  COVERAGE (only verdicts that recorded machine-readable counts)
+    rows with counts: 46 of 588 emitter-grade
+    THIN (dispatched < encodable range):
+      bf_alu.tail  dispatched 766 of 16777216
+OK: 172 instructions, 1062 fields, all labels valid.
+  hardware-run                507  (47.7%)
+  isolated-byte-diff           81  ( 7.6%)
+  corpus-correlation           91  ( 8.6%)
+  tokenization-only           150  (14.1%)
+  single-template-inference    19  ( 1.8%)
+  api-accept-reject             0  ( 0.0%)
+  host-private                  0  ( 0.0%)
+  untested                    214  (20.2%)
+
+  EMITTABILITY
+    old headline (every db.json descriptor):       35 / 172  (20.3%)
+    corrected (emitter-relevant instructions):     35 / 166  (21.1%)
+      denominator = 172 descriptors - 6 data words
+      data words excluded (own committed semantics say they are not
+      standalone hardware opcodes -- an emitter never emits one):
+        - operand_word
+        - operand_word_a2_01
+        - operand_word_x2_h5
+        - operand_word_x2_h6
+        - operand_word_x2_h7
+        - pad_operand
+    informational lower bound, NOT the headline:   35 / 162  (21.6%)
+      also setting aside 4 scaffolding descriptors EXP-0148 leaves
+      UNRESOLVED (3 continuation-word candidates + 1 unreachable):
+        - frame_marker_compact
+        - n2_compact2
+        - b_alu14_prep2
+        - cubearray_coord_const
+    zero-field descriptors (fully match-pinned, nothing to synthesize):
+        - n1_word                tokenization-only
+        - n2_compact2            tokenization-only
+        - n3_word                tokenization-only
+        - operand_word_a2_01     tokenization-only
+        - rtq_pred               tokenization-only
+      These are IN the denominator: `emittable` is decided by their
+      `_instruction` label, which is a validation.json decision, not a
+      db.json one. Reported so the label owner can rule on them.
+----- END
+
+----- CMD: python3 tools/agx-isa/match_overlap_report.py
+----- EXIT: 0
+fields overlapping their own descriptor match: 59
+  of those, ZERO free bits (one legal value -- not a field): 25
+  of those, carrying an EMITTER-GRADE label (vacuous claim): 16
+
+instr.field                          w  free  legal  label                instr emittable
+  coord_madf.op                        8     0      1  tokenization-only    
+  cvt_bf16.fmt                         8     0      1  hardware-run         yes
+  cvt_bf16.src                         8     0      1  hardware-run         yes
+  falu2_uni.uni_mode                   1     0      1  hardware-run         
+  funary.op                            8     0      1  untested             
+  funary_imm.form                      8     0      1  tokenization-only    
+  irotate.b1                           8     0      1  hardware-run         
+  iter.c7                              8     0      1  hardware-run         
+  link_save_restore.b1                 8     0      1  hardware-run         yes
+  link_save_restore.marker             8     0      1  hardware-run         yes
+  link_save_restore.scope              8     0      1  hardware-run         yes
+  pack_convert.fmt_class               8     0      1  hardware-run         
+  packed_half2_hi.opsel                8     0      1  hardware-run         
+  ray_move.form                        8     0      1  hardware-run         
+  ray_move_copy6.form                  8     0      1  hardware-run         
+  ray_move_zero6.form                  8     0      1  hardware-run         
+  ray_move_zinit.form                  8     0      1  corpus-correlation   
+  rt_intersect.subop                   8     0      1  isolated-byte-diff   
+  rt_transform_test.cmpmode            8     0      1  tokenization-only    
+  rt_transform_test.marker             8     0      1  tokenization-only    
+  rt_transform_test.subop              8     0      1  tokenization-only    
+  rtq_state_move.b3                    8     0      1  hardware-run         yes
+  rtq_state_move.form                  8     0      1  hardware-run         yes
+  tex_coord_setup.subop                8     0      1  untested             
+  tg_atomic_prep10.form                8     0      1  corpus-correlation   
+  falu2_ext.opsel                      3     1      2  hardware-run         
+  falu2_srcmod10.opsel                 3     1      2  corpus-correlation   
+  irotate.b2                           8     1      2  untested             
+  iter.grp                             8     1      2  hardware-run         
+  iter_at.grp                          8     1      2  untested             
+  tex_sample.kind                      4     1      2  hardware-run         
+  falu3_srcmod12.opsel                 3     2      4  untested             
+  falu_srcmod12b.opsel                 3     2      4  hardware-run         
+  fspecial_est.subop                   8     2      4  untested             
+  h_alu_hi.opsel                       3     2      4  hardware-run         
+  h_alu_hi_ext.opsel                   3     2      4  corpus-correlation   
+  h_alu_hi.opflags                     5     3      8  hardware-run         
+  h_alu_hi_ext.opflags                 5     3      8  untested             
+  cvt_f2h_dst.src                      8     4     16  hardware-run         yes
+  h_coord_hi.opsel                     8     4     16  hardware-run         yes
+  h_coord_hi_ext.opsel                 8     4     16  hardware-run         yes
+  operand_word_x2_h5.b0                8     4     16  tokenization-only    
+  operand_word_x2_h6.b0                8     4     16  tokenization-only    
+  operand_word_x2_h7.b0                8     4     16  tokenization-only    
+  reg_move_cb.form                     8     4     16  hardware-run         
+  shift_amt_move.kind                  8     4     16  hardware-run         
+  unpack_convert.src_class             8     4     16  untested             
+  operand_word_x2_h5.b1                8     6     64  tokenization-only    
+  operand_word_x2_h6.b1                8     6     64  tokenization-only    
+  operand_word_x2_h7.b1                8     6     64  tokenization-only    
+  pixel_order.scope                    8     6     64  hardware-run         yes
+  sr_read_wide.width                   8     6     64  hardware-run         yes
+  b_alu14_prep2.sel                    8     7    128  tokenization-only    
+  falu2_uni.usrc                       8     7    128  hardware-run         
+  falu3.op                             8     7    128  hardware-run         yes
+  falu3_ext.op                         8     7    128  hardware-run         yes
+  frag_sample_submit.b1                8     7    128  corpus-correlation   
+  ibitcount.form                       8     7    128  hardware-run         
+  vary_store.hint1                     8     7    128  untested             
+
+wrote /Users/user/asahi_re/public/agx-re/tools/agx-isa/match_overlap.json
+----- END
+
+----- CMD: python3 tools/agx-isa/roundtrip_test.py (baseline)
+----- EXIT: 0
+  [OK] merged_call 7 instrs: get_sr mov_imm frame_marker call ret call_indirect stop
+  [OK] h2add     7 instrs: get_sr device_load device_load half_alu half_pack device_store stop
+  [OK] u64add    10 instrs: get_sr device_load device_load iadd2 carry_gen psel iadd2 iadd2 device_store stop
+  [OK] nonleaf_frame 4 instrs: frame_prologue link_save_restore link_save_restore ret
+  [OK] bfaddu    7 instrs: get_sr device_load device_load bf_alu mov_zext16 device_store stop
+  [OK] bfmulu    7 instrs: get_sr device_load device_load bf_alu mov_zext16 device_store stop
+  [OK] ib_tile   5 instrs: get_sr imageblock_store imageblock_load mem_fence stop
+  [OK] rt_ops    7 instrs: rt_intersect rt_ray_mem rt_transform_test ray_move rt_as_load matrix_mac stop
+
+== (D) packed float immediate codec (K -> b1/sign -> K) ==
+  [OK] K=     0.0  b1=0x81 sign=0  decode=+0
+  [OK] K=  0.0625  b1=0x85 sign=0  decode=+0.0625
+  [OK] K=   0.125  b1=0x89 sign=0  decode=+0.125
+  [OK] K=    0.25  b1=0x91 sign=0  decode=+0.25
+  [OK] K=     0.5  b1=0xa1 sign=0  decode=+0.5
+  [OK] K=    0.75  b1=0xa9 sign=0  decode=+0.75
+  [OK] K=     1.0  b1=0xb1 sign=0  decode=+1
+  [OK] K=     1.5  b1=0xb9 sign=0  decode=+1.5
+  [OK] K=     2.0  b1=0xc1 sign=0  decode=+2
+  [OK] K=     3.0  b1=0xc9 sign=0  decode=+3
+  [OK] K=     3.5  b1=0xcd sign=0  decode=+3.5
+  [OK] K=     4.0  b1=0xd1 sign=0  decode=+4
+  [OK] K=     8.0  b1=0xe1 sign=0  decode=+8
+  [OK] K=    16.0  b1=0xf1 sign=0  decode=+16
+  [OK] K=    30.0  b1=0xff sign=0  decode=+30
+  [OK] K=    -1.0  b1=0xb1 sign=1  decode=-1
+  [OK] K=    -0.5  b1=0xa1 sign=1  decode=-0.5
+  [OK] K=    -2.0  b1=0xc1 sign=1  decode=-2
+
+ALL PASS
+----- END

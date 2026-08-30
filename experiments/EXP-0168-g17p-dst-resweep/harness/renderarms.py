@@ -394,7 +394,19 @@ FALSIFIERS = {
                   "NOT reproduce the baseline."),
         dict(id="F_mask_ff", mnemonic="frag_color_pack", field="src_present_mask",
              value=0xFF, predict="contained_fault", hazard="fault",
-             note="EXP-M4-14, HW-VALIDATED on A18: byte+7 == 0xff is an ILLEGAL "
+             once_per_carrier=True,
+             note="CROSS-TARGET REFUTATION, measured: on G17P this does NOT "
+                  "produce a contained fault -- it HANGS. 3 of 3 arms in "
+                  "raw/g17p_20260830_rrun01 (r_fcp1#0, r_fcp1#1, r_fcp1s#0). "
+                  "Its own pre-registration anticipated the possibility ('if it "
+                  "hangs instead, it counts against the arm's hang budget like "
+                  "any other hang'), and the consequence is budgetary: 8 "
+                  "frag_color_pack arms x 1 hang each would consume a third of "
+                  "MAX_HANGS_TOTAL before any other family ran. Now dispatched "
+                  "ONCE PER CARRIER rather than once per arm -- the finding is "
+                  "a property of the carrier, not of which occurrence is "
+                  "spliced. Original A18 claim, now refuted for G17P: "
+                  "EXP-M4-14, HW-VALIDATED on A18: byte+7 == 0xff is an ILLEGAL "
                   "encoding that produces a CONTAINED command-buffer fault (the "
                   "device survived). Pre-registered to FAULT, once per carrier. "
                   "It proves the harness can still see a fault, and it is a "
@@ -501,14 +513,23 @@ KNOWN_FAULT_VALUES = {
         # Deferring all four to the END of the order is what actually closes the
         # gap: 197..255 is banked BEFORE the hazardous values are touched, so a
         # reset costs the least remaining coverage instead of all of it.
-        "values": [192, 193, 194, 196],
+        # WIDENED AGAIN after rrun01 measured 195 and 197 hanging TOO. The
+        # hazardous band is CONTIGUOUS: 194,195,196,197 all hang on G17P
+        # (194/196 from the prefreeze smoke, 195/197 from rrun01). Deferring
+        # only 194/196 was not enough -- the sweep reached 195, hung, reached
+        # 197, hung, hit the two-hangs-per-field budget and stopped at 197,
+        # leaving 198..255 unswept for the THIRD time across three experiments.
+        # Deferring the whole 192..197 band is what finally banks 198..255.
+        "values": [192, 193, 194, 195, 196, 197],
         "expect": "192/193 contained fault (CMDBUF_ERROR, device survives); "
-                  "194/196 GENUINE HANG",
+                  "194,195,196,197 GENUINE HANG",
         "cite": "192,193: EXP-0155 raw/g17p_20260829_run03 + _run04, arms "
                 "fcp@pack0 and fcp@pack1, outcome `fault` in 4 of 4 "
                 "(arm, run) pairs, after which both runs stopped at 194. "
-                "194,196: EXP-0168 raw/prefreeze render smoke on G17P, "
-                "outcome `hang`, which is why EXP-0155 could never get past it.",
+                "194,196: EXP-0168 raw/prefreeze render smoke on G17P; "
+                "195,197: EXP-0168 raw/g17p_20260830_rrun01 on three arms "
+                "(r_fcp1#0, r_fcp1#1, r_fcp1s#0) -- outcome `hang`, which is "
+                "why EXP-0155 could never get past 194.",
         "coverage_gap": "194..255 had never been dispatched on any target; this "
                         "experiment dispatches 197..255 FIRST and the four "
                         "hazardous values last",
@@ -524,22 +545,38 @@ def arm_id(mnemonic, carrier, stage, occ):
     return "%s@%s/%s#%d" % (mnemonic, carrier, stage, occ)
 
 
-def coverage_for(width, defer=()):
+def coverage_for(width, defer=(), first=()):
     """FIELD-SWEEP-PROTOCOL sec.3: w <= 8 -> sweep ALL 2^w values, densely.
 
-    `defer` names pre-registered known-risky values, which are moved to the END
-    of the order so a reset costs the least remaining coverage.
+    `defer` names pre-registered known-risky values, moved to the END of the
+    order so a reset costs the least remaining coverage.
+
+    `first` names values that must be dispatched BEFORE anything else. This
+    exists for `iter_at.grp` and is not a nicety: that field's descriptor pins
+    bits 0..6, so only 0x2f and 0xaf are legal and the other 254 values are a
+    DIFFERENT INSTRUCTION, i.e. a decode desync that hangs the device. Under the
+    plain ascending order the sweep dispatches 0, hangs, dispatches 1, hangs,
+    hits the two-hangs-per-field budget and stops -- **without ever reaching
+    either legal value**. That is exactly what happened in
+    raw/g17p_20260830_rclean01 on both iter_at arms, and it is the same
+    self-perpetuating gap as frag_color_pack.dst 194..197: the hazard sits in
+    front of the thing you came to measure, so every run spends its budget
+    before it learns anything. Legal values first, hazardous region last.
     """
-    defer = list(defer)
+    defer, first = list(defer), list(first)
     if width <= 8:
-        vals = [v for v in range(1 << width) if v not in set(defer)]
-        return vals + [v for v in defer if v < (1 << width)]
+        lead = [v for v in first if v < (1 << width)]
+        seen = set(lead) | set(defer)
+        vals = [v for v in range(1 << width) if v not in seen]
+        return lead + vals + [v for v in defer if v < (1 << width)]
     vals = {0, 1, 2, (1 << width) - 2, (1 << width) - 1}
     vals |= {1 << i for i in range(width)}
     vals |= {(1 << i) - 1 for i in range(1, width)}
     vals |= {(k * 0x9E3779B1) & ((1 << width) - 1) for k in range(3, 60, 2)}
-    head = sorted(v for v in vals if v not in set(defer))
-    return head + [v for v in defer if v < (1 << width)]
+    lead = [v for v in first if v < (1 << width)]
+    skip = set(lead) | set(defer)
+    head = sorted(v for v in vals if v not in skip)
+    return lead + head + [v for v in defer if v < (1 << width)]
 
 
 def selftest():

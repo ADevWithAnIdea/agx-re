@@ -1,0 +1,579 @@
+=== tool gates, as published ===
+
+  COVERAGE (only verdicts that recorded machine-readable counts)
+    rows with counts: 46 of 588 emitter-grade
+    THIN (dispatched < encodable range):
+      bf_alu.tail  dispatched 766 of 16777216
+OK: 172 instructions, 1062 fields, all labels valid.
+  hardware-run                507  (47.7%)
+  isolated-byte-diff           81  ( 7.6%)
+  corpus-correlation           91  ( 8.6%)
+  tokenization-only           150  (14.1%)
+  single-template-inference    19  ( 1.8%)
+  api-accept-reject             0  ( 0.0%)
+  host-private                  0  ( 0.0%)
+  untested                    214  (20.2%)
+
+  EMITTABILITY
+    old headline (every db.json descriptor):       35 / 172  (20.3%)
+    corrected (emitter-relevant instructions):     35 / 166  (21.1%)
+      denominator = 172 descriptors - 6 data words
+      data words excluded (own committed semantics say they are not
+      standalone hardware opcodes -- an emitter never emits one):
+        - operand_word
+        - operand_word_a2_01
+        - operand_word_x2_h5
+        - operand_word_x2_h6
+        - operand_word_x2_h7
+        - pad_operand
+    informational lower bound, NOT the headline:   35 / 162  (21.6%)
+      also setting aside 4 scaffolding descriptors EXP-0148 leaves
+      UNRESOLVED (3 continuation-word candidates + 1 unreachable):
+        - frame_marker_compact
+        - n2_compact2
+        - b_alu14_prep2
+        - cubearray_coord_const
+    zero-field descriptors (fully match-pinned, nothing to synthesize):
+        - n1_word                tokenization-only
+        - n2_compact2            tokenization-only
+        - n3_word                tokenization-only
+        - operand_word_a2_01     tokenization-only
+        - rtq_pred               tokenization-only
+      These are IN the denominator: `emittable` is decided by their
+      `_instruction` label, which is a validation.json decision, not a
+      db.json one. Reported so the label owner can rule on them.
+fields overlapping their own descriptor match: 59
+  of those, ZERO free bits (one legal value -- not a field): 25
+  of those, carrying an EMITTER-GRADE label (vacuous claim): 16
+
+instr.field                          w  free  legal  label                instr emittable
+  coord_madf.op                        8     0      1  tokenization-only    
+  cvt_bf16.fmt                         8     0      1  hardware-run         yes
+  cvt_bf16.src                         8     0      1  hardware-run         yes
+  falu2_uni.uni_mode                   1     0      1  hardware-run         
+  funary.op                            8     0      1  untested             
+  funary_imm.form                      8     0      1  tokenization-only    
+  irotate.b1                           8     0      1  hardware-run         
+  iter.c7                              8     0      1  hardware-run         
+  link_save_restore.b1                 8     0      1  hardware-run         yes
+  link_save_restore.marker             8     0      1  hardware-run         yes
+  link_save_restore.scope              8     0      1  hardware-run         yes
+  pack_convert.fmt_class               8     0      1  hardware-run         
+  packed_half2_hi.opsel                8     0      1  hardware-run         
+  ray_move.form                        8     0      1  hardware-run         
+  ray_move_copy6.form                  8     0      1  hardware-run         
+  ray_move_zero6.form                  8     0      1  hardware-run         
+  ray_move_zinit.form                  8     0      1  corpus-correlation   
+  rt_intersect.subop                   8     0      1  isolated-byte-diff   
+  rt_transform_test.cmpmode            8     0      1  tokenization-only    
+  rt_transform_test.marker             8     0      1  tokenization-only    
+  rt_transform_test.subop              8     0      1  tokenization-only    
+  rtq_state_move.b3                    8     0      1  hardware-run         yes
+  rtq_state_move.form                  8     0      1  hardware-run         yes
+  tex_coord_setup.subop                8     0      1  untested             
+  tg_atomic_prep10.form                8     0      1  corpus-correlation   
+  falu2_ext.opsel                      3     1      2  hardware-run         
+  falu2_srcmod10.opsel                 3     1      2  corpus-correlation   
+  irotate.b2                           8     1      2  untested             
+  iter.grp                             8     1      2  hardware-run         
+  iter_at.grp                          8     1      2  untested             
+  tex_sample.kind                      4     1      2  hardware-run         
+  falu3_srcmod12.opsel                 3     2      4  untested             
+  falu_srcmod12b.opsel                 3     2      4  hardware-run         
+  fspecial_est.subop                   8     2      4  untested             
+  h_alu_hi.opsel                       3     2      4  hardware-run         
+  h_alu_hi_ext.opsel                   3     2      4  corpus-correlation   
+  h_alu_hi.opflags                     5     3      8  hardware-run         
+  h_alu_hi_ext.opflags                 5     3      8  untested             
+  cvt_f2h_dst.src                      8     4     16  hardware-run         yes
+  h_coord_hi.opsel                     8     4     16  hardware-run         yes
+  h_coord_hi_ext.opsel                 8     4     16  hardware-run         yes
+  operand_word_x2_h5.b0                8     4     16  tokenization-only    
+  operand_word_x2_h6.b0                8     4     16  tokenization-only    
+  operand_word_x2_h7.b0                8     4     16  tokenization-only    
+  reg_move_cb.form                     8     4     16  hardware-run         
+  shift_amt_move.kind                  8     4     16  hardware-run         
+  unpack_convert.src_class             8     4     16  untested             
+  operand_word_x2_h5.b1                8     6     64  tokenization-only    
+  operand_word_x2_h6.b1                8     6     64  tokenization-only    
+  operand_word_x2_h7.b1                8     6     64  tokenization-only    
+  pixel_order.scope                    8     6     64  hardware-run         yes
+  sr_read_wide.width                   8     6     64  hardware-run         yes
+  b_alu14_prep2.sel                    8     7    128  tokenization-only    
+  falu2_uni.usrc                       8     7    128  hardware-run         
+  falu3.op                             8     7    128  hardware-run         yes
+  falu3_ext.op                         8     7    128  hardware-run         yes
+  frag_sample_submit.b1                8     7    128  corpus-correlation   
+  ibitcount.form                       8     7    128  hardware-run         
+  vary_store.hint1                     8     7    128  untested             
+
+wrote /Users/user/asahi_re/public/agx-re/tools/agx-isa/match_overlap.json
+# Emitter worklist — what to sweep next
+
+**Generated by `tools/agx-isa/emit_worklist.py`; do not hand-edit.**
+
+The emittability headline counts instructions an implementer can emit. This file answers the question a dispatch actually needs: *which field do I sweep to move the next instruction across the line.* Ordered closest-first.
+
+A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/evidence-classification.md`). Promotion requires two gated runs at **>=99%% per-value cross-run agreement AND movement >= 2x the disagreement count** — and a field that never moves is only promotable if the carriers differ **in the dimension the field controls**. Two carriers identical in that dimension are one carrier (EXP-0164; `iter_at.loc` read inert only because every carrier was `samples=1`).
+
+| emittable | blocked | total emitter-relevant |
+|---:|---:|---:|
+| 35 | 131 | 166 |
+
+## Distance to emittable
+
+| blocking fields | instructions |
+|---:|---:|
+| 0 | 4 |
+| 1 | 32 |
+| 2 | 26 |
+| 3 | 18 |
+| 4 | 13 |
+| 5 | 13 |
+| 6 | 8 |
+| 7 | 5 |
+| 8 | 2 |
+| 9 | 2 |
+| 10 | 1 |
+| 11 | 4 |
+| 12 | 1 |
+| 13 | 2 |
+  [OK] K=    -2.0  b1=0xc1 sign=1  decode=-2
+
+ALL PASS
+  - EXP-0169-g17p-rerecord: ibitcount.dst would WEAKEN hardware-run -> untested; rerun with --allow-downgrade only after deciding whether this is a real refutation
+
+applied 637 field verdicts, skipped 228
+emitter-grade: 588 -> 692 fields
+emittable instructions: 35 -> 66
+  now emittable: atomic_mem, atomic_tg, bf_add_dst, bf_alu, carry_gen, copysign, cvt_bf16, cvt_f2h, cvt_f2h_dst, cvt_f2i, cvt_i2f, cvt_i2f_src, device_load, device_store, falu2, falu2_ext, falu2_uni, falu3, falu3_ext, falu_acc, frag_depth_store, frame_prologue, fspecial, fspecial_est, h_coord_hi, h_coord_hi_ext, half_alu, half_alu_ext8, half_pack, hminmax, iadd2, ibfe, ibitcount, iminmax, irotate, isel10, isel8, ishift, iter_flat, iunary, jump_cond, link_save_restore, mov_imm, mov_zext16, n2_op6, n3_mov, pack_convert, pixel_order, pop_reconverge, psel, ray_move, ray_move_copy6, ray_move_zero6, ret_luse, rtq_state_move, sel, sfu_marker, shift_amt_move, simd_reduce, spill_frame_marker, sr_read_wide, stop, tex_addr_setup, threadgroup_barrier, uniform_mov, vtx_coord_xform
+
+--dry-run: validation.json NOT written
+=== EXP-0173 analyses ===
+[roundtrip] baseline exit=0 pass=True
+[roundtrip] M1 bare-OR assemble: exit=0 ALLPASS=True
+[roundtrip] M2 zeroed operands: exit=1 ALLPASS=False
+[roundtrip] M3 falu3 srcA<->srcB swap: exit=0 ALLPASS=True
+[validate_labels] baseline exit=0
+[validate_labels] V1 fabricated promotion of falu2.dst: exit=1
+[validate_labels] V1b coverage-corrected fabrication: exit=1
+[validate_labels] V1c full-arithmetic fabrication: exit=0 PASS=True
+[merge_verdicts] baseline --dry-run exit=1
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/gate_sensitivity.json
+  roundtrip_test.py                  none (baseline)                                                          baseline passes
+  roundtrip_test.py                  M1: assemble() reverted to bare-OR (DEF-0166-1) — cannot clear a bit     INSENSITIVE — a provably broken assembler passes
+  roundtrip_test.py                  M2: assemble() forces dst/srcA/src to 0 (operand silently dropped)       sensitive (suite failed)
+  roundtrip_test.py                  M3: db.json copy with falu3.srcA <-> srcB swapped (the fspecial defect c INSENSITIVE — an operand SWAP is invisible to a symmetric ro
+  validate_labels.py                 none (baseline)                                                          baseline passes (exit 0)
+  validate_labels.py                 V1: falu2.dst promoted untested -> hardware-run with a NON-EXISTENT evid fails, but check WHY (coverage arithmetic, not evidence exis
+  validate_labels.py                 V1b: same fabricated promotion, coverage block recomputed so ONLY the ev sensitive
+  validate_labels.py                 V1c: fabricated hardware-run promotion of falu2.dst, ALL coverage arithm INSENSITIVE — an emitter-grade label citing a NON-EXISTENT r
+  work/merge_verdicts.py --dry-run   none (baseline over every EXP-01*/analysis/field_verdicts.json)          see stdout_tail
+{
+ "experiment": "EXP-0173",
+ "source": "PROVENANCE.md",
+ "reverse_chain_committed_experiments_without_a_row": 36,
+ "reverse_chain_CODEX_S9_violations": 11,
+ "reverse_chain_violating_experiments": [
+  "EXP-0068",
+  "EXP-0078",
+  "EXP-0080",
+  "EXP-0104",
+  "EXP-0105",
+  "EXP-0106",
+  "EXP-0111",
+  "EXP-0114",
+  "EXP-0115",
+  "EXP-0142",
+  "EXP-0170"
+ ],
+ "rows": 171,
+ "artifacts_exist_true": 168,
+ "artifacts_exist_false": 3,
+ "claim_reproduced_true": 5,
+ "claim_reproduced_false": 4,
+ "claim_not_mechanically_checkable": 162,
+ "limitation": "pure analysis: no hardware re-run is possible here, so claim_reproduced:true means the cited artifact contains the claimed literal, never that the hardware was re-observed"
+}
+
+=== ROWS WITH MISSING EVIDENCE (the worst finding class) ===
+
+L17 [2026-07-06] Target is Apple A18 Pro, SoC T8140, macOS 26.6 (25G5043d), 5 GPU cores, Metal 4 / feature family Apple9 max
+     - row cites NO experiment id and NO path artifact
+     - claim NOT reproducible: its evidence is missing
+
+L18 [2026-07-06] Runtime MSL compilation (`newLibraryWithSource:`) works with Command Line Tools only (no full Xcode / `metal` 
+     - row cites NO experiment id and NO path artifact
+     - claim NOT reproducible: its evidence is missing
+
+L104 [2026-07-07] **✅ agx3.xml (W3):** 75-descriptor DB rendered into Mesa src/asahi/isa/AGX2.xml schema (117 ins / 10 group / 3
+     - row cites NO experiment id and NO path artifact
+     - claim NOT reproducible: its evidence is missing
+
+=== REVERSE CHAIN: committed experiments with NO PROVENANCE.md row ===
+  36 total; 11 of them are cited in docs/ (CODEX section 9 violations):
+    EXP-0068  (experiments/EXP-0068-m4-robustness-contract)
+    EXP-0078  (experiments/EXP-0078-m4-base-slot-census)
+    EXP-0080  (experiments/EXP-0080-m4-mem-offset-semantics)
+    EXP-0104  (experiments/EXP-0104-m4-controlflow-simd)
+    EXP-0105  (experiments/EXP-0105-m4-encoding-registers)
+    EXP-0106  (experiments/EXP-0106-m4-texture-isa-semantics)
+    EXP-0111  (experiments/EXP-0111-m4-fragment-semantics)
+    EXP-0114  (experiments/EXP-0114-m4-texture-deferred)
+    EXP-0115  (experiments/EXP-0115-m4-controlflow-simd-deferred)
+    EXP-0142  (experiments/EXP-0142-m4-emit-tex)
+    EXP-0170  (experiments/EXP-0170-assemble-coverage-audit)
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/provenance_audit.json
+{
+ "experiment": "EXP-0173",
+ "question": "for how much of the emittable set can an implementer generate an encoding without a captured Apple template",
+ "emittable_set_size": 35,
+ "generated_corpus_size": 18,
+ "intersection": [
+  "isel10",
+  "mov_imm",
+  "pop_reconverge",
+  "stop"
+ ],
+ "intersection_size": 4,
+ "emittable_but_never_generated": [
+  "bf_add_dst",
+  "bf_alu",
+  "carry_gen",
+  "cvt_bf16",
+  "cvt_f2h_dst",
+  "cvt_i2f",
+  "falu3",
+  "falu3_ext",
+  "frag_depth_store",
+  "frame_prologue",
+  "fspecial",
+  "h_coord_hi",
+  "h_coord_hi_ext",
+  "hminmax",
+  "iminmax",
+  "iter_flat",
+  "iunary",
+  "link_save_restore",
+  "mov_zext16",
+  "n2_op6",
+  "pixel_order",
+  "psel",
+  "ret_luse",
+  "rtq_state_move",
+  "sel",
+  "sfu_marker",
+  "simd_reduce",
+  "spill_frame_marker",
+  "sr_read_wide",
+  "tex_addr_setup",
+  "vtx_coord_xform"
+ ],
+ "generated_but_not_emittable": [
+  "device_load",
+  "device_store",
+  "falu2",
+  "falu2i",
+  "get_sr",
+  "iadd2",
+  "icmp_pred",
+  "if_push",
+  "if_push_pred",
+  "jump",
+  "jump_cond",
+  "reg_move_c0",
+  "ret",
+  "scoreboard_fence"
+ ],
+ "verdict_counts": {
+  "EMITTABLE-NOT-GENERATED": 31,
+  "PARTLY-DONOR": 3,
+  "GENERATED-NOT-EMITTABLE": 2,
+  "DONOR-DEPENDENT": 11,
+  "GENERATED-AND-EMITTABLE": 2
+ },
+ "donor_only_mnemonics": [
+  "get_sr",
+  "icmp_pred",
+  "if_push",
+  "if_push_pred",
+  "isel10",
+  "jump",
+  "jump_cond",
+  "pop_reconverge",
+  "reg_move_c0",
+  "ret",
+  "scoreboard_fence"
+ ],
+ "donor_only_that_are_labelled_EMITTABLE": [
+  "isel10",
+  "pop_reconverge"
+ ],
+ "donor_token_pairs_total": 81,
+ "EXP0167_headline": {
+  "zero_copied_and_correct": 233,
+  "of_those_resting_on_PUBLISHED_RULES_ONLY": 60,
+  "of_those_containing_at_least_one_PILOT_field": 173,
+  "cases_still_needing_a_donor": 24,
+  "pilot_field_census": {
+   "falu2.mod_hi": 163,
+   "iadd2.b2_bit0": 16,
+   "iadd2.b2_fmt": 16,
+   "iadd2.opc_tail": 16,
+   "iadd2.opc_tail2": 16,
+   "iadd2.opmode": 16,
+   "iadd2.srcA": 16,
+   "iadd2.srcB_ext": 16,
+   "iadd2.srcB_reg_hi": 16,
+   "iadd2.store_en": 16
+  },
+  "reading": "PILOT means EXP-0167 measured the field's accepted set itself in its own pre-freeze pilot, because NO PRIOR RULE EXISTED. So only 60 of the 233 rest on rules an implementer could have read out of earlier work; the other 173 rest on a value this experiment had to measure, and for 163 of them that value is ONE field, falu2.mod_hi."
+ },
+ "sources": {
+  "emittable": "tools/agx-isa/validation.json coverage.emittable_mnemonics",
+  "generated": "experiments/EXP-0167-g17p-synthesis-reconfirm/analysis/assemble_defect_check.json mnemonics_used",
+  "donor": "EXP-0167 RESULTS.md sections 5.7 and 6"
+ },
+ "limitation": "membership in the generated corpus is per MNEMONIC. It does not mean every field of that mnemonic was swept inside a generated program; EXP-0167 used 2,396 distinct (mnemonic, field-values) pairs across 18 mnemonics, not the full operand space of any of them."
+}
+
+mnemonic                 verdict                    emit?  gen?   unmeasured
+get_sr                   DONOR-DEPENDENT            -      G      6
+icmp_pred                DONOR-DEPENDENT            -      G      4
+if_push                  DONOR-DEPENDENT            -      G      1
+if_push_pred             DONOR-DEPENDENT            -      G      2
+isel10                   DONOR-DEPENDENT            E      G      0
+jump                     DONOR-DEPENDENT            -      G      2
+jump_cond                DONOR-DEPENDENT            -      G      2
+pop_reconverge           DONOR-DEPENDENT            E      G      0
+reg_move_c0              DONOR-DEPENDENT            -      G      5
+ret                      DONOR-DEPENDENT            -      G      1
+scoreboard_fence         DONOR-DEPENDENT            -      G      3
+bf_add_dst               EMITTABLE-NOT-GENERATED    E      -      0
+bf_alu                   EMITTABLE-NOT-GENERATED    E      -      0
+carry_gen                EMITTABLE-NOT-GENERATED    E      -      0
+cvt_bf16                 EMITTABLE-NOT-GENERATED    E      -      0
+cvt_f2h_dst              EMITTABLE-NOT-GENERATED    E      -      0
+cvt_i2f                  EMITTABLE-NOT-GENERATED    E      -      0
+falu3                    EMITTABLE-NOT-GENERATED    E      -      0
+falu3_ext                EMITTABLE-NOT-GENERATED    E      -      0
+frag_depth_store         EMITTABLE-NOT-GENERATED    E      -      0
+frame_prologue           EMITTABLE-NOT-GENERATED    E      -      0
+fspecial                 EMITTABLE-NOT-GENERATED    E      -      0
+h_coord_hi               EMITTABLE-NOT-GENERATED    E      -      0
+h_coord_hi_ext           EMITTABLE-NOT-GENERATED    E      -      0
+hminmax                  EMITTABLE-NOT-GENERATED    E      -      0
+iminmax                  EMITTABLE-NOT-GENERATED    E      -      0
+iter_flat                EMITTABLE-NOT-GENERATED    E      -      0
+iunary                   EMITTABLE-NOT-GENERATED    E      -      0
+link_save_restore        EMITTABLE-NOT-GENERATED    E      -      0
+mov_zext16               EMITTABLE-NOT-GENERATED    E      -      0
+n2_op6                   EMITTABLE-NOT-GENERATED    E      -      0
+pixel_order              EMITTABLE-NOT-GENERATED    E      -      0
+psel                     EMITTABLE-NOT-GENERATED    E      -      0
+ret_luse                 EMITTABLE-NOT-GENERATED    E      -      0
+rtq_state_move           EMITTABLE-NOT-GENERATED    E      -      0
+sel                      EMITTABLE-NOT-GENERATED    E      -      0
+sfu_marker               EMITTABLE-NOT-GENERATED    E      -      0
+simd_reduce              EMITTABLE-NOT-GENERATED    E      -      0
+spill_frame_marker       EMITTABLE-NOT-GENERATED    E      -      0
+sr_read_wide             EMITTABLE-NOT-GENERATED    E      -      0
+tex_addr_setup           EMITTABLE-NOT-GENERATED    E      -      0
+vtx_coord_xform          EMITTABLE-NOT-GENERATED    E      -      0
+mov_imm                  GENERATED-AND-EMITTABLE    E      G      0
+stop                     GENERATED-AND-EMITTABLE    E      G      0
+device_store             GENERATED-NOT-EMITTABLE    -      G      3
+falu2                    GENERATED-NOT-EMITTABLE    -      G      1
+device_load              PARTLY-DONOR               -      G      4
+falu2i                   PARTLY-DONOR               -      G      6
+iadd2                    PARTLY-DONOR               -      G      2
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/template_dependency.json
+{
+ "experiment": "EXP-0173",
+ "question": "should the 25 zero-free-bit fields be folded into `match`?",
+ "AS_PUBLISHED": {
+  "emitter_grade": 588,
+  "total_fields": 1062,
+  "emittable_instructions": 35,
+  "emitter_relevant_instructions": 166,
+  "headline": "588 / 1062 fields; 35 of 166 instructions"
+ },
+ "FOLD_ZERO_FREE_BIT_FIELDS": {
+  "emitter_grade": 572,
+  "total_fields": 1037,
+  "emittable_instructions": 35,
+  "emitter_relevant_instructions": 166,
+  "headline": "572 / 1037 fields; 35 of 166 instructions",
+  "delta_emitter_grade": -16,
+  "delta_total_fields": -25,
+  "delta_emittable": 0,
+  "newly_emittable": [],
+  "no_longer_emittable": []
+ },
+ "ALSO_FOLD_PARTIALLY_PINNED": {
+  "emitter_grade": 555,
+  "total_fields": 1003,
+  "emittable_instructions": 37,
+  "emitter_relevant_instructions": 166,
+  "headline": "555 / 1003 fields; 37 of 166 instructions",
+  "caution": "NOT recommended: a partially pinned field still has a real choice, just a narrower one. The fix there is to correct start/width, not to delete the field."
+ },
+ "zero_free_bit_fields": 25,
+ "zero_free_bit_fields_carrying_emitter_grade": 16,
+ "zero_free_bit_fields_inside_currently_emittable_instructions": 7,
+ "partially_pinned_fields": 34
+}
+
+ZERO-FREE-BIT FIELDS INSIDE CURRENTLY-EMITTABLE INSTRUCTIONS:
+  link_save_restore.b1               w=8  label=hardware-run
+  link_save_restore.marker           w=8  label=hardware-run
+  link_save_restore.scope            w=8  label=hardware-run
+  cvt_bf16.src                       w=8  label=hardware-run
+  cvt_bf16.fmt                       w=8  label=hardware-run
+  rtq_state_move.form                w=8  label=hardware-run
+  rtq_state_move.b3                  w=8  label=hardware-run
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/vacuous_fields.json
+{
+ "experiment": "EXP-0173",
+ "question": "which descriptor fields cannot do what their name promises",
+ "decisive_defects": 3,
+ "decisive_defects_by_test": {
+  "P1 ": 1,
+  "P1c": 2,
+  "P4": 0,
+  "P5": 0
+ },
+ "decisive_defects_in_emittable_instructions": 2,
+ "decisive_defects_beyond_the_four_known": 2,
+ "advisories": 36,
+ "advisories_in_emittable_instructions": 10,
+ "note": "A1 advisories are NOT presented as defects: a 4-bit dst nibble is a real AGX compact-form encoding. They are the places where the descriptor caps an operand and the normative doc must say so explicitly."
+}
+
+=== DECISIVE: a named operand field that cannot be an operand ===
+instr.field                        test                   emit?  label                in README?
+cvt_bf16.src                       P1 ZERO FREE BITS      YES    hardware-run         yes
+cvt_f2h_dst.src                    P1c PARTIALLY PINNED   YES    hardware-run         yes
+falu2_uni.usrc                     P1c PARTIALLY PINNED   -      hardware-run         yes
+
+=== ADVISORY: narrow register field with no extension sibling ===
+bf_add_dst.dst                     free=4 cap=r0..r15  EMIT  hardware-run
+cvt_bf16.dst                       free=4 cap=r0..r15  EMIT  hardware-run
+cvt_f2h_dst.dst                    free=4 cap=r0..r15  EMIT  hardware-run
+falu3.dst                          free=4 cap=r0..r15  EMIT  hardware-run
+h_coord_hi.dst                     free=4 cap=r0..r15  EMIT  hardware-run
+hminmax.dst                        free=4 cap=r0..r15  EMIT  hardware-run
+iminmax.dst                        free=4 cap=r0..r15  EMIT  hardware-run
+mov_imm.dst                        free=4 cap=r0..r15  EMIT  hardware-run
+n2_op6.dst                         free=4 cap=r0..r15  EMIT  hardware-run
+rtq_state_move.dst                 free=4 cap=r0..r15  EMIT  hardware-run
+b_alu14_prep2.dst                  free=4 cap=r0..r15        tokenization-only
+bf_alu8_var.dst                    free=4 cap=r0..r15        tokenization-only
+bf_fma_dst.dst                     free=4 cap=r0..r15        hardware-run
+bf_mul_dst.dst                     free=4 cap=r0..r15        untested
+falu_acc.dst                       free=4 cap=r0..r15        hardware-run
+fldexp.dst                         free=4 cap=r0..r15        tokenization-only
+fspecial_est.dst                   free=4 cap=r0..r15        hardware-run
+funary_imm.dst                     free=4 cap=r0..r15        untested
+h_alu_hi.dst                       free=4 cap=r0..r15        hardware-run
+n2_op10.dst                        free=4 cap=r0..r15        isolated-byte-diff
+n2_op8.dst                         free=4 cap=r0..r15        tokenization-only
+n3_addr_prep.dst                   free=4 cap=r0..r15        corpus-correlation
+n3_mov.dst                         free=4 cap=r0..r15        corpus-correlation
+packed_half2_hi.dst                free=4 cap=r0..r15        hardware-run
+ray_move.dst                       free=4 cap=r0..r15        untested
+ray_move_copy6.dst                 free=4 cap=r0..r15        untested
+ray_move_zero6.dst                 free=4 cap=r0..r15        untested
+ray_move_zinit.dst                 free=4 cap=r0..r15        untested
+reg_move_c2var.dst                 free=4 cap=r0..r15        untested
+reg_move_cb.dst                    free=4 cap=r0..r15        untested
+rt_query_traverse.dst              free=4 cap=r0..r15        untested
+rt_query_traverse2.dst             free=4 cap=r0..r15        tokenization-only
+shift_amt_move.dst                 free=4 cap=r0..r15        hardware-run
+tg_atomic_prep10.dst               free=4 cap=r0..r15        corpus-correlation
+uniform_mov.dst                    free=4 cap=r0..r15        untested
+vtx_out_pos.dst                    free=4 cap=r0..r15        untested
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/operand_sanity.json
+{
+ "experiment": "EXP-0173",
+ "rows_parsed": 16,
+ "rows_the_board_marks_CLOSED": 0,
+ "rule2_MET": 10,
+ "rule3_MET": 13,
+ "rule5_MET": 6,
+ "completion_gate": "NOT PASSED \u2014 the gate requires all sixteen rows CLOSED"
+}
+
+row    board     rule2   rule3   rule5   gaps
+P0.1   OPEN      MET     MET     NOT MET EXP-0041 RESULTS has no adversarial/second-method text
+P0.2   OPEN      MET     MET     MET     
+P0.3   OPEN      NOT MET MET     NOT MET EXP-0044 missing manifest.json,derived analysis; EXP-0126 missing derived analysis; EXP-0043 RESULTS has no adversarial/second-method text; EXP-0044 R
+P0.4   OPEN      MET     MET     MET     
+P0.5   OPEN      MET     MET     NOT MET EXP-0043 RESULTS has no adversarial/second-method text; EXP-0049 RESULTS has no adversarial/second-method text
+P0.6   OPEN      NOT MET NOT MET NOT MET EXP-0170 missing raw/ (non-empty); EXP-0170 absent from PROVENANCE.md; EXP-0046 RESULTS has no adversarial/second-method text; EXP-0060 RESULTS has no
+P0.7   OPEN      MET     MET     MET     
+P0.8   OPEN      NOT MET NOT MET NOT MET 
+P1.1   OPEN      MET     MET     MET     
+P1.2   OPEN      MET     MET     NOT MET EXP-0070 RESULTS has no adversarial/second-method text
+P1.3   OPEN      NOT MET MET     NOT MET EXP-0063 missing manifest.json,derived analysis; EXP-0066 missing manifest.json,derived analysis; EXP-0066 RESULTS has no adversarial/second-method te
+P1.4   OPEN      NOT MET MET     NOT MET EXP-0093 missing derived analysis; EXP-0051 RESULTS has no adversarial/second-method text
+P1.5   OPEN      MET     NOT MET NOT MET EXP-0068 absent from PROVENANCE.md; EXP-0068 RESULTS has no adversarial/second-method text
+P1.6   OPEN      MET     MET     MET     
+P1.7   OPEN      MET     MET     NOT MET EXP-0053 RESULTS has no adversarial/second-method text
+P1.8   OPEN      NOT MET MET     MET     EXP-0047 missing derived analysis
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/closure_rules.json
+{
+ "experiment": "EXP-0173",
+ "claim_under_test": "docs/compiler-readiness.md: the first blocker is nir_op_mov, because there is no validated GPR-to-GPR move",
+ "verdict": "CLAIM STILL HOLDS. No descriptor that moves one GPR to a DIFFERENT GPR is emittable. `mov_zext16` is emittable but its own committed semantics say it operates IN PLACE on ONE register used as both source and destination, so it cannot implement a copy. `uniform_mov` reads the uniform file, not a GPR, and is not emittable anyway. `n3_mov` is the real candidate and is blocked.",
+ "move_candidates": 49,
+ "emittable_move_candidates": [
+  "n2_op6"
+ ],
+ "emittable_move_candidates_REJECTED": [
+  {
+   "mnemonic": "n2_op6",
+   "why": "descriptor's own text says the operand value maps are unresolved ('needs-splice'), so no rule exists for WHICH value moves which register"
+  }
+ ],
+ "generated_and_run": [
+  "device_load",
+  "device_store",
+  "falu2",
+  "falu2i",
+  "get_sr",
+  "iadd2",
+  "icmp_pred",
+  "if_push",
+  "if_push_pred",
+  "isel10",
+  "jump",
+  "jump_cond",
+  "mov_imm",
+  "pop_reconverge",
+  "reg_move_c0",
+  "ret",
+  "scoreboard_fence",
+  "stop"
+ ],
+ "emittable_total": 35
+}
+
+mnemonic             emit?  ran?   flds blocking fields
+n2_op6               YES    -      6    (none)
+n3_mov               -      -      5    dst (corpus-correlation), srcA_reg (corpus-correlation), srcA_uni (corpus-correlation)
+ray_move             -      -      4    dst (untested), src (untested)
+reg_move_c0          -      YES    5    dst (untested), src_reg (untested), src_flag (untested), src_class (untested), op_desc (untested)
+reg_move_c2var       -      -      5    dst (untested), src_reg (untested), src_flag (untested), subform (untested), op_desc (untested)
+reg_move_cb          -      -      4    dst (untested)
+shift_amt_move       -      -      5    src_flag (untested)
+uniform_mov          -      -      2    dst (untested)
+
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0173-closure-audit/analysis/compiler_readiness.json
+=== done; JSON reports are in experiments/EXP-0173-closure-audit/analysis/ ===

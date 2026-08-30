@@ -30,24 +30,29 @@
  },
  "authored_sha256_refrozen": {
   "PRE_REGISTRATION.md": "f76f699367a55b1a2517c5640ab219e031855d854ab28f08a8bf43a8122a2ee4",
+  "analysis/render_verdicts.py": "1fdfdadabab87af2fa7c1a136b1554c3d963242c0cba120abc1d5c53a733f489",
   "analysis/rescore_0144.py": "e580e73b127a24d5f33140b0b03c14e501b1559c1b84f9d4f2767dd518e9eaf8",
-  "analysis/verdicts.py": "25b4018358ff14b2c5b520b207f91ce223068c2eaec4b41207f8ec10342ebfae",
+  "analysis/verdicts.py": "5fcbf401f1108530ece158b65d8b9688e60e46f476fe73d115bfa78cb5a1d657",
   "harness/anchors.py": "d68a86a00fe5e7fc80c25e49126bd2557452b2dda6a422182f0aa82800edafec",
   "harness/casematrix.py": "c304c0b1260cd8c50e733c5147d56963a99419f29571fda8244c4a5567b2847f",
   "harness/dryrun.py": "d8f45a43946adedbce29575df7abb6347ab5b52ea2d377841a0f52dc026c9b19",
   "harness/gfrun3.m": "22029a9330b20a57a5c4d77b313b1df8dc1a3d30057646d15f5fd1e1d9ec3897",
   "harness/gpuwatch.py": "fc4f7ff8d61921e60d63e0ebd74c112193badc6f7724d213e61f9677b7762274",
   "harness/isa_helpers.py": "dc4cec563fd766aacb3d6c624a3b30ff8d62acbdbfc39884a5448d4bf0d0acfe",
-  "harness/run.py": "f9300190d161c5b4712e1f2c09c7b756f63ccf3e4c29d837e47f448af54cd4dc",
+  "harness/renderarms.py": "00fd51ae72121011bc4bcfdfc1160818a68e08ed87d4dbdabbaeddcbbe020d68",
+  "harness/rendercarriers.py": "3ecfb8c7b887e763f013b9e66f318c884be98652fd3c525b8324db0ed1774ea7",
+  "harness/renderrun.py": "f7ea202babc8432af4c94b978834c3880b2fc54541a47f91286c6c012640ff99",
+  "harness/run.py": "3d5baabc9e7598232be14491f8fd9ca656c75cb3f06792fcef9e939d5d903aea",
   "harness/runner3.py": "e73103238d14bc0c9e0e7017ce96a563d81f5362afb8fee611af1d342abd9cfe",
   "harness/smoke.py": "86df16942c3ab6ce1e6b7b004dae458865a519372f5ea481e459ffd54b16b1d5",
-  "harness/sweeprun.py": "938aa538f14fbcfcd4e13ad2f67b5802a2b88cb4deb954c5ef64f4379564e9bf",
+  "harness/sweeprun.py": "a9ea92a5cc770aef60ed236840f7769a463368831990ea9d408745c98e6e85c9",
   "harness/sync.sh": "ef0d9faec1244ea001cf5f6b06387c323f129afb08dd56d353ecceeedc19f528",
   "kernels/carrier_dag.metal": "c9e4fb93d48c96a1369790d0bd11b44b6f211ae4dfeffeb6d710a74653c26449",
   "kernels/probes.metal": "d20ac3760474fb0b60369f0155dda6fc35fd366b7e8f6f17cf3d3c6d85957e5f",
   "kernels/r_fcp1.metal": "40badc9b9e89ac0b65ab5aaac8643b18ed8639f5936dcad6ca29331a9ad5243a",
   "kernels/r_fcph.metal": "f420e31d4158cb8807615a9f127f052f325eaaf86bb71148a858cbd3af922a90",
   "kernels/r_fcpmrt.metal": "baac645bf79bc9a936f46bca72dbb6626e231c47e21d7301285277175c673b57",
+  "kernels/r_icent.metal": "3f0c818798f8857b8b387e2457299d00691c599904012c06cbdb7b2aed831e45",
   "kernels/r_rog2.metal": "502fd84cadfb3889955c05f74ef80783732731643805ab0285bca9f8c41bd310",
   "kernels/r_rog8.metal": "12ce7d84f7c93c729091c2d3830806a1cdd0bb8fbe6ced5f4da825cc04de3c69",
   "kernels/r_rogx.metal": "3533dc5b59260e49effa60a5b6d3bda49db858fc1c459b177dbf99bc12a9e491",
@@ -55,6 +60,7 @@
   "kernels/r_v4vec.metal": "956341989a9834b656c0aa464852e5bf0bc6addf989f242be21327f6fb6cb5f2",
   "kernels/r_v8.metal": "30ce2964e4d09555ef2919a6eccb05463b0e566c95e020206eeb70052d4fb983",
   "kernels/r_v8flat.metal": "77a900d0828007ae61d08e6e5ff3bf8dafabc1ce17bb38b5456398b7b1ca5c06",
+  "kernels/r_vmix.metal": "7d9d462cec8ae113f02e8d42e641c6ac3604d4863ca7070f92b38d4a97cc0826",
   "kernels/r_vsrc.metal": "8bd4af8494f30c786b8cd4c701a48499c30e8f740983516508b9d0dcc28387fd"
  },
  "clean_room": {
@@ -74,6 +80,10 @@
   "g17p_20260830_run02",
   "g17p_20260830_run03",
   "g17p_20260830_run04"
+ ],
+ "gated_runs_compute": [
+  "g17p_20260830_run02 (forward, COMPLETE, 0 hangs)",
+  "g17p_20260830_run03 (reverse, in flight)"
  ],
  "m10_carrier_fixes": {
   "falsifier_overrides": {
@@ -225,6 +235,48 @@
    "invalid_victim",
    "invalid_nodata"
   ]
+ },
+ "render_arm": {
+  "census": "work/render_census_g17p_20260830_rcensus3.json",
+  "census_sha256": "817a4bd42826412d... (full in render_frozen_arms.json)",
+  "distinct_carrier_dims": {
+   "frag_color_pack": 3,
+   "iter_at": 2,
+   "pixel_order": 3,
+   "vtx_out_pos": 3
+  },
+  "frozen_arms": "work/render_frozen_arms.json",
+  "frozen_arms_sha256": "7fa4c0c9b90fe45b10f2e90d477178c3b76e5d2748713ea81679e7c69b240b03",
+  "gated_runs_planned": [
+   "g17p_20260830_rrun02",
+   "g17p_20260830_rrun03"
+  ],
+  "isadb_sha256": "07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0",
+  "n_arms": 19,
+  "n_skipped_with_reason": 53,
+  "note": "renderrun.py refuses at run time any arm whose located bytes differ from the frozen census (EXP-0163 frozen-occurrence integrity check).",
+  "prereg_amendments_before_rrun02": [
+   "KNOWN_FAULT_VALUES[frag_color_pack.dst] widened 192,193,194,196 -> 192..197 so 198..255 is banked BEFORE any hazardous value is touched",
+   "FALSIFIERS[fcp] F_mask_ff gains once_per_carrier=True -- 8 arms x 1 hang each would spend a third of MAX_HANGS_TOTAL re-confirming one cross-target refutation"
+  ],
+  "superseded": {
+   "raw/superseded/rrun01_partial_192-197_band_unknown": "stopped after 3/19 arms and 9 hangs; it MEASURED that frag_color_pack.dst 195 and 197 also hang (the band is contiguous 194..197, not just 194/196) and that src_present_mask=0xff HANGS on G17P where EXP-M4-14 recorded a contained fault on A18. Preserved, not deleted: its raw is the evidence for both."
+  },
+  "targets": {
+   "frag_color_pack": [
+    "dst"
+   ],
+   "iter_at": [
+    "grp"
+   ],
+   "pixel_order": [
+    "kind"
+   ],
+   "vtx_out_pos": [
+    "dst",
+    "slot"
+   ]
+  }
  },
  "repo_dirty_at_freeze": true,
  "repo_revision_at_freeze": "4b16d0b4f8f535c5a37e995aff83824984c3bb79",

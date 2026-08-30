@@ -1,0 +1,572 @@
+{
+ "_meta": {
+  "experiment": "EXP-0173",
+  "question": "should the 25 zero-free-bit fields be folded into `match`?",
+  "AS_PUBLISHED": {
+   "emitter_grade": 588,
+   "total_fields": 1062,
+   "emittable_instructions": 35,
+   "emitter_relevant_instructions": 166,
+   "headline": "588 / 1062 fields; 35 of 166 instructions"
+  },
+  "FOLD_ZERO_FREE_BIT_FIELDS": {
+   "emitter_grade": 572,
+   "total_fields": 1037,
+   "emittable_instructions": 35,
+   "emitter_relevant_instructions": 166,
+   "headline": "572 / 1037 fields; 35 of 166 instructions",
+   "delta_emitter_grade": -16,
+   "delta_total_fields": -25,
+   "delta_emittable": 0,
+   "newly_emittable": [],
+   "no_longer_emittable": []
+  },
+  "ALSO_FOLD_PARTIALLY_PINNED": {
+   "emitter_grade": 555,
+   "total_fields": 1003,
+   "emittable_instructions": 37,
+   "emitter_relevant_instructions": 166,
+   "headline": "555 / 1003 fields; 37 of 166 instructions",
+   "caution": "NOT recommended: a partially pinned field still has a real choice, just a narrower one. The fix there is to correct start/width, not to delete the field."
+  },
+  "zero_free_bit_fields": 25,
+  "zero_free_bit_fields_carrying_emitter_grade": 16,
+  "zero_free_bit_fields_inside_currently_emittable_instructions": 7,
+  "partially_pinned_fields": 34
+ },
+ "zero_free_bit_fields": [
+  {
+   "mnemonic": "falu2_uni",
+   "field": "uni_mode",
+   "width": 1,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "funary",
+   "field": "op",
+   "width": 8,
+   "free_bits": 0,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "rt_intersect",
+   "field": "subop",
+   "width": 8,
+   "free_bits": 0,
+   "label": "isolated-byte-diff",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "marker",
+   "width": 8,
+   "free_bits": 0,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "subop",
+   "width": 8,
+   "free_bits": 0,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "cmpmode",
+   "width": 8,
+   "free_bits": 0,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "ray_move",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "iter",
+   "field": "c7",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "irotate",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "pack_convert",
+   "field": "fmt_class",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "field": "subop",
+   "width": 8,
+   "free_bits": 0,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "coord_madf",
+   "field": "op",
+   "width": 8,
+   "free_bits": 0,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "marker",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "scope",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "field": "src",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "field": "fmt",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "packed_half2_hi",
+   "field": "opsel",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "ray_move_copy6",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "ray_move_zero6",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "ray_move_zinit",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "corpus-correlation",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "field": "b3",
+   "width": 8,
+   "free_bits": 0,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "funary_imm",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "tg_atomic_prep10",
+   "field": "form",
+   "width": 8,
+   "free_bits": 0,
+   "label": "corpus-correlation",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  }
+ ],
+ "partially_pinned_fields": [
+  {
+   "mnemonic": "falu2_uni",
+   "field": "usrc",
+   "width": 8,
+   "free_bits": 7,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "falu3",
+   "field": "op",
+   "width": 8,
+   "free_bits": 7,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "falu2_ext",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 1,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "falu3_ext",
+   "field": "op",
+   "width": 8,
+   "free_bits": 7,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "field": "subop",
+   "width": 8,
+   "free_bits": 2,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "tex_sample",
+   "field": "kind",
+   "width": 4,
+   "free_bits": 1,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "iter",
+   "field": "grp",
+   "width": 8,
+   "free_bits": 1,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "iter_at",
+   "field": "grp",
+   "width": 8,
+   "free_bits": 1,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "pixel_order",
+   "field": "scope",
+   "width": 8,
+   "free_bits": 6,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "ibitcount",
+   "field": "form",
+   "width": 8,
+   "free_bits": 7,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "irotate",
+   "field": "b2",
+   "width": 8,
+   "free_bits": 1,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "field": "src_class",
+   "width": 8,
+   "free_bits": 4,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "vary_store",
+   "field": "hint1",
+   "width": 8,
+   "free_bits": 7,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "cvt_f2h_dst",
+   "field": "src",
+   "width": 8,
+   "free_bits": 4,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "sr_read_wide",
+   "field": "width",
+   "width": 8,
+   "free_bits": 6,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "h_alu_hi",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 2,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "h_alu_hi",
+   "field": "opflags",
+   "width": 5,
+   "free_bits": 3,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "h_alu_hi_ext",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 2,
+   "label": "corpus-correlation",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "h_alu_hi_ext",
+   "field": "opflags",
+   "width": 5,
+   "free_bits": 3,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "h_coord_hi",
+   "field": "opsel",
+   "width": 8,
+   "free_bits": 4,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "h_coord_hi_ext",
+   "field": "opsel",
+   "width": 8,
+   "free_bits": 4,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": true
+  },
+  {
+   "mnemonic": "reg_move_cb",
+   "field": "form",
+   "width": 8,
+   "free_bits": 4,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "b_alu14_prep2",
+   "field": "sel",
+   "width": 8,
+   "free_bits": 7,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "falu2_srcmod10",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 1,
+   "label": "corpus-correlation",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "falu3_srcmod12",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 2,
+   "label": "untested",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "falu_srcmod12b",
+   "field": "opsel",
+   "width": 3,
+   "free_bits": 2,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "shift_amt_move",
+   "field": "kind",
+   "width": 8,
+   "free_bits": 4,
+   "label": "hardware-run",
+   "emitter_grade": true,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h5",
+   "field": "b0",
+   "width": 8,
+   "free_bits": 4,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h5",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 6,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h6",
+   "field": "b0",
+   "width": 8,
+   "free_bits": 4,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h6",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 6,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h7",
+   "field": "b0",
+   "width": 8,
+   "free_bits": 4,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "operand_word_x2_h7",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 6,
+   "label": "tokenization-only",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  },
+  {
+   "mnemonic": "frag_sample_submit",
+   "field": "b1",
+   "width": 8,
+   "free_bits": 7,
+   "label": "corpus-correlation",
+   "emitter_grade": false,
+   "instruction_emittable_now": false
+  }
+ ]
+}

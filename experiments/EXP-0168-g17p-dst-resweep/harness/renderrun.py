@@ -595,6 +595,14 @@ class Run:
         self.jl = open(os.path.join(outdir, "sweep.jsonl"), "a")
         self.n = 0
         self.hangs_total = 0
+        # (carrier, falsifier id) -> the outcome already recorded, for
+        # falsifiers marked once_per_carrier. F_mask_ff HANGS on G17P (3/3 arms
+        # in rrun01) rather than producing the contained fault EXP-M4-14
+        # recorded on A18, and with 8 frag_color_pack arms that is a third of
+        # MAX_HANGS_TOTAL spent re-confirming one cross-target refutation before
+        # any other family runs. The finding is a property of the carrier, not
+        # of which occurrence is spliced.
+        self.once_per_carrier = {}
         self.runners = {}
         self.summary = {}
         self.stop_all = False
@@ -859,6 +867,28 @@ class Run:
             if fl["kind"] == "splice" and not fl.get("unavailable"):
                 byocc[fl["mnemonic"]] = fl["targets"][0]
         for F in RA.FALSIFIERS[arm["family"]]:
+            opc_key = (name, F["id"])
+            if F.get("once_per_carrier") and opc_key in self.once_per_carrier:
+                prev = self.once_per_carrier[opc_key]
+                self.emit(dict(
+                    instr=F["mnemonic"] or arm["mnemonic"], carrier=name,
+                    arm=arm["arm"], carrier_dim=arm["carrier_dim"],
+                    role="falsifier",
+                    field="%s:%s" % (F["id"], F["field"] or "-"),
+                    value=(-1 if F["value"] is None else F["value"]),
+                    byte_index=None, fstart=None, fwidth=None, bytes="",
+                    predict=F["predict"], hazard=F.get("hazard", "low"),
+                    observed={"status": "DEDUPED"}, oracle=None,
+                    validity="valid", accepted=True, attempt=0, match=False,
+                    outcome="not_run", rt_ok=None, confirm=None,
+                    note="once_per_carrier: already dispatched on carrier %s "
+                         "(arm %s, outcome %s). NOT re-dispatched -- this "
+                         "falsifier hangs on G17P and re-confirming it per "
+                         "occurrence spends the run's global hang budget on a "
+                         "result already established. %s"
+                         % (name, prev["arm"], prev["outcome"], F["note"][:200])))
+                S["falsifiers"][F["id"]] = dict(prev, deduped=True)
+                continue
             rec = dict(instr=F["mnemonic"] or arm["mnemonic"], carrier=name,
                        arm=arm["arm"], carrier_dim=arm["carrier_dim"],
                        role="falsifier", field="%s:%s" % (F["id"], F["field"] or "-"),
@@ -887,6 +917,9 @@ class Run:
                         else ("partial" if failed_baseline else "failed"))
                 S["falsifiers"][F["id"]] = {"held": held, "alt_exact": bool(got_alt),
                                             "differs_from_baseline": bool(failed_baseline)}
+                if F.get("once_per_carrier"):
+                    self.once_per_carrier[opc_key] = {
+                        "arm": arm["arm"], "outcome": "falsifier_" + held}
                 rec.update(observed=obs, validity=v, accepted=True, attempt=att,
                            match=(held == "held"), outcome="falsifier_" + held,
                            rt_ok=obs.get("rt_ok"),
@@ -913,6 +946,10 @@ class Run:
             oc = classify(name, obs, base)
             held = self._falsifier_held(F, obs, base, oc)
             S["falsifiers"][F["id"]] = {"held": held, "observed_outcome": oc}
+            if F.get("once_per_carrier"):
+                self.once_per_carrier[(name, F["id"])] = {
+                    "arm": arm["arm"],
+                    "outcome": ("hang" if hung else "falsifier_" + held)}
             rec.update(observed=obs, validity=v, accepted=True, attempt=att,
                        confirm=conf, match=(held == "held"),
                        outcome=("hang" if hung else "falsifier_" + held),
@@ -1044,7 +1081,11 @@ class Run:
                 continue
             defer = RA.KNOWN_FAULT_VALUES.get((arm["mnemonic"], fname), {}) \
                       .get("values", [])
-            vals = RA.coverage_for(w, defer)
+            # Values the DESCRIPTOR says are the only legal ones go first, so a
+            # hang budget spent on the out-of-descriptor region cannot cost us
+            # the measurement we actually came for. See coverage_for().
+            fspec = RA.TARGETS[arm["mnemonic"]]["fields"][fname]
+            vals = RA.coverage_for(w, defer, fspec.get("legal_values", ()))
             fh = moved = nok = nfault = 0
             swept = 0
             for v in vals:

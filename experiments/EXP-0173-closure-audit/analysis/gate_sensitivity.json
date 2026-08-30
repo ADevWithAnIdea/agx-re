@@ -1,0 +1,81 @@
+{
+ "_meta": {
+  "experiment": "EXP-0173",
+  "what": "each gate run unmodified, then with an injected defect it is claimed to protect against"
+ },
+ "runs": [
+  {
+   "gate": "roundtrip_test.py",
+   "mutation": "none (baseline)",
+   "exit": 0,
+   "passed": true,
+   "verdict": "baseline passes"
+  },
+  {
+   "gate": "roundtrip_test.py",
+   "mutation": "M1: assemble() reverted to bare-OR (DEF-0166-1) \u2014 cannot clear a bit",
+   "exit": 0,
+   "passed": true,
+   "verdict": "INSENSITIVE \u2014 a provably broken assembler passes",
+   "stderr_tail": ""
+  },
+  {
+   "gate": "roundtrip_test.py",
+   "mutation": "M2: assemble() forces dst/srcA/src to 0 (operand silently dropped)",
+   "exit": 1,
+   "passed": false,
+   "verdict": "sensitive (suite failed)",
+   "stderr_tail": ""
+  },
+  {
+   "gate": "roundtrip_test.py",
+   "mutation": "M3: db.json copy with falu3.srcA <-> srcB swapped (the fspecial defect class)",
+   "exit": 0,
+   "passed": true,
+   "verdict": "INSENSITIVE \u2014 an operand SWAP is invisible to a symmetric round trip"
+  },
+  {
+   "gate": "validate_labels.py",
+   "mutation": "none (baseline)",
+   "exit": 0,
+   "passed": true,
+   "verdict": "baseline passes (exit 0)"
+  },
+  {
+   "gate": "validate_labels.py",
+   "mutation": "V1: falu2.dst promoted untested -> hardware-run with a NON-EXISTENT evidence path",
+   "exit": 1,
+   "passed": false,
+   "verdict": "fails, but check WHY (coverage arithmetic, not evidence existence)",
+   "stdout": "\n  COVERAGE (only verdicts that recorded machine-readable counts)\n    rows with counts: 46 of 589 emitter-grade\n    THIN (dispatched < encodable range):\n      bf_alu.tail  dispatched 766 of 16777216\n",
+   "stderr": "FAIL: coverage.by_label[hardware-run]=507 but 508 entries carry that label\nFAIL: coverage.by_label[untested]=214 but 213 entries carry that label\nFAIL: coverage.emittable_mnemonics=['bf_add_dst', 'bf_alu', 'carry_gen', 'cvt_bf16', 'cvt_f2h_dst', 'cvt_i2f', 'falu3', 'falu3_ext', 'frag_depth_store', 'frame_prologue', 'fspecial', 'h_coord_hi', 'h_coord_hi_ext', 'hminmax', 'iminmax', 'isel10', 'iter_flat', 'iunary', 'link_save_restore', 'mov_imm', 'mov_zext16', 'n2_op6', 'pixel_order', 'pop_reconverge', 'psel', 'ret_luse', 'rtq_state_move', 'sel', 'sfu_marker', 'simd_reduce', 'spill_frame_marker', 'sr_read_wide', 'stop', 'tex_addr_setup', 'vtx_coord_xform'] but the emittable rule yields ['bf_add_dst', 'bf_alu', 'carry_gen', 'cvt_bf16', 'cvt_f2h_dst', 'cvt_i2f', 'falu2', 'falu3', 'falu3_ext', 'frag_depth_store', 'frame_prologue', 'fspecial', 'h_coord_hi', 'h_coord_hi_ext', 'hminmax', 'iminmax', 'isel10', 'iter_flat', 'iunary', 'link_save_restore', 'mov_imm', 'mov_zext16', 'n2_op6', 'pixel_order', 'pop_reconverge', 'psel', 'ret_luse', 'rtq_state_move', 'sel', 'sfu_marker', 'simd_reduce', 'spill_frame_marker', 'sr_read_wide', 'stop', 'tex_addr_setup', 'vtx_coord_xform']\nFAIL: coverage.emittable_instructions=35 but 36 instructions qualify\nFAIL: coverage.emittable_of_emitter_relevant=35 but the corrected metric yields 36\n\n5 violation(s).\n"
+  },
+  {
+   "gate": "validate_labels.py",
+   "mutation": "V1b: same fabricated promotion, coverage block recomputed so ONLY the evidence path is false",
+   "exit": 1,
+   "passed": false,
+   "verdict": "sensitive",
+   "stdout": "\n  COVERAGE (only verdicts that recorded machine-readable counts)\n    rows with counts: 46 of 589 emitter-grade\n    THIN (dispatched < encodable range):\n      bf_alu.tail  dispatched 766 of 16777216\n",
+   "stderr": "FAIL: coverage.emittable_mnemonics=['bf_add_dst', 'bf_alu', 'carry_gen', 'cvt_bf16', 'cvt_f2h_dst', 'cvt_i2f', 'falu3', 'falu3_ext', 'frag_depth_store', 'frame_prologue', 'fspecial', 'h_coord_hi', 'h_coord_hi_ext', 'hminmax', 'iminmax', 'isel10', 'iter_flat', 'iunary', 'link_save_restore', 'mov_imm', 'mov_zext16', 'n2_op6', 'pixel_order', 'pop_reconverge', 'psel', 'ret_luse', 'rtq_state_move', 'sel', 'sfu_marker', 'simd_reduce', 'spill_frame_marker', 'sr_read_wide', 'stop', 'tex_addr_setup', 'vtx_coord_xform'] but the emittable rule yields ['bf_add_dst', 'bf_alu', 'carry_gen', 'cvt_bf16', 'cvt_f2h_dst', 'cvt_i2f', 'falu2', 'falu3', 'falu3_ext', 'frag_depth_store', 'frame_prologue', 'fspecial', 'h_coord_hi', 'h_coord_hi_ext', 'hminmax', 'iminmax', 'isel10', 'iter_flat', 'iunary', 'link_save_restore', 'mov_imm', 'mov_zext16', 'n2_op6', 'pixel_order', 'pop_reconverge', 'psel', 'ret_luse', 'rtq_state_move', 'sel', 'sfu_marker', 'simd_reduce', 'spill_frame_marker', 'sr_read_wide', 'stop', 'tex_addr_setup', 'vtx_coord_xform']\nFAIL: coverage.emittable_instructions=35 but 36 instructions qualify\nFAIL: coverage.emittable_of_emitter_relevant=35 but the corrected metric yields 36\n\n3 violation(s).\n"
+  },
+  {
+   "gate": "validate_labels.py",
+   "mutation": "V1c: fabricated hardware-run promotion of falu2.dst, ALL coverage arithmetic recomputed; the only remaining falsehood is that the cited evidence file EXP-9999/raw/does_not_exist/run.json does not exist",
+   "exit": 0,
+   "passed": true,
+   "verdict": "INSENSITIVE \u2014 an emitter-grade label citing a NON-EXISTENT raw artifact passes; the validator never opens an evidence path",
+   "stdout": "\n  COVERAGE (only verdicts that recorded machine-readable counts)\n    rows with counts: 46 of 589 emitter-grade\n    THIN (dispatched < encodable range):\n      bf_alu.tail  dispatched 766 of 16777216\nOK: 172 instructions, 1062 fields, all labels valid.\n  hardware-run                508  (47.8%)\n  isolated-byte-diff           81  ( 7.6%)\n  corpus-correlation           91  ( 8.6%)\n  tokenization-only           150  (14.1%)\n  single-template-inference    19  ( 1.8%)\n  api-accept-reject             0  ( 0.0%)\n  host-private                  0  ( 0.0%)\n  untested                    213  (20.1%)\n\n  EMITTABILITY\n    old headline (every db.json descriptor):       36 / 172  (20.9%)\n    corrected (emitter-relevant instructions):     36 / 166  (21.7%)\n      denominator = 172 descriptors - 6 data words\n      data words excluded (own committed semantics say they are not\n      standalone hardware opcodes -- an emitter never emits one):\n        - operand_word\n        - operand_word_a2_01\n        - operand_word_x2_h5\n        - operand_word_x2_h6\n        - operand_word_x2_h7\n        - pad_operand\n    informational lower bound, NOT the headline:   36 / 162  (22.2%)\n      also setting aside 4 scaffolding descriptors EXP-0148 leaves\n      UNRESOLVED (3 continuation-word candidates + 1 unreachable):\n        - frame_marker_compact\n        - n2_compact2\n        - b_alu14_prep2\n        - cubearray_coord_const\n    zero-field descriptors (fully match-pinned, nothing to synthesize):\n        - n1_word                tokenization-only\n        - n2_compact2            tokenization-only\n        - n3_word                tokenization-only\n        - operand_word_a2_01     tokenization-only\n        - rtq_pred               tokenization-only\n      These are IN the denominator: `emittable` is decided by their\n      `_instruction` label, which is a validation.json decision, not a\n      db.json one. Reported so the label owner can rule on them.\n",
+   "stderr": ""
+  },
+  {
+   "gate": "work/merge_verdicts.py --dry-run",
+   "mutation": "none (baseline over every EXP-01*/analysis/field_verdicts.json)",
+   "exit": 1,
+   "passed": false,
+   "verdict": "see stdout_tail",
+   "stdout_tail": ".st_desc_hi would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: device_store.st_format would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: device_store.st_format_ext would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: srcB_reg (inline-immediate class) is not a field of falu2 in db.json\n  - EXP-0158-g17p-generator-synthesis: iadd2.b2_bit0 would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: iadd2.lenbit would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: iadd2.srcB_ext would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: iadd2.srcB_imm_hi would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n  - EXP-0158-g17p-generator-synthesis: iadd2.store_en would WEAKEN hardware-run -> isolated-byte-diff; rerun with --allow-downgrade only after deciding whether this is a real refutation\n\napplied 641 field verdicts, skipped 224\nemitter-grade: 588 -> 692 fields\nemittable instructions: 35 -> 66\n  now emittable: atomic_mem, atomic_tg, bf_add_dst, bf_alu, carry_gen, copysign, cvt_bf16, cvt_f2h, cvt_f2h_dst, cvt_f2i, cvt_i2f, cvt_i2f_src, device_load, device_store, falu2, falu2_ext, falu2_uni, falu3, falu3_ext, falu_acc, frag_depth_store, frame_prologue, fspecial, fspecial_est, h_coord_hi, h_coord_hi_ext, half_alu, half_alu_ext8, half_pack, hminmax, iadd2, ibfe, ibitcount, iminmax, irotate, isel10, isel8, ishift, iter_flat, iunary, jump_cond, link_save_restore, mov_imm, mov_zext16, n2_op6, n3_mov, pack_convert, pixel_order, pop_reconverge, psel, ray_move, ray_move_copy6, ray_move_zero6, ret_luse, rtq_state_move, sel, sfu_marker, shift_amt_move, simd_reduce, spill_frame_marker, sr_read_wide, stop, tex_addr_setup, threadgroup_barrier, uniform_mov, vtx_coord_xform\n\n--dry-run: validation.json NOT written\n",
+   "stderr_tail": ""
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "experiment": "EXP-0173-closure-audit",
+ "kind": "pure-analysis (no device, no SSH, no GPU)",
+ "frozen_at_utc": "2026-08-30T09:31:21Z",
+ "git_revision": "2792d7cab217e7331bfbcbbafcdcd6d404b2c44b",
+ "git_dirty_files": 27,
+ "git_dirty_note": "26 dirty paths, ALL under experiments/EXP-0168*/EXP-0171*/EXP-0172* (three device experiments in flight). None is an input to this audit except by read.",
+ "concurrent_experiments": [
+  "EXP-0168-g17p-dst-resweep",
+  "EXP-0171-g17p-ilogic-srca",
+  "EXP-0172-g17p-onefield-tail"
+ ],
+ "input_hashes": {
+  "tools/agx-isa/db.json": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+  "tools/agx-isa/validation.json": "65185b3a15ec8c21484f93e03839edbc6d28f4173de3b7cf3c67525fde525f5d",
+  "PROVENANCE.md": "3575bed666c082b2515789895eddc77c234c5c16230483d88d84af8f36c1ec9c",
+  "docs/P0-P1-CLOSURE.md": "6c9d44183f2f37287e1064de40c26c80f9e44be5b133d11a0cf435cecb9a4704",
+  "docs/compiler-readiness.md": "7d63a67eff41ff341411f6f012578ab0432d38918a1d5ace99d4eaeda91aab18",
+  "docs/isa/README.md": "312599ec9a3c6c568305003ae39f5c130149f5a29990e62ba9d1cff5fd1a2dfe",
+  "tools/agx-isa/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "tools/agx-isa/roundtrip_test.py": "93010e63fb333f10bae2e8b621962f4072504377dffda37cafe8f76a51a452fc",
+  "tools/agx-isa/validate_labels.py": "b058b7c376fa8b64aa7f5ecbd7e14388602fbb241ecb98e410192df4653ca1bb",
+  "tools/agx-isa/emit_worklist.py": "cf380e1fb0841347945d44713f6dc505722fb917dd4abbefd759421a5cc36145",
+  "tools/agx-isa/match_overlap_report.py": "71aa20a2f59e77cffa112847db601d0d3af1f6f1a59e7b0ceff0d38ecfca08bd",
+  "work/merge_verdicts.py": "d8980af2628b7595e8c5a9abb2d192b607cd97171cefa127a9a6f3439f79fc15",
+  "APPLE9_RE_IMPLEMENTATION_GAPS.md": "97d940fcab3300e798066db94a537fd9574327bf6a3dd83a8d47e364158beccc"
+ },
+ "python": "Python 3.14.6",
+ "host": "repo host (M4 Mac Mini), analysis only",
+ "timeouts": {
+  "each_analysis_script_s": 600
+ },
+ "raw_schema": {
+  "raw/gate_runs.txt": "append-only transcript of every gate invocation: command, exit code, stdout head/tail",
+  "raw/mutation_runs.txt": "append-only transcript of every gate-sensitivity mutation run"
+ },
+ "prohibited": [
+  "git commit",
+  "edit db.json",
+  "edit validation.json",
+  "edit docs/",
+  "edit PROVENANCE.md",
+  "any SSH",
+  "any GPU"
+ ]
+}

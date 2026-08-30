@@ -1,0 +1,3376 @@
+{
+ "_meta": {
+  "experiment": "EXP-0173",
+  "question": "for how much of the emittable set can an implementer generate an encoding without a captured Apple template",
+  "emittable_set_size": 35,
+  "generated_corpus_size": 18,
+  "intersection": [
+   "isel10",
+   "mov_imm",
+   "pop_reconverge",
+   "stop"
+  ],
+  "intersection_size": 4,
+  "emittable_but_never_generated": [
+   "bf_add_dst",
+   "bf_alu",
+   "carry_gen",
+   "cvt_bf16",
+   "cvt_f2h_dst",
+   "cvt_i2f",
+   "falu3",
+   "falu3_ext",
+   "frag_depth_store",
+   "frame_prologue",
+   "fspecial",
+   "h_coord_hi",
+   "h_coord_hi_ext",
+   "hminmax",
+   "iminmax",
+   "iter_flat",
+   "iunary",
+   "link_save_restore",
+   "mov_zext16",
+   "n2_op6",
+   "pixel_order",
+   "psel",
+   "ret_luse",
+   "rtq_state_move",
+   "sel",
+   "sfu_marker",
+   "simd_reduce",
+   "spill_frame_marker",
+   "sr_read_wide",
+   "tex_addr_setup",
+   "vtx_coord_xform"
+  ],
+  "generated_but_not_emittable": [
+   "device_load",
+   "device_store",
+   "falu2",
+   "falu2i",
+   "get_sr",
+   "iadd2",
+   "icmp_pred",
+   "if_push",
+   "if_push_pred",
+   "jump",
+   "jump_cond",
+   "reg_move_c0",
+   "ret",
+   "scoreboard_fence"
+  ],
+  "verdict_counts": {
+   "EMITTABLE-NOT-GENERATED": 31,
+   "PARTLY-DONOR": 3,
+   "GENERATED-NOT-EMITTABLE": 2,
+   "DONOR-DEPENDENT": 11,
+   "GENERATED-AND-EMITTABLE": 2
+  },
+  "donor_only_mnemonics": [
+   "get_sr",
+   "icmp_pred",
+   "if_push",
+   "if_push_pred",
+   "isel10",
+   "jump",
+   "jump_cond",
+   "pop_reconverge",
+   "reg_move_c0",
+   "ret",
+   "scoreboard_fence"
+  ],
+  "donor_only_that_are_labelled_EMITTABLE": [
+   "isel10",
+   "pop_reconverge"
+  ],
+  "donor_token_pairs_total": 81,
+  "EXP0167_headline": {
+   "zero_copied_and_correct": 233,
+   "of_those_resting_on_PUBLISHED_RULES_ONLY": 60,
+   "of_those_containing_at_least_one_PILOT_field": 173,
+   "cases_still_needing_a_donor": 24,
+   "pilot_field_census": {
+    "falu2.mod_hi": 163,
+    "iadd2.b2_bit0": 16,
+    "iadd2.b2_fmt": 16,
+    "iadd2.opc_tail": 16,
+    "iadd2.opc_tail2": 16,
+    "iadd2.opmode": 16,
+    "iadd2.srcA": 16,
+    "iadd2.srcB_ext": 16,
+    "iadd2.srcB_reg_hi": 16,
+    "iadd2.store_en": 16
+   },
+   "reading": "PILOT means EXP-0167 measured the field's accepted set itself in its own pre-freeze pilot, because NO PRIOR RULE EXISTED. So only 60 of the 233 rest on rules an implementer could have read out of earlier work; the other 173 rest on a value this experiment had to measure, and for 163 of them that value is ONE field, falu2.mod_hi."
+  },
+  "sources": {
+   "emittable": "tools/agx-isa/validation.json coverage.emittable_mnemonics",
+   "generated": "experiments/EXP-0167-g17p-synthesis-reconfirm/analysis/assemble_defect_check.json mnemonics_used",
+   "donor": "EXP-0167 RESULTS.md sections 5.7 and 6"
+  },
+  "limitation": "membership in the generated corpus is per MNEMONIC. It does not mean every field of that mnemonic was swept inside a generated program; EXP-0167 used 2,396 distinct (mnemonic, field-values) pairs across 18 mnemonics, not the full operand space of any of them."
+ },
+ "instructions": [
+  {
+   "mnemonic": "bf_add_dst",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 5 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 5,
+   "n_free_measured": 5,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "fmt",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "tail",
+     "free_bits": 24,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "bf_alu",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 4 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 4,
+   "n_free_measured": 4,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "opsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "tail",
+     "free_bits": 24,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "766 of 16777216 encodable values (0.0%), 766 distinct encodings, 1 carriers",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "carry_gen",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 5 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 5,
+   "n_free_measured": 5,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "A_CARRY_INPLACE: 0..15 (16 values, dense) / A_CARRY_SYNTH: 0..15 (16 values, dense)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+     "target": "G17P"
+    },
+    {
+     "name": "cmpmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+     "target": "G17P"
+    },
+    {
+     "name": "b5",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "A_CARRY_INPLACE: 0..255 (229 values) / A_CARRY_SYNTH: 0..255 (215 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 8 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 8,
+   "n_free_measured": 6,
+   "n_match_pinned": 2,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte0 high nibble 0..15 DENSE (all 16), low nibble held at the anchor's value so the instruction length cannot change",
+     "target": "G17P"
+    },
+    {
+     "name": "srcw",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "src",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "fmt",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "byte+4 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "b5",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+5 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "dir",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+6 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "b7",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+7 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "cvt_f2h_dst",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte0 high nibble 0..15 DENSE (all 16), low nibble held at the anchor's value so the instruction length cannot change",
+     "target": "G17P"
+    },
+    {
+     "name": "srcfmt",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "src",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "dhalf",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+4 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    },
+    {
+     "name": "tail",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+5 dense 0..255 (256 values actually dispatched)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "cvt_i2f",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2: 256 of 256 values (dense 0..255)",
+     "target": "M4"
+    },
+    {
+     "name": "dst",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3: 250 of 256 values (dense 0..255)",
+     "target": "M4"
+    },
+    {
+     "name": "src_class",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+4: 256 of 256 values (dense 0..255)",
+     "target": "M4"
+    },
+    {
+     "name": "src",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+5: 256 of 256 values (dense 0..255)",
+     "target": "M4"
+    },
+    {
+     "name": "cvtop",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+6: 256 of 256 values (dense 0..255)",
+     "target": "M4"
+    },
+    {
+     "name": "signflag",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+7: 256 of 256 values (dense 0..255)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "device_load",
+   "verdict": "PARTLY-DONOR",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 1116,
+   "donor_fields": {
+    "access_desc": 12,
+    "addr_mode": 12,
+    "base_slot": 12,
+    "dst_ext9": 12,
+    "dst_lo": 12,
+    "elem_size": 12,
+    "extmode": 12,
+    "idx_off": 12,
+    "index_reg": 12,
+    "ld_format": 12,
+    "ldform_hi11": 12,
+    "reserved13": 12,
+    "reserved7": 12,
+    "space": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": true,
+   "why": "rule-generated elsewhere in the corpus (it appears in the rule-driven generator modules), but 14 of its fields are still lifted verbatim in the 12 CF programs: access_desc, addr_mode, base_slot, dst_ext9, dst_lo, elem_size, extmode, idx_off, index_reg, ld_format, ldform_hi11, reserved13, reserved7, space",
+   "n_fields": 14,
+   "n_free_measured": 10,
+   "n_match_pinned": 0,
+   "n_unmeasured": 4,
+   "fields": [
+    {
+     "name": "space",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "addr_mode",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "extmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense, each paired with a consumer reading r(v>>1)",
+     "target": "G17P"
+    },
+    {
+     "name": "base_slot",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00..0xFF EXHAUSTIVE: slots 1..30 return their own distinct bound buffer, slot 0 is anomalous, 31..127 read 0x00000000 with no fault, 128..255 mirror 0..127 byte-for-byte",
+     "target": "M4"
+    },
+    {
+     "name": "index_reg",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "access_desc",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "reserved7",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "ld_format",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 step 1 (64 of 64)",
+     "target": "M4"
+    },
+    {
+     "name": "dst_lo",
+     "free_bits": 2,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..3 dense (all 4 values), at two independent target registers r7 and r20",
+     "target": "G17P"
+    },
+    {
+     "name": "dst_ext9",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..127 dense (all 128 values), at two independent target registers r7 and r20",
+     "target": "G17P"
+    },
+    {
+     "name": "idx_off",
+     "free_bits": 11,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..2047 FULL DENSE sweep (device space) and a second full 0..2047 dense sweep in threadgroup space; plus negative-side cross-checks at 0x3FE..0x402, 0x7FE, 0x7FF",
+     "target": "M4"
+    },
+    {
+     "name": "ldform_hi11",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 step 1 (64 of 64)",
+     "target": "M4"
+    },
+    {
+     "name": "elem_size",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "reserved13",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "device_store",
+   "verdict": "GENERATED-NOT-EMITTABLE",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 2244,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": true,
+   "why": "a zero-copied generated program using this mnemonic ran correctly on G17P, but 3 field(s) are still unlabelled, so the emittable metric excludes it \u2014 the METRIC under-counts this instruction",
+   "n_fields": 13,
+   "n_free_measured": 10,
+   "n_match_pinned": 0,
+   "n_unmeasured": 3,
+   "fields": [
+    {
+     "name": "space",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "addr_mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "extmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "base_slot",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 census on the load path; store path probed at slots 0,3,31,32,63,127,128,255 - slot 128 writes are DISCARDED (mirror is load-only)",
+     "target": "M4"
+    },
+    {
+     "name": "index_reg",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; 112 is genuinely NONDETERMINISTIC (fault or silent-all-zero across byte-identical splices)",
+     "target": "M4"
+    },
+    {
+     "name": "access_desc",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "reserved7",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "st_format",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "st_format_ext",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..127 step 1 (128 of 128)",
+     "target": "M4"
+    },
+    {
+     "name": "idx_off",
+     "free_bits": 11,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "boundary points 0x1FF, 0x200, 0x3FF, 0x400, 0x7FF at idx 1023/1024 - all landed outside the 8 KiB target, which is exactly what the 16-byte store unit predicts",
+     "target": "M4"
+    },
+    {
+     "name": "st_desc_hi",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 step 1 (64 of 64)",
+     "target": "M4"
+    },
+    {
+     "name": "elem_size",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    },
+    {
+     "name": "reserved13",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 step 1 (256 of 256)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu2",
+   "verdict": "GENERATED-NOT-EMITTABLE",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 1234,
+   "donor_fields": {},
+   "pilot_fields_used": {
+    "mod_hi": 163
+   },
+   "can_generate_from_documented_rules_alone": true,
+   "why": "a zero-copied generated program using this mnemonic ran correctly on G17P, but 1 field(s) are still unlabelled, so the emittable metric excludes it \u2014 the METRIC under-counts this instruction",
+   "n_fields": 15,
+   "n_free_measured": 14,
+   "n_match_pinned": 0,
+   "n_unmeasured": 1,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_size",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_reg",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 dense (all 64 values), 64 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 3,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..7 dense (all 8 values), 8 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "opflags",
+     "free_bits": 5,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..31 dense (all 32 values), 32 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_size",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_reg",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 dense (all 64 values), 320 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_imm",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_class",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_class",
+     "free_bits": 2,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..3 dense (all 4 values), 4 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_neg",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "mod_hi",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values), 32 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_reg_top",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 6 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_reg_top",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 6 distinct encodings, 2 carriers",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu2i",
+   "verdict": "PARTLY-DONOR",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 2360,
+   "donor_fields": {
+    "dst": 12,
+    "mods": 12,
+    "opflags": 12,
+    "srcA_reg": 12,
+    "srcA_reg_top": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": true,
+   "why": "rule-generated elsewhere in the corpus (it appears in the rule-driven generator modules), but 5 of its fields are still lifted verbatim in the 12 CF programs: dst, mods, opflags, srcA_reg, srcA_reg_top",
+   "n_fields": 12,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 6,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_flag",
+     "free_bits": 1,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_mant",
+     "free_bits": 3,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_exp",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values), 512 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 3,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_sign",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "opflags",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_size",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_reg",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..63 dense (all 64 values), 64 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl_lo",
+     "free_bits": 7,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..127 dense (all 128 values), 128 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "mods",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA_reg_top",
+     "free_bits": 1,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu3",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 8 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 8,
+   "n_free_measured": 8,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "253 values tested (sampled over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "op",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl_len",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcC",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values tested (sampled over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcmods",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "falu3_ext",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 7 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 7,
+   "n_free_measured": 7,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "op",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl_len",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcC",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "ext",
+     "free_bits": 32,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "frag_depth_store",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b3",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "b4",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "b5",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "frame_prologue",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "subop",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00,0x01,0x02,0x03,0x04,0x0b,0x13,0x23,0x43 swept: only values with bits[1:0]==0b11 run (0x03/0x0b/0x13/0x23/0x43); 0x00/0x01/0x02/0x04 fault",
+     "target": "A18"
+    },
+    {
+     "name": "marker",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00, 0x04, 0x54, 0x55, 0xff all run to baseline - RESERVED/inert",
+     "target": "A18"
+    },
+    {
+     "name": "frame_size",
+     "free_bits": 24,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "bytes+3/+4 at 0x00/0x01/0x08/0xff (nonzero -> huge frame -> GPU fault); byte+5 at 0x10, 0x1f, 0x20, 0x21, 0x30, 0x40",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "fspecial",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 11 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 11,
+   "n_free_measured": 11,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "fn_hi",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte0 bit 7: 0..1 dense in three carriers (D_FSPEC_INPLACE, D3_FSPEC_SYNTH, D2_FSPEC_LOG2) x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "fnclass",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 low nibble: 0..15 dense in three carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "src_ext",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 HIGH nibble: 0..15 dense (all 16 values) in two carriers (D_FSPEC_INPLACE, D3_FSPEC_SYNTH) x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "src_cache",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2: 0..255 dense in two carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "dst",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3: 0..191 dense (192 values) in two carriers x two gated runs; 192..255 exercised separately (64 values x 3 attempts) and is a do-not-emit region",
+     "target": "G17P"
+    },
+    {
+     "name": "src_class",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+4: 0..255 dense in two carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "src",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+5: 0..255 dense in two carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "fnsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+6: 0..255 dense in three carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "precsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+7: 0..255 dense in three carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "roundmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+8: 0..255 dense in three carriers x two gated runs",
+     "target": "G17P"
+    },
+    {
+     "name": "sched_flag",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+9: 0..255 dense in two carriers x two gated runs",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "get_sr",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 28,
+   "donor_fields": {
+    "dp_marker": 12,
+    "dp_width": 12,
+    "dst": 12,
+    "dst_hi": 12,
+    "form": 12,
+    "sr_sel": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: dp_marker x12 cases, dp_width x12 cases, dst x12 cases, dst_hi x12 cases, form x12 cases, sr_sel x12 cases",
+   "n_fields": 6,
+   "n_free_measured": 0,
+   "n_match_pinned": 0,
+   "n_unmeasured": 6,
+   "fields": [
+    {
+     "name": "form",
+     "free_bits": 1,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "swept but NOT ruled on here: 0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "sr_sel",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "dp_width",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "dp_marker",
+     "free_bits": 5,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "dst_hi",
+     "free_bits": 3,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "h_coord_hi",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "15 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "ctrl",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "mods",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "h_coord_hi_ext",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 7 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 7,
+   "n_free_measured": 7,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "15 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "239 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "ext",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "233 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcC",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "253 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "tail",
+     "free_bits": 16,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "82 values executed (boundaries + samples)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "hminmax",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "dst_full",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "sel",
+     "free_bits": 3,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "selhi",
+     "free_bits": 5,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "iadd2",
+   "verdict": "PARTLY-DONOR",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 82,
+   "donor_fields": {
+    "addsub": 24,
+    "b2_bit0": 24,
+    "b2_fmt": 24,
+    "dst": 24,
+    "lenbit": 24,
+    "opc_tail": 24,
+    "opc_tail2": 24,
+    "opmode": 24,
+    "srcA": 24,
+    "srcB_ext": 24,
+    "srcB_imm": 12,
+    "srcB_imm_hi": 24,
+    "srcB_reg_hi": 24,
+    "store_en": 24
+   },
+   "pilot_fields_used": {
+    "b2_bit0": 16,
+    "b2_fmt": 16,
+    "opc_tail": 16,
+    "opc_tail2": 16,
+    "opmode": 16,
+    "srcA": 16,
+    "srcB_ext": 16,
+    "srcB_reg_hi": 16,
+    "store_en": 16
+   },
+   "can_generate_from_documented_rules_alone": true,
+   "why": "rule-generated elsewhere in the corpus (it appears in the rule-driven generator modules), but 14 of its fields are still lifted verbatim in the 12 CF programs: addsub, b2_bit0, b2_fmt, dst, lenbit, opc_tail, opc_tail2, opmode, srcA, srcB_ext, srcB_imm, srcB_imm_hi, srcB_reg_hi, store_en",
+   "n_fields": 14,
+   "n_free_measured": 12,
+   "n_match_pinned": 0,
+   "n_unmeasured": 2,
+   "fields": [
+    {
+     "name": "addsub",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (2 of 2 encodings actually spliced), 2/2 values comparable across both gated runs; 1 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+     "target": "M4"
+    },
+    {
+     "name": "lenbit",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcB_reg_hi",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..127 dense (128 of 128 encodings actually spliced), 128/128 values comparable across both gated runs; 64 moved the observable, 64 reproduced it, 0 disagreed",
+     "target": "M4"
+    },
+    {
+     "name": "b2_bit0",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "2 values tested (dense over 1-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "store_en",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "2 values tested (dense over 1-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "b2_fmt",
+     "free_bits": 6,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..63 dense (all 64 values)",
+     "target": "M4"
+    },
+    {
+     "name": "dst",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values), relocation oracle",
+     "target": "G17P"
+    },
+    {
+     "name": "opmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcB_imm",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 252 moved the observable, 4 reproduced it, 0 disagreed; accept-set {0x8, 0x9, 0xa, 0xb}",
+     "target": "M4"
+    },
+    {
+     "name": "srcB_imm_hi",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "2 values tested (dense over 1-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcB_ext",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "128 values tested (dense over 7-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "opc_tail",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 192 moved the observable, 64 reproduced it, 0 disagreed",
+     "target": "M4"
+    },
+    {
+     "name": "opc_tail2",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 192 moved the observable, 64 reproduced it, 0 disagreed",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "icmp_pred",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 48,
+   "donor_fields": {
+    "cmpmode": 12,
+    "cond": 12,
+    "dst_pred": 12,
+    "neg": 12,
+    "opclass": 12,
+    "opdesc_hi": 12,
+    "srcA": 12,
+    "srcB": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: cmpmode x12 cases, cond x12 cases, dst_pred x12 cases, neg x12 cases, opclass x12 cases, opdesc_hi x12 cases, srcA x12 cases, srcB x12 cases",
+   "n_fields": 8,
+   "n_free_measured": 4,
+   "n_match_pinned": 0,
+   "n_unmeasured": 4,
+   "fields": [
+    {
+     "name": "dst_pred",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 EXHAUSTIVE: 0 = correct, 1 = one distinct corruption, 2..15 = a second uniform corruption; also A18-spliced p2->p0 and p2->p4",
+     "target": "M4+A18"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 7,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..127 dense (all 128 values)",
+     "target": "M4"
+    },
+    {
+     "name": "neg",
+     "free_bits": 1,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "M4"
+    },
+    {
+     "name": "cmpmode",
+     "free_bits": 4,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values)",
+     "target": "M4"
+    },
+    {
+     "name": "opdesc_hi",
+     "free_bits": 4,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "cond",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "cond=7 (inverted guard, skips the loop regardless of trip count) and the natural value, each executed over 12 data points",
+     "target": "M4"
+    },
+    {
+     "name": "opclass",
+     "free_bits": 8,
+     "label": "corpus-correlation",
+     "kind": "UNMEASURED (label corpus-correlation)",
+     "range": "0xc0 register srcB vs 0xc2 immediate bound (2 observed values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "if_push",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "scope": 12,
+    "scope_kind": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: scope x12 cases, scope_kind x12 cases",
+   "n_fields": 2,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 1,
+   "fields": [
+    {
+     "name": "scope",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "scope_kind",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "if_push_pred",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "level": 12,
+    "pred": 12,
+    "scope": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: level x12 cases, pred x12 cases, scope x12 cases",
+   "n_fields": 3,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 2,
+   "fields": [
+    {
+     "name": "pred",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 EXHAUSTIVE, crossed against icmp_pred.dst_pred 0..15: COMPLETELY INERT - matched or mismatched, it never changes anything",
+     "target": "M4"
+    },
+    {
+     "name": "scope",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "level",
+     "free_bits": 8,
+     "label": "tokenization-only",
+     "kind": "UNMEASURED (label tokenization-only)",
+     "range": "framing only (round-trips; no value semantics established)",
+     "target": "M4+A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "iminmax",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 7 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 7,
+   "n_free_measured": 7,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "14 values tested (sampled over 4-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "srcA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1: 0..255 dense (256 values, EXP-0154, swept under the name `dst_full`)",
+     "target": "G17P"
+    },
+    {
+     "name": "fmt",
+     "free_bits": 5,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..31 dense (all 32 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3: 0..255 dense (256 values, EXP-0154, swept under the name `srcA`)",
+     "target": "G17P"
+    },
+    {
+     "name": "sel",
+     "free_bits": 3,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "8 values tested (dense over 3-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "selhi",
+     "free_bits": 5,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..31 dense (all 32 values)",
+     "target": "M4"
+    },
+    {
+     "name": "dst_full",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+5: 0..255 dense (all 256 values), each under TWO independent seed sets x two gated runs",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "isel10",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "cc": 12,
+    "cmpA": 12,
+    "cmpB": 12,
+    "cmp_mode": 12,
+    "dst": 12,
+    "flags": 12,
+    "opsel": 12,
+    "selFalse": 12,
+    "selFalse_file": 12,
+    "selTrue": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: cc x12 cases, cmpA x12 cases, cmpB x12 cases, cmp_mode x12 cases, dst x12 cases, flags x12 cases, opsel x12 cases, selFalse x12 cases, selFalse_file x12 cases, selTrue x12 cases",
+   "n_fields": 10,
+   "n_free_measured": 10,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "14 values tested (sampled over 4-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "cmpA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 5,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..31 dense (all 32 values)",
+     "target": "M4"
+    },
+    {
+     "name": "cmpB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "cmp_mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "selTrue",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "cc",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "flags",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    },
+    {
+     "name": "selFalse_file",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "selFalse",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "256 values tested (dense over 8-bit domain)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "iter_flat",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 4 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 4,
+   "n_free_measured": 4,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b1",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "sel",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "b4",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "b5",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "iunary",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 7 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 7,
+   "n_free_measured": 7,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b1",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "(byte0 bit7, byte+1) sub-op pairs: (0x27,0x05)=popcount, (0xa7,0x05)=find_msb, (0xa7,0x04)=reverse_bits",
+     "target": "A18"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2 swept: only 0x54/0x55 break the stored result, every other value computes; 0x56 = the integer-unary/format-convert datapath",
+     "target": "A18"
+    },
+    {
+     "name": "dst",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "op_enable",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "src",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "srcdesc",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "tail",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "jump",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "branch_ctrl": 12,
+    "link": 12,
+    "offset": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: branch_ctrl x12 cases, link x12 cases, offset x12 cases",
+   "n_fields": 3,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 2,
+   "fields": [
+    {
+     "name": "branch_ctrl",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "offset",
+     "free_bits": 48,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "162 independently constructed splice points per run around a valid target (deltas -32..+9 dense plus far-forward/backward probes)",
+     "target": "M4"
+    },
+    {
+     "name": "link",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "jump_cond",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "cf_scope": 12,
+    "offset": 12,
+    "reserved": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: cf_scope x12 cases, offset x12 cases, reserved x12 cases",
+   "n_fields": 3,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 2,
+   "fields": [
+    {
+     "name": "cf_scope",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "offset",
+     "free_bits": 48,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "56 values sampled",
+     "target": "G17P"
+    },
+    {
+     "name": "reserved",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 3,
+   "n_match_pinned": 3,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b1",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "0x00, 0x01 inert; only 0xff perturbs the result",
+     "target": "A18"
+    },
+    {
+     "name": "marker",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "0x00, 0x04, 0x54, 0x55, 0xff all reproduce the baseline - RESERVED/inert",
+     "target": "A18"
+    },
+    {
+     "name": "b3",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00, 0x01, 0xff all reproduce the baseline - RESERVED/inert",
+     "target": "A18"
+    },
+    {
+     "name": "scope",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "0x00, 0x01, 0x80, 0x81, 0x83, 0xff swept: 0x81/0x83 pass (bit7 AND bit0 both set), 0x00/0x80/0x01 corrupt the SAVE and HANG the RESTORE, 0xff -> GPU page-fault",
+     "target": "A18"
+    },
+    {
+     "name": "dir_offset",
+     "free_bits": 16,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "SAVE=0x0000, RESTORE=0x1fff, plus a systematic scaling sweep (+5: 0x00->0x01->0xff; +6: 0x00->0x01->0x1f) showing corruption scaling with the value",
+     "target": "A18"
+    },
+    {
+     "name": "reserved7",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00, 0x01, 0xff on both the SAVE and the RESTORE instance - inert",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "mov_imm",
+   "verdict": "GENERATED-AND-EMITTABLE",
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 196114,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": true,
+   "why": "every field labelled emitter-grade AND a zero-copied program using this mnemonic ran correctly against a host oracle on G17P (EXP-0167)",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..15 dense (all 16 values)",
+     "target": "M4"
+    },
+    {
+     "name": "imm7",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..127 dense (all 128 values), against a poisoned read-back buffer",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_top",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "1, at five immediates (128, 129, 140, 200, 255), each in a PAIRED padded/unpadded form",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "mov_zext16",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 4 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 4,
+   "n_free_measured": 4,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "src_reg",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte0 HIGH nibble: all 16 values exercised, as the complete 0..255 byte0 raw-byte probe in B_ZEXT_SYNTH (run01 + run02, judged by the full 16-register architectural dump), plus 16 GENERATED encodings (gen01/gen02/gen03)",
+     "target": "G17P"
+    },
+    {
+     "name": "src_flag",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1, now the WHOLE byte (8 bits). Exercised: bits 0-6 dense 0..127 with bit 7 = 0 (128 values), plus bit 7 dense 0..1 with bits 0-6 = 0 (2 values) -- 129 of the 256 byte values, in TWO independent register forms (B_ZEXT_SYNTH r1 and B2_ZEXT_SYNTH_R5 r5) x two gated runs each. The 127 combinations with bit 7 = 1 AND bits 0-6 != 0 were NOT exercised.",
+     "target": "G17P"
+    },
+    {
+     "name": "subform",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2: 0..255 dense in B2_ZEXT_SYNTH_R5 (256 values) and B_ZEXT_SYNTH (221 of 256 cleanly observed), x two gated runs each",
+     "target": "G17P"
+    },
+    {
+     "name": "extend",
+     "free_bits": 5,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3 bits 3-7 (the field was narrowed from 8 bits to 5): all 32 values of the surviving 5 bits exercised, as part of the dense 0..255 byte+3 sweep in both register forms x two gated runs; all 32 accepted",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "n2_op6",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "15 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "src_desc",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "opsel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "opA",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "opB",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "imm_sel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "pixel_order",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 4 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 4,
+   "n_free_measured": 4,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "kind",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x14 acquire/wait vs 0x04 release/signal; BOTH independently necessary (neither half is redundant)",
+     "target": "M4"
+    },
+    {
+     "name": "scope",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 8-bit range, dense (256 cases) x2 runs",
+     "target": "M4"
+    },
+    {
+     "name": "flags",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 8-bit range, dense (256 cases) x2 runs",
+     "target": "M4"
+    },
+    {
+     "name": "b5",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 8-bit range, dense (256 cases) x2 runs",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "pop_reconverge",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 48,
+   "donor_fields": {
+    "reserved": 12,
+    "scope": 12,
+    "scope_kind": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: reserved x12 cases, scope x12 cases, scope_kind x12 cases",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "scope",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "scope_kind",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "reserved",
+     "free_bits": 16,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "35 values sampled",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "psel",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "flag",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    },
+    {
+     "name": "sel",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "reg_move_c0",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "dst": 12,
+    "op_desc": 12,
+    "src_class": 12,
+    "src_flag": 12,
+    "src_reg": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: dst x12 cases, op_desc x12 cases, src_class x12 cases, src_flag x12 cases, src_reg x12 cases",
+   "n_fields": 5,
+   "n_free_measured": 0,
+   "n_match_pinned": 0,
+   "n_unmeasured": 5,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "src_reg",
+     "free_bits": 7,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "src_flag",
+     "free_bits": 1,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "src_class",
+     "free_bits": 4,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+     "target": "G17P"
+    },
+    {
+     "name": "op_desc",
+     "free_bits": 8,
+     "label": "untested",
+     "kind": "UNMEASURED (label untested)",
+     "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "ret",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "linkmode": 12,
+    "scoreboard": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: linkmode x12 cases, scoreboard x12 cases",
+   "n_fields": 2,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 1,
+   "fields": [
+    {
+     "name": "linkmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "scoreboard",
+     "free_bits": 8,
+     "label": "corpus-correlation",
+     "kind": "UNMEASURED (label corpus-correlation)",
+     "range": "{0x22,0x26,0x02,0x06,0x2a} observed; bit5=wait-set present, bit2=second-slot (located, not spliced)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "ret_luse",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 2 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 2,
+   "n_free_measured": 2,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "linkmode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "tail",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 4 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 4,
+   "n_free_measured": 2,
+   "n_match_pinned": 2,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "15 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "src",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "form",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "b3",
+     "free_bits": 0,
+     "label": "hardware-run",
+     "kind": "MATCH-PINNED (no choice; part of the opcode, not a field)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "scoreboard_fence",
+   "verdict": "DONOR-DEPENDENT",
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 24,
+   "donor_fields": {
+    "kind": 12,
+    "mask": 12,
+    "scope": 12
+   },
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": false,
+   "why": "this mnemonic is built ONLY inside EXP-0167's cf.py, whose every field is _copied() verbatim from the EXP-0090 P3 skeleton; it appears nowhere in the rule-driven generator modules. Donor tokens: kind x12 cases, mask x12 cases, scope x12 cases",
+   "n_fields": 3,
+   "n_free_measured": 0,
+   "n_match_pinned": 0,
+   "n_unmeasured": 3,
+   "fields": [
+    {
+     "name": "kind",
+     "free_bits": 8,
+     "label": "corpus-correlation",
+     "kind": "UNMEASURED (label corpus-correlation)",
+     "range": "0x22 (pre-call), 0x02 / 0x00 (control-flow) observed",
+     "target": "A18"
+    },
+    {
+     "name": "scope",
+     "free_bits": 7,
+     "label": "tokenization-only",
+     "kind": "UNMEASURED (label tokenization-only)",
+     "range": "framing only (round-trips; no value semantics established)",
+     "target": "M4+A18"
+    },
+    {
+     "name": "mask",
+     "free_bits": 8,
+     "label": "tokenization-only",
+     "kind": "UNMEASURED (label tokenization-only)",
+     "range": "framing only (round-trips; no value semantics established)",
+     "target": "M4+A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "sel",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b1",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 swept 0..255 dense x2 input vectors (8 ok / 248 silent_zero / 256 wrong_value across the two vectors)",
+     "target": "M4"
+    },
+    {
+     "name": "b2",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+2 swept 0..255 dense x2 input vectors (128 ok / 128 silent_zero / 128 wrong_value / 127 fault)",
+     "target": "M4"
+    },
+    {
+     "name": "selFalse",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+3 swept 0..255 dense x2 input vectors (510 ok / 2 fault)",
+     "target": "M4"
+    }
+   ]
+  },
+  {
+   "mnemonic": "sfu_marker",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 2 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 2,
+   "n_free_measured": 2,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b0_hi",
+     "free_bits": 5,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+0 bits 3-7, exercised as the dense 0..255 byte+0 sweep: 512 cases over two gated runs on M4/G16G (EXP-0146) and reproduced byte-for-byte on G17P in THREE independent carriers (EXP-0157: fast::sin, fast::cos, sin+cos+tan)",
+     "target": "G16G+G17P"
+    },
+    {
+     "name": "b1_hi",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "byte+1 bits 2-7, exercised as the dense 0..255 byte+1 sweep: 512 cases over two gated runs on M4/G16G (EXP-0146), reproduced on G17P in three independent carriers (EXP-0157)",
+     "target": "G16G+G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 10 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 10,
+   "n_free_measured": 10,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "scope",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "b0hi",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "opcls",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "cache",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..1 dense (all 2 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "op",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "(byte0 bit7, byte+1) op-select; float simd_product = 0xbf byte+1 0x06, HW-validated against simd_sum",
+     "target": "A18"
+    },
+    {
+     "name": "dst",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "opmarker",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "src",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "shape",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0..255 dense (all 256 values)",
+     "target": "G17P"
+    },
+    {
+     "name": "dtype",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x03 int-reduce, 0x07 int-minmax, 0x12 float-reduce, 0x09 inclusive-scan, 0x0b exclusive-scan; splicing 0x03 -> 0x01/0x07 left the sum unchanged, refuting RT-5's competing enum",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "spill_frame_marker",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "b1",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "swept, runtime-inert",
+     "target": "A18"
+    },
+    {
+     "name": "b2",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "swept, runtime-inert",
+     "target": "A18"
+    },
+    {
+     "name": "b3",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0xff faults; the other swept values are inert - the only live byte",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "sr_read_wide",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 6 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 6,
+   "n_free_measured": 6,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "dst",
+     "free_bits": 4,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "15 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "sel",
+     "free_bits": 7,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "127 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "width",
+     "free_bits": 6,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "operand",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "marshal",
+     "free_bits": 16,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "82 values executed (boundaries + samples)",
+     "target": "G17P"
+    },
+    {
+     "name": "phase",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "255 values executed (boundaries + samples)",
+     "target": "G17P"
+    }
+   ]
+  },
+  {
+   "mnemonic": "stop",
+   "verdict": "GENERATED-AND-EMITTABLE",
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "generator_assemble_calls": 578,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": true,
+   "why": "every field labelled emitter-grade AND a zero-copied program using this mnemonic ran correctly against a host oracle on G17P (EXP-0167)",
+   "n_fields": 1,
+   "n_free_measured": 1,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "reserved",
+     "free_bits": 24,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "the full 24-bit body corrupted; HW-proven non-load-bearing padding",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "tex_addr_setup",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 11 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 11,
+   "n_free_measured": 11,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "form",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00,0x01,0x05,0x07,0x0d swept: 0x01 coordinate projection (samples level 0), 0x05 sample-address + explicit LOD/gradient, 0x07 raw-coordinate passthrough, 0x0d alias of 0x05",
+     "target": "A18"
+    },
+    {
+     "name": "cache",
+     "free_bits": 1,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x54,0x55,0x56,0x50,0x74,0x14 all give an identical sampled result - the WHOLE byte is inert here",
+     "target": "A18"
+    },
+    {
+     "name": "op_reg",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff swept: only 0x06 tracks the LOD input (lod=1 -> 1100, lod=2 -> 2000); every other value reads a zero register",
+     "target": "A18"
+    },
+    {
+     "name": "op_hi",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00 and 0x40 preserve the operand (bit6 inert); 0x02,0x04,0x08..0xff corrupt it to level 0",
+     "target": "A18"
+    },
+    {
+     "name": "op_reg2",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x0c -> L1, 0x02/0x06 -> L2, all other swept values -> L0",
+     "target": "A18"
+    },
+    {
+     "name": "rsv6",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00..0x40 inert; only 0xff perturbs",
+     "target": "A18"
+    },
+    {
+     "name": "op_mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "bit2 set {0x04,0x06,0x0c,0xff} keeps the operand active; bit2 clear {0x00,0x02,0x08,0x10,0x20,0x40} makes it read 0",
+     "target": "A18"
+    },
+    {
+     "name": "src_desc",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "only 0xf0 and 0xff preserve the operand; every value 0x00..0x40 makes it read 0 (hi-nibble 0xf = 'operand is a register')",
+     "target": "A18"
+    },
+    {
+     "name": "op_desc9",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0xc0,0xc2,0xc4,0xc6,0xe4,0xf4 preserve; 0xc8,0xcc,0x44,0x84 drop the operand (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6})",
+     "target": "A18"
+    },
+    {
+     "name": "op_cnt",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x08 -> L1, 0x0c -> L2, 0x18 -> L1, {0x00,0x04,0x0a,0x0e,0x10} -> L0",
+     "target": "A18"
+    },
+    {
+     "name": "rsv11",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff all leave the result unchanged - RESERVED pad",
+     "target": "A18"
+    }
+   ]
+  },
+  {
+   "mnemonic": "vtx_coord_xform",
+   "verdict": "EMITTABLE-NOT-GENERATED",
+   "in_emittable_set": true,
+   "in_generated_corpus": false,
+   "generator_assemble_calls": 0,
+   "donor_fields": {},
+   "pilot_fields_used": {},
+   "can_generate_from_documented_rules_alone": null,
+   "why": "all 3 fields carry an emitter-grade label, but NO generated program containing this instruction has ever been executed. Closure rule 1 (generated, not merely decoded) is not established for it by EXP-0167.",
+   "n_fields": 3,
+   "n_free_measured": 3,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "fields": [
+    {
+     "name": "mode",
+     "free_bits": 8,
+     "label": "hardware-run",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 8-bit range, dense (256 cases) x2 runs",
+     "target": "M4"
+    },
+    {
+     "name": "sel",
+     "free_bits": 8,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 8-bit range, dense (256 cases) x2 runs",
+     "target": "M4"
+    },
+    {
+     "name": "operand",
+     "free_bits": 40,
+     "label": "isolated-byte-diff",
+     "kind": "FREE (implementer chooses; measured)",
+     "range": "full 40-bit range, dense (1339 cases) x2 runs",
+     "target": "M4"
+    }
+   ]
+  }
+ ]
+}

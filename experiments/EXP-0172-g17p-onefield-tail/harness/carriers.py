@@ -120,7 +120,6 @@ CARRIERS = {
     "texread": dict(
         kind="render", src="kernels/k_texread.metal", color_format=125,
         samples=1, width=W, height=H, tex_sample=(8, 8),
-        buf0=BUF_TEXREAD_U32, buf0_is_u32=True,
         why="tex_sample.coord -- EXP-0155's movement did not reproduce (73-93% "
             "cross-run agreement). coord is a REGISTER INDEX, so a swept value "
             "points the coordinate operand at an arbitrary register; on a filtered "
@@ -130,7 +129,6 @@ CARRIERS = {
     "texmix": dict(
         kind="render", src="kernels/k_texmix.metal", color_format=125,
         samples=1, width=W, height=H, tex_sample=(8, 8),
-        buf0=BUF_TEXREAD_U32, buf0_is_u32=True,
         why="tex_sample.coord -- the same descriptor reached through three "
             "operation kinds (explicit-LOD sample, gather, integer read) in one "
             "program, so a coord verdict is not a property of one kind. Every "
@@ -177,6 +175,19 @@ CARRIERS = {
         why="vary_slot.slot -- varyings sourced from memory / immediates / "
             "computed values rather than one class."),
 
+    # -------------------------------------------------- tex_deriv.dstsrc
+    "deriv": dict(
+        kind="render", src="kernels/k_deriv.metal", color_format=125,
+        samples=1, width=W, height=H,
+        why="tex_deriv.dstsrc -- the ONLY field left blocking tex_deriv, and the "
+            "ISA database has never had a carrier authored for it: every previous "
+            "0x37 in the corpus was incidental to implicit-LOD sampling. Eight "
+            "independent derivatives of three varyings with different gradients, "
+            "each in its own output channel, across BOTH axis values (0x92 dfdx / "
+            "0x90 dfdy) and the fwidth abs+add form -- so the arm list spans the "
+            "axis dimension inside one program and a dst- or src-register "
+            "redirect is an exact numeric change, not noise."),
+
     # ------------------------------------------------------ TIER 2 carriers
     "tgat": dict(
         kind="compute", src="kernels/k_tgat.metal", function="k_simd",
@@ -189,4 +200,72 @@ CARRIERS = {
         why="n4_cf_word.b3 -- the 04 01 00 <b3> control word was located before "
             "pop_reconverge / threadgroup_barrier in divergent-CF kernels; this is "
             "nested data-dependent divergence with reconvergence points."),
+}
+
+
+# ---------------------------------------------------------------------------
+# The fields this experiment is chartered to sweep, and the mnemonics the
+# pre-freeze census must therefore look for.  TIER is the pre-registered
+# priority; DECLINED fields are listed with their named reason and get NO device
+# time (FIELD-SWEEP-PROTOCOL: "a field declined with a named reason is a real
+# deliverable").
+TARGETS = {
+    # ---- TIER 1: a real chance of promotion, strongest oracle first ----
+    "falu2i":               ["imm_flag"],
+    "get_sr":               ["form"],
+    "tex_sample":           ["coord"],
+    "vary_slot":            ["slot"],
+    "tex_deriv":            ["dstsrc"],
+    # ---- TIER 2: swept for the record; promoted only if genuinely LIVE ----
+    "imageblock_store":     ["src"],
+    "irotate":              ["b2"],
+    "simd_ballot":          ["cache"],
+    "simd_shuffle":         ["cache"],
+    "frame_marker_compact": ["b1"],
+    "n4_cf_word":           ["b3"],
+    # ---- TIER 3: swept for the record, promotion DECLINED IN ADVANCE ----
+    "ret":                  ["scoreboard"],
+    "dev_scoreboard_fence": ["scope_flag"],
+}
+
+# Fields in this experiment's charter that get NO device time, each with the
+# reason.  Pre-registered so the decision cannot be rewritten after the runs.
+DECLINED = {
+    "cubearray_coord_const.b3":
+        "UNSWEEPABLE, not merely untested. EXP-0148 found the descriptor fires "
+        "0 times in 1080 corpus files under both the strict and the resync walk: "
+        "its `f0 c0 04` signature in k_tex_array_cube sits at offset 48, INTERIOR "
+        "to the 12-byte tex_addr_setup token spanning 40..52, so it can never be "
+        "reached. Its only exercise is the literal 4-byte string in "
+        "roundtrip_test.py -- and a round trip is not an emitter gate "
+        "(FIELD-SWEEP-PROTOCOL sec.3b). There is no program in which to splice "
+        "b3. RECOMMENDATION: this is a descriptor-existence question for the "
+        "orchestrator (delete or re-anchor), not a sweep.",
+    "half_alu_fma12.ext":
+        "BLOCKED BY A DESCRIPTOR DEFECT. half_alu_fma12 is flagged `emit_unsafe` "
+        "in db.json because its modelled length OVER-CONSUMES the following "
+        "instruction's leader (FIELD-SWEEP-PROTOCOL sec.6 known list), and `ext` "
+        "is the 64-bit unmodelled remainder -- i.e. exactly the bytes the length "
+        "defect puts in doubt. Sweeping it would sweep the NEXT instruction. The "
+        "length must be fixed before the field means anything.",
+    "mesh_out_src.sel":
+        "NO CARRIER. mesh_out_src is MESH-stage-only and harness/gfrun2.m has no "
+        "mesh pipeline (MTLMeshRenderPipelineDescriptor) at all. Authoring one is "
+        "a harness project with its own pre-registration, not a field sweep; "
+        "attempting it inside this experiment would mean building an unvalidated "
+        "render path and a frozen contract at the same time.",
+    "imageblock_store.src (as an INSTRUCTION closure)":
+        "SWEPT (tier 2) but it does NOT close the instruction: the live worklist "
+        "now shows imageblock_store TWO fields away (`src` + `b4`), and `b4` is "
+        "EXP-0163's INERT-ROBUST result, which rule 8 caps at "
+        "single-template-inference. Promoting `src` is a field win only.",
+    "ret.scoreboard / dev_scoreboard_fence.scope_flag":
+        "PROMOTION DECLINED IN ADVANCE (they are still swept, for the record). "
+        "Both are ORDERING controls -- an execution/scoreboard-wait mask and a "
+        "memory-fence scope. This harness has no ordering observable: it reads "
+        "back after command-buffer completion, which flushes. A carrier that "
+        "moves therefore proves GENERAL sensitivity to the byte, not "
+        "ordering-specific power, which is why three prior experiments declined "
+        "to promote this family. We decline for the same reason and say so, "
+        "rather than promoting on a general-sensitivity result.",
 }

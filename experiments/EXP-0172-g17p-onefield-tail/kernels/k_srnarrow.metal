@@ -21,7 +21,8 @@ kernel void k_simd(device uint *out       [[buffer(0)]],
                    uint tps  [[threads_per_simdgroup]],
                    uint tpt  [[threads_per_threadgroup]])
 {
-    uint u = in[tidg & 31u];
+    (void)in;   // NOT READ -- see k_srwide.metal: no device_load anywhere on
+                // this carrier, so no observation depends on a load landing.
 
     device uint *o = out + lane * 16u;
     o[0]  = tidg;  o[1]  = tidt;  o[2]  = lane;  o[3]  = sgi;
@@ -30,9 +31,9 @@ kernel void k_simd(device uint *out       [[buffer(0)]],
     o[8]  = lane * 5u + sgi;
     o[9]  = sgn * 7u + tps;
     o[10] = tpt * 11u + lane;
-    o[11] = u ^ (tidg * 31u + tidt * 7u + lane * 11u);
-    o[12] = u + tps;
-    o[13] = u ^ sgn;
+    o[11] = tidg * 31u + tidt * 7u + lane * 11u;
+    o[12] = tidg * 131u + tps;
+    o[13] = (tidt * 17u) ^ sgn;
     o[14] = tidg + tidt + lane + sgi + sgn + tps + tpt;
     o[15] = (tidg << 8) | (lane << 3) | sgi;
 }

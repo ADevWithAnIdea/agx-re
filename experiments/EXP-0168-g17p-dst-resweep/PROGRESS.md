@@ -825,3 +825,424 @@ splices a known-hazardous field.
 Also noted from the 468 smoke cases, to be settled when the arm runs properly:
 `falsifier_held: 2` — two render falsifiers did NOT fire, the same class of
 defect the compute smoke found in four arms.
+
+## 2026-08-30 — M15: COORDINATOR'S STALE-db.json CHECK. CLEAN — and EXP-0168
+##                  dodged it by exactly one line, which was the "benign" M8 drift.
+Answering all three parts, measured on the device, not asserted.
+
+**1. What my harness actually resolved on the neo.**
+```
+ISA_DIR resolved: /Users/user/agxre/EXP-0168/tools/agx-isa   <- MY PRIVATE COPY
+  db.json   07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0
+  isadb.py  c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36
+  172 instructions / 1062 fields
+  falu2  = [dst, srcA_size, srcA_reg, opsel, opflags, srcB_size, srcB_reg,
+            ctrl, srcB_imm, srcA_class, srcB_class, srcB_neg, mod_hi,
+            srcA_reg_top, srcB_reg_top]     <- srcA_class/srcB_class PRESENT
+```
+Byte-identical to my pinned `work/frozen/` snapshot, and it is what run02's
+`00_env.json` recorded live (`isa_dir`, `db_sha256`, `isadb_sha256`).
+The shared copy, read only for comparison, IS stale exactly as EXP-0169 found:
+```
+~/agxre/tools/agx-isa/db.json  f5db942f…  171 instructions / 1036 fields
+  falu2 = [... srcB_imm, mod_lo, srcB_neg ...]   <- mod_lo REPLACES the two _class
+```
+**My harness never read it.** `sync.sh push` copies `$REPO/tools/agx-isa` into
+`~/agxre/EXP-0168/tools/`, a private per-experiment copy, for precisely this
+reason (recorded in `sync.sh`'s header before any of this happened).
+
+**AND HERE IS THE PART WORTH THE COORDINATOR'S ATTENTION.** `work/frozen` did
+**not** exist on the neo, so `_find_isadb()` fell through past candidate #1. The
+ORIGINAL candidate order — the one hashed into `CAPTURE_CONTRACT.json` at freeze
+— was:
+```
+EXP/work/frozen                        (absent on the neo)
+~/agxre/EXP-0168/frozen                (absent)
+~/agxre/tools/agx-isa                  <-- THE STALE SHARED COPY. WOULD HAVE WON.
+EXP.parents[1]/tools/agx-isa
+```
+The M8 post-freeze drift I recorded as "benign — it changes WHERE the pinned db
+is looked up, not WHAT" reordered that list to put `EXP/tools/agx-isa` second.
+**That one line is the only reason EXP-0168 is not keyed to `mod_lo` right now.**
+I recorded it as cosmetic; it was load-bearing. The lesson is not "we got lucky",
+it is that **a path-search fallback list is a silent correctness surface**, and a
+harness should FAIL when its pinned toolchain is absent rather than quietly
+resolve something else. `work/frozen/{db.json,isadb.py}` is now pushed to the neo
+and `ISA_DIR` resolves to `/Users/user/agxre/EXP-0168/work/frozen` — candidate #1
+wins explicitly instead of by luck.
+
+**2. `start`/`width` against the repo's CURRENT db.json** (`322847609d…`, which
+has moved since my freeze): checked all 28 fields this experiment touches
+(the 14 `dst` rows, the 12 one-field-away, the 2 companions).
+**MISMATCHES: NONE.** Identical `start`/`width` in both, and the frozen/current
+field-NAME sets are equal (`only in frozen: []`, `only in current: []`) — the
+hash moved elsewhere. So my rows will pass `merge_verdicts.py`'s stale-DB refusal
+rather than trip it. Verdict rows already emit `values_dispatched`,
+`distinct_bytes`, `encodable_range`, `start`, `width` (added at M13), plus
+`dense_required`, `dense_ok`, `bytes_per_value` and `under_covered`.
+
+**3. The `device_load` false-movement mode — checked, and it does not reach this
+experiment. Two independent reasons.**
+- **By construction:** STYLE-S seeds r0..r15 with `mov_imm` immediates (int) or
+  `falu2i` minifloat immediates (float) — **there is no `device_load` in the
+  seeding path at all**, so an async load cannot land a partially-seeded
+  register file. And the `dst` oracle is not digest-equality against a baseline:
+  it is a HOST-COMPUTED slot pattern whose GPU-independent half is the seed table
+  known a priori from those immediates. A re-seeded baseline cannot fabricate
+  movement against a host-known table.
+- **By measurement,** because the STYLE-P carriers DO use `device_load`:
+  (a) the prefreeze diagnostic dispatched each of `k_atomic_hi`, `k_atomic_lo`,
+  `k_atomic_min`, `k_if_flat` and `k_if_nest3` **6 times identically** and each
+  gave **1 distinct digest** (`raw/prefreeze/diag_fals3.json`);
+  (b) run02's `baseline.jsonl` holds **70 baseline takes across 33 arms** and
+  **every arm has exactly 1 distinct baseline hash** — including
+  `STOP/midprogram`, whose 7 takes span the 10 baseline-drift child restarts and
+  came back with the SAME hash each time, so that drift was transient
+  contention, not a re-seed.
+  **ARMS WITH A DRIFTING BASELINE: NONE.**
+
+Headline cited from here on: **41 of 166 emittable, 616 fields.**
+
+## 2026-08-30 — M16: THE HEADLINE MEASUREMENT, and a register-file fact that
+##                  falls out of my own seed table failing
+### `uniform_mov`/`reg_move_*` `dst` x FORM cross-product — the measurement
+### EXP-0140 never made
+run02, arm `REGMOVE/dump`, 224 valid dst cases = 16 dst x 14 byte+2 form values,
+scored against the **HOST-KNOWN SEED TABLE** (not against the baseline).
+
+| byte+2 | descriptor(s) it satisfies | dst 0..14 -> exactly slot dst | value written |
+|---|---|---|---|
+| 0x00 | `reg_move_c0` | **15/15** | 0x0 |
+| 0x01 | `reg_move_c1` / `uniform_mov` | **15/15** | 0x0 |
+| 0x02 | — | **15/15** | 0x30 |
+| 0x05 | — | **15/15** | 0x0 |
+| 0x09 | `reg_move_c9` | **15/15** | 0x0 |
+| 0x11, 0x15, 0x31, 0x35 | — | **15/15** each | 0x0 |
+| 0x21, 0x25 | `reg_move_c2var` (bits 20..23 = 2) | **15/15** each | 0x0 |
+| 0x0b | `reg_move_cb` | **1/15** — dst deviates | 0x4b |
+| 0x0f, 0x26 | — (EXP-0113's "nondeterministic" pair) | **0/15**, many slots move | — |
+
+**`dst` selects the destination register, and the slot moves with the VALUE, at
+11 of 14 form values — including every form EXP-0140 classified `silent_zero`
+(c0, c2var) and `wrong_value` (c9).** That is precisely the M1b prediction: those
+forms still WRITE the destination, so the observable has to be *which slot
+changed*, not *what value it changed to*. A single-word read-back cannot express
+that dimension at all, which is why EXP-0140 recorded "16 values, 0 moved".
+`reg_move_cb` genuinely differs (1/15) and 0x0f / 0x26 change the instruction
+LENGTH (their signature is a partially-poisoned dump). Both are reported as
+themselves, not smoothed into the positive result.
+
+I report the byte+2 VALUE and which descriptors' `match` constants it satisfies,
+**not** a 1:1 form->descriptor map: 0x01 satisfies both `reg_move_c1` and
+`uniform_mov`, and `c2var` is pinned on bits 20..23 rather than the low nibble,
+so several values are jointly satisfiable. Every case records its full `bytes`,
+so the orchestrator can re-key any of this without re-running.
+
+### r15 IS NOT WRITABLE THROUGH THE 4-BIT DST NIBBLE — and my M10 "fix" for it
+### silently did nothing
+At M10 I changed `SEED_I[15]` 0 -> 121 and `SEED_F[15]` 0.0 -> 2.5 to remove a
+seed/value collision. **The write never landed.** In run02, across every arm and
+BOTH seeding paths, r15 reads **0x0**:
+- int path `mov_imm(15, 121)` = `fc79`, which round-trips as
+  `mov_imm {dst:15, imm7:121, imm_top:0}` — encoding is correct;
+- float path `falu2i(r15, r14, +2.5)` — same result;
+- meanwhile **r14 reads correctly** (0x3 int, 0x0 float) through the identical
+  code path, so this is specific to index 15, not to the seeding.
+
+**Measured fact: a write with the 4-bit destination nibble = 15 is discarded and
+the slot reads 0.** Driver consequence, which is the point: an emitter must not
+allocate register index 15 as the destination of a 4-bit-dst instruction — it is
+a bit bucket, not a GPR.
+
+**What I CANNOT distinguish, stated rather than glossed:** "physical r15 is a
+hardwired zero register (writes discarded, reads 0)" and "the 4-bit dst nibble
+value 15 encodes *no destination*" predict identical observations in every
+carrier here. Separating them needs a write through a WIDER dst field to physical
+r15 and a read back through the 7-bit source side; this experiment has a 7-bit
+*source* probe (`falu2i` srcA) but no 7-bit *destination*, so it cannot. Recorded
+as a named open question, with the note that EXP-0128's "imm >= 128 does not
+write the register at all" is a different and unrelated fact.
+
+**Consequence for this experiment's own coverage claim, applied against myself:**
+`dst = 15` is **UNDECIDABLE** in this carrier at every form that writes 0 —
+r15 reads 0 whether the instruction wrote it or not. So `uniform_mov.dst`
+dispatches 16 values but only **15 are decidable**, and the verdict row must say
+so rather than claim dense 16/16. The "1/16 exact" that the naive
+seed-table comparison reported at 11 forms was exactly this artifact: at v=15 the
+only changed slot is 15, which is *also* changed in every other case.
+
+## 2026-08-30 — M17: `if_push.scope` is the strongest NEGATIVE in the set, and
+##                  the carrier that produced it is the one M2c specified
+run02, all four IFPUSH arms, scored the way `verdicts.py` scores them
+(`observed.digest or observed.hash` — STYLE-P records key it as `hash`):
+
+| arm | carrier dimension | ladder distinct | sweep | moved | falsifier |
+|---|---|---|---|---|---|
+| `IFPUSH/flat` | ONE non-nested scope (the blind control) | **4/16** | 256 | **0** | fires |
+| `IFPUSH/loop` | a real loop | **4/16** | 256 | **0** | fires |
+| `IFPUSH/nest3.outer` | 3 genuine nesting levels, outer push | **4/16** | 256 | **0** | fires |
+| `IFPUSH/nest3.inner` | 3 genuine nesting levels, inner push | **6/16** | 256 | **0** | fires |
+
+**Four structurally distinct carriers, every ladder PASSING, every falsifier
+FIRING, dense 256/256, and zero movement in all four.** The ladder is
+`scope_kind` — the same instruction's neighbouring byte, which EXP-0140 measured
+moving 178 cases to `wrong_value`. So the observable demonstrably resolves
+differences on this instruction and still cannot see `scope` at any value.
+
+This matters because M2c named exactly why EXP-0140's flat verdict was
+unconvincing, and all three defects are fixed here:
+1. its if/else lowered to `isel10`, a SELECT, exercising no mask stack — these
+   carriers put a **store** inside every divergent region, which cannot be
+   if-converted;
+2. both its live pushes carried scope 0x54, so the "ping-pongs 0x54/0x56 with
+   nesting parity" model was never instantiated — `nest3` supplies **three
+   genuine nesting levels**;
+3. its observable was ONE GPR over 8 lanes of a partially-filled SIMD — here it
+   is a per-lane x per-region slot pattern out of a poisoned buffer over a full
+   32-lane dispatch.
+The inert result therefore survives the specific objections that made the
+original one weak, which is the only thing that makes a negative worth having.
+Pending run03, this is a `proven-dont-care` candidate; per the orchestrator's
+ruling its label is **`single-template-inference`, not `hardware-run`**, unless
+`scope`'s role is independently known.
+
+Also from the same pass, and going into the verdict rows:
+`ATOMIC/highreg` ladder 8/12 distinct, 14 moved; `ATOMIC/lowreg` 2/12, 15 moved;
+`ATOMIC/minop` 2/12 distinct but **0 moved** — so `atomic_mem.addr_desc_hi` is
+live on two of three carriers and inert on the third, which is a per-carrier
+split the verdict must report rather than average away.
+
+### A methodological note against myself
+My first pass at both this table and the dst table read the wrong key
+(`observed.digest` only, which is `None` for STYLE-P) and reported every IFPUSH
+ladder as flat — i.e. "all four arms would be DISCARDED". The harness and
+`verdicts.py` were correct; my ad-hoc analysis snippet was not. Recorded because
+the near-miss is the same shape as everything else in this log: **an analysis
+that silently reads a field that is absent produces a confident, wrong,
+negative.** It is caught only by cross-checking against an independent
+measurement — here the prefreeze smoke, which had reported 4-6 distinct digests
+for those same arms and disagreed loudly enough to force a second look.
+
+## 2026-08-30 — M18: BOTH GATED COMPUTE RUNS COMPLETE. VERDICTS:
+##                  16 hardware-run / 6 proven-dont-care / 2 still-underpowered
+run03 DONE: 10,366 cases, **0 hangs, 0 stopped fields**, and the outcome mix is
+near-identical to run02 (`ok` 3229 vs 3229, `silent_zero` 491 vs 491,
+`undecodable` 836 vs 836, `fault` 674 vs 664, `wrong_value` 5134 vs 5144).
+Victims 419 vs 83 — the render-smoke concurrency, already recorded at M14.
+Both runs pulled back in full (16.5 / 16.7 MB `sweep.jsonl`).
+
+`analysis/verdicts.py --runs run02 run03` -> `analysis/field_verdicts.json`:
+**hardware-run 16 · proven-dont-care 6 · still-underpowered 2.**
+Cross-run agreement **100.000% on 23 of 24 fields**, 99.609% on `cvt_f2h.op`
+(1 disagreement in 256 against 221 moved = 221x). Every row clears my
+>=99.5% / >=4x bar, not just the orchestrator's >=99% / >=2x.
+Every row carries `values_dispatched`, `distinct_bytes`, `encodable_range`,
+`start`, `width`, `dense_required`, `dense_ok`, `bytes_per_value`,
+`under_covered` — and `undecidable_values` / `decidable_values` /
+`undecidable_why` where the r15 finding applies.
+
+**`uniform_mov.dst`: 16 values, 224 distinct bytes, 214 moved, 3 carriers,
+100.000% agreement.** EXP-0164's withheld row reads "16 values dispatched, 0
+observations moved".
+
+### DEFECT 8 — the same disease as defect 5, on the OTHER stop arm
+The first joint run put all four `stop` fields at `still-underpowered` with
+"the liveness ladder (kind=falsifier_contrast) did not pass". Cause, from the raw:
+`STOP/terminal`'s falsifier shows `probe = 0x4d` (= 77 = `SENT_WITNESS`, so the
+stop did NOT terminate) against the baseline's `probe = 0xdeadbeef` (it DID) —
+**the falsifier is plainly firing** — but `classify_slots` compares only the 16
+registers, which are identical by construction on that carrier because the dump
+has already run in every case. So it scored `ok`, failed the arm's own ladder,
+and blocked the fields. It also meant the terminal arm's **sweep** could see
+nothing at all: 836 cases, all `ok`, all `moved=False`.
+Fixed in the same uniform, raw-untouched way as defect 5: the terminal arm's
+`outcome`/`moved` are re-derived from `observed.probe`
+(POISON = terminated, 77 = did not), with POST required present. After the fix
+all four `stop` fields are `proven-dont-care` at 2 carriers.
+**837 records re-corrected per run**, every one keeping its prior values under
+`_recorrected`, and both rules recorded in `_meta.corrections_applied`.
+
+**The pattern across defects 5 and 8 is worth naming for the protocol: on a
+carrier built so that the ABSENCE of something is the measurement, the generic
+outcome/validity classifier reads the wrong word and returns a confident
+negative.** Both of this experiment's stop arms had it, in opposite directions.
+
+### Honest limits recorded on the verdicts rather than argued around
+- `copysign.operands` and `get_sr.form` are 100.000%-agreeing, dense, 0-movement
+  — and stay `untested` because they have **ONE** carrier. For `copysign` a
+  second one is not buildable: the compiler will not emit the instruction in a
+  high-pressure kernel. More device time cannot fix either.
+- `stop.reserved` is 24 bits: 66 of 16,777,216 values dispatched, so its row
+  carries `under_covered: true` and its don't-care claim is explicitly bounded to
+  the sampled set.
+- `dst = 15` is undecidable everywhere (the r15 finding), so `uniform_mov.dst` is
+  16 dispatched / **15 decidable**, stated on the row.
+
+`RESULTS.md` written with the full verdict table, the dst x form cross-product,
+the r15 finding, the `if_push.scope` negative, all six by-construction defects,
+the two new protocol rules, run integrity, and the stale-db.json near-miss.
+**Render gated run `g17p_20260830_rrun01` launched** (compute runs are finished,
+so the machine is no longer shared with my own sweep).
+
+## 2026-08-30 — M19: render rrun01 found the REAL hazardous band and refuted an
+##                  A18 result on G17P. Stopped, corrected, relaunched.
+rrun01 reached 3 of 19 arms / 545 cases with **9 hangs** before I stopped it. Both
+causes are findings, and both were costing coverage.
+
+### FINDING: `frag_color_pack.dst`'s hazardous band is CONTIGUOUS 194..197
+The prefreeze smoke had measured 194 and 196 hanging, so I deferred
+`[192, 193, 194, 196]` to the end of the order. **rrun01 then hung at 195 and
+197** — on three arms each (`r_fcp1#0`, `r_fcp1#1`, `r_fcp1s#0`). So the sweep
+reached 195, hung, reached 197, hung, hit the two-hangs-per-field budget and
+**stopped at 197 — leaving 198..255 unswept for the third time across three
+experiments.** Deferring half a contiguous hazard band does nothing.
+Band widened to **192..197**; verified offline that all of 198..255 now precedes
+the hazardous tail in the dispatch order.
+So the full picture on G17P: **192, 193 contained faults; 194, 195, 196, 197
+genuine hangs.** EXP-0155 stopped at 194 and never learned why.
+
+### CROSS-TARGET REFUTATION: `src_present_mask = 0xff` HANGS on G17P
+`F_mask_ff` is pre-registered from EXP-M4-14, HW-VALIDATED on **A18**, as an
+ILLEGAL encoding producing a **CONTAINED command-buffer fault (the device
+survives)**. On **G17P it HANGS**, 3 of 3 arms. Its own pre-registration
+anticipated the possibility ("if it hangs instead, it counts against the arm's
+hang budget like any other hang") — and the budgetary consequence is what I had
+not anticipated: **8 `frag_color_pack` arms x 1 hang each = a third of
+`MAX_HANGS_TOTAL` spent re-confirming one refutation before any other family
+runs.** With `MAX_HANGS_TOTAL = 24`, rrun01 was on course to stop before
+`pixel_order`, `vtx_out_pos` or `iter_at` ran at all.
+Fixed with a new pre-registered flag `once_per_carrier=True`: the falsifier is
+dispatched **once per CARRIER** rather than once per arm, because the finding is
+a property of the carrier, not of which occurrence is spliced. Later arms on the
+same carrier emit a `not_run` record naming the arm and outcome that already
+established it — recorded, never silently skipped.
+
+rrun01's partial raw is preserved under `raw/superseded/` with a name saying what
+it did not know, rather than deleted. Relaunched as `g17p_20260830_rrun02`.
+`work/render_build/mocktest.py`: **MOCK TEST PASS** with both changes.
+
+## 2026-08-30 — M20: a SIBLING EXPERIMENT is now on the machine, and defect 9
+### EXP-0172 is running on the neo
+`ps` shows multiple `~/agxre/EXP-0172/work/agxrun_persist` processes. The dispatch
+told me "all other device experiments are stopped"; that is no longer true, and
+it matters here specifically because **my `frag_color_pack` arms generate genuine
+device hangs** (192..197, plus `src_present_mask = 0xff`). A hang kills a
+sibling's in-flight command buffers. Flagged to the orchestrator.
+
+**Resequenced in response, and it is the right ordering anyway:** the render arm
+is now run as two passes, hang-free families FIRST —
+`--mnem vtx_out_pos,pixel_order,iter_at` (`g17p_20260830_rclean01`), and
+`frag_color_pack` separately afterwards. Three benefits: the clean families are
+banked before any hazardous value is dispatched; the global hang budget is not
+spent before they run (which is what was about to happen in rrun01); and the
+window during which I am dangerous to EXP-0172 is bounded and known.
+`rrun02`'s partial raw is preserved under
+`raw/superseded/rrun02_partial_fcp_first_ordering`.
+
+### DEFECT 9 — I added a whole instruction family without its ORACLE
+`rclean01` crashed at its first baseline dispatch:
+```
+File "harness/rendercarriers.py", line 579, in oracle
+    vals = cfg["fcp_values"]
+KeyError: 'fcp_values'
+```
+`oracle()` branches `vtx` / `rog` / else-`fcp`. My new `itr` family fell through
+to the `fcp` branch. The `itr` carriers are shaped exactly like `vtx` — same MSL
+skeleton, same `vtx_values` key, same `rt_count`/`out_buf` surfaces — so the fix
+is `if fam in ("vtx", "itr")`, verified offline: `r_i8`/`r_i8s` now produce
+`PIX0 [1,2,4,8]`, `PIX1`, and a 96-float `OUTBUF` identical in shape to `r_v8`'s,
+with a distinct alt oracle `[3,5,9,17]`.
+
+**Why the offline mock test did not catch it:** `work/render_build/mocktest.py`
+exercises arm selection, ladders and falsifier bookkeeping, but **never calls
+`RC.oracle()`** — so a family can pass the mock and still have no host oracle at
+all. That is the ninth by-construction defect in this experiment and the second
+where **a check that passes without exercising the thing it appears to check**
+was the real problem (the first being EXP-0140's co-varying observable). Recorded
+as a gap in the mock, not repaired here.
+
+## 2026-08-30 — M21: render arm — one COMPLETE gated run, real results, and a
+##                  second run blocked by machine contention
+### `g17p_20260830_rclean01` — COMPLETE: 2,632 cases in 85.1 s, 4 hangs,
+### `stopped_early: false`, 0 refused arms
+Run as a hang-free-families-first pass (`--mnem vtx_out_pos,pixel_order,iter_at`)
+so the clean families were banked before any `frag_color_pack` hazard was
+dispatched, and so my window of danger to EXP-0172 was bounded.
+
+`analysis/render_verdicts.py` -> `analysis/render_verdicts.json`.
+**All render verdicts are PROVISIONAL: one gated run means cross-run agreement,
+the pre-registered promotion gate, has not been evaluated.** The analyser says so
+on every row itself; I am not going to launder a one-run result.
+
+| field | bucket | provisional label | arms | distinct dims |
+|---|---|---|---|---|
+| `pixel_order.kind` | **LIVE** | `hardware-run` | 6 | 3 |
+| `vtx_out_pos.dst` | **LIVE** | `hardware-run` | 3 | 2 inert + live on 1 |
+| `vtx_out_pos.slot` | **INERT-ROBUST** | `single-template-inference` | 3 | **3** |
+| `iter_at.grp` | **LADDER-FAILED** | `untested` | 0 eligible | — |
+
+### `vtx_out_pos.slot` — EXP-0147's open follow-up, answered
+EXP-0147 called `slot` inert in a SINGLE-VARYING carrier and its own RESULTS.md
+named "`vtx_out_pos.slot` in a multi-varying carrier" as the follow-up. Here it
+is inert at 256/256 across **three distinct carrier dimensions** — the
+single-varying control, 8 scalar FLAT varyings, and the **MIXED-WIDTH**
+discriminator (`half/half2/float/float2/float4`) that was built specifically
+because with uniform widths "ordinal into a slot table" and "byte offset into the
+output block" are indistinguishable at every value. Each arm passed its ladder
+and its falsifier. That is INERT-ROBUST at 3 dims — a real negative, not a
+carrier that could not see.
+
+### `vtx_out_pos.dst` moves ONLY in the single-varying carrier
+1 of 16 moved on `r_v1`, **0 of 16** on `r_v8f` and `r_vmix`. A field that is
+live in the degenerate carrier and inert in the rich ones is a genuinely odd
+shape and I am not going to explain it from one run; it is reported as measured
+and flagged for the second gated run.
+
+### `pixel_order.kind`: the pre-registered EXP-0162 model HOLDS on the carrier it
+### came from and BREAKS on the non-commutative one
+The partition was pre-registered offline from EXP-0162's raw before this
+experiment ran anything, and it reproduces all 256 of its recorded outcomes.
+Against this experiment's carriers:
+
+| arm | carrier dimension | predicted 256, held |
+|---|---|---|
+| `r_rog8#0`, `r_rog8#1` | commutative additive RMW (EXP-0162's own shape) | **256 / 256 = 100%** |
+| `r_rog2#1` | two ordered resources | **256 / 256 = 100%** |
+| `r_rog2#0` | two ordered resources | 232 / 256 = 90.6% |
+| `r_rogx#0` | **non-commutative affine** RMW | **32 / 256 = 12.5%** |
+| `r_rogx#1` | **non-commutative affine** RMW | 64 / 256 = 25.0% |
+
+**A cross-experiment replication that succeeds exactly where it should and fails
+where the model was never tested.** EXP-0162's carrier only ever showed ordering
+LOSS; `r_rogx` is order-sensitive in a way that loss alone cannot explain, and
+the model does not survive there. Live bits observed: 1, 2, 4 (and 5, 6 on
+`r_rog2#0`) against the model's 1, 2, 4.
+
+### `iter_at.grp` is NOT ESTABLISHED, and both reasons are recorded
+1. **Its ladder FAILED on both arms.** `L_iter_loc` (`iter_at.loc`, byte+7) did
+   not produce >= 2 distinct hashes, including on the 4-sample carrier where
+   EXP-0163 measured it moving 128/256. Under R3 an arm that cannot show its
+   ladder is DISCARDED and its inertness is not evidence — so `iter_at.grp` is
+   `untested`, not "inert".
+2. **Only 3 of 256 values were dispatched.** Under the plain ascending order the
+   sweep hit `grp = 0`, hung, hit `grp = 1`, hung, and stopped on the
+   two-hangs-per-field budget — **without ever reaching either legal value**
+   (0x2f, 0xaf). This is the identical self-perpetuating shape as
+   `frag_color_pack.dst` 194..197: the hazard sits in front of the thing you came
+   to measure, so every run spends its budget before it learns anything.
+   `coverage_for()` now takes a `first` list and `renderrun.py` feeds it the
+   descriptor's `legal_values`, so the order is **0x2f, 0xaf, then the rest** —
+   verified offline. That fix has NOT yet produced a gated run.
+
+### BLOCKED: the second gated render run
+The neo now hosts EXP-0169, EXP-0171 and EXP-0172 as well; `ps` showed **39, then
+23, `agxrun_persist`/`gfrun` processes**. My render throughput collapsed from
+**31 cases/s (rclean01, 2632 in 85 s) to ~0.07 cases/s** — a ~400x slowdown, 3
+cases in 45 s. A second gated run at that rate is ~10 hours, so I stopped rather
+than hold the machine. This is a *scheduling* fact, not a hardware one, and it is
+the same measurement `gpuwatch.jsonl` exists to record.
+
+Every partial run is preserved under `raw/superseded/` with a name saying what it
+did not know, plus a `README.md` explaining why each is kept:
+`rrun01_partial_192-197_band_unknown`, `rrun02_partial_fcp_first_ordering`,
+`rclean02_partial_order_unfixed`. All pulled back to the repo.

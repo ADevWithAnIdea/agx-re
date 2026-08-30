@@ -1,0 +1,1006 @@
+{
+ "_meta": {
+  "experiment": "EXP-0173",
+  "rows_parsed": 16,
+  "rows_the_board_marks_CLOSED": 0,
+  "rule2_MET": 10,
+  "rule3_MET": 13,
+  "rule5_MET": 6,
+  "completion_gate": "NOT PASSED \u2014 the gate requires all sixteen rows CLOSED"
+ },
+ "rows": [
+  {
+   "row": "P0.1",
+   "requirement": "Userspace scratch allocator and VS/FS/CS helper-program ABI",
+   "board_status": "**OPEN** (M4 negative boundary probe)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0041"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0041",
+      "dir": "experiments/EXP-0041-scratch-helper-abi",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0041": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0041": false
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.2",
+   "requirement": "Graphics shader selection and code-BO handoff through existing `usc_exec_base`",
+   "board_status": "**OPEN** (M4 selectors partial)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0042"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0042",
+      "dir": "experiments/EXP-0042-graphics-code-selection",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0042": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0042": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.3",
+   "requirement": "Apple9 value for every existing render/compute UAPI field",
+   "board_status": "**OPEN** (all 65 leaves chained: 7 MAPPED / 58 PARTIAL)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0043",
+    "EXP-0044",
+    "EXP-0054",
+    "EXP-0055",
+    "EXP-0126"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [
+     {
+      "exp": "EXP-0043",
+      "dir": "experiments/EXP-0043-command-stream-framing",
+      "complete": true,
+      "missing": [],
+      "note": "SUPERSEDED/QUARANTINED stub \u2014 retained by design, not scored"
+     },
+     {
+      "exp": "EXP-0044",
+      "dir": "experiments/EXP-0044-uapi-closure-baseline",
+      "complete": false,
+      "missing": [
+       "manifest.json",
+       "derived analysis"
+      ]
+     },
+     {
+      "exp": "EXP-0054",
+      "dir": "experiments/EXP-0054-m4-scissor-depth-bias",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0055",
+      "dir": "experiments/EXP-0055-m4-scissor-depth-bias-state",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0126",
+      "dir": "experiments/EXP-0126-m4-uapi-field-mapping",
+      "complete": false,
+      "missing": [
+       "derived analysis"
+      ]
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0043": true,
+     "EXP-0044": true,
+     "EXP-0054": true,
+     "EXP-0055": true,
+     "EXP-0126": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0043": false,
+     "EXP-0044": false,
+     "EXP-0054": true,
+     "EXP-0055": true,
+     "EXP-0126": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.4",
+   "requirement": "BG/EOT/partial-BG/partial-EOT programs",
+   "board_status": "**OPEN** (program side ADVANCED; UAPI side blocked)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0048",
+    "EXP-0117",
+    "EXP-0120",
+    "EXP-0130"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0048",
+      "dir": "experiments/EXP-0048-bg-eot-pbe",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0117",
+      "dir": "experiments/EXP-0117-m4-stage-abi-remainder",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0120",
+      "dir": "experiments/EXP-0120-m4-tvb-overflow-mechanism",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0130",
+      "dir": "experiments/EXP-0130-m4-bg-eot-construction",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0048": true,
+     "EXP-0117": true,
+     "EXP-0120": true,
+     "EXP-0130": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0048": true,
+     "EXP-0117": true,
+     "EXP-0120": true,
+     "EXP-0130": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.5",
+   "requirement": "Complete relocatable VDM/CDM/PPP/USC command and state packing",
+   "board_status": "**OPEN** (M4 exact-shape rollover partial)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0043",
+    "EXP-0049"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0043",
+      "dir": "experiments/EXP-0043-command-stream-framing",
+      "complete": true,
+      "missing": [],
+      "note": "SUPERSEDED/QUARANTINED stub \u2014 retained by design, not scored"
+     },
+     {
+      "exp": "EXP-0049",
+      "dir": "experiments/EXP-0049-command-link-structure",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0043": true,
+     "EXP-0049": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0043": false,
+     "EXP-0049": false
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.6",
+   "requirement": "Compiler-ready ISA and opcode property model",
+   "board_status": "**OPEN** (emitter-grade 616/1062 fields = 58.0%; **41 of 166 emitter-relevant in",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0046",
+    "EXP-0060",
+    "EXP-0140",
+    "EXP-0163",
+    "EXP-0164",
+    "EXP-0167",
+    "EXP-0170"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [
+     {
+      "exp": "EXP-0046",
+      "dir": "experiments/EXP-0046-isa-synthesis-audit",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0060",
+      "dir": "experiments/EXP-0060-isa-falu2i-bound-vectors",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0140",
+      "dir": "experiments/EXP-0140-m4-emit-mov-cf",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0163",
+      "dir": "experiments/EXP-0163-g17p-inert-liveness",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0164",
+      "dir": "experiments/EXP-0164-inert-audit",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0167",
+      "dir": "experiments/EXP-0167-g17p-synthesis-reconfirm",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0170",
+      "dir": "experiments/EXP-0170-assemble-coverage-audit",
+      "complete": false,
+      "missing": [
+       "raw/ (non-empty)"
+      ]
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0046": true,
+     "EXP-0060": true,
+     "EXP-0140": true,
+     "EXP-0163": true,
+     "EXP-0164": true,
+     "EXP-0167": true,
+     "EXP-0170": false
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0046": false,
+     "EXP-0060": false,
+     "EXP-0140": true,
+     "EXP-0163": true,
+     "EXP-0164": true,
+     "EXP-0167": true,
+     "EXP-0170": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.7",
+   "requirement": "Shader container, extent, metadata and resource-spec generation",
+   "board_status": "**OPEN** (HW-consumer proof OBTAINED; synthesis + selection still open)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0042",
+    "EXP-0127",
+    "EXP-0131"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0042",
+      "dir": "experiments/EXP-0042-graphics-code-selection",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0127",
+      "dir": "experiments/EXP-0127-m4-shader-selection",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0131",
+      "dir": "experiments/EXP-0131-m4-shader-container-generation",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0042": true,
+     "EXP-0127": true,
+     "EXP-0131": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0042": true,
+     "EXP-0127": true,
+     "EXP-0131": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P0.8",
+   "requirement": "Complete VS/FS/CS ABI and programmable prolog/epilog linkage",
+   "board_status": "**OPEN**",
+   "board_says_CLOSED": false,
+   "experiments_cited": [],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "NOT MET",
+    "detail": {},
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {},
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.1",
+   "requirement": "Complete PBE and render-attachment structures",
+   "board_status": "**OPEN** (depth/stencil slot reuse CONFIRMED; layer/mip location still unknown)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0048",
+    "EXP-0132"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0048",
+      "dir": "experiments/EXP-0048-bg-eot-pbe",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0132",
+      "dir": "experiments/EXP-0132-m4-pbe-attachment-structures",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0048": true,
+     "EXP-0132": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0048": true,
+     "EXP-0132": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.2",
+   "requirement": "Per-format API capability and conversion table",
+   "board_status": "**OPEN** (full 138-format x 11-axis matrix captured; compressed decode + sparse ",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0070",
+    "EXP-0079",
+    "EXP-0133"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0070",
+      "dir": "experiments/EXP-0070-m4-typed-format-conversion-contract",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0079",
+      "dir": "experiments/EXP-0079-m4-typed-format-conversion-batch2",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0133",
+      "dir": "experiments/EXP-0133-m4-format-capability-matrix",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0070": true,
+     "EXP-0079": true,
+     "EXP-0133": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0070": false,
+     "EXP-0079": true,
+     "EXP-0133": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.3",
+   "requirement": "Texture/image ISA breadth and edge behavior",
+   "board_status": "**OPEN** (M4 public sampler partial)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0063",
+    "EXP-0066"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [
+     {
+      "exp": "EXP-0063",
+      "dir": "experiments/EXP-0063-m4-sampler-boundary-fixed",
+      "complete": false,
+      "missing": [
+       "manifest.json",
+       "derived analysis"
+      ]
+     },
+     {
+      "exp": "EXP-0066",
+      "dir": "experiments/EXP-0066-m4-sampler-filter-provenance",
+      "complete": false,
+      "missing": [
+       "manifest.json",
+       "derived analysis"
+      ]
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0063": true,
+     "EXP-0066": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0063": true,
+     "EXP-0066": false
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.4",
+   "requirement": "Vulkan/GL-grade memory and synchronization model",
+   "board_status": "**OPEN** (M4 litmus + interlock/atomics + dynamic addressing bounded)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0051",
+    "EXP-0084",
+    "EXP-0085",
+    "EXP-0093"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [
+     {
+      "exp": "EXP-0051",
+      "dir": "experiments/EXP-0051-m4-synchronization-litmus",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0084",
+      "dir": "experiments/EXP-0084-m4-dynamic-buffer-addressing",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0085",
+      "dir": "experiments/EXP-0085-m4-memory-interlock-atomics",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0093",
+      "dir": "experiments/EXP-0093-m4-fence-barrier-interlock",
+      "complete": false,
+      "missing": [
+       "derived analysis"
+      ]
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0051": true,
+     "EXP-0084": true,
+     "EXP-0085": true,
+     "EXP-0093": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0051": false,
+     "EXP-0084": true,
+     "EXP-0085": true,
+     "EXP-0093": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.5",
+   "requirement": "Robustness, sparse residency and VM conventions",
+   "board_status": "**OPEN** (M4 OOB/alignment behavior + base-slot census bounded)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0068",
+    "EXP-0076",
+    "EXP-0083"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0068",
+      "dir": "experiments/EXP-0068-m4-robustness-contract",
+      "complete": true,
+      "missing": [],
+      "note": "SUPERSEDED/QUARANTINED stub \u2014 retained by design, not scored"
+     },
+     {
+      "exp": "EXP-0076",
+      "dir": "experiments/EXP-0076-m4-buffer-robustness-matrix",
+      "complete": true,
+      "missing": []
+     },
+     {
+      "exp": "EXP-0083",
+      "dir": "experiments/EXP-0083-m4-base-slot-census",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0068": false,
+     "EXP-0076": true,
+     "EXP-0083": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0068": false,
+     "EXP-0076": true,
+     "EXP-0083": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.6",
+   "requirement": "Complete query and timestamp semantics",
+   "board_status": "**OPEN** (M4 public-timestamp partial)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0052"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0052",
+      "dir": "experiments/EXP-0052-m4-timestamp-semantics",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0052": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0052": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.7",
+   "requirement": "Indirect and device-generated commands",
+   "board_status": "**OPEN** (M4 public-Metal partial)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0053"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "MET",
+    "detail": [
+     {
+      "exp": "EXP-0053",
+      "dir": "experiments/EXP-0053-m4-indirect-api-semantics",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0053": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "NOT MET",
+    "detail": {
+     "EXP-0053": false
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  },
+  {
+   "row": "P1.8",
+   "requirement": "Conformance numerical, rasterization and limits",
+   "board_status": "**OPEN** (M4 numerical source-path partial; FP32 division answered)",
+   "board_says_CLOSED": false,
+   "experiments_cited": [
+    "EXP-0047",
+    "EXP-0074"
+   ],
+   "rule1_generated_not_decoded": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json; for P0.6 the only mnemonics with a zero-copied generated program that ran are device_store, falu2, mov_imm, stop (+ device_load / falu2i / iadd2 partly)."
+   },
+   "rule2_complete_record": {
+    "verdict": "NOT MET",
+    "detail": [
+     {
+      "exp": "EXP-0047",
+      "dir": "experiments/EXP-0047-m4-numerical-behavior",
+      "complete": false,
+      "missing": [
+       "derived analysis"
+      ]
+     },
+     {
+      "exp": "EXP-0074",
+      "dir": "experiments/EXP-0074-m4-fp32-division-precision",
+      "complete": true,
+      "missing": []
+     }
+    ],
+    "command": "python3 experiments/EXP-0173-closure-audit/analysis/closure_rules.py"
+   },
+   "rule3_provenance_chain": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0047": true,
+     "EXP-0074": true
+    },
+    "command": "grep -c '<EXP-id>' PROVENANCE.md"
+   },
+   "rule4_normative_docs": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "requires reading docs/ against the row's field list"
+   },
+   "rule5_adversarial_or_second_method": {
+    "verdict": "MET",
+    "detail": {
+     "EXP-0047": true,
+     "EXP-0074": true
+    },
+    "command": "grep -Ei 'adversarial|refut|falsif|second method' experiments/<EXP>/RESULTS.md"
+   },
+   "rule6_object_generated_without_template": {
+    "verdict": "NOT MECHANICALLY CHECKABLE \u2014 substantive",
+    "note": "see analysis/template_dependency.json"
+   }
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""run.py -- EXP-0163 capture driver.
+"""run.py -- EXP-0172 capture driver (forked from OUR OWN EXP-0163).
 
     python3 run.py --run-id g17p_YYYYMMDD_runNN [--smoke-only] [--deadline-s N]
 
@@ -166,6 +166,26 @@ def locate(buf, mnemonic):
 POISON4 = b"\xef\xbe\xad\xde"
 
 
+def redecode(arm, patched):
+    """The mnemonic a patched instruction decodes as, IN CONTEXT.
+
+    Decoding the patched bytes ALONE is wrong and can also raise: several
+    length rules look ahead past the instruction's own bytes (isadb
+    `_r9_succ_safe`), so a 4-byte buffer walks off the end -- which is exactly
+    how the smoke01 calibration run died. Splice into the real stage buffer and
+    decode at the instruction's own offset, so the lookahead sees the same
+    following bytes the hardware will. Any failure means "does not re-decode as
+    a standalone instruction here" and is reported as None, never as a crash."""
+    try:
+        buf = bytearray(bytes.fromhex(arm["stage_hex"]))
+        o = arm["instr_off"]
+        buf[o:o + len(patched)] = patched
+        d, _ = isadb.decode_one(bytes(buf), o)
+        return d["mnemonic"]
+    except (ValueError, IndexError, KeyError):
+        return None
+
+
 def _os_class(err):
     for tag in ("InnocentVictim", "ErrorHang", "ErrorTimeout", "ErrorPageFault",
                 "ErrorOutOfMemory", "ErrorInvalidResource", "ErrorMakeCurrent",
@@ -326,6 +346,7 @@ def main():
             continue
         arm = dict(a)
         arm.update(rec)
+        arm["stage_hex"] = sinfo["hex"]
         arms.append(arm)
         inputs["arms"][a["id"]] = rec
 
@@ -442,11 +463,7 @@ def main():
                 if v == cur.get(fn, 0):
                     continue
                 ctl = isadb_set(arm["mnemonic"], orig, fn, v)
-                try:
-                    dd, _ = isadb.decode_one(ctl, 0)
-                    dm = dd["mnemonic"]
-                except ValueError:
-                    dm = None
+                dm = redecode(arm, ctl)
                 cobs = run_case(arm, ctl)
                 changed = not same_obs(cobs, base)
                 prof.append({"field": fn, "value": v, "changed": bool(changed),
@@ -553,11 +570,7 @@ def main():
                     outcome = "ok" if obs.get("status") == "OK" else "unreproduced"
                 if obs.get("os_class") == "InnocentVictim":
                     outcome = "foreign"
-                try:
-                    dd, _ = isadb.decode_one(patched, 0)
-                    dm = dd["mnemonic"]
-                except ValueError:
-                    dm = None
+                dm = redecode(arm, patched)
                 if dm != arm["mnemonic"] and outcome == "ok":
                     outcome = "undecodable"
                 if outcome in ("wrong_value",):

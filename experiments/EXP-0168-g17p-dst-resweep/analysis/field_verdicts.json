@@ -1,0 +1,3407 @@
+{
+ "_meta": {
+  "corrections_applied": [
+   "STOP/midprogram validity/outcome/moved re-derived from each record's own observed.{pre,post,regs,tail_ok} -- on that carrier the ABSENCE of the POST sentinel is the measurement (the stop terminated before the dump), and the generic run-integrity rule scored it as corruption, discarding 835 of 836 cases in run02.",
+   "STOP/terminal outcome/moved re-derived from observed.probe -- on that carrier the register dump has already run in every case and cannot carry the measurement; the discriminator is the post-stop WITNESS word (POISON = terminated, 77 = did not). classify_slots reads only the register dump, so it scored the plainly-firing falsifier (probe 0x4d vs baseline 0xdeadbeef) as `ok` and blocked all four `stop` fields on their own falsifier_contrast ladder.",
+   "raw/ is NOT edited; both rules are applied identically to every run, and every corrected record keeps its prior values under `_recorrected`."
+  ],
+  "experiment": "EXP-0168-g17p-dst-resweep",
+  "gate": {
+   "cross_run_agreement_pct": 99.5,
+   "movement_over_disagreement": 4.0,
+   "orchestrator_bar": {
+    "cross_run_agreement_pct": 99.0,
+    "movement_over_disagreement": 2.0
+   }
+  },
+  "note": "skip placeholders are EXCLUDED from every count; a field that is inert everywhere is labelled `proven-dont-care`, not `hardware-run`, and is reported with its ladder numbers",
+  "runs": [
+   "g17p_20260830_run02",
+   "g17p_20260830_run03"
+  ],
+  "schema": "FIELD-SWEEP-PROTOCOL section 5, flat <mnemonic>.<field>",
+  "target": "G17P"
+ },
+ "atomic_mem.addr_desc_hi": {
+  "carriers": [
+   "ATOMIC/highreg",
+   "ATOMIC/lowreg",
+   "ATOMIC/minop"
+  ],
+  "coverage": {
+   "bytes_per_value": 9.0,
+   "dense_ok": true,
+   "dense_required": 4,
+   "distinct_bytes": 36,
+   "encodable_range": 4,
+   "start": 54,
+   "under_covered": false,
+   "values_dispatched": 4,
+   "width": 2
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 15,
+  "n_carriers": 3,
+  "note": "",
+  "per_arm": {
+   "ATOMIC/highreg": {
+    "bytemate_cases_that_moved": 11,
+    "distinct_bytes": 36,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 14,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 4,
+      "ok": 18,
+      "wrong_value": 14
+     },
+     "g17p_20260830_run03": {
+      "fault": 4,
+      "ok": 18,
+      "wrong_value": 14
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 36,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 14
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 4
+   },
+   "ATOMIC/lowreg": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 36,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 12,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 2,
+      "n": 12,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 4,
+      "ok": 17,
+      "wrong_value": 15
+     },
+     "g17p_20260830_run03": {
+      "fault": 4,
+      "ok": 17,
+      "wrong_value": 15
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 36,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 4
+   },
+   "ATOMIC/minop": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 36,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 12,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 2,
+      "n": 12,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 4,
+      "ok": 32
+     },
+     "g17p_20260830_run03": {
+      "fault": 4,
+      "ok": 32
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 36,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 4
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "4 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 36 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "copysign.operands": {
+  "carriers": [
+   "COPYSIGN/lowpress"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 24,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "still-underpowered",
+  "moved_total": 0,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "COPYSIGN/lowpress": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement, but only ONE distinct carrier dimension was built -- exactly the EXP-0155 samp_extra / iter_at.loc failure mode. A second carrier differing in the dimension is required."
+ },
+ "cvt_f2h.op": {
+  "carriers": [
+   "CVTF2H/consumed",
+   "CVTF2H/standalone"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 16,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 221,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "CVTF2H/consumed": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 221,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 31,
+      "ok": 4,
+      "silent_zero": 38,
+      "wrong_value": 183
+     },
+     "g17p_20260830_run03": {
+      "fault": 32,
+      "ok": 4,
+      "silent_zero": 38,
+      "wrong_value": 182
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 99.609,
+      "common": 256,
+      "disagreements": 1,
+      "move_over_disagree": 221.0,
+      "moved": 221
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "CVTF2H/standalone": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 221,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 31,
+      "ok": 4,
+      "silent_zero": 38,
+      "wrong_value": 183
+     },
+     "g17p_20260830_run03": {
+      "fault": 31,
+      "ok": 4,
+      "silent_zero": 38,
+      "wrong_value": 183
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 99.219,
+      "common": 256,
+      "disagreements": 2,
+      "move_over_disagree": 110.5,
+      "moved": 221
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "99.609% agreement over 256 shared values, 221 moved vs 1 disagreements (221.00x), ladder and falsifier passed in every run"
+ },
+ "cvt_f2i.b9": {
+  "carriers": [
+   "CVTF2I/consumed",
+   "CVTF2I/standalone"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 72,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "CVTF2I/consumed": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "CVTF2I/standalone": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 2 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "cvt_f2i.dst": {
+  "carriers": [
+   "CVTF2I/consumed",
+   "CVTF2I/standalone"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 24,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run03": 1
+  },
+  "label": "hardware-run",
+  "moved_total": 190,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "CVTF2I/consumed": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 190,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 64,
+      "ok": 2,
+      "silent_zero": 162,
+      "wrong_value": 28
+     },
+     "g17p_20260830_run03": {
+      "fault": 64,
+      "ok": 2,
+      "silent_zero": 162,
+      "wrong_value": 28
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 190
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "CVTF2I/standalone": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 190,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 64,
+      "ok": 2,
+      "silent_zero": 162,
+      "wrong_value": 28
+     },
+     "g17p_20260830_run03": {
+      "fault": 63,
+      "ok": 2,
+      "silent_zero": 162,
+      "wrong_value": 28
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 255,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 190
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 256 shared values, 190 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "db_defects": {
+  "iter_at.grp": {
+   "also_explains": "why no run has ever swept this field past ~25 of 256 values: 254 of the 256 are out-of-descriptor bit patterns, i.e. a decode desync. EXP-0155 hung at 0x00, 0x01, 0x0f, 0x12, 0x16, 0x18 and EXP-0163 at 0x00 and 0x50, and BOTH tripped the two-hang-per-field stop rule. The two legal values are 0x2f and 0xaf.",
+   "consequence": "every value outside the pin is a DIFFERENT instruction, not a value of this field, so the field is unemittable there and a dense sweep of 2**width is not achievable even in principle",
+   "declared": {
+    "start": 0,
+    "width": 8
+   },
+   "evidence": "analysis/bitcheck.json (exhaustive over all 256 values; 79/83 fields agree exactly, 0 mismatches)",
+   "free_bits": [
+    7
+   ],
+   "kind": "field declared over match-pinned bits",
+   "match_pins_bits": [
+    0,
+    6
+   ],
+   "not_edited_here": "tools/agx-isa/db.json (EXP-0165 owns it)",
+   "precedent": "same shape as the pixel_order.flags defect EXP-0162 fixed",
+   "real_encodable_range": 2
+  },
+  "pixel_order.scope": {
+   "consequence": "every value outside the pin is a DIFFERENT instruction, not a value of this field, so the field is unemittable there and a dense sweep of 2**width is not achievable even in principle",
+   "declared": {
+    "start": 24,
+    "width": 8
+   },
+   "evidence": "analysis/bitcheck.json (exhaustive over all 256 values; 79/83 fields agree exactly, 0 mismatches)",
+   "free_bits": [
+    24,
+    25,
+    26,
+    27,
+    31
+   ],
+   "kind": "field declared over match-pinned bits",
+   "match_pins_bits": [
+    28,
+    30
+   ],
+   "not_edited_here": "tools/agx-isa/db.json (EXP-0165 owns it)",
+   "precedent": "same shape as the pixel_order.flags defect EXP-0162 fixed",
+   "real_encodable_range": 32
+  },
+  "reg_move_cb.form": {
+   "consequence": "every value outside the pin is a DIFFERENT instruction, not a value of this field, so the field is unemittable there and a dense sweep of 2**width is not achievable even in principle",
+   "declared": {
+    "start": 16,
+    "width": 8
+   },
+   "evidence": "analysis/bitcheck.json (exhaustive over all 256 values; 79/83 fields agree exactly, 0 mismatches)",
+   "free_bits": [
+    20,
+    21,
+    22,
+    23
+   ],
+   "kind": "field declared over match-pinned bits",
+   "match_pins_bits": [
+    16,
+    19
+   ],
+   "measured_here": "EXP-0168 sweeps byte+2 as a whole BYTE rather than as the declared field, so the sweep itself is valid; run02/run03 show byte+2 = 0x0b behaving differently from the other 13 form values (dst tracks the field at 1/15 rather than 15/15), which is consistent with 0x0b being a distinct form and not a value of a wider `form` field.",
+   "not_edited_here": "tools/agx-isa/db.json (EXP-0165 owns it)",
+   "precedent": "same shape as the pixel_order.flags defect EXP-0162 fixed",
+   "real_encodable_range": 16
+  },
+  "shift_amt_move.kind": {
+   "consequence": "every value outside the pin is a DIFFERENT instruction, not a value of this field, so the field is unemittable there and a dense sweep of 2**width is not achievable even in principle",
+   "declared": {
+    "start": 16,
+    "width": 8
+   },
+   "evidence": "analysis/bitcheck.json (exhaustive over all 256 values; 79/83 fields agree exactly, 0 mismatches)",
+   "free_bits": [
+    20,
+    21,
+    22,
+    23
+   ],
+   "kind": "field declared over match-pinned bits",
+   "match_pins_bits": [
+    16,
+    19
+   ],
+   "measured_here": "also swept as a whole byte, not as the declared field; shift_amt_move.src_flag is hardware-run at 100.000% agreement (2 values, 26 distinct encodings, 22 moved).",
+   "not_edited_here": "tools/agx-isa/db.json (EXP-0165 owns it)",
+   "precedent": "same shape as the pixel_order.flags defect EXP-0162 fixed",
+   "real_encodable_range": 16
+  }
+ },
+ "falu2.dst": {
+  "carriers": [
+   "FALU2/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "decidable_values": 15,
+   "dense_ok": true,
+   "dense_required": 16,
+   "distinct_bytes": 16,
+   "encodable_range": 16,
+   "start": 4,
+   "undecidable_values": [
+    15
+   ],
+   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "under_covered": false,
+   "values_dispatched": 16,
+   "width": 4
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run02": 1,
+   "g17p_20260830_run03": 1
+  },
+  "label": "hardware-run",
+  "moved_total": 15,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "FALU2/dump": {
+    "bytemate_cases_that_moved": 14,
+    "distinct_bytes": 16,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 14
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 14
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 16,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "16 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "falu2i.dst": {
+  "carriers": [
+   "FALU2I/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "decidable_values": 15,
+   "dense_ok": true,
+   "dense_required": 16,
+   "distinct_bytes": 16,
+   "encodable_range": 16,
+   "start": 4,
+   "undecidable_values": [
+    15
+   ],
+   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "under_covered": false,
+   "values_dispatched": 16,
+   "width": 4
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run02": 1,
+   "g17p_20260830_run03": 1
+  },
+  "label": "hardware-run",
+  "moved_total": 15,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "FALU2I/dump": {
+    "bytemate_cases_that_moved": 14,
+    "distinct_bytes": 16,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 12,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 14
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 14
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 16,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "16 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "falu_acc.cache": {
+  "carriers": [
+   "FALU_ACC/lastuse",
+   "FALU_ACC/reread",
+   "FALU_ACC/reuse"
+  ],
+  "coverage": {
+   "bytes_per_value": 14.0,
+   "dense_ok": true,
+   "dense_required": 2,
+   "distinct_bytes": 28,
+   "encodable_range": 2,
+   "start": 21,
+   "under_covered": false,
+   "values_dispatched": 2,
+   "width": 1
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 28,
+  "n_carriers": 3,
+  "note": "",
+  "per_arm": {
+   "FALU_ACC/lastuse": {
+    "bytemate_cases_that_moved": 111,
+    "distinct_bytes": 28,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 28,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "wrong_value": 28
+     },
+     "g17p_20260830_run03": {
+      "wrong_value": 28
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 28,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 28
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   },
+   "FALU_ACC/reread": {
+    "bytemate_cases_that_moved": 102,
+    "distinct_bytes": 28,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 28,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "wrong_value": 28
+     },
+     "g17p_20260830_run03": {
+      "wrong_value": 28
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 28,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 28
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   },
+   "FALU_ACC/reuse": {
+    "bytemate_cases_that_moved": 110,
+    "distinct_bytes": 28,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 28,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "wrong_value": 28
+     },
+     "g17p_20260830_run03": {
+      "wrong_value": 28
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 28,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 28
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "2 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 28 shared values, 28 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "get_sr.dst": {
+  "carriers": [
+   "GETSR/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "decidable_values": 15,
+   "dense_ok": true,
+   "dense_required": 16,
+   "distinct_bytes": 16,
+   "encodable_range": 16,
+   "start": 4,
+   "undecidable_values": [
+    15
+   ],
+   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "under_covered": false,
+   "values_dispatched": 16,
+   "width": 4
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run02": 1,
+   "g17p_20260830_run03": 1
+  },
+  "label": "hardware-run",
+  "moved_total": 15,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "GETSR/dump": {
+    "bytemate_cases_that_moved": 13,
+    "distinct_bytes": 16,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 3,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "wrong_value": 15
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "wrong_value": 15
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 16,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "16 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "get_sr.dst_hi": {
+  "carriers": [
+   "GETSR/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 8,
+   "distinct_bytes": 8,
+   "encodable_range": 8,
+   "start": 29,
+   "under_covered": false,
+   "values_dispatched": 8,
+   "width": 3
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 8,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "GETSR/dump": {
+    "bytemate_cases_that_moved": 24,
+    "distinct_bytes": 8,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 3,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 8,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "silent_zero": 8
+     },
+     "g17p_20260830_run03": {
+      "silent_zero": 8
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 8,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 8
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 8
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "8 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 8 shared values, 8 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "get_sr.form": {
+  "carriers": [
+   "GETSR/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 2,
+   "distinct_bytes": 2,
+   "encodable_range": 2,
+   "start": 3,
+   "under_covered": false,
+   "values_dispatched": 2,
+   "width": 1
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run02": 8,
+   "g17p_20260830_run03": 8
+  },
+  "label": "still-underpowered",
+  "moved_total": 0,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "GETSR/dump": {
+    "bytemate_cases_that_moved": 117,
+    "distinct_bytes": 2,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 2,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 3,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 2
+     },
+     "g17p_20260830_run03": {
+      "ok": 2
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 2,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "2 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement, but only ONE distinct carrier dimension was built -- exactly the EXP-0155 samp_extra / iter_at.loc failure mode. A second carrier differing in the dimension is required."
+ },
+ "if_push.scope": {
+  "carriers": [
+   "IFPUSH/flat",
+   "IFPUSH/loop",
+   "IFPUSH/nest3.inner",
+   "IFPUSH/nest3.outer"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 16,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 4,
+  "note": "",
+  "per_arm": {
+   "IFPUSH/flat": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "IFPUSH/loop": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "IFPUSH/nest3.inner": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 6,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 6,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "IFPUSH/nest3.outer": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 4,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 4 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "mov_imm.byte1": {
+  "carriers": [
+   "MOVIMM/padded",
+   "MOVIMM/unpadded"
+  ],
+  "coverage": {
+   "bytes_per_value": 3.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 768,
+   "encodable_range": 256,
+   "start": 8,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 767,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "MOVIMM/padded": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 768,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 767,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 766
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 766
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 768,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 767
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "MOVIMM/unpadded": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 768,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 767,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 766
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 766
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 768,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 767
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 768 shared values, 767 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "mov_imm.imm_top": {
+  "carriers": [
+   "MOVIMM/padded",
+   "MOVIMM/unpadded"
+  ],
+  "coverage": {
+   "bytes_per_value": 3.0,
+   "dense_ok": true,
+   "dense_required": 2,
+   "distinct_bytes": 6,
+   "encodable_range": 2,
+   "start": 15,
+   "under_covered": false,
+   "values_dispatched": 2,
+   "width": 1
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 5,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "MOVIMM/padded": {
+    "bytemate_cases_that_moved": 127,
+    "distinct_bytes": 6,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 5,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "wrong_value": 5
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "wrong_value": 5
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 6,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 5
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   },
+   "MOVIMM/unpadded": {
+    "bytemate_cases_that_moved": 127,
+    "distinct_bytes": 6,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 14,
+      "n": 14,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 5,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "wrong_value": 5
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "wrong_value": 5
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 6,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 5
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "2 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 6 shared values, 5 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "pack_convert.b7": {
+  "carriers": [
+   "PACK/snorm2",
+   "PACK/unorm2",
+   "PACK/unorm4"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 56,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 190,
+  "n_carriers": 3,
+  "note": "",
+  "per_arm": {
+   "PACK/snorm2": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 7,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 7,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 188,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 64,
+      "ok": 4,
+      "wrong_value": 188
+     },
+     "g17p_20260830_run03": {
+      "fault": 64,
+      "ok": 4,
+      "wrong_value": 188
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 188
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "PACK/unorm2": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 7,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 7,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 188,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 64,
+      "ok": 4,
+      "wrong_value": 188
+     },
+     "g17p_20260830_run03": {
+      "fault": 66,
+      "ok": 4,
+      "wrong_value": 186
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 99.219,
+      "common": 256,
+      "disagreements": 2,
+      "move_over_disagree": 94.0,
+      "moved": 188
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "PACK/unorm4": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 190,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 64,
+      "ok": 2,
+      "wrong_value": 190
+     },
+     "g17p_20260830_run03": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 99.219,
+      "common": 256,
+      "disagreements": 2,
+      "move_over_disagree": 95.0,
+      "moved": 190
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 256 shared values, 188 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "shift_amt_move.src_flag": {
+  "carriers": [
+   "SHIFTMOVE/gpr"
+  ],
+  "coverage": {
+   "bytes_per_value": 13.0,
+   "dense_ok": true,
+   "dense_required": 2,
+   "distinct_bytes": 26,
+   "encodable_range": 2,
+   "start": 15,
+   "under_covered": false,
+   "values_dispatched": 2,
+   "width": 1
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 22,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "SHIFTMOVE/gpr": {
+    "bytemate_cases_that_moved": 126,
+    "distinct_bytes": 26,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 7,
+      "n": 14,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 7,
+      "n": 14,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 22,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 4,
+      "wrong_value": 22
+     },
+     "g17p_20260830_run03": {
+      "ok": 4,
+      "wrong_value": 22
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 26,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 22
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 2
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "2 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 26 shared values, 22 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "stop.b1": {
+  "carriers": [
+   "STOP/midprogram",
+   "STOP/terminal"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 8,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "STOP/midprogram": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "STOP/terminal": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 2 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "stop.b2": {
+  "carriers": [
+   "STOP/midprogram",
+   "STOP/terminal"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 16,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "STOP/midprogram": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "STOP/terminal": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 2 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "stop.b3": {
+  "carriers": [
+   "STOP/midprogram",
+   "STOP/terminal"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 24,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "STOP/midprogram": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "STOP/terminal": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 256
+     },
+     "g17p_20260830_run03": {
+      "ok": 256
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 2 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "stop.reserved": {
+  "carriers": [
+   "STOP/midprogram",
+   "STOP/terminal"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": null,
+   "distinct_bytes": 66,
+   "encodable_range": 16777216,
+   "start": 8,
+   "under_covered": true,
+   "values_dispatched": 66,
+   "width": 24
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "proven-dont-care",
+  "moved_total": 0,
+  "n_carriers": 2,
+  "note": "",
+  "per_arm": {
+   "STOP/midprogram": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 66,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 66
+     },
+     "g17p_20260830_run03": {
+      "ok": 66
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 66,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 66
+   },
+   "STOP/terminal": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 66,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {},
+    "ladder_kind": "falsifier_contrast",
+    "ladder_pass_all_runs": true,
+    "moved": 0,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 66
+     },
+     "g17p_20260830_run03": {
+      "ok": 66
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 66,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 0
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 66
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "66 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "0 movement across 2 carriers that DIFFER in the dimension the field controls, each passing its liveness ladder, at 100.000% cross-run agreement. The movement clause of the gate is UNMEETABLE for an inert field by construction; this is REPORTED with its ladder numbers, not self-promoted. If the field's role is not independently known, the orchestrator's label is `single-template-inference`, NOT `hardware-run`."
+ },
+ "uniform_mov.dst": {
+  "carriers": [
+   "REGMOVE/consumer",
+   "REGMOVE/consumer9",
+   "REGMOVE/dump"
+  ],
+  "coverage": {
+   "bytes_per_value": 14.0,
+   "decidable_values": 15,
+   "dense_ok": true,
+   "dense_required": 16,
+   "distinct_bytes": 224,
+   "encodable_range": 16,
+   "start": 4,
+   "undecidable_values": [
+    15
+   ],
+   "undecidable_why": "register index 15 is not writable through the 4-bit destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0 while r14 reads correctly through the same code path), so at any form that writes 0 the slot reads 0 whether the instruction wrote it or not",
+   "under_covered": false,
+   "values_dispatched": 16,
+   "width": 4
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {
+   "g17p_20260830_run02": 3,
+   "g17p_20260830_run03": 3
+  },
+  "label": "hardware-run",
+  "moved_total": 214,
+  "n_carriers": 3,
+  "note": "",
+  "per_arm": {
+   "REGMOVE/consumer": {
+    "bytemate_cases_that_moved": 11,
+    "distinct_bytes": 16,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "wrong_value": 15
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "wrong_value": 15
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 16,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   },
+   "REGMOVE/consumer9": {
+    "bytemate_cases_that_moved": 11,
+    "distinct_bytes": 16,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 15,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 1,
+      "wrong_value": 15
+     },
+     "g17p_20260830_run03": {
+      "ok": 1,
+      "wrong_value": 15
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 16,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 15
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   },
+   "REGMOVE/dump": {
+    "bytemate_cases_that_moved": 11,
+    "distinct_bytes": 224,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 214,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 10,
+      "wrong_value": 214
+     },
+     "g17p_20260830_run03": {
+      "ok": 10,
+      "wrong_value": 214
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 224,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 214
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 16
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "16 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 224 shared values, 214 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "uniform_mov.form_b2": {
+  "carriers": [
+   "REGMOVE/form"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 16,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 232,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "REGMOVE/form": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 232,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 24,
+      "wrong_value": 232
+     },
+     "g17p_20260830_run03": {
+      "ok": 24,
+      "wrong_value": 232
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 232
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 256 shared values, 232 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "uniform_mov.opdesc_b3": {
+  "carriers": [
+   "REGMOVE/form"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 24,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 208,
+  "n_carriers": 1,
+  "note": "",
+  "per_arm": {
+   "REGMOVE/form": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 5,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 208,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "ok": 48,
+      "wrong_value": 208
+     },
+     "g17p_20260830_run03": {
+      "ok": 48,
+      "wrong_value": 208
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 208
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 256 shared values, 208 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ },
+ "unpack_convert.dst": {
+  "carriers": [
+   "UNPACK/consumed",
+   "UNPACK/snorm",
+   "UNPACK/unorm"
+  ],
+  "coverage": {
+   "bytes_per_value": 1.0,
+   "dense_ok": true,
+   "dense_required": 256,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "start": 24,
+   "under_covered": false,
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "evidence": [
+   "EXP-0168"
+  ],
+  "invalid_excluded": {},
+  "label": "hardware-run",
+  "moved_total": 188,
+  "n_carriers": 3,
+  "note": "",
+  "per_arm": {
+   "UNPACK/consumed": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 188,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     },
+     "g17p_20260830_run03": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 188
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "UNPACK/snorm": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 188,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     },
+     "g17p_20260830_run03": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 188
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   },
+   "UNPACK/unorm": {
+    "bytemate_cases_that_moved": 0,
+    "distinct_bytes": 256,
+    "falsifier": {
+     "g17p_20260830_run02": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     },
+     "g17p_20260830_run03": {
+      "n": 1,
+      "pass": true,
+      "scored_ok": 0
+     }
+    },
+    "falsifier_pass_all_runs": true,
+    "ladder": {
+     "g17p_20260830_run02": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     },
+     "g17p_20260830_run03": {
+      "distinct": 8,
+      "n": 16,
+      "pass": true
+     }
+    },
+    "ladder_kind": "field_control",
+    "ladder_pass_all_runs": true,
+    "moved": 188,
+    "outcomes": {
+     "g17p_20260830_run02": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     },
+     "g17p_20260830_run03": {
+      "fault": 66,
+      "ok": 2,
+      "wrong_value": 188
+     }
+    },
+    "pairs": {
+     "g17p_20260830_run02|g17p_20260830_run03": {
+      "agree_pct": 100.0,
+      "common": 256,
+      "disagreements": 0,
+      "move_over_disagree": Infinity,
+      "moved": 188
+     }
+    },
+    "runs": [
+     "g17p_20260830_run02",
+     "g17p_20260830_run03"
+    ],
+    "values_dispatched": 256
+   }
+  },
+  "placeholders_excluded": {},
+  "range": "256 distinct values dispatched on the best arm",
+  "semantics": "",
+  "target": "G17P",
+  "why": "100.000% agreement over 256 shared values, 188 moved vs 0 disagreements (infx), ladder and falsifier passed in every run"
+ }
+}

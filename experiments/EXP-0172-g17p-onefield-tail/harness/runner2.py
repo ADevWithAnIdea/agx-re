@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""runner2.py -- EXP-0163 persistent-runner drivers with per-request watchdogs.
+"""runner2.py -- EXP-0172 (forked unchanged from OUR OWN EXP-0163) persistent-runner drivers with per-request watchdogs.
 
 Derived from OUR OWN experiments/EXP-0155-g17p-emit-tex-frag/harness/runner.py
 (itself from our EXP-0143 runner.py).  EXP-0163's additions are only the extra

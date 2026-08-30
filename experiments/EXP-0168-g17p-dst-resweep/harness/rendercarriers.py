@@ -531,7 +531,14 @@ def oracle(name, alt=False):
     from the device."""
     cfg = CARRIERS[name]
     fam = cfg["family"]
-    if fam == "vtx":
+    # `itr` (the iter_at family) is SHAPED exactly like `vtx`: same MSL skeleton,
+    # same `vtx_values` key, same rt_count/out_buf surfaces. It differs only in
+    # which instruction is under test and in rasterSampleCount, so it shares the
+    # vtx oracle. Without this it fell through to the `fcp` branch and died on
+    # KeyError: 'fcp_values' at the first baseline dispatch of rclean01 --
+    # a whole family added without its oracle ever being exercised, because the
+    # offline mock test does not call oracle().
+    if fam in ("vtx", "itr"):
         u = cfg["buf0_alt"] if alt else cfg["buf0"]
         kind = cfg["vtx_values"]
         if kind == "pow2_1":

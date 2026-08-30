@@ -26,7 +26,9 @@ kernel void k_simd(device uint *out              [[buffer(0)]],
                    uint3 ngrp [[threadgroups_per_grid]],
                    uint  lane [[thread_index_in_simdgroup]])
 {
-    uint u = in[gpos.x & 31u];
+    (void)in;   // NOT READ: device_load on G17P is asynchronous (EXP-0169) and
+                // a diff-based movement oracle over a load-seeded register can
+                // fabricate movement.  Every value below comes from an SR read.
 
     device uint *o = out + lane * 16u;
     o[0]  = gpos.x;  o[1]  = gpos.y;  o[2]  = gpos.z;
@@ -35,6 +37,6 @@ kernel void k_simd(device uint *out              [[buffer(0)]],
     o[9]  = tgsz.x;  o[10] = tgsz.y;  o[11] = tgsz.z;
     o[12] = tgid.x + 1000u * ngrp.x;
     o[13] = tgid.y + 1000u * ngrp.y;
-    o[14] = u ^ (gpos.x * 31u + tpos.y * 7u + gsz.z * 11u + tgsz.x * 13u);
+    o[14] = gpos.x * 31u + tpos.y * 7u + gsz.z * 11u + tgsz.x * 13u;
     o[15] = gpos.x + gsz.x + tgsz.z + ngrp.z;
 }

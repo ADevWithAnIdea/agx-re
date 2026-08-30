@@ -74,6 +74,8 @@ def load(rundir):
 
 POISON = 0xDEADBEEF
 EXPECTED_PRE = 0x5A5A5A5A & 0x7F          # 90
+SENT_POST = 111
+SENT_WITNESS = 77                          # the STOP/terminal post-stop witness
 
 
 def recorrect_terminating(recs):
@@ -113,7 +115,8 @@ def recorrect_terminating(recs):
     """
     n = 0
     for r in recs:
-        if r.get("arm") != "STOP/midprogram":
+        arm = r.get("arm")
+        if arm not in ("STOP/midprogram", "STOP/terminal"):
             continue
         if not r.get("attempts"):
             continue
@@ -123,20 +126,105 @@ def recorrect_terminating(recs):
         o = r.get("observed") or {}
         if "pre" not in o or "post" not in o or not o.get("regs"):
             continue
-        old_v, old_o = r.get("validity"), r.get("outcome")
+        old_v, old_o, old_m = r.get("validity"), r.get("outcome"), r.get("moved")
         if not o.get("tail_ok", True):
-            v, oc = "invalid_sentinel", old_o
+            v, oc, mv = "invalid_sentinel", old_o, old_m
         elif o["pre"] != EXPECTED_PRE:
-            v, oc = "invalid_sentinel", old_o
-        elif o["post"] == POISON and all(x == POISON for x in o["regs"]):
-            v, oc = "valid", "ok"
+            v, oc, mv = "invalid_sentinel", old_o, old_m
+        elif arm == "STOP/midprogram":
+            # the stop under test sits BEFORE the dump: terminating leaves the
+            # whole register window poison and POST never materialized.
+            term = (o["post"] == POISON and all(x == POISON for x in o["regs"]))
+            v, oc, mv = "valid", ("ok" if term else "wrong_value"), (not term)
         else:
-            v, oc = "valid", "wrong_value"
-        if (v, oc) != (old_v, old_o):
-            r["validity"], r["outcome"] = v, oc
-            r["_recorrected"] = {"from": [old_v, old_o], "rule": "terminating"}
+            # STOP/terminal: the dump has ALREADY run in every case, so the 16
+            # registers are identical by construction and cannot carry the
+            # measurement. The discriminator is the POST-STOP WITNESS word
+            # (W_PROBE): the stop under test is followed by a write of
+            # SENT_WITNESS into it, so
+            #     probe == POISON        -> the stop TERMINATED (correct)
+            #     probe == SENT_WITNESS  -> it did NOT terminate
+            # `classify_slots` compares only the register dump, so it scored the
+            # falsifier -- which shows probe 0x4d vs the baseline's 0xdeadbeef,
+            # i.e. plainly firing -- as `ok`, failing the arm's own
+            # falsifier_contrast ladder and blocking all four `stop` fields.
+            # It also meant the terminal arm's sweep could not see ANYTHING:
+            # all 836 cases read `ok` / moved=False.
+            if o["post"] != SENT_POST:
+                v, oc, mv = "invalid_sentinel", old_o, old_m
+            else:
+                pr = o.get("probe")
+                term = (pr == POISON)
+                v, oc, mv = "valid", ("ok" if term else "wrong_value"), (not term)
+        if (v, oc, mv) != (old_v, old_o, old_m):
+            r["validity"], r["outcome"], r["moved"] = v, oc, mv
+            r["_recorrected"] = {"from": [old_v, old_o, old_m],
+                                 "rule": "terminating:" + arm.split("/")[-1]}
             n += 1
     return n
+
+
+def _db_defects():
+    """The descriptor defects this experiment measured, for the orchestrator.
+
+    `db.json` is NOT edited here -- EXP-0165 owns it. These rows carry the
+    corrected model plus the evidence, so the fix can be made without re-running
+    anything. Source: analysis/bitcheck.json, which checks EXHAUSTIVELY over
+    every value that the harness's bit surgery equals `isadb.assemble` -- 79
+    fields agree exactly, 0 mismatches, and these 4 are a field DECLARED over
+    bits its own descriptor's `match` constant PINS. Same self-contradiction
+    EXP-0162 fixed in `pixel_order.flags`: the field is undecodable and
+    unemittable at every value outside the pin, because those values are a
+    DIFFERENT INSTRUCTION.
+    """
+    bc = HERE / "bitcheck.json"
+    out = {}
+    if bc.exists():
+        try:
+            data = json.loads(bc.read_text())
+        except Exception:
+            return out
+        for d in data.get("db_defect_suspects", []):
+            lo, hi = d["match_pins_bits"]
+            free = [b for b in range(d["start"], d["start"] + d["width"])
+                    if not (lo <= b <= hi)]
+            key = "%s.%s" % (d["instr"], d["field"])
+            out[key] = {
+                "kind": "field declared over match-pinned bits",
+                "declared": {"start": d["start"], "width": d["width"]},
+                "match_pins_bits": [lo, hi],
+                "free_bits": free,
+                "real_encodable_range": 1 << len(free),
+                "evidence": "analysis/bitcheck.json (exhaustive over all 256 "
+                            "values; 79/83 fields agree exactly, 0 mismatches)",
+                "consequence": "every value outside the pin is a DIFFERENT "
+                               "instruction, not a value of this field, so the "
+                               "field is unemittable there and a dense sweep of "
+                               "2**width is not achievable even in principle",
+                "precedent": "same shape as the pixel_order.flags defect "
+                             "EXP-0162 fixed",
+                "not_edited_here": "tools/agx-isa/db.json (EXP-0165 owns it)",
+            }
+    if "iter_at.grp" in out:
+        out["iter_at.grp"]["also_explains"] = (
+            "why no run has ever swept this field past ~25 of 256 values: 254 "
+            "of the 256 are out-of-descriptor bit patterns, i.e. a decode "
+            "desync. EXP-0155 hung at 0x00, 0x01, 0x0f, 0x12, 0x16, 0x18 and "
+            "EXP-0163 at 0x00 and 0x50, and BOTH tripped the two-hang-per-field "
+            "stop rule. The two legal values are 0x2f and 0xaf.")
+    if "reg_move_cb.form" in out:
+        out["reg_move_cb.form"]["measured_here"] = (
+            "EXP-0168 sweeps byte+2 as a whole BYTE rather than as the declared "
+            "field, so the sweep itself is valid; run02/run03 show byte+2 = 0x0b "
+            "behaving differently from the other 13 form values (dst tracks the "
+            "field at 1/15 rather than 15/15), which is consistent with 0x0b "
+            "being a distinct form and not a value of a wider `form` field.")
+    if "shift_amt_move.kind" in out:
+        out["shift_amt_move.kind"]["measured_here"] = (
+            "also swept as a whole byte, not as the declared field; "
+            "shift_amt_move.src_flag is hardware-run at 100.000% agreement "
+            "(2 values, 26 distinct encodings, 22 moved).")
+    return out
 
 
 def is_placeholder(r):
@@ -204,6 +292,21 @@ def analyse(runs):
     # declared over. Measured exhaustively offline in analysis/bitcheck.json,
     # not assumed. db.json is NOT edited here (EXP-0165 owns it) -- these rows
     # carry the corrected number and the defect travels under `db_defects`.
+    # Values a field DISPATCHED but which the carrier cannot DECIDE, measured
+    # rather than assumed. `dst = 15` on every 4-bit-dst instruction: run02 shows
+    # register index 15 is not writable through the 4-bit destination nibble
+    # (mov_imm(15,121) and falu2i(r15,r14,+2.5) both leave the slot reading 0,
+    # while r14 reads correctly through the identical code path), so at any form
+    # that writes 0 the slot reads 0 whether the instruction wrote it or not.
+    # A row must not claim dense 16/16 when one of the 16 is undecidable.
+    UNDECIDABLE = {
+        "uniform_mov.dst": [15], "falu2.dst": [15], "falu2i.dst": [15],
+        "get_sr.dst": [15], "vtx_out_pos.dst": [15],
+        "reg_move_c0.dst": [15], "reg_move_c1.dst": [15],
+        "reg_move_c2var.dst": [15], "reg_move_c9.dst": [15],
+        "reg_move_cb.dst": [15],
+    }
+
     ENCODABLE_RANGE = {
         "iter_at.grp": 2,             # declared 0..7; match pins 0..6 -> bit 7 only
         "pixel_order.scope": 32,      # declared 24..31; match pins 28..30
@@ -269,16 +372,25 @@ def analyse(runs):
                      "movement_over_disagreement": ORCH_MOVE_OVER_DISAGREE}},
         "schema": "FIELD-SWEEP-PROTOCOL section 5, flat <mnemonic>.<field>",
         "corrections_applied": [
-            "STOP/midprogram validity/outcome re-derived from each record's own "
-            "observed.{pre,post,regs,tail_ok} -- on that carrier the ABSENCE of "
-            "the POST sentinel is the measurement (the stop terminated before "
-            "the dump), and the generic run-integrity rule scored it as "
-            "corruption, discarding 835 of 836 cases in run02. raw/ is NOT "
-            "edited; the rule is applied identically to every run."],
+            "STOP/midprogram validity/outcome/moved re-derived from each "
+            "record's own observed.{pre,post,regs,tail_ok} -- on that carrier "
+            "the ABSENCE of the POST sentinel is the measurement (the stop "
+            "terminated before the dump), and the generic run-integrity rule "
+            "scored it as corruption, discarding 835 of 836 cases in run02.",
+            "STOP/terminal outcome/moved re-derived from observed.probe -- on "
+            "that carrier the register dump has already run in every case and "
+            "cannot carry the measurement; the discriminator is the post-stop "
+            "WITNESS word (POISON = terminated, 77 = did not). classify_slots "
+            "reads only the register dump, so it scored the plainly-firing "
+            "falsifier (probe 0x4d vs baseline 0xdeadbeef) as `ok` and blocked "
+            "all four `stop` fields on their own falsifier_contrast ladder.",
+            "raw/ is NOT edited; both rules are applied identically to every "
+            "run, and every corrected record keeps its prior values under "
+            "`_recorrected`."],
         "note": "skip placeholders are EXCLUDED from every count; a field that "
                 "is inert everywhere is labelled `proven-dont-care`, not "
                 "`hardware-run`, and is reported with its ladder numbers",
-    }, "db_defects": {}}
+    }, "db_defects": _db_defects()}
 
     for fk in sorted(sweeps):
         arms = sweeps[fk]
@@ -452,6 +564,17 @@ def analyse(runs):
             "bytes_per_value": (round(maxbytes / maxcov, 3) if maxcov else None),
             "under_covered": bool(enc and maxcov < enc),
         }
+        und = UNDECIDABLE.get(fk, [])
+        if und:
+            cov["undecidable_values"] = und
+            cov["decidable_values"] = max(0, maxcov - len(und))
+            cov["undecidable_why"] = (
+                "register index 15 is not writable through the 4-bit "
+                "destination nibble on G17P (EXP-0168 run02: mov_imm(15,121) "
+                "and falu2i(r15,r14,+2.5) both leave the slot reading 0 while "
+                "r14 reads correctly through the same code path), so at any "
+                "form that writes 0 the slot reads 0 whether the instruction "
+                "wrote it or not")
         out[fk] = {
             "label": label,
             "target": "G17P",

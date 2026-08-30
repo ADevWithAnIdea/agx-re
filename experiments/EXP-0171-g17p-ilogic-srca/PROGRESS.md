@@ -102,3 +102,127 @@ import.
 **Courtesy hazard notice (FIELD-SWEEP-PROTOCOL sect 7):** the FSPECIAL_EST arm sweeps
 `fspecial_est` byte+3 densely 0..255, adjacent to the known `fspecial` byte+3 >= 192 hang
 region. Arm aborts and reports PARTIAL after 2 genuine hangs.
+
+## 2026-08-30 — M4 COORDINATOR CHECK: db pin verified, and it mattered
+Answering the stale-`db.json` alert. **Mine is pinned and matches.**
+
+| copy | sha256 | instructions | fields | `falu2` byte+5 | `ilogic` |
+|---|---|---|---|---|---|
+| repo live `tools/agx-isa/db.json` | `322847609de7…` | 172 | 1062 | `srcA_class`,`srcB_class` | split `lut_a_sel/free/z` |
+| **my `work/frozen/db.json`, resolved ON THE DEVICE** | **`322847609de7…`** | **172** | **1062** | `srcA_class`,`srcB_class` | split |
+| the neo's shared `~/agxre/tools/agx-isa/db.json` | `f5db942f03c9…` | 171 | 1036 | **`mod_lo`** | **un-split `lut_a`** |
+
+`raw/g17p_20260830_run01/00_env.json` records `isa_dir
+/Users/user/agxre/EXP-0171/work/frozen` and `db_sha256 322847609de7…`, i.e. the pin held for
+the whole gated run. Had `_find_isadb()` fallen through to the shared copy, **`lut_a_free`
+does not exist there at all** (the shared `ilogic` still has the pre-split 9-field layout),
+so this experiment's primary target would have been keyed to a nonexistent field. The neo's
+shared `tools/` was **read only, never edited** (EXP-0168/0172 are on that machine).
+
+**The `device_load` asynchrony contamination mode does not apply to this design.** SYNTH and
+FRAME seed **all 16 registers with `mov_imm`** (int) or `falu2i` from r14 (float) — there is
+no `device_load` anywhere in a synthesized program. The NAT carriers use the compiler's own
+`device_load`s with the compiler's own scheduling, and their comparator is a **host-computed
+oracle**, not a refreshed baseline, so a re-seeded baseline cannot fabricate movement there.
+Independently, `analysis/emit_verdicts.py` measures movement against the **anchor
+sub-value's own observation on the same carrier in the same run** and then gates on
+cross-run agreement — never against a periodically refreshed baseline. `baseline_fail` is 0
+in run01, and a refreshed baseline that differs restarts the child rather than being logged
+as data.
+
+Coverage keys `values_dispatched`, `distinct_bytes`, `encodable_range`, `start`, `width` are
+emitted on **every** row by `analysis/emit_verdicts.py` (both `field_verdicts.json` and
+`field_verdicts_flat.json`); `start`/`width` come from the pinned snapshot, so a stale-DB
+mismatch surfaces in `merge_verdicts.py` as a loud refusal.
+
+Headline drift noted: the coordinator now reports **41 of 166 emittable, 616 fields**.
+`PRE_REGISTRATION.md` §1 cites 40/126/166 and 614 fields, true at freeze and left unedited
+because its sha256 is the contract's gate. This entry is the correction of record.
+
+## 2026-08-30 — M5 GATED RUN 01 COMPLETE (35,949/35,949, 0 hangs, 0 baseline failures)
+`raw/g17p_20260830_run01/` pulled back (48 MB). 1596 s, 22.5 case/s aggregate.
+Counters: ok 9246, wrong_value 18368, silent_zero 7104, fault 1103, **hang 0**,
+undecodable 128, victim 595, sentinel_bad 622, invalid_run 128, baseline_fail 0.
+`00_env.json` confirms the pinned `db_sha256 322847609de7…`. run02 (reverse order) launched.
+
+### The primary result: H1 CONFIRMED, and the M4↔G17P contradiction is a CARRIER artefact
+`ilogic`/`b_alu10_*` byte+7 (`outmod`), dense 0..255, run01:
+
+| carrier | distinct observations | moved | which values moved |
+|---|---|---|---|
+| **NAT k_and** (store-consumed) | 2 | **128** | **every value with bit 7 CLEAR** |
+| **NAT k_or / k_xor / k_andn / k_nand** | 2 each | **128** each | every value with bit 7 clear |
+| SYNTH k_and (register dump) | 1 | **0** | — |
+| FRAME k_and (register dump + framing probe) | 1 | **0** | — |
+
+EXP-0146's M4 result reproduces **value-for-value on G17P**. EXP-0154's "inert across the
+whole range" was the register-dump carrier being blind to it, exactly as EXP-0166 §2.1
+hypothesised. **There is no cross-target divergence.** R1a and R1b did not fire.
+
+### …and the MECHANISM in db.json is wrong
+db.json calls byte+7 bit7 "an output/store flag". The poisoned buffer says otherwise. With
+bit 7 clear, `poison_out == 0` and **both sentinels are intact** — the store DID execute —
+and the value written is:
+
+| kernel | bit7 set (anchor 0x80) | bit7 clear |
+|---|---|---|
+| k_and | `a&b` (correct) | **0** |
+| k_or | `a\|b` | **0** |
+| k_xor | `a^b` | **0** |
+| k_andn | `a&~b` | **0** |
+| **k_nand** | `~(a&b)` | **`0xFFFFFFFF`** |
+
+`nand` is the discriminator. An output-zeroing flag would give 0 for nand too. `0xFFFFFFFF`
+is `~(0 & 0)` — i.e. **the LUT still evaluates and the destination is still written; it is
+both SOURCES that read as ZERO.** So byte+7 bit7 is a **source-read / operand-delivery**
+control, not an output/store flag. And the SYNTH carrier — where the operands are
+`mov_imm`-seeded GPRs written long before — is unaffected, which points at
+*pending-load delivery*: in NAT the operands arrive from an asynchronous `device_load`
+issued immediately before. (Alternative not excluded: a scoreboard/forwarding bit whose
+absence only matters when the consumer is adjacent. A successor discriminates it by putting
+the dump store immediately after the block.)
+
+### H7 CONFIRMED — DEF-0171-1 is now HARDWARE-PROVEN, not structural
+SYNTH byte0 dense sweep: **every one of the 15 observable values with low nibble `0xb` puts
+the AND result (73 = 93 & 107) in register `v>>4`** — `0x0b`→r0, `0x1b`→r1, … `0xeb`→r14.
+(`0xfb`→r15 is not observable: r15 is the harness's own `device_store` index register and is
+re-seeded before every dump store. 15 of 15 observable, 0 misses.) `ilogic`'s
+`match [[0,8,11]]` therefore hides 15 of 16 destinations behind `b_alu10_lof`/`loe`.
+Also observed: byte0 `0x23` reproduces the anchor's full register state exactly — a second
+low nibble reaching the same datapath, worth a successor's attention.
+
+### F3 POSITIVE CONTROL: 20 of 20 transplants reproduced the transplanted function
+Splicing kernel Y's selector bytes (+2,+4,+5) into kernel X's logic op made X compute **Y's
+boolean function**, host-computed, for all 20 ordered pairs over
+{and, or, xor, andn, nand}. The four `k_andn`-sourced transplants matched **only with the
+operands swapped** — its compiler anchor has byte+1/+3 = `01`/`03` where the others have
+`03`/`01`. That is DEF-0154-5's operand swap, reproduced as a *prediction* rather than
+found by accident. This is synthesis, not tokenization: any of the five functions can be
+GENERATED into any of the five kernels.
+
+### Arm B, run01 (single-run, not yet gated)
+* **`ibitcount.tail` MOVED 128/256 on all four carriers, and the accept-set is EXACTLY the
+  128 values with bit 2 set** — G17P reproduces M4's EXP-0139 DEF-0139-3 value-for-value.
+  `ibitcount` was ONE field from emittable.
+* **`fspecial_est.srcA` (254/256) and `.subop` (255/256) MOVED on SYNTH and FRAME**, and the
+  **NAT `k_rsqrt` carrier FAILED its own falsifier (byte0:=0 came back `ok`) and was
+  DISCARDED** — the Newton-Raphson refinement masks everything, which is EXP-0161's failure
+  mode, now *diagnosed by the falsifier instead of mistaken for inertness*. H5 confirmed.
+* **`bf_alu.srcA` 254/256, `.srcB` 248-254/256, `.tail` moves on all three spanned bytes**
+  (b+5 240-248, b+6 128-224, b+7 192-224) — `bf_alu` was 3 fields from emittable.
+* **`bf_fma_dst.tail` moves on all four spanned bytes on NAT** (252/248/224/224); SYNTH and
+  FRAME see b+8/b+9 as inert. `bf_fma_dst` was ONE field from emittable.
+* **`iadd2.srcA` MOVED 208-252/256** with a 48-value accept-set on SYNTH — refutes H6's
+  "inert or tiny accept-set". `iadd2.b2_fmt` is dense-INERT (0/64) on all three carriers
+  while byte+2 itself moves 128/256 on NAT (that movement is bits 0-1, i.e. `b2_bit0` /
+  `store_en`), so the detection power is proven and `b2_fmt` really is inert.
+* **`ibfe.srcA` MOVED 192/256 on all three carriers. `ibfe.sign_ext` (byte+6 bit1) is
+  INERT on BOTH `k_bfe` (unsigned) and `k_bfe_s` (signed)** — flipping it does not change
+  signedness in either direction. Our two compiler anchors differ in byte+6 bit1 *and* in
+  `srcC_flags` byte+9 bit0 (`0x11` unsigned vs `0x10` signed); the sweep shows byte+6 bit1
+  is not the cause. db.json's "signed sets sign_ext (b6 bit1)" is a CORRELATION across the
+  two compiler forms, not a control. (Byte+9 was not swept here — the attribution to
+  `srcC_flags` bit0 is INFERRED and needs its own arm.)
+* `ilogic.z6 / z8 / z9` (= `b_alu10_*.z6 / ext8 / ext9`): dense-INERT, 0/256 each, on all
+  three carrier STYLES — but only ONE probe anchor, so they are held at
+  `single-template-inference`, not promoted.

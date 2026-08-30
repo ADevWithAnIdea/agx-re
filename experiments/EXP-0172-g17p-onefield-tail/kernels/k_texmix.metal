@@ -1,17 +1,20 @@
 // k_texmix.metal -- EXP-0172 tex_sample.coord carrier B: the SAME descriptor
-// reached through three different operation kinds in one program -- an explicit
-// -LOD sample, a gather, and an integer read -- so that a `coord` verdict is not
-// a property of one operation kind.  OUR OWN MSL.  Clean-room: OWN-SHADER.
+// reached through three different operation kinds in one program -- an
+// explicit-LOD sample, a gather, and an integer read -- so that a `coord`
+// verdict is not a property of one operation kind.  OUR OWN MSL.
+// Clean-room: OWN-SHADER.
 //
 // WHY.  db.json models `tex_sample` as one bundle covering sample / gather /
 // read / compare / LOD-query, with `variant` (op+2) selecting which.  `coord`
-// (op+5) is the coordinate register in all of them.  EXP-0155's live and inert
-// arms were not separated by operation kind, and its cross-run disagreement was
+// (op+1) is the coordinate register in all of them.  EXP-0155's live and inert
+// arms were not separated by operation kind and its cross-run disagreement was
 // never attributed.  This carrier makes the operation kind an explicit,
-// controlled variable within one compiled program.
+// controlled variable inside one compiled program.
 //
 // Every operation is explicit-LOD or LOD-free, so no result here depends on a
-// quad derivative -- the suspected source of EXP-0155's irreproducibility.
+// quad derivative -- the suspected source of EXP-0155's irreproducibility -- and
+// (as in k_texread.metal) there is NO buffer and NO device_load, so nothing
+// depends on an asynchronous load landing (EXP-0169).
 #include <metal_stdlib>
 using namespace metal;
 
@@ -26,15 +29,17 @@ vertex VO v_main(uint vid [[vertex_id]])
 }
 
 fragment float4 f_main(VO i [[stage_in]],
-                       texture2d<float> t [[texture(0)]],
-                       device const uint *b [[buffer(0)]])
+                       texture2d<float> t [[texture(0)]])
 {
     constexpr sampler s(coord::pixel, filter::nearest, address::clamp_to_edge);
 
-    float2 p0 = float2(float(b[0]) + 0.5f, float(b[1]) + 0.5f);
-    float2 p1 = float2(float(b[2]) + 0.5f, float(b[3]) + 0.5f);
-    uint2  c2 = uint2(b[4], b[5]);
-    uint2  c3 = uint2(b[6], b[7]);
+    uint px = uint(i.pos.x) & 7u;
+    uint py = uint(i.pos.y) & 7u;
+
+    float2 p0 = float2(float(px) + 0.5f, float(py) + 0.5f);
+    float2 p1 = float2(float(7u - px) + 0.5f, float(py) + 0.5f);
+    uint2  c2 = uint2(px, 7u - py);
+    uint2  c3 = uint2((px * 3u) & 7u, (py * 5u) & 7u);
 
     float  a = t.sample(s, p0, level(0)).x;
     float4 g = t.gather(s, p1);
