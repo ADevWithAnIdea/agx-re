@@ -205,13 +205,13 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 
 ## The number
 
-**37 of 166 emitter-relevant instructions emittable; 554 of 1040 fields emitter-grade.**
+**34 of 166 emitter-relevant instructions emittable; 550 of 1040 fields emitter-grade.**
 
 > **This figure was 55/638 until the closing audit (EXP-0189) tested it and it did not survive.**
 > That audit reimplemented the *current* rule — including the `_instruction` gate I had added
 > hours earlier — and **reproduced 55 exactly before withholding anything**, so 38 was measured
 > against my own rule rather than a different one. I then withheld one more (`call.tail`) on its
-> eighth finding. The full arc of the day is **79 → 41 → 55 → 38 → 37**, and every fall came from
+> eighth finding. The full arc of the day is **79 → 41 → 55 → 38 → 37 → 34**, and every fall came from
 > an audit that could reproduce the published number before disputing it.
 >
 > **The shortfall is not the merges made during this run, and that is measured rather than
@@ -279,3 +279,31 @@ within an hour of being written, with a device-free selftest (`selftest_tools.py
 **`verify_remote.py` is the one to keep**: a frozen contract hashes what you *authored*, not what
 the device is *running*, and on its first run against its own author it found **11 of 18 blobs
 matching** with every hash in the contract still correct.
+
+
+## The one finding that outlives the number
+
+**Ten distinct instances of a single defect were found in this corpus today: a check that cannot
+come out the other way.** None was found by running more sweeps; every one came from auditing work
+that had already passed.
+
+| # | the check | why it could not fail |
+|---|---|---|
+| 1 | a liveness ladder | its falsifier **relocated** the write instead of nulling it |
+| 2 | `roundtrip_test.py` | symmetric across encode and decode — passes against an assembler that cannot clear a bit, *and* with two operands swapped |
+| 3 | an oracle | **co-varied** with the field under test, so a correct result was a constant vector by construction |
+| 4 | a contiguous-suffix cascade test | trivially true at 8-of-8 non-OK |
+| 5 | a clustering score of `0.0` | a **key collision**, not a cascade |
+| 6 | a detection control | fired on a **match byte** — i.e. by encoding a different opcode |
+| 7 | 96 whole-word liveness probes | built on match bytes; returned false negatives **while the field was faulting the GPU** |
+| 8 | a promotion gate | **no `moved >= 1` conjunct** — a dead-code carrier scores `hardware-run` |
+| 9 | an indexer filter | discarded any raw record whose field name starts with `_`, hiding real sweeps |
+| 10 | an **inertness** gate | `moved = 0` **by construction** on an arm whose observable never varies |
+
+**#8 and #10 are the same error in opposite directions** — one gate that cannot refuse, one that
+cannot doubt. #2 and #9 were load-bearing for months. Four of the ten were found by the very agent
+whose result they undermined.
+
+The practical consequence for a successor: **a green check is not evidence until you have shown it
+can go red.** Every rule now in `FIELD-SWEEP-PROTOCOL` §3 and §5 exists because one of these cost a
+real experiment.
