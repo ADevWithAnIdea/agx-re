@@ -30,6 +30,15 @@ def main():
         veto = "EMITTABLE VETO" in note
         bl = [(n, entry.get(n, {}).get("label", "MISSING")) for n in names
               if entry.get(n, {}).get("label") not in EMIT]
+        # The _instruction gate. An instruction is NOT emittable just because
+        # every named field passes: the instruction-level label carries the
+        # claim that the opcode/match bits themselves were exercised. Omitting
+        # this over-counted by 5 (37 vs 32) and, worse, pointed a dispatcher at
+        # field sweeps for instructions that were already field-complete and
+        # blocked somewhere else entirely.
+        inst_label = (entry.get("_instruction") or {}).get("label", "MISSING")
+        if inst_label not in EMIT:
+            bl.append(("_instruction", inst_label))
         if bl or veto or not names:
             blocked.append((len(bl), m, bl, veto, bool(names)))
         else:
@@ -85,6 +94,19 @@ def main():
             out.write("- `%s` — %s\n" % (m, why))
 
     lab = collections.Counter(l for _, _, bl, _, _ in blocked for _, l in bl)
+    only_inst = [(m, bl[0][1]) for _, m, bl, veto, hn in blocked
+                 if hn and not veto and len(bl) == 1 and bl[0][0] == "_instruction"]
+    if only_inst:
+        out.write("\n## Field-complete, blocked at the INSTRUCTION level (%d)\n\n"
+                  % len(only_inst))
+        out.write("Every named field is emitter-grade; the instruction-level label is not. "
+                  "**These need a different dispatch than a field sweep** — the open question is "
+                  "whether the opcode/match bits themselves do what the descriptor claims, so the "
+                  "probe is to emit the instruction and check it acts, not to vary a field.\n\n")
+        out.write("| instruction | `_instruction` label |\n|---|---|\n")
+        for m, l in sorted(only_inst):
+            out.write("| `%s` | %s |\n" % (m, l))
+
     out.write("\n## Blocking labels overall\n\n| label | fields |\n|---|---:|\n")
     for l, c in lab.most_common():
         out.write("| `%s` | %d |\n" % (l, c))

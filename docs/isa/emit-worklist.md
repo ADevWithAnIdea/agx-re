@@ -8,25 +8,25 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 38 | 128 | 166 |
+| 32 | 134 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
-| 0 | 4 |
-| 1 | 21 |
-| 2 | 25 |
-| 3 | 27 |
-| 4 | 14 |
+| 1 | 24 |
+| 2 | 18 |
+| 3 | 23 |
+| 4 | 27 |
 | 5 | 11 |
-| 6 | 9 |
-| 7 | 4 |
-| 8 | 2 |
+| 6 | 7 |
+| 7 | 7 |
+| 8 | 4 |
 | 9 | 2 |
-| 11 | 5 |
-| 12 | 2 |
-| 13 | 2 |
+| 10 | 2 |
+| 12 | 6 |
+| 13 | 1 |
+| 14 | 2 |
 
 ## Most load-bearing field NAMES
 
@@ -34,6 +34,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
+| `_instruction` | 79 |
 | `dst` | 38 |
 | `srcA` | 14 |
 | `tail` | 13 |
@@ -48,63 +49,58 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `b1` | 7 |
 | `b4` | 7 |
 | `flags` | 7 |
-| `mode` | 6 |
 
-## ONE field away (21 instructions)
+## ONE field away (24 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
 | `call` | `tail` | untested |
-| `copysign` | `operands` | untested |
-| `cubearray_coord_const` | `b3` | tokenization-only |
-| `cvt_f2i` | `b9` | single-template-inference |
-| `dev_scoreboard_fence` | `scope_flag` | corpus-correlation |
 | `falu3` | `op` | untested |
 | `falu3_ext` | `op` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
+| `frag_depth_store` | `_instruction` | corpus-correlation |
+| `frame_marker_compact` | `_instruction` | tokenization-only |
 | `fspecial_est` | `srcA` | untested |
 | `if_push` | `scope` | single-template-inference |
 | `irotate` | `operands` | untested |
 | `iter` | `b9` | single-template-inference |
-| `mesh_out_src` | `sel` | tokenization-only |
-| `n4_cf_word` | `b3` | tokenization-only |
-| `n4_rt_word` | `dst` | tokenization-only |
+| `n1_word` | `_instruction` | tokenization-only |
+| `n2_compact2` | `_instruction` | tokenization-only |
+| `n2_op6` | `_instruction` | corpus-correlation |
+| `n3_word` | `_instruction` | tokenization-only |
 | `ret` | `scoreboard` | corpus-correlation |
 | `ret_luse` | `linkmode` | untested |
+| `rtq_pred` | `_instruction` | tokenization-only |
+| `sfu_marker` | `_instruction` | tokenization-only |
 | `shift_amt_move` | `src_flag` | untested |
 | `stop` | `reserved` | untested |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `mode` | untested |
+| `vary_slot` | `_instruction` | corpus-correlation |
+| `vtx_coord_xform` | `operand` | untested |
 
-## TWO fields away (25 instructions)
+## TWO fields away (18 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
-| `b_alu14_prep2` | `dst`, `sel` | tokenization-only, tokenization-only |
-| `cvt_i2f_src` | `src_cache`, `dst_desc` | untested, untested |
-| `falu2_srcmod10` | `opsel`, `ctrl` | corpus-correlation, untested |
+| `copysign` | `operands`, `_instruction` | untested, corpus-correlation |
+| `cubearray_coord_const` | `b3`, `_instruction` | tokenization-only, tokenization-only |
+| `cvt_f2i` | `b9`, `_instruction` | single-template-inference, corpus-correlation |
+| `dev_scoreboard_fence` | `scope_flag`, `_instruction` | corpus-correlation, corpus-correlation |
 | `falu3_srcmod12` | `opsel`, `ctrl` | untested, untested |
-| `frag_color_pack` | `src_gate_select`, `conv_scale` | untested, untested |
 | `get_sr` | `form`, `dst_hi` | untested, untested |
-| `h_alu_hi` | `ctrl`, `mods` | untested, untested |
 | `half_alu_fma12` | `dst`, `ext` | untested, untested |
 | `half_pack` | `dstlo`, `b3` | untested, untested |
-| `ibfe` | `b2_bit0`, `sign_ext` | single-template-inference, single-template-inference |
 | `ibitcount` | `cache`, `dst` | untested, untested |
-| `isel8` | `cmpA`, `cmpB` | untested, untested |
-| `ishift` | `src_cache`, `pad9` | untested, untested |
 | `iunary` | `b1`, `opsel` | untested, untested |
-| `mask_op` | `mask_bank`, `scope_kind` | corpus-correlation, single-template-inference |
-| `mem_fence8` | `mask`, `tail` | corpus-correlation, tokenization-only |
-| `n2_op8` | `dst`, `body` | tokenization-only, tokenization-only |
+| `mesh_out_src` | `sel`, `_instruction` | tokenization-only, corpus-correlation |
+| `n4_cf_word` | `b3`, `_instruction` | tokenization-only, tokenization-only |
+| `n4_rt_word` | `dst`, `_instruction` | tokenization-only, tokenization-only |
 | `pop_reconverge` | `scope`, `reserved` | untested, untested |
-| `ray_move_copy6` | `dst`, `src` | untested, untested |
 | `simd_ballot` | `pred`, `cache` | untested, single-template-inference |
 | `simd_reduce` | `op`, `dtype` | untested, untested |
 | `simd_shuffle` | `dir`, `cache` | untested, single-template-inference |
 | `tex_write` | `amode`, `rsv11` | untested, untested |
-| `tile_read_mrt` | `b4`, `b6_hi` | untested, untested |
-| `vtx_out_pos` | `dst`, `slot` | untested, single-template-inference |
 
 ## Blocked by a descriptor problem, not a sweep
 
@@ -115,11 +111,23 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 - `op04_len8` — EMITTABLE VETO
 - `tg_addr_compute` — EMITTABLE VETO
 
+## Field-complete, blocked at the INSTRUCTION level (5)
+
+Every named field is emitter-grade; the instruction-level label is not. **These need a different dispatch than a field sweep** — the open question is whether the opcode/match bits themselves do what the descriptor claims, so the probe is to emit the instruction and check it acts, not to vary a field.
+
+| instruction | `_instruction` label |
+|---|---|
+| `frag_depth_store` | corpus-correlation |
+| `frame_marker_compact` | tokenization-only |
+| `n2_op6` | corpus-correlation |
+| `sfu_marker` | tokenization-only |
+| `vary_slot` | corpus-correlation |
+
 ## Blocking labels overall
 
 | label | fields |
 |---|---:|
-| `untested` | 257 |
-| `tokenization-only` | 123 |
-| `corpus-correlation` | 74 |
+| `untested` | 260 |
+| `corpus-correlation` | 141 |
+| `tokenization-only` | 135 |
 | `single-template-inference` | 30 |
