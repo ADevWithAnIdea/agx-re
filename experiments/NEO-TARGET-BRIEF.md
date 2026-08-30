@@ -39,6 +39,36 @@ Work under **`~/agxre/<EXP-NNNN>/`** on the neo. Rebuild binaries there rather t
 
 Do not read or modify anything on the neo outside your own working directory.
 
+## GPU lease — REQUIRED for every device run
+
+One GPU, many agents. On the M4 concurrent sweeps contaminated each other badly: EXP-0139 measured
+**44% of gated-run faults failing to reproduce**, and without mitigation **692 legal field values
+would have been labelled `fault`**. That is now solved by serialization rather than by limiting how
+many agents exist.
+
+**`~/agxre/gpulease.sh` (source: `tools/gpulease.sh`) — wrap every GPU-touching command:**
+
+```sh
+~/agxre/gpulease.sh EXP-0154 900 -- <your command>
+```
+
+- `EXP-NNNN` is your holder name, so a stuck lease is attributable.
+- Second argument is how long you will wait for the lease before giving up (exit **75**).
+- Atomic via `mkdir` (macOS has no `flock`). Leases older than **15 minutes are broken
+  automatically**, so a killed agent cannot deadlock the device.
+- Releases on EXIT/INT/TERM.
+
+**Hold the lease for a batch, not for each dispatch** — take it once around a whole sweep run, not
+once per case, or you will spend all your time queueing. Conversely do **not** hold it across
+analysis or file transfer; release, think, re-acquire.
+
+If you get exit 75, another agent has the device. Back off and retry; do not force it, and do not
+delete `/tmp/agx_gpu.lock` by hand — the staleness rule already handles genuinely dead holders.
+
+§7's mitigations still apply *inside* your lease (majority-of-3 on faults, fault-class strings,
+baseline re-validation, integrity sentinel, poisoned read-back buffer). The lease removes
+*cross-agent* interference; it does not remove the hardware's own nondeterminism.
+
 ## Recovery
 
 If the neo stops answering: **STOP and report BLOCKED** with exactly where you were.
