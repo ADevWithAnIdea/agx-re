@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 40 | 126 | 166 |
+| 41 | 125 | 166 |
 
 ## Distance to emittable
 
@@ -16,7 +16,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 0 | 4 |
 | 1 | 31 |
-| 2 | 26 |
+| 2 | 25 |
 | 3 | 19 |
 | 4 | 14 |
 | 5 | 9 |
@@ -87,14 +87,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `uniform_mov` | `dst` | untested |
 | `vary_slot` | `slot` | corpus-correlation |
 
-## TWO fields away (26 instructions)
+## TWO fields away (25 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
 | `b_alu14_prep2` | `dst`, `sel` | tokenization-only, tokenization-only |
 | `cvt_f2i` | `dst`, `b9` | untested, untested |
 | `cvt_i2f_src` | `src_cache`, `dst_desc` | untested, untested |
-| `falu2` | `srcA_class`, `srcB_class` | untested, untested |
 | `falu2_srcmod10` | `opsel`, `ctrl` | corpus-correlation, untested |
 | `falu3_srcmod12` | `opsel`, `ctrl` | untested, untested |
 | `fspecial_est` | `srcA`, `subop` | untested, untested |
@@ -131,7 +130,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 187 |
+| `untested` | 185 |
 | `tokenization-only` | 141 |
 | `corpus-correlation` | 91 |
 | `single-template-inference` | 19 |
