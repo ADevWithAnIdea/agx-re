@@ -52,6 +52,31 @@ milestone). **Evidence lives in this repo on the M4, so pull results back prompt
 captures accumulate only on the neo, where a reboot loses them. If the neo stops responding:
 **STOP and report BLOCKED** with where you were; recovery is the orchestrator's job.
 
+## A shell hazard that has now silently corrupted work TWICE in one session
+
+**Do not chain a state-changing step behind `&&` and assume it ran.** Both of these happened on
+2026-08-30, hours apart, to different actors:
+
+- The orchestrator appended a `PROVENANCE.md` row inside `cmd1 && cmd2 && cat >> PROVENANCE.md <<EOF`.
+  **The append silently did not execute**, while `git commit` beside it succeeded — so the commit
+  looked complete and the paper trail was not. It was caught only because a later edit to that row
+  failed to find its own text. A merged verdict with no citation is exactly the reverse-chain gap
+  EXP-0176 spent a whole experiment measuring.
+- EXP-0179's `sync.sh push` returned non-zero inside a chained command, so a gated pass **executed
+  against the STALE pre-amendment harness** — 6 cases instead of 8, remote hashes not matching local.
+  It burned a run id, which was retained and marked defective rather than topped up or deleted.
+
+**The rule: after any push, write, or generate step whose output you will then depend on, VERIFY IT
+SEPARATELY** — re-read the file, compare the remote hash, count the rows. EXP-0179's own conclusion is
+the one to copy: *"I now verify remote hashes after every push instead of trusting `&&`."* A silent
+no-op inside a chain is indistinguishable from success in the exit code, and both failures above
+produced artifacts that looked correct.
+
+Related, and the same shape one level up: **a clean result from a stub is not evidence a defect is
+absent.** EXP-0179's offline stub failed to reproduce the shared runner's hang cascade, and it
+recorded that as an OBSERVATION rather than a gate, because the real failure needs scheduling luck.
+It relied on the structural fix, not the passing stub.
+
 ## Process — the parts that most often bite (full contract: `../CODEX.md`)
 - **Pre-register before you build.** Commit-ready `PRE_REGISTRATION.md` (+ `CAPTURE_CONTRACT.json`
   where the dispatch says so): falsifiable hypothesis, variables, expected observation + a refuter,
