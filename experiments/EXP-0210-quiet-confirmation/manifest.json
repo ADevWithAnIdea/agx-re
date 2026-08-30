@@ -1,0 +1,61 @@
+{
+ "experiment": "EXP-0210-quiet-confirmation",
+ "title": "The quiet window: serialized Gate E confirmation for the 2026-08-30 G17P wave",
+ "target": {
+  "device": "Apple A18 Pro / G17P",
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "gpu_cores": 5,
+  "os": "macOS 26.6 (25G5043d)",
+  "model": "Mac17,5",
+  "metal_family": "Apple9",
+  "address": "192.168.170.254"
+ },
+ "frozen_at_repo_revision": "1ea484d3c37dffc884cb12d92de597cbfefdc41b",
+ "clean_room": {
+  "provenance": "HW-PROBE (re-running our own committed harnesses) + black-box IOKit property reads",
+  "inputs_inspected": "this repository's own committed harnesses, kernels and raw; IOKit registry property values published by the driver",
+  "apple_binary_introspection": "NONE"
+ },
+ "scope": "Gate E only. No hypothesis, no field claim, no sweep redesign, no label change, no edit to tools/agx-isa, docs/, PROVENANCE.md, or any other experiment's files.",
+ "amendments": [
+  {"id": "AMENDMENT-01", "what": "split n_foreign_runner from n_compiler_svc; Q1 restated on dispatch runners", "superseded_captures": ["raw/e0203_q41", "raw/e0203_q42", "EXP-0203/raw/g17p_q41", "EXP-0203/raw/g17p_q42"]},
+  {"id": "AMENDMENT-02", "what": "one ps snapshot; ownership = ppid subtree UNION session id", "superseded_captures": ["raw/e0205_q01", "raw/e0205_q02", "EXP-0205/raw/g17p_quiet01", "EXP-0205/raw/g17p_quiet02"]},
+  {"id": "AMENDMENT-03", "what": "Q2 split into Q2a (no reset attributable to a foreign context) and Q2b (delta reported); the frozen Q2 could not be met by any fault-heavy experiment", "superseded_captures": ["raw/e0202_q01", "EXP-0202/raw/g17p_quiet01"]}
+ ],
+ "captures_scoring": {
+  "EXP-0203": ["raw/g17p_q43 (forward)", "raw/g17p_q44 (reverse)"],
+  "EXP-0205": ["raw/g17p_quiet03 (forward)", "raw/g17p_quiet04 (reverse)"],
+  "EXP-0202": ["raw/g17p_quiet03 (forward)", "raw/g17p_quiet04 (reverse)"],
+  "EXP-0201": ["raw/g17p_quiet01 (forward)", "raw/g17p_quiet02 (reverse)"],
+  "EXP-0199": ["raw/g17p_quietconf01 (shuffle)", "raw/g17p_quietconf02 (reverse)"],
+  "EXP-0204": ["raw/g17p_quiet_C1 (shuffle 11)", "raw/g17p_quiet_C2 (reverse)", "raw/g17p_quiet_A2runD1 (forward)", "raw/g17p_quiet_A2runD2 (reverse)"],
+  "EXP-0206": ["its OWN committed raw/g17p_20260830_run05 and raw/g17p_20260830_run07, re-derived as quiet"]
+ },
+ "captures_retained_unused": [
+  "raw/e0203_q41", "raw/e0203_q42", "raw/e0205_q01", "raw/e0205_q02", "raw/e0202_q01",
+  "raw/e0206_q01_PARTIAL", "raw/e0206_q02_PARTIAL",
+  "EXP-0203/raw/g17p_q41", "EXP-0203/raw/g17p_q42",
+  "EXP-0205/raw/g17p_quiet01", "EXP-0205/raw/g17p_quiet02",
+  "EXP-0202/raw/g17p_quiet01",
+  "EXP-0206/raw/g17p_quiet01", "EXP-0206/raw/g17p_quiet02"
+ ],
+ "gate_e": {
+  "met": ["half_alu_fma12.dst", "half_pack.dstlo", "half_pack.b3",
+          "simd_reduce.op", "simd_reduce.dtype", "simd_shuffle.dir", "simd_shuffle.cache",
+          "falu3.op", "falu3_ext.op", "falu3_srcmod12.opsel", "falu3_srcmod12.ctrl",
+          "copysign.operands",
+          "irotate.operands", "ibitcount.dst", "cvt_f2i._instruction"],
+  "met_bounded": ["frag_depth_store._instruction", "sfu_marker._instruction"],
+  "met_from_own_committed_raw": ["EXP-0206 run05/run07 arms (cf_nl3, cf_ifnl, cl_pure, cl_ldret, cl_stacross)"],
+  "not_met": ["ibitcount.cache", "tex_sample.mode", "tex_write.amode", "tex_write.rsv11", "tex_deriv.dstsrc"],
+  "not_reached": ["EXP-0206 cf_nl2 / cl_atomic / cl_leaf / cl_chain arms"]
+ },
+ "defects_reported_not_fixed": [
+  "tools/agx-isa/wave_audit.py cross-run key is not unique for byte-indexed sweeps",
+  "EXP-0201 and EXP-0202 quiet gates misclassify their own helper/zombie processes as foreign and gate promotion on it",
+  "EXP-0202 field_verdicts.json carries hardcoded run03/run04 prose not recomputed from the runs passed in",
+  "EXP-0205 / EXP-0202 / EXP-0206 / EXP-0204 CAPTURE_CONTRACT.json stale against committed analysis files",
+  "EXP-0202 sync.sh pull rsyncs the whole raw/ tree and can overwrite committed raw"
+ ]
+}

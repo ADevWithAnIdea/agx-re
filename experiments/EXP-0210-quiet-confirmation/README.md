@@ -28,16 +28,17 @@ narrowed; no case matrix is altered; no label, no file under `tools/agx-isa/`, `
 ## Method
 
 `PRE_REGISTRATION.md` (frozen at rev `1ea484d3c37dffc884cb12d92de597cbfefdc41b`, clean tree,
-before the first dispatch) fixes the protocol; `AMENDMENT-01.md` and `AMENDMENT-02.md` are
-two instrument corrections, each frozen **before** the dispatch that used it, each with the
-superseded captures retained and explicitly **not** re-scored.
+before the first dispatch) fixes the protocol; `AMENDMENT-01.md`, `AMENDMENT-02.md` and
+`AMENDMENT-03.md` are three instrument corrections, each frozen **before** the dispatch that
+used it, each with the superseded captures retained and explicitly **not** re-scored. The
+third is a defect in this experiment's **own** frozen criterion, found by running.
 
 **Quiet is measured on four signals**, not asserted:
 
 | | criterion | why it is independent |
 |---|---|---|
 | Q1 | `n_foreign_runner == 0` in every sample | the process class that contends for the GPU, faults, hangs, and makes a neighbour a victim |
-| Q2 | `recoveryCount` unchanged first-to-last sample | the driver's cumulative **device-reset** counter — the event that manufactures `InnocentVictim` and hang cascades. Hardware-side; needs no process names |
+| Q2a | no device reset attributable to a **foreign** context (AMENDMENT-03; passes only when Q1 and Q3 pass) | `recoveryCount` is the driver's cumulative **device-reset** counter — the event that manufactures `InnocentVictim` and hang cascades. Hardware-side; needs no process names. Q2b reports the delta: our own faulting encodings reset the device legitimately, and the cascade question is answered in the pair's raw |
 | Q3 | `fLastSubmissionPID` never a PID outside our own session | a foreign submitter whose process name matches no pattern is invisible to Q1 and visible here |
 | Q4 | sampler alive throughout (≥1 sample / 10 s) | a dead sampler cannot observe a busy machine |
 
@@ -68,6 +69,7 @@ flight at any moment.
 PRE_REGISTRATION.md      frozen before the first dispatch
 AMENDMENT-01.md          compiler-XPC attribution   (frozen before its first dispatch)
 AMENDMENT-02.md          one-snapshot ownership     (frozen before its first dispatch)
+AMENDMENT-03.md          foreign-vs-own device-reset attribution (frozen before its first dispatch)
 RESULTS.md               per experiment, per field: Gate E MET / NOT MET, with the evidence
 PROGRESS.md              append-only milestone log, including two self-disclosures
 harness/quietsample.py   the quiet instrument (process table + IOKit properties)
@@ -96,3 +98,11 @@ sh harness/capture.sh <tag> <sample_s> <alarm_s> '<that experiment's own capture
 python3 analysis/pairwise.py <A>/sweep.jsonl <B>/sweep.jsonl --label <...>
 sh harness/run_analysis.sh <exp_dir> <tag> python3 analysis/verdicts.py raw/<A> raw/<B>
 ```
+
+## Result
+
+See `RESULTS.md`. In one line: **Gate E is MET for 17 of the 22 named fields**, on captures
+with **zero foreign GPU dispatch runners in every sample**; `ibitcount.cache` fails on one
+measured disagreement; all four EXP-0204 fields fail because both of its captures were stopped
+early by its own cascade guard; and EXP-0206's `cf_nl2`/`cl_atomic`/`cl_leaf`/`cl_chain` arms
+were NOT REACHED because on a quiet machine those encodings **hang** where they faulted.

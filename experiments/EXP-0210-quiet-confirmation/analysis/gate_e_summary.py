@@ -33,9 +33,14 @@ PAIRS = [
       "copysign.operands"]),
     ("EXP-0199", "e0199_q01_q02.json", "e0199_q01", "e0199_q02", "shuffle", "reverse",
      ["frag_depth_store._instruction", "sfu_marker._instruction"]),
-    ("EXP-0206", "e0206_q01_q02.json", "e0206_q01", "e0206_q02", "forward", "reversed",
-     ["if_push.scope", "stop.reserved", "pop_reconverge.reserved", "ret.scoreboard",
-      "ret_luse.linkmode"]),
+    # EXP-0206: its OWN committed run05/run07 are the quiet pair (re-derived from their own
+    # procs.jsonl: zero foreign dispatch runners in either).  The remaining carriers were NOT
+    # REACHED -- see RESULTS section 8.2.  No EXP-0210 quiet tags exist for this row, so the
+    # tool prints NOT REACHED and the committed-pair numbers are in
+    # analysis/out/e0206_committed_run05_run07.json.
+    ("EXP-0206", "e0206_committed_run05_run07.json", "__committed__", "__committed__",
+     "shuffled:206", "shuffled:407",
+     ["pop_reconverge.reserved", "ret.scoreboard", "stop.reserved (cf_nl3/cf_ifnl arms)"]),
     ("EXP-0204", "e0204_c1_c2.json", "e0204_c1", "e0204_c2", "shuffle", "reverse",
      ["tex_sample.mode", "tex_write.amode", "tex_write.rsv11"]),
     ("EXP-0204", "e0204_d1_d2.json", "e0204_d1", "e0204_d2", "forward", "reverse",
@@ -68,7 +73,10 @@ def main():
                   and P["ledger"].get("req_NE_dec_B", 0) == 0)
         vict = sum(P["victim_records"].values())
         ag = P["agreement"]
-        met = bool(QA.get("QUIET") and QB.get("QUIET") and led_ok
+        # A capture that stopped early is not a "clean run": if one side is missing keys the
+        # other dispatched, the pair does not cover the same cases and cannot confirm them.
+        complete = (P["A_only"] == 0 and P["B_only"] == 0)
+        met = bool(QA.get("QUIET") and QB.get("QUIET") and led_ok and complete
                    and vict == 0 and ag["disagree"] == 0 and oa != ob)
         rows.append({
             "source": src, "fields": fields,
@@ -79,6 +87,8 @@ def main():
             "recovery_delta": [QA.get("Q2b_recovery_delta"), QB.get("Q2b_recovery_delta")],
             "samples": [QA.get("samples"), QB.get("samples")],
             "ledger_identical": led_ok,
+            "both_runs_cover_same_keys": complete,
+            "A_only": P["A_only"], "B_only": P["B_only"],
             "ledger": P["ledger"],
             "shared_keys": P["shared_keys"], "key_unique": P["key_unique"],
             "agreement_pct": ag["pct"], "agree": ag["agree"], "disagree": ag["disagree"],
@@ -91,9 +101,10 @@ def main():
     print()
     print("\n=== one line per pair ===")
     for r in rows:
-        print("%-9s %-14s quiet=%s ledger=%s agree=%s  %s"
+        print("%-9s %-14s quiet=%s ledger=%s same-keys=%s agree=%s  %s"
               % (r["source"], r["status"], r.get("quiet"), r.get("ledger_identical"),
-                 r.get("agreement_pct"), ",".join(r["fields"])[:70]))
+                 r.get("both_runs_cover_same_keys"),
+                 r.get("agreement_pct"), ",".join(r["fields"])[:60]))
     return 0
 
 

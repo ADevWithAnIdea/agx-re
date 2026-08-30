@@ -1,0 +1,117 @@
+GATE A ledger: 12932 checks, 0 failures -> PASS
+
+_control._delete2@104/k_line3                disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"halted_poison": 1}
+_control._delete2@38/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._delete2@52/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"fault": 1}
+_control._delete2@62/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._delete2@74/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"zero": 1}
+_control._delete2@84/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"halted_poison": 1}
+_control._delete2@94/k_line3                 disp=1    req=0    act=0    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._insert2@104/k_line3                disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"halted_poison": 2}
+_control._insert2@38/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"wrong_value": 2}
+_control._insert2@52/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"fault": 2}
+_control._insert2@62/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"wrong_value": 2}
+_control._insert2@74/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"zero": 2}
+_control._insert2@84/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"halted_poison": 2}
+_control._insert2@94/k_line3                 disp=2    req=2    act=2    agree=1.0     moved=2    dis=0   mf=0   {"wrong_value": 1, "zero": 1}
+_control._insert4@104/k_line3                disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._insert4@38/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+_control._insert4@52/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+_control._insert4@62/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._insert4@74/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._insert4@84/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+_control._insert4@94/k_line3                 disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+frag_depth_store._baseline@None/c_depth      disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frag_depth_store._baseline@None/c_depth2     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frag_depth_store._identity@None/c_depth      disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frag_depth_store._identity@None/c_depth2     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frag_depth_store._null@None/c_depth          disp=3    req=3    act=3    agree=1.0     moved=3    dis=0   mf=0   {"tile_discarded": 3}
+frag_depth_store._null@None/c_depth2         disp=3    req=3    act=3    agree=1.0     moved=3    dis=0   mf=0   {"tile_discarded": 3}
+frag_depth_store.b3@None/c_depth             disp=256  req=256  act=256  agree=1.0     moved=252  dis=0   mf=0   {"ok": 4, "tile_discarded": 252}
+      ok-set: 4 values -> (v & 0xfc) == 0x00   exact=True
+frag_depth_store.b3@None/c_depth2            disp=256  req=256  act=256  agree=1.0     moved=252  dis=0   mf=0   {"ok": 4, "tile_discarded": 252}
+      ok-set: 4 values -> (v & 0xfc) == 0x00   exact=True
+frag_depth_store.b4@None/c_depth             disp=256  req=256  act=256  agree=1.0     moved=248  dis=0   mf=0   {"ok": 8, "tile_discarded": 248}
+      ok-set: 8 values -> (v & 0x1f) == 0x00   exact=True
+frag_depth_store.b5@None/c_depth             disp=256  req=256  act=256  agree=1.0     moved=128  dis=0   mf=0   {"both_moved": 128, "ok": 128}
+      ok-set: 128 values -> (v & 0x02) == 0x02   exact=True
+frag_depth_store.b5@None/c_depth2            disp=256  req=256  act=256  agree=0.99219 moved=128  dis=2   mf=0   {"both_moved": 127, "ok": 128, "fault": 1}
+      ok-set: 128 values -> (v & 0x02) == 0x02   exact=True
+frag_depth_store.byte1@None/c_depth          disp=256  req=256  act=256  agree=0.99609 moved=192  dis=1   mf=0   {"tile_discarded": 192, "ok": 64}
+      ok-set: 64 values -> (v & 0x06) == 0x04   exact=True
+frag_depth_store.byte1@None/c_depth2         disp=256  req=256  act=256  agree=1.0     moved=192  dis=0   mf=0   {"tile_discarded": 192, "ok": 64}
+      ok-set: 64 values -> (v & 0x06) == 0x04   exact=True
+frag_depth_store.byte2@None/c_depth          disp=256  req=256  act=256  agree=1.0     moved=0    dis=0   mf=0   {"ok": 256}
+      ok-set: 256 values -> (v & 0x00) == 0x00   exact=True
+frag_depth_store.byte2@None/c_depth2         disp=256  req=256  act=256  agree=1.0     moved=0    dis=0   mf=0   {"ok": 256}
+      ok-set: 256 values -> (v & 0x00) == 0x00   exact=True
+frame_marker_compact._insert2@104/k_line3    disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"halted_poison": 1}
+frame_marker_compact._insert2@38/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+frame_marker_compact._insert2@52/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"fault": 1}
+frame_marker_compact._insert2@62/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"wrong_value": 1}
+frame_marker_compact._insert2@74/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"zero": 1}
+frame_marker_compact._insert2@84/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"halted_poison": 1}
+frame_marker_compact._insert2@94/k_line3     disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"zero": 1}
+frame_marker_compact._insert4@104/k_line3    disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@38/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@52/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@62/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@74/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@84/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact._insert4@94/k_line3     disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+frame_marker_compact.b1_in_2byte@74/k_line3  disp=254  req=254  act=254  agree=1.0     moved=254  dis=0   mf=0   {"zero": 252, "wrong_value": 2}
+frame_marker_compact.b1_in_4byte@74/k_line3  disp=254  req=254  act=254  agree=0.99606 moved=1    dis=1   mf=0   {"ok": 253, "fault": 1}
+      ok-set: 253 values -> (v & 0x00) == 0x00   exact=False
+frame_marker_compact.b1_in_4byte@94/k_line3  disp=254  req=254  act=254  agree=1.0     moved=0    dis=0   mf=0   {"ok": 254}
+      ok-set: 254 values -> (v & 0x00) == 0x00   exact=False
+frame_marker_compact.byte2_in_4byte@74/k_line3 disp=256  req=256  act=256  agree=1.0     moved=216  dis=0   mf=0   {"ok": 40, "zero": 96, "wrong_value": 120}
+      ok-set: 40 values -> (v & 0x18) == 0x00   exact=False
+frame_marker_compact.byte3_in_4byte@74/k_line3 disp=256  req=256  act=256  agree=1.0     moved=0    dis=0   mf=0   {"ok": 256}
+      ok-set: 256 values -> (v & 0x00) == 0x00   exact=True
+frame_marker_compact.match_byte0@74/k_line3  disp=16   req=16   act=16   agree=1.0     moved=4    dis=0   mf=0   {"wrong_value": 2, "ok": 12, "zero": 2}
+      ok-set: 12 values -> (v & 0x04) == 0x00   exact=False
+n2_op6._baseline@None/c_depth                disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+n2_op6.byte0@48/c_depth                      disp=256  req=256  act=256  agree=1.0     moved=248  dis=0   mf=0   {"color_moved": 168, "ok": 8, "tile_discarded": 64, "fault": 16}
+      ok-set: 8 values -> (v & 0xcb) == 0x02   exact=True
+n2_op6.imm_sel@48/c_depth                    disp=256  req=256  act=256  agree=0.99609 moved=240  dis=1   mf=0   {"color_moved": 239, "ok": 16, "fault": 1}
+      ok-set: 16 values -> (v & 0x0f) == 0x04   exact=True
+n2_op6.opsel@48/c_depth                      disp=256  req=256  act=256  agree=1.0     moved=240  dis=0   mf=0   {"ok": 16, "color_moved": 240}
+      ok-set: 16 values -> (v & 0x1e) == 0x00   exact=True
+sfu_marker._baseline@None/k_line3            disp=1    req=0    act=0    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._identity@None/k_line3            disp=1    req=0    act=0    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@104/k_line3              disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@38/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@52/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@62/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@74/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@84/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker._insert2@94/k_line3               disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+sfu_marker.match_byte0@74/k_line3            disp=256  req=256  act=256  agree=1.0     moved=220  dis=0   mf=0   {"wrong_value": 78, "fault": 75, "halted_poison": 44, "ok": 36, "zero": 23}
+      ok-set: 36 values -> (v & 0x05) == 0x04   exact=False
+sfu_marker.match_byte0@94/k_line3            disp=256  req=256  act=256  agree=1.0     moved=220  dis=0   mf=0   {"wrong_value": 77, "fault": 59, "halted_poison": 84, "ok": 36}
+      ok-set: 36 values -> (v & 0x05) == 0x04   exact=False
+sfu_marker.match_byte1@74/k_line3            disp=256  req=256  act=256  agree=0.99609 moved=1    dis=1   mf=0   {"ok": 255, "fault": 1}
+      ok-set: 255 values -> (v & 0x00) == 0x00   exact=False
+sfu_marker.match_byte1@94/k_line3            disp=256  req=256  act=256  agree=0.99609 moved=0    dis=1   mf=0   {"ok": 256}
+      ok-set: 256 values -> (v & 0x00) == 0x00   exact=True
+vary_slot._baseline@None/c_vary4             disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+vary_slot._identity@None/c_vary4             disp=1    req=1    act=1    agree=1.0     moved=0    dis=0   mf=0   {"ok": 1}
+vary_slot._null@None/c_vary4                 disp=1    req=1    act=1    agree=1.0     moved=1    dis=0   mf=0   {"draw_gone": 1}
+vary_slot.byte0@None/c_vary4                 disp=256  req=256  act=256  agree=1.0     moved=196  dis=0   mf=0   {"ok": 60, "moved": 196}
+      ok-set: 60 values -> (v & 0xc0) == 0x00   exact=False
+vary_slot.byte2@None/c_vary4                 disp=256  req=256  act=256  agree=0.99609 moved=252  dis=1   mf=0   {"draw_gone": 252, "ok": 4}
+      ok-set: 4 values -> (v & 0x7e) == 0x40   exact=True
+vary_slot.sel@None/c_vary4                   disp=256  req=256  act=256  agree=1.0     moved=240  dis=0   mf=0   {"moved": 240, "ok": 16}
+      ok-set: 16 values -> (v & 0x0f) == 0x0c   exact=True
+vary_slot.slot@None/c_vary4                  disp=256  req=256  act=256  agree=1.0     moved=128  dis=0   mf=0   {"ok": 128, "draw_gone": 128}
+      ok-set: 128 values -> (v & 0x04) == 0x00   exact=True
+vary_store.out_slot@4/c_vary4                disp=8    req=0    act=0    agree=0.625   moved=7    dis=3   mf=0   {"draw_gone": 4, "ok": 1, "moved": 3}
+      ok-set: 1 values -> (v & 0xff) == 0x80   exact=True
+vary_store.out_slot@5/c_vary4                disp=8    req=0    act=0    agree=0.625   moved=7    dis=3   mf=0   {"draw_gone": 4, "relocated": 1, "ok": 1, "moved": 2}
+      ok-set: 1 values -> (v & 0xff) == 0xa0   exact=True
+vary_store.out_slot@6/c_vary4                disp=8    req=0    act=0    agree=0.875   moved=7    dis=1   mf=0   {"draw_gone": 4, "relocated": 2, "ok": 1, "moved": 1}
+      ok-set: 1 values -> (v & 0xff) == 0xc0   exact=True
+vary_store.out_slot@7/c_vary4                disp=8    req=0    act=0    agree=0.625   moved=7    dis=3   mf=0   {"draw_gone": 4, "relocated": 3, "ok": 1}
+      ok-set: 1 values -> (v & 0xff) == 0xe0   exact=True
+
+wrote analysis/gate_report.json
