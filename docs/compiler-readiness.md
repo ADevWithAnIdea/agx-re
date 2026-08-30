@@ -19,6 +19,36 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
+> **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
+> opposite directions, and both post-date the assessment that follows.
+>
+> **Forward:** `EXP-0158` supersedes `EXP-0112` as the strongest positive result in this repository.
+> EXP-0112's generator produced 100 DAGs, but **every one of them carried at least one verbatim
+> token lifted from a compiled shader** — its zero-copied-field count was **0**. EXP-0158 generated
+> **237 programs containing ZERO copied fields and 233 produced their exact host-computed oracle on
+> G17P**, never producing a wrong value. That is the first direct evidence for Definition-of-Done
+> rules 1 and 6: a value *generated*, not decoded from a captured Apple template. Caveats that
+> travel with it: 60 of the 233 rest on prior-published rules the experiment did not itself measure;
+> 4 genuinely fail (`iadd2` register mode at specific destinations); 24 still need a donor (12
+> control-flow, since no rule exists for any operand field of `icmp_pred`/`jump_cond`/`isel10`, and
+> 12 immediate-mode `iadd2`); and **its cross-run gate FAILS** under concurrent GPU load, with
+> EXP-0167 re-running it under isolation.
+>
+> **Backward:** the emittability figure this document leans on was **withdrawn from 79/166 to
+> 41/166** by `EXP-0164`, an adversarial audit that re-derived every emitter-grade field from
+> committed `raw/`. It downgraded 81 `INERT-SINGLE` and 41 `UNSTABLE` fields, and found that
+> **144 fields (21.7%) have no per-value raw record attributable to them at all** — including
+> **13 of `falu2`'s 15**, the most-cited descriptor in the DB. Treat any field rule below that cites
+> a pre-`EXP-0138` wave as *unaudited* until `EXP-0169`'s re-record pass lands.
+>
+> **The methodological rule both imply,** driven by the observation that encoding space is too
+> expensive for Apple to waste: an apparently-inert field usually means our carrier could not
+> express what it controls. `iter_at.loc` read inert on every arm of EXP-0155; EXP-0163 built the
+> same MSL twice with identical compiled bytes differing only in `rasterSampleCount` and it **moves
+> at 4 samples, is inert at 1** — at one sample centroid, sample point and pixel centre are the same
+> point. **Two carriers identical in the dimension the field controls are one carrier.**
+
+
 **No — not a general shader back end. Yes — a specific, provably correct class of straight-line
 f32 compute kernel.**
 
