@@ -1,0 +1,2517 @@
+{
+ "_meta": {
+  "bucket": "UNVERIFIABLE",
+  "experiment": "EXP-0164-inert-audit",
+  "orchestrator_note": "split out of reclassify.json strict set so each evidence class can be ruled on separately"
+ },
+ "bf_alu.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2D"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x1c add vs 0x1d mul (2 of 256), spliced and observed",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "call.offset": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0035"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "4 distinct call distances; target = call_addr + 4 + offset",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "A18"
+ },
+ "device_load.base_slot": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0083",
+   "EXP-0010"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00..0xFF EXHAUSTIVE: slots 1..30 return their own distinct bound buffer, slot 0 is anomalous, 31..127 read 0x00000000 with no fault, 128..255 mirror 0..127 byte-for-byte",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "device_load.idx_off": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0082",
+   "EXP-0100"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0..2047 FULL DENSE sweep (device space) and a second full 0..2047 dense sweep in threadgroup space; plus negative-side cross-checks at 0x3FE..0x402, 0x7FE, 0x7FF",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "device_store.base_slot": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0083"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0..255 census on the load path; store path probed at slots 0,3,31,32,63,127,128,255 - slot 128 writes are DISCARDED (mirror is load-only)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "device_store.idx_off": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0082",
+   "EXP-0100"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "boundary points 0x1FF, 0x200, 0x3FF, 0x400, 0x7FF at idx 1023/1024 - all landed outside the 8 KiB target, which is exactly what the 16-byte store unit predicts",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "device_store.index_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0092"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; 112 is genuinely NONDETERMINISTIC (fault or silent-all-zero across byte-identical splices)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2.ctrl": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "all 7 bits individually at {0,1}: bits0/1 are the 0x09-group instruction-LENGTH selector (and therefore corrupt when flipped in place), bits2/3/4 inert, bits5/6 silent corruptors",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0112",
+   "EXP-0090"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "r0..r13 of the 16 encodable nibble values, dense, including physical-register REUSE (44/100 generated DAGs required it; up to 13 simultaneously live)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2.mod_hi": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0105",
+   "EXP-0099"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "bit44 at {0,1} (silent corrupt-to-zero, crossed against reg field 3 and 67); bits45-47 at all 8 values (no observable effect)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2.opflags": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0086",
+   "EXP-0089",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "each of bits 19..23 individually at {0,1}: 19=release srcA, 20=release srcB, 21=destination publication, 22/23=silent corrupt-to-zero",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0005",
+   "EXP-0006"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "3-bit field swept via a 256-value byte+2 sweep: 4=fadd and 5=fmul validated on all 8 don't-care combinations; 0b111 -> contained GPU hang",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "A18"
+ },
+ "falu2.srcA_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..63 dense (15-point sweep with poison-register controls); 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2.srcA_reg_top": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "{0,1} crossed against reg-field values {3,67} and against opflags bit19 in {0,1}; reproduced in falu2i, falu2_ext (both slots), falu3_srcmod12 (both slots) and under 15-deep register pressure",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2.srcA_size": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "falu2.srcB_imm": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006",
+   "EXP-0020",
+   "RT-1a-FIX"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "falu2.srcB_neg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-10"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0,1 (byte+5 0xc0 -> 0xc8 on a real add: 5+3 becomes 5-3)",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "M4"
+ },
+ "falu2.srcB_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..63 dense; 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2.srcB_reg_top": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "{0,1} crossed against reg-field values {3,67} and against opflags bit20 in {0,1}",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2.srcB_size": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "falu2_uni.uni_mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0020",
+   "RT-1a-FIX"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1 (toggling makes the operand read the GPR, i.e. 0)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "falu2i.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0112",
+   "EXP-0090"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "r0..r13 of 16 encodable, dense, with reuse",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2i.imm_exp": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112",
+   "RT-1a-FIX"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "8..15 (the valid minifloat domain, values +-{1/32..30} incl. both extremes); exp<8 is NOT an immediate - it is the falu2_uni uniform-source overload",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4+A18"
+ },
+ "falu2i.imm_mant": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0..7 exhaustive across the 16 spliced constants and the generated boundary-weighted immediate pool",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4+A18"
+ },
+ "falu2i.imm_sign": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1 (+-30.0 max/min and +-1.0/+-0.5 constructed and executed)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2i.opflags": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0119",
+   "EXP-0090",
+   "EXP-0086"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "bit20 at {0,1} (source release, load-bearing); bits21-23 NOT tested in this form",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2i.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "4 (fadd) and 5 (fmul) of 8 encodable, both constructed and executed",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2i.srcA_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0105",
+   "EXP-0112"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..63 dense; value 67 reads r3 (mod-64 alias); 64..112 alias; 126,127 fault",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu2i.srcA_reg_top": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "{0,1} crossed against reg-field values {3,67}",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "falu2i.srcA_size": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0006"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0,1",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "falu_srcmod12b.ctrl": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0119",
+   "EXP-0089"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "relative bit2 (absolute instruction bit 34) at {0,1}: outside a loop it runs STATUS OK (own result becomes 0.0, later reader unaffected); the SAME bit inside a loop produced a genuine GPU HANG in EXP-0089",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "falu_srcmod12b.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0119"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "opsel_mod 0..7 exhaustive: 0 is the only clean value; 4 CORRUPTS an entirely unrelated, independently seeded register (r6) that a later reader then reads as zero; 1,2,3,5,6,7 give a locally contained 0.0 own-result",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "frag_color_pack.conv_scale": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x42,0x80,0x82,0xc0,0xc1,0xc2,0xff swept: bit1 = component-1 enable, bits6-7 = scale/exponent (0x82 halves G from 0x80 to 0x40); extreme values alias/overflow across the 2-wide pair; no value faults",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "frag_color_pack.src_gate_select": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x01,0x05,0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x80,0x85,0xff swept on both pack ops: bit2 gates both components, bit6 gates component 0, and the low bits can REROUTE which source channel feeds a slot; no value in the swept range faults",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "frag_color_pack.src_present_mask": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x10, 0x40, 0x50, 0x60, 0xd0, 0xe0, 0xff swept on BOTH pack ops: 0x10 = component-0 only, 0x40 = component-1 only, 0x50/0xd0 = both, 0x60/0xe0 = both zeroed, 0xff = ILLEGAL, hard GPU fault",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "frag_color_store.rt_index": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0029"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "RT0=0x00, RT1=0x02, RT2=0x04 (rt<<1), splice-proven; MRT emits one store per target",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "frag_color_store.src": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0029"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "byte+3 source colour GPR, splice-proven",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "frame_prologue.frame_size": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "bytes+3/+4 at 0x00/0x01/0x08/0xff (nonzero -> huge frame -> GPU fault); byte+5 at 0x10, 0x1f, 0x20, 0x21, 0x30, 0x40",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "frame_prologue.marker": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x04, 0x54, 0x55, 0xff all run to baseline - RESERVED/inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "frame_prologue.subop": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x01,0x02,0x03,0x04,0x0b,0x13,0x23,0x43 swept: only values with bits[1:0]==0b11 run (0x03/0x0b/0x13/0x23/0x43); 0x00/0x01/0x02/0x04 fault",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "get_sr.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0092"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "R = 0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; R=112 NONDETERMINISTIC (fault in one run, silent-all-zero in the other, 8 further informal repeats split 5/3)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "get_sr.dst_hi": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0092"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "the register EXTENSION half of the same lockstep 0..127 boundary sweep",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "get_sr.sr_sel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0092",
+   "EXP-0031",
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00..0xFF EXHAUSTIVE (256 values x 2 runs, zero faults, zero hangs): 0x80-0xFF reaches the special-register file (16 named, ~106 aliasing 0x9c/0x99/0x9a/0x82/0x85, 4 unclassified constants, 2 period-4 structured); 0x00-0x7F is a distinct 'selector materialized as an immediate' region, not an SR read",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4+A18"
+ },
+ "half_alu.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14",
+   "EXP-0033"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x1c hadd vs 0x1d hmul (byte+2 low 3 bits), splice-observed",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "half_alu.srcA": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x02, 0x04, 0x06, 0x08 swept: only 0x02 reads a; every other value makes srcA read 0 so the result is b alone",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu.srcB": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x02, 0x04, 0x06, 0x08 swept: 0x00/0x04 read b, 0x02/0x06 null the op, 0x08 gives a+const",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu.src_modifier": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+5 swept with distinct per-lane inputs: bits6:7 (0xc0) are a required operand-valid base (clearing them yields 0), bit3 (0x08) = srcA-negate (0xc8 -> -a+b), bit0 suppresses srcB, bits1/2 suppress srcA",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.b5": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "bits3/4 null in this instance; largely inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.op_valid_marker": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "every byte+7 value WITHOUT bit7 set nulls the op (result 0) - a required op-valid marker",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "gains 6 = hfma (byte+2 = 0x1e); half fma compiles to this 8-byte form",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.rsv6": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00..0xc0 swept, every value kept the result - fully INERT/reserved in the add+saturate instance",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.saturate": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+7 0x82 clamps saturate(9) to 1; 0x80 (bit1 clear) passes 9 unclamped; 0xc0 also passes",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.srcA": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_ext8.srcB_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_fma12.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "6 = hfma (byte+2 = 0x1e)",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "half_alu_fma12.srcA": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "ibitcount.form": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "(byte0 bit7, byte+1): (0x27,0x05) popcount, (0xa7,0x05) find_msb -> [3,4,15,30], (0xa7,0x04) reverse_bits",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "ibitcount.op_enable": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+4 swept 0x00..0x0a: only bit1 matters - 0x02/0x03/0x06/0x07/0x0a compute, 0x00/0x01/0x04/0x05/0x08/0x09 give 0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "ibitcount.srcdesc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14",
+   "EXP-0129"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "byte+6 swept: 0x00 degenerates the op to identity (raw input returned, popcount NOT applied); bit6 (0x40) must be set for the GPR source to be read (0x3c/0x9c -> 0; 0x5c/0x4e/0x58/0x5e/0x7c/0xdc read normally); EXP-0129 additionally swept the genuinely free bits (22 cases): bit4 is a real BIDIRECTIONAL release control, bit0 and bit3 also break the stored result, all other bits inert",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4+A18"
+ },
+ "icmp_pred.cond": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "cond=7 (inverted guard, skips the loop regardless of trip count) and the natural value, each executed over 12 data points",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "icmp_pred.dst_pred": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0104",
+   "EXP-0115",
+   "RT-ISA-FIX"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 EXHAUSTIVE: 0 = correct, 1 = one distinct corruption, 2..15 = a second uniform corruption; also A18-spliced p2->p0 and p2->p4",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4+A18"
+ },
+ "if_push_pred.pred": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0115"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0..15 EXHAUSTIVE, crossed against icmp_pred.dst_pred 0..15: COMPLETELY INERT - matched or mismatched, it never changes anything",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "imageblock_load.slice_off": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2D"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "imageblock_store.slice_off": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2D"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "iter.mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0029"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 pixel-centre/linear, 0x02 centroid or per-sample, 0x04 perspective denominator (3 of 256)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "iter.src_slot": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0029"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 -> 0x02 (slot<<1): switched the interpolated output from color.x to color.y",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "iunary.b1": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "(byte0 bit7, byte+1) sub-op pairs: (0x27,0x05)=popcount, (0xa7,0x05)=find_msb, (0xa7,0x04)=reverse_bits",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "iunary.opsel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "byte+2 swept: only 0x54/0x55 break the stored result, every other value computes; 0x56 = the integer-unary/format-convert datapath",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "jump.offset": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0115",
+   "EXP-0010"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "162 independently constructed splice points per run around a valid target (deltas -32..+9 dense plus far-forward/backward probes)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "link_save_restore.b1": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x01 inert; only 0xff perturbs the result",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "link_save_restore.b3": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x01, 0xff all reproduce the baseline - RESERVED/inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "link_save_restore.dir_offset": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "SAVE=0x0000, RESTORE=0x1fff, plus a systematic scaling sweep (+5: 0x00->0x01->0xff; +6: 0x00->0x01->0x1f) showing corruption scaling with the value",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "link_save_restore.marker": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x04, 0x54, 0x55, 0xff all reproduce the baseline - RESERVED/inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "link_save_restore.reserved7": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x01, 0xff on both the SAVE and the RESTORE instance - inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "link_save_restore.scope": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00, 0x01, 0x80, 0x81, 0x83, 0xff swept: 0x81/0x83 pass (bit7 AND bit0 both set), 0x00/0x80/0x01 corrupt the SAVE and HANG the RESTORE, 0xff -> GPU page-fault",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "matrix_mac.a_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "corrupting byte+3 zeroes the result - load-bearing, not padding",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.a_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C",
+   "RT-10-isa-pass2"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "spliced to B's register -> B*B; swapped with byte+6 -> B*A (matmul is non-commutative, so the operand identity is unambiguous)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.acc_en": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x01 -> a*b+c, 0x00 -> a*b (simdgroup_multiply clears it)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.b_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C",
+   "RT-10-isa-pass2"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "swapped with byte+5 -> B*A",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.c_src": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "accumulator source register, splice-validated",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "destination fragment register, splice-validated",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.dtype": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 half, 0x02 float/bfloat; splicing 0x02 -> 0x00 garbles fp32",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x56 standalone, 0x54 tiled; splicing standalone -> tiled ZEROES the result (tiled sources its accumulator from the MPP tile context) - SEMANTIC, not a scheduling hint",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.op_enable": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C",
+   "RT-10-isa-pass2"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x24 enables the multiply; corrupting it drops the multiply and passes C through",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "matrix_mac.pad4": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-O2C"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "splice-inert padding",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "mov_imm.imm_top": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0153"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "1, at five immediates (128, 129, 140, 200, 255), each in a PAIRED padded/unpadded form",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "G17P"
+ },
+ "pixel_order.kind": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0093"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x14 acquire/wait vs 0x04 release/signal; BOTH independently necessary (neither half is redundant)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "ray_move.b3": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x08 reg32 plain copy, 0x00 zero, 0x12/0x22 uniform/high-class copy, 0x06 zero variant; bit6 (0x40) on a uniform-class-source copy -> CMDBUF_ERROR, inert on plain copies",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "reg_move_c0.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 dense (all 16 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_c0.op_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c0.src_class": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c0.src_flag": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c0.src_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "producer-independent and register-PAIR-quantized at every one of 4 tested pairs; src_reg is ALWAYS 0 in all 1545 corpus instances",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "reg_move_c1.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 dense (all 16 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_c1.src_class": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c1.src_flag": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c1.src_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "4 src_reg values (0,2,4,8) x 3 buffer-count variants: content was uniformly 0 in all 12 cases, both runs",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_c2var.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 dense (all 16 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_c2var.op_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c2var.src_flag": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c2var.src_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c2var.subform": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c9.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 dense (all 16 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_c9.op_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c9.src_class": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c9.src_flag": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "reg_move_c9.src_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0113"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "4 tested register pairs, both runs: X and X^1 read identical content, producer-independent",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_cb.b3": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_cb.dst": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..15 dense (all 16 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_cb.form": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "reg_move_cb.src": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0140"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: raw-present-but-unattributable.",
+  "range": "0..255 dense (all 256 values)",
+  "raw_files": [],
+  "reason": "raw-present-but-unattributable",
+  "target": "M4"
+ },
+ "rt_intersect.subop": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "RT-5-isa-tex-simd-mat-rt-frag-falsify"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0xea vs 0x00 - the op itself is load-bearing",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "rt_query_traverse.opA": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x18, 0x1a, 0x00, 0xff swept - INERT on the load-bearing committed-path instance",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "rt_query_traverse.opB": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x42,0x48,0x50,0x60,0xc8,0xff swept: {0x42,0x48,0xc8} give the correct near hit, {0x00,0x0a,0x0f,0x1a,0x20,0x50,0x60,0xff} skip it, {0x02,0x06,0x07,0x40} HANG the traversal (contained)",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "rt_query_traverse.sel": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x48,0x50,0x60,0xff swept: 0x07=sel0 and 0x0f=sel1 preserve correctness, other values corrupt operand selection. Only the committed-path op is load-bearing; the other 17 rtq ops in the kernel are inert on this byte",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "simd_ballot.pred": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "RT-ISA-FIX",
+   "RT-10-isa-pass2"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "byte+1 low nibble 0x7 identifies the family (splicing 0x17 -> 0x14 zeroes the ballot); the HIGH nibble (0x07 active-mask/any/all vs 0x17 ballot(predicate)) is NOT cleanly splice-convertible - its operands co-vary",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "simd_reduce.dtype": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0018",
+   "RT-ISA-FIX"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x03 int-reduce, 0x07 int-minmax, 0x12 float-reduce, 0x09 inclusive-scan, 0x0b exclusive-scan; splicing 0x03 -> 0x01/0x07 left the sum unchanged, refuting RT-5's competing enum",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "simd_reduce.op": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0018",
+   "EXP-O2D"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "(byte0 bit7, byte+1) op-select; float simd_product = 0xbf byte+1 0x06, HW-validated against simd_sum",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "simd_shuffle.dir": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0018"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "byte0 bit7: 0x47 broadcast/up/fill_up vs 0xc7 xor/down/fill_down",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "simd_shuffle.lane": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0104",
+   "EXP-0115"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: field-named-but-unstructured.",
+  "range": "28 swept points in the dynamic form and 60 independently constructed raw-byte splices in the static form",
+  "raw_files": [],
+  "reason": "field-named-but-unstructured",
+  "target": "M4"
+ },
+ "simd_shuffle.mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0018",
+   "EXP-O2D"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x00 quad, 0x04 SIMD, 0x05 simd_updown, 0x06 rotate/shuffle_and_fill",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "spill_frame_marker.b1": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "swept, runtime-inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "spill_frame_marker.b2": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "swept, runtime-inert",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "spill_frame_marker.b3": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0xff faults; the other swept values are inert - the only live byte",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "stop.reserved": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0003",
+   "EXP-0010"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "the full 24-bit body corrupted; HW-proven non-load-bearing padding",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "tex_addr_setup.cache": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x54,0x55,0x56,0x50,0x74,0x14 all give an identical sampled result - the WHOLE byte is inert here",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.form": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x01,0x05,0x07,0x0d swept: 0x01 coordinate projection (samples level 0), 0x05 sample-address + explicit LOD/gradient, 0x07 raw-coordinate passthrough, 0x0d alias of 0x05",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_cnt": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x08 -> L1, 0x0c -> L2, 0x18 -> L1, {0x00,0x04,0x0a,0x0e,0x10} -> L0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_desc9": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0xc0,0xc2,0xc4,0xc6,0xe4,0xf4 preserve; 0xc8,0xcc,0x44,0x84 drop the operand (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6})",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_hi": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00 and 0x40 preserve the operand (bit6 inert); 0x02,0x04,0x08..0xff corrupt it to level 0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "bit2 set {0x04,0x06,0x0c,0xff} keeps the operand active; bit2 clear {0x00,0x02,0x08,0x10,0x20,0x40} makes it read 0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_reg": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff swept: only 0x06 tracks the LOD input (lod=1 -> 1100, lod=2 -> 2000); every other value reads a zero register",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.op_reg2": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x0c -> L1, 0x02/0x06 -> L2, all other swept values -> L0",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.rsv11": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff all leave the result unchanged - RESERVED pad",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.rsv6": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "0x00..0x40 inert; only 0xff perturbs",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_addr_setup.src_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-M4-14"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-raw.",
+  "range": "only 0xf0 and 0xff preserve the operand; every value 0x00..0x40 makes it read 0 (hi-nibble 0xf = 'operand is a register')",
+  "raw_files": [],
+  "reason": "no-raw",
+  "target": "A18"
+ },
+ "tex_deriv.axis": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0016"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "0x92 = dfdx/X, 0x90 = dfdy/Y (2 of 256)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "tex_sample.mode": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "RT-5-isa-tex-simd-mat-rt-frag-falsify",
+   "EXP-0016"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "op+6 spliced 0x00 / 0x10 / 0x20 on a linear sample: filtering does NOT change (a NEGATIVE result - filtering is the SAMPLER's job); 0x20 selects the calculate_lod query",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "tex_sample.result_desc": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0034"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "companion+3 0xa4/0xac/0xb4/0xbc - bit2 = gather, bits[3:5] = gather component R/G/B/A, all four HW-validated",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "tex_sample.samp_slot_offset": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0016",
+   "EXP-0034",
+   "EXP-0106"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "sampler slot 0x00 (s0) and 0x01 (s1) spliced (linear -> nearest); out-of-range reads an unbound sampler (zeros). Constant gather offset packs into the same byte: (1,0)->0x08, (1,1)->0x88",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4+A18"
+ },
+ "tex_sample.tex_slot": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0114",
+   "EXP-0016"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "upper nibble 0x0..0xF EXHAUSTIVE (16/16) plus 12 representative low-nibble values at both populated slots",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4"
+ },
+ "tex_sample.variant": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0016",
+   "EXP-0034",
+   "EXP-M4-10"
+  ],
+  "label": "untested",
+  "label_now": "hardware-run",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "dimension/LOD/compare codes 0x00,0x03,0x04,0x07,0x09,0x13,0x17,0x20,0x29,0x37,0x39,0x53,0x79,0x80,0x97,0xc3 spliced and read back; a wrong dim code silently reads the base slice or 0 (no hang)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "M4+A18"
+ },
+ "vary_store.out_slot": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0037"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "[[position]].xyzw = 0x00/0x20/0x40/0x60 (slots 0-3), user varyings 0x80/0xa0/0xc0/0xe0 (slots 4-7)",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ },
+ "vary_store.src": {
+  "arms_tested": [],
+  "bucket": "UNVERIFIABLE",
+  "evidence": [
+   "EXP-0037"
+  ],
+  "label": "untested",
+  "label_now": "isolated-byte-diff",
+  "max_values_dispatched": 0,
+  "moved_total": 0,
+  "n_arms_that_tested_the_field": 0,
+  "note": "EXP-0164 withheld: 0 values dispatched, 0 carrier(s) tested, 0 observations moved -- no per-value record under raw/ can be attributed to this field, so the promotion cannot be reproduced from committed evidence. This is an auditability gap, not a refutation; re-record in the EXP-0138+ sweep.jsonl schema. Reason: no-field-records.",
+  "range": "byte+3 source GPR (reg<<1), in-order 0,2,4,..,14 over r0..r7",
+  "raw_files": [],
+  "reason": "no-field-records",
+  "target": "A18"
+ }
+}

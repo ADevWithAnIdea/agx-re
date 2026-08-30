@@ -1,0 +1,143 @@
+{
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": [
+   "tools/agx-isa/validation.json",
+   "tools/agx-isa/db.json",
+   "experiments/*/raw/** (our own append-only capture records)",
+   "experiments/*/RESULTS.md and analysis/ (schema only)"
+  ],
+  "provenance": "re-analysis of committed OWN-SHADER / HW-PROBE evidence",
+  "reproduction": [
+   "python3 analysis/collect_raw.py",
+   "python3 analysis/audit.py",
+   "python3 analysis/tables.py > work/tables_all.md"
+  ]
+ },
+ "controls": {
+  "C1_reproduces_orchestrator_EXP0155_withholds": true,
+  "C2_iter.dst_STABLE-LIVE": true,
+  "C3_fault_class_in_signature": true,
+  "C4_664_fields_53_experiments": true
+ },
+ "date": "2026-08-30",
+ "experiment": "EXP-0164-inert-audit",
+ "files": {
+  "PRE_REGISTRATION.md": {
+   "bytes": 12507,
+   "sha256": "810394b45fd134c68407501f1d5e84831e152c3c6ec2270d50ac9ce425d80154"
+  },
+  "PROGRESS.md": {
+   "bytes": 7969,
+   "sha256": "8f6720d123e89a21c9fe8c3ec618844052faf15e6f6b7f69c47c1c53b2235dbd"
+  },
+  "README.md": {
+   "bytes": 4894,
+   "sha256": "013422192324389b31b554dd8cebb67951f59178c1fd9929b03270b1ba2642f9"
+  },
+  "RESULTS.md": {
+   "bytes": 33372,
+   "sha256": "711275759d24f55b7f18f132553b46cd6d8251e2cd2af7dd7502a883d9b8d0dc"
+  },
+  "analysis/audit.json": {
+   "bytes": 1536098,
+   "sha256": "13a3a261e7189431a3fcfe147ec85ef2f0efecd9d77cc9d92dc2e242cb3b6563"
+  },
+  "analysis/audit.py": {
+   "bytes": 24255,
+   "sha256": "a8bb9144234dc59800ca9f1b5ca9766b56759b954a8f354b4f7b9f442d6fb53e"
+  },
+  "analysis/collect_raw.py": {
+   "bytes": 16426,
+   "sha256": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde"
+  },
+  "analysis/controls.json": {
+   "bytes": 3342,
+   "sha256": "6aaeb5e5824d1c61f3697d0d84e2be7d00ff8078a3d5a4aa8e631724be3982de"
+  },
+  "analysis/emittability.json": {
+   "bytes": 11346,
+   "sha256": "b44110d3b6a6ba8e6981760a2c5205f6a17979dd6d1ef472c30f5cef7c3d93c0"
+  },
+  "analysis/experiment_coverage.json": {
+   "bytes": 20559,
+   "sha256": "cab059941b2d0208956bd2596d02c67b82a2bab4c06f793d04257b06f2c23f21"
+  },
+  "analysis/mixed_arm_liveness.json": {
+   "bytes": 4214,
+   "sha256": "fd1f5656e096213d9f948b5af12d55f84905029adf3bc27bee68055dab8c0e96"
+  },
+  "analysis/reclassify.json": {
+   "bytes": 271848,
+   "sha256": "85eaea996793210ecfb26343d9d3f103a1642c87afa7e4e3ab670a74f2e52db4"
+  },
+  "analysis/tables.py": {
+   "bytes": 5464,
+   "sha256": "b64fbfb9258572a8df9e285616c1b0055238a27e790636029fa3746f284a15d5"
+  },
+  "raw/NO_RAW.md": {
+   "bytes": 1013,
+   "sha256": "cb54f2f977051a87a9bf58a61a8cfe1dabfd8a0734e50a93a51d3e0e257f257d"
+  },
+  "work/db.snapshot.json": {
+   "bytes": 452657,
+   "sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341"
+  },
+  "work/raw_index.json.gz": {
+   "bytes": 1324937,
+   "sha256": "c82666920faed7bc757562faf679066d72186e2ef9c03fc5e4a50e2baa072145"
+  },
+  "work/tables_all.md": {
+   "bytes": 18423,
+   "sha256": "3ccde9f7205dadcb581fca001d0a7ef7bbe763ef1a30647ce1edc9d62c847e0c"
+  },
+  "work/validation.snapshot.json": {
+   "bytes": 376271,
+   "sha256": "c40195cd9f65d9176c5bc518ede1c171cf3904c26ba81f7b93dc2414b1ad7091"
+  }
+ },
+ "headline": {
+  "INERT-MULTI": 23,
+  "INERT-SINGLE": 81,
+  "SINGLE-RUN": 16,
+  "STABLE-LIVE": 359,
+  "UNSTABLE": 41,
+  "UNVERIFIABLE": 144,
+  "emittable_chain_broken_withheld": 22,
+  "emittable_inert_single_plus_unstable_withheld": 33,
+  "emittable_inert_single_withheld": 43,
+  "emittable_strict_withheld": 16
+ },
+ "kind": "analysis-only (no device, no SSH, no GPU, no compilation)",
+ "not_modified": [
+  "docs/",
+  "PROVENANCE.md",
+  "tools/agx-isa/db.json",
+  "tools/agx-isa/validation.json",
+  "CLAUDE.md",
+  "CODEX.md"
+ ],
+ "pinned_inputs": {
+  "db_snapshot_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+  "note": "tools/agx-isa/validation.json is under concurrent edit; it moved from hardware-run 548 to 553 during this session. Everything is measured against the pinned snapshot.",
+  "repo_revision_at_manifest": "47fd53f6afd3a2a51c5dbad1500e39cb8822b904",
+  "repo_revision_at_snapshot": "b7dedbf0ce37c0a95823923bc70f3cab0f733b3c",
+  "validation_snapshot_sha256": "c40195cd9f65d9176c5bc518ede1c171cf3904c26ba81f7b93dc2414b1ad7091"
+ },
+ "raw_corpus": {
+  "experiments_with_raw_dir": 195,
+  "per_value_records_indexed": 728387,
+  "unattributed_group_kinds": 119,
+  "unattributed_records": 8008,
+  "unparseable_lines": 0
+ },
+ "repo_revision_at_manifest": "47fd53f6afd3a2a51c5dbad1500e39cb8822b904",
+ "title": "Adversarial audit of every emitter-grade field in tools/agx-isa/validation.json",
+ "universe": {
+  "emitter_grade_fields": 664,
+  "emitter_relevant_instructions": 166,
+  "hardware_run": 553,
+  "isolated_byte_diff": 111,
+  "published_emittable": 67
+ }
+}

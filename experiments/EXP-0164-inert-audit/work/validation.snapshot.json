@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "30ae6a41a7616f1e06aa47731be08e7a2861df9c474e8deb0d923130d4e1f2db",
+ "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -16,50 +16,70 @@
   "total_instructions": 172,
   "total_fields": 1060,
   "by_label": {
-   "hardware-run": 498,
-   "isolated-byte-diff": 88,
-   "corpus-correlation": 105,
-   "tokenization-only": 164,
+   "hardware-run": 553,
+   "isolated-byte-diff": 111,
+   "corpus-correlation": 119,
+   "tokenization-only": 167,
    "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 197
+   "untested": 102
   },
   "by_label_pct": {
-   "hardware-run": 47.0,
-   "isolated-byte-diff": 8.3,
-   "corpus-correlation": 9.9,
-   "tokenization-only": 15.5,
+   "hardware-run": 52.2,
+   "isolated-byte-diff": 10.5,
+   "corpus-correlation": 11.2,
+   "tokenization-only": 15.8,
    "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 18.6
+   "untested": 9.6
   },
-  "emittable_instructions": 41,
+  "emittable_instructions": 67,
   "emittable_mnemonics": [
+   "atomic_mem",
+   "atomic_rmw",
+   "atomic_tg",
    "bf_add_dst",
    "carry_gen",
+   "copysign",
    "cvt_bf16",
+   "cvt_f2h",
    "cvt_f2h_dst",
+   "cvt_f2i",
    "cvt_i2f",
-   "falu3",
-   "falu3_ext",
+   "cvt_i2f_src",
+   "device_load",
+   "device_store",
+   "falu2",
+   "falu_acc",
+   "frag_color_pack",
    "frag_color_store",
    "frag_depth_store",
    "frag_tile_setup",
    "frame_prologue",
-   "h_coord_hi",
-   "h_coord_hi_ext",
+   "get_sr",
    "half_alu",
+   "half_alu_ext8",
    "hminmax",
-   "iminmax",
+   "iadd2",
+   "ibfe",
+   "ibitcount",
+   "if_push",
+   "imageblock_store",
    "isel10",
+   "ishift",
    "iter",
+   "iter_at",
    "iter_flat",
    "iunary",
+   "jump",
+   "jump_cond",
    "link_save_restore",
+   "matrix_mac",
    "mov_imm",
-   "n2_op6",
+   "n3_sample_read",
+   "pack_convert",
    "pixel_order",
    "pop_reconverge",
    "psel",
@@ -69,17 +89,23 @@
    "reg_move_c9",
    "reg_move_cb",
    "ret_luse",
-   "rtq_state_move",
    "sel",
+   "shift_amt_move",
    "simd_reduce",
    "spill_frame_marker",
-   "sr_read_wide",
    "stop",
    "tex_addr_setup",
+   "tex_deriv",
    "tex_write",
-   "vtx_coord_xform"
+   "threadgroup_barrier",
+   "tile_read",
+   "tile_read_mrt",
+   "uniform_mov",
+   "unpack_convert",
+   "vtx_coord_xform",
+   "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 131,
+  "decodable_not_yet_emittable": 105,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -90,7 +116,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 41
+  "emittable_of_emitter_relevant": 67
  },
  "instructions": {
   "falu2": {
@@ -240,22 +266,22 @@
     "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
    },
    "srcA_class": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+5 bit0, within the dense 0..7 sweep of the former 3-bit `mod_lo`",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 127 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD-MODEL CORRECTION (EXP-0138, HW): the former 3-bit `mod_lo` is an operand-source-class field -- bit0 selects srcA's source class, bits[2:1] select srcB's. Bit2 DOMINATES bit1 (mod_lo=6 reads 0.0, not the uniform value mod_lo=2 reads at the same index). Same bits, same sweep; only the field boundary changed."
    },
    "srcB_class": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+5 bits[2:1], within the dense 0..7 sweep of the former 3-bit `mod_lo`",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 1 carrier(s) tested, 92 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD-MODEL CORRECTION (EXP-0138, HW): the former 3-bit `mod_lo` is an operand-source-class field -- bit0 selects srcA's source class, bits[2:1] select srcB's. Bit2 DOMINATES bit1 (mod_lo=6 reads 0.0, not the uniform value mod_lo=2 reads at the same index). Same bits, same sweep; only the field boundary changed."
    }
   },
   "falu2i": {
@@ -280,13 +306,13 @@
     ]
    },
    "imm_flag": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "imm_mant": {
     "label": "hardware-run",
@@ -358,13 +384,16 @@
     "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
    },
    "ctrl_lo": {
-    "label": "hardware-run",
-    "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
-    "target": "G17P",
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
     "evidence": [
-     "EXP-0160"
+     "EXP-0119",
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
     ],
-    "note": "carrier SYNTH+LIFTED:k_addimm@falu2i[18:24]; outcomes(seed set 1) {'ok': 4, 'wrong_value': 76, 'silent_zero': 48}; anchor value 0x00; P1=True P2=True P3=True model=M1 MASK + M2 CLASS TABLE"
+    "note": "Low 2 bits are the 0x09-group instruction-length selector (EXP-0119). The remaining 5 bits have no established semantics in this form."
    },
    "mods": {
     "label": "hardware-run",
@@ -433,13 +462,13 @@
     "note": "NOT deterministic across the two gated runs"
    },
    "srcA_size": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "srcA_reg": {
     "label": "isolated-byte-diff",
@@ -490,13 +519,13 @@
     ]
    },
    "op": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "213 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 204, 'ok': 3, 'silent_zero': 6}; ok at {0x16, 0x36, 0x3e}"
    },
    "ctrl": {
     "label": "hardware-run",
@@ -526,13 +555,13 @@
     "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "29 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=True model=M1 MASK"
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 28, 'ok': 1}; ok at {0x81}"
    },
    "srcA": {
     "label": "hardware-run",
@@ -582,13 +611,13 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "srcA_size": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "srcA_reg": {
     "label": "hardware-run",
@@ -636,22 +665,23 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
-    "label": "hardware-run",
-    "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
-    "target": "G17P",
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
     "evidence": [
-     "EXP-0160"
-    ],
-    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes(seed set 1) {'wrong_value': 64, 'ok': 16, 'silent_zero': 48}; anchor value 0x01; P1=True P2=True P3=True model=M2 CLASS TABLE"
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ]
    },
    "srcB_imm": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "mod_lo": {
     "label": "hardware-run",
@@ -663,13 +693,13 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2, 'wrong_value': 6}; ok at {0x0-0x1}"
    },
    "srcB_neg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "mod_hi": {
     "label": "hardware-run",
@@ -700,13 +730,13 @@
     ]
    },
    "op": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "210 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 201, 'ok': 3, 'silent_zero': 6}; ok at {0x1e, 0x36, 0x3e}"
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -727,13 +757,13 @@
     "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "29 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=False model=M1 MASK"
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 29}; ok at {}"
    },
    "srcA": {
     "label": "hardware-run",
@@ -836,13 +866,13 @@
     ]
    },
    "addsub": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "the single bit, in both polarities, over 12 input rows x 5 repetitions x 2 gated runs",
     "target": "G17P",
     "evidence": [
      "EXP-0153"
     ],
-    "note": "EXP-0164 withheld: 5 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "lenbit": {
     "label": "hardware-run",
@@ -854,13 +884,13 @@
     "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 0"
    },
    "srcB_reg_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..127 dense (all 128 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "b2_bit0": {
     "label": "hardware-run",
@@ -881,13 +911,13 @@
     "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b2_fmt": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..63 dense (all 64 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 64 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "dst": {
     "label": "hardware-run",
@@ -908,13 +938,13 @@
     "note": ""
    },
    "srcB_imm": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "7 values sampled (boundaries + powers of two + interior)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 7 values dispatched, 1 carrier(s) tested, 11 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": ""
    },
    "srcB_imm_hi": {
     "label": "hardware-run",
@@ -935,31 +965,31 @@
     "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 4, 'wrong_value': 124}; ok at {0x0-0x3}"
    },
    "srcA": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 262 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 63 values: 3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159,163,167,171,175,179,183,187,191,195,199,203,207,211,215,219,227,231,235,239,243,247,..."
    },
    "opc_tail": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 260 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "opc_tail2": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 385 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "5/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    }
   },
   "imad": {
@@ -991,40 +1021,40 @@
     "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "b1hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..127 dense (all 128 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "b2_bit0": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "store_en": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b2_fmt": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..63 dense (all 64 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 64 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "dst": {
     "label": "hardware-run",
@@ -1098,13 +1128,13 @@
     "note": ""
    },
    "b11": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    }
   },
   "iminmax": {
@@ -1171,13 +1201,13 @@
     "note": "12 values return a silent zero"
    },
    "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "256 values tested (dense over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes(seed set 1) {'ok': 32, 'silent_zero': 32, 'wrong_value': 192}; anchor value 0xc0; P1=True P2=True P3=True model=M2 CLASS TABLE"
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'ok': 32, 'silent_zero': 32, 'wrong_value': 192}; ok at {32 values}"
    }
   },
   "hminmax": {
@@ -1418,58 +1448,47 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "15 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte0 high nibble proven a destination register by an own-MSL r0..r15 reg-sweep (compile-only)",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle."
+     "EXP-M4-13"
+    ]
    },
    "src_desc": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x00 | outcomes ok=3, wrong_value=252 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
    },
    "opsel": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd7) == 0x03 | outcomes ok=3, silent_zero=60, wrong_value=192 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd5) == 0x05 | outcomes not_written=128, ok=7, silent_zero=116, wrong_value=4 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
    },
    "opA": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
    },
    "opB": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, silent_zero=96, wrong_value=16 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
    },
    "imm_sel": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: accepted set: (value & 0x7e) == 0x06 | outcomes ok=3, silent_zero=244, wrong_value=8 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: outcomes ok=3, silent_zero=120, wrong_value=132 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
    }
   },
   "iunary": {
@@ -1566,13 +1585,13 @@
     "note": "64 values return a silent zero"
    },
    "src_cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 257 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 128 values return a silent zero"
    },
    "srcA": {
     "label": "hardware-run",
@@ -1629,13 +1648,13 @@
     "note": "64 values return a silent zero"
    },
    "pad9": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    }
   },
   "ibfe": {
@@ -1659,13 +1678,13 @@
     "note": "1/128 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 32 values return a silent zero; second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..127 dense (all 128 values))"
    },
    "b2_bit0": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "store_en": {
     "label": "hardware-run",
@@ -1722,13 +1741,13 @@
     "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x00 (1 of 2 values) | C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)"
    },
    "sign_ext": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "offset": {
     "label": "hardware-run",
@@ -1749,13 +1768,13 @@
     "note": "128 values return a silent zero; second independent carrier IBFE_SH DIFFERS (isolated-byte-diff over 0..255 dense (all 256 values))"
    },
    "srcA": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "29 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 29 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 29}; ok at {29 values}"
    },
    "srcC_flags": {
     "label": "isolated-byte-diff",
@@ -1934,13 +1953,13 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+3: 244 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 176 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 211 measurements: 2 overturned by the majority vote (0.95%); where they disagree the revalidation wins."
    },
    "src_class": {
     "label": "hardware-run",
@@ -1988,13 +2007,13 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "b9": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+9: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "cvt_i2f": {
@@ -2081,13 +2100,13 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "op": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+2: 254 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 320 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 22 overturned by the majority vote (8.59%); where they disagree the revalidation wins."
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -2245,50 +2264,50 @@
     "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 16, 'wrong_value': 171, 'silent_zero': 63}; ok at {0x0, 0x8, 0x20, 0x28, 0x40, 0x48, 0x60, 0x68, 0x80, 0x88, 0xa0, 0xa8, 0xc0, 0xc8, 0xe0, 0xe8}"
    },
    "z6": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "254 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "outmod": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "253 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 253}; ok at {253 values}"
    },
    "z8": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "254 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "z9": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "255 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 255}; ok at {255 values}"
    },
    "lut_a_sel": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "bits 32-33, fully exercised by EXP-0154's dense op_base 0..1 x lut_a 0..15 x lut_b 0..15 sweep (512 cases) on G17P",
     "target": "G17P",
     "evidence": [
      "EXP-0154",
      "EXP-0146"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 2 carrier(s) tested, 1378 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Promoted from EXP-0154's `ilogic.lut_a` verdict, which was ORPHANED when a concurrent db.json edit split lut_a into lut_a_sel/lut_a_free/lut_a_z mid-experiment. The dense sweep covered lut_a values 0..15 = bits 32-35, which fully contains lut_a_sel (32-33). lut_a_free (34-36) is only 2/3 covered and lut_a_z (37-39) is untouched, so NEITHER was promoted -- `ilogic` is therefore NOT emittable, and EXP-0154's reported 45 (vs the merged 44) counted against the pre-split field model. \u26a0 SEE ALSO the operand-swap trap: EXP-0146's LUT table reproduces 16/16 only when its `a` is read as db.json's `srcB` and its `b` as `srcA`; under db.json's own names it scores 8/16 and the failures are exactly the eight ASYMMETRIC functions."
    },
    "lut_a_free": {
     "label": "corpus-correlation",
@@ -2441,22 +2460,22 @@
     "note": "carrier SYNTH+LIFTED:k_rsqrt@fspecial_est[18:24]; outcomes {'wrong_value': 15, 'ok': 1}; ok at {0x2}"
    },
    "srcA": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "29 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 29 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@fspecial_est[18:24]; outcomes {'ok': 29}; ok at {29 values}"
    },
    "subop": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "b4": {
     "label": "tokenization-only",
@@ -2511,13 +2530,13 @@
     "note": "TESTED-BUT-UNEXPLAINED: 1 of 128 values reproduce the carrier's correct result (15); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "neg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "cmpmode": {
     "label": "isolated-byte-diff",
@@ -2650,13 +2669,13 @@
     ]
    },
    "branch_ctrl": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 254 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "2 values skipped as known-hang exclusions"
    },
    "offset": {
     "label": "hardware-run",
@@ -2669,13 +2688,13 @@
     "note": "Practical reach is FAR narrower and more irregular than the 48-bit encoding: delta=+1 from a valid target already faults, delta=-2 is an undocumented alias hole that still executes correctly, and past the function extent the outcome is a checkerboard of fault / hang / silent-zero. 13/162 points were run-to-run NONDETERMINISTIC (EXP-0115)."
    },
    "link": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    }
   },
   "jump_cond": {
@@ -2688,13 +2707,13 @@
     ]
    },
    "cf_scope": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "250 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "offset": {
     "label": "hardware-run",
@@ -2706,13 +2725,13 @@
     "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "reserved": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "251 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    }
   },
   "if_push": {
@@ -2727,13 +2746,13 @@
     ]
    },
    "scope": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "scope_kind": {
     "label": "hardware-run",
@@ -2835,13 +2854,13 @@
     "note": "Was `isolated-byte-diff` over 2 of 256 values (0x00 device, 0x02 threadgroup)."
    },
    "addr_mode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "db.json models this byte as an addressing-mode ENUM (0x44 indexed / 0x54 base-rel / rare CF and RT forms). On this shape none of it is observable; the enum is a corpus correlation, not a hardware selector. See db_defects."
    },
    "extmode": {
     "label": "hardware-run",
@@ -2872,22 +2891,22 @@
     "note": "Adds the bit-7 mirror, which no prior experiment reports, and re-confirms the r95/r96 fault boundary (EXP-M4-10) with 3-of-3 fault reproduction."
    },
    "access_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "M4 confirmation of EXP-0012/RT-1a-FIX's A18 exhaustive result (was target A18 only)."
    },
    "reserved7": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `tokenization-only` (framing only, no semantics)."
    },
    "ld_format": {
     "label": "hardware-run",
@@ -2945,13 +2964,13 @@
     "note": "Extends EXP-0082 (canonical codes plus 23 raw values) to the full byte."
    },
    "reserved13": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `tokenization-only`."
    }
   },
   "device_store": {
@@ -3011,22 +3030,22 @@
     "note": "Swept in lockstep with get_sr dst/dst_hi so the round trip is meaningful. 96 is a hard register-file ceiling."
    },
    "access_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "M4 confirmation of the A18 exhaustive result."
    },
    "reserved7": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `tokenization-only`."
    },
    "st_format": {
     "label": "hardware-run",
@@ -3075,13 +3094,13 @@
     "note": "Extends EXP-0082's 25 probed store-side values to the full byte."
    },
    "reserved13": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `tokenization-only`."
    }
   },
   "get_sr": {
@@ -3096,13 +3115,13 @@
     ]
    },
    "form": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values sampled: [0, 1]",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "2/2 values reproduced identically across both gated runs"
    },
    "dst": {
     "label": "hardware-run",
@@ -3199,13 +3218,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "usrc": {
     "label": "hardware-run",
@@ -3527,13 +3546,13 @@
     "note": ""
    },
    "dstsrc": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 65 values dispatched, 2 carrier(s) tested, 30 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2/39 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from tex_deriv@d0 to tex_deriv@d1, where the field is demonstrably live (39/39 of 39 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "src_comp": {
     "label": "hardware-run",
@@ -3858,31 +3877,31 @@
     ]
    },
    "amode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "rsv3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "base_slot": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "ret_flag": {
     "label": "hardware-run",
@@ -3948,22 +3967,22 @@
     "note": ""
    },
    "per_lane": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "op_msb": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "amode_hi": {
     "label": "hardware-run",
@@ -4002,13 +4021,13 @@
     "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    },
    "addr_desc_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    }
   },
   "atomic_mem": {
@@ -4166,13 +4185,13 @@
     "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    },
    "addr_desc_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 3 carrier(s) tested, 3 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    }
   },
   "matrix_mac": {
@@ -4272,13 +4291,13 @@
     "note": "FP32 datapath only; the half-datapath accumulate byte is uncharacterized (RT-10)."
    },
    "dst_desc_lo": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+9 bits 0-5, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 64 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): the hardware rule is simple -- correct A*B+C iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-care; 0x00-0x3f and 0x80-0xbf give a SILENT ZERO and 0xc0-0xff a wrong value. The field was typed `raw` with no semantics."
    },
    "dst_en": {
     "label": "hardware-run",
@@ -4308,13 +4327,13 @@
     "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 128 x2 runs): two of the seven bits are SEMANTIC accumulator-sign controls, not padding -- bit0 of the old field (byte+11 bit1) makes rows 0-3 use -C, bit1 (byte+11 bit2) makes ALL rows use -C, and both set cancel back to +C. Correct a*b+c requires both clear (32 of 128 values). The matrix unit therefore computes A*B - C, a mode Metal's simdgroup_multiply_accumulate never emits."
    },
    "b11_rsv": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+11 bits 3-7, DON'T-CARE (within the dense 128-value x2-run sweep of the field)",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 32 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 128 x2 runs): two of the seven bits are SEMANTIC accumulator-sign controls, not padding -- bit0 of the old field (byte+11 bit1) makes rows 0-3 use -C, bit1 (byte+11 bit2) makes ALL rows use -C, and both set cancel back to +C. Correct a*b+c requires both clear (32 of 128 values). The matrix unit therefore computes A*B - C, a mode Metal's simdgroup_multiply_accumulate never emits."
    }
   },
   "rt_intersect": {
@@ -4928,13 +4947,12 @@
     "evidence": []
    },
    "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "0x81 copy a computed source, 0x80 zero-initialise a component",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=32, ok=223 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+2: 223 of 256 values run; 32 FAULT. Load-bearing."
+     "EXP-M4-13"
+    ]
    },
    "b3": {
     "label": "isolated-byte-diff",
@@ -4957,40 +4975,40 @@
     ]
    },
    "sub": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 260 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Was `isolated-byte-diff` over 3 values."
    },
    "mem_scope": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 256 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Dense confirmation of EXP-0093's 'byte+3 bit0 is the EXECUTION-CONVERGENCE enable, independent of the requested memory-fence class', now over all 256 values."
    },
    "flags": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `corpus-correlation` (0x09 tg/none, 0x08 device, 0x0e texture). The litmus is proven fence-sensitive by its own falsifier (224/256 lanes read stale zeros when the barrier is neutralised), so this is a real negative, not an insensitive carrier."
    },
    "b5": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `single-template-inference` (0x00 in every observed instance)."
    }
   },
   "mem_fence": {
@@ -5109,13 +5127,13 @@
     "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "srcB": {
     "label": "hardware-run",
@@ -5228,13 +5246,13 @@
     ]
    },
    "grp": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 25 values dispatched, 2 carrier(s) tested, 15 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2/3 values disagree between the two gated runs; validated at points, not over a range"
    },
    "lead": {
     "label": "hardware-run",
@@ -5411,13 +5429,13 @@
     ]
    },
    "b2": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Fully splice-inert: all 256 values give the byte-exact correct pixel in both runs."
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -5429,13 +5447,13 @@
     "note": "Correct only at 0x00,0x01,0xc0,0xc1 (baseline 0x00); 0x02-0x07 wrong; the bulk silently zero; 0xf6-0xff fault or collateral. Not a plain 8-bit GPR index. Intra-run replicates 100% stable; 8 of 256 cross-run misses are boundary cases that came back invalid_run under concurrent GPU load, hence isolated-byte-diff rather than hardware-run."
    },
    "b4": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "rt_index": {
     "label": "hardware-run",
@@ -5447,22 +5465,22 @@
     "note": "With one attachment bound, correct only at 0x00,0x01,0x80,0x81 (baseline 0x00): bit0 and bit7 don't-care. Every other index SILENTLY RETURNS ZERO rather than faulting."
    },
    "b7": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 320 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Correct only at 0xae,0xaf,0xee,0xef (baseline 0xae). 85 of 256 values are NONDETERMINISTIC across replicates and across runs - recorded `unstable`, not promoted; they most likely expose stale register or tile state."
    },
    "tail": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "full 32-bit range, dense (1075 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 1062 values dispatched, 1 carrier(s) tested, 473 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Swept per constituent byte (4x256) plus structured whole-field values. Bytes 1 and 3 are almost entirely SILENT ZERO off their baseline; byte 0 is nondeterminism-heavy (95 unstable). Promoted only at the reproducing points."
    },
    "read_en": {
     "label": "hardware-run",
@@ -5474,13 +5492,13 @@
     "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    },
    "b6_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    }
   },
   "imageblock_store": {
@@ -5493,13 +5511,13 @@
     ]
    },
    "src": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 249 values dispatched, 2 carrier(s) tested, 125 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "swept 249/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "b4": {
     "label": "hardware-run",
@@ -5685,13 +5703,13 @@
     "note": ""
    },
    "dst": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 208 values dispatched, 2 carrier(s) tested, 32 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "mode": {
     "label": "hardware-run",
@@ -6147,13 +6165,13 @@
     "note": "EXP-0129: bit4 is ibitcount's release control - the analogue of falu2's own mechanism, routed differently. Both falu2 signatures reproduce here: restore-on-rewrite (20.0 -> 28.0 when the register is rewritten before the later read) and distance-invariance (identical at 0, 1 and 4 intervening instructions). Supports ONE underlying release concept per family, not several unrelated mechanisms sharing a bit position."
    },
    "tail": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 524 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..255 dense (all 256 values))"
    }
   },
   "irotate": {
@@ -6175,13 +6193,13 @@
     "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}; ok at {32 values}"
    },
    "b2": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 values tested (dense over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'ok': 256}; ok at {256 values}"
    },
    "operands": {
     "label": "tokenization-only",
@@ -6268,13 +6286,13 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
    },
    "b7": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+7: 256 of 256 values (dense 0..255), rule (v & 0xfb) == 0x50",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 273 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
    },
    "cvt_enable": {
     "label": "hardware-run",
@@ -6306,40 +6324,40 @@
     ]
    },
    "src_class": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+1: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 323 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 8 overturned by the majority vote (3.12%); where they disagree the revalidation wins."
    },
    "cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 128 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "size": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+7: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 2 carrier(s) tested, 192 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+3: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 210 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
    },
    "inert4": {
     "label": "hardware-run",
@@ -6351,31 +6369,31 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
    },
    "src": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+5: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 99 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
    },
    "opdesc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+6: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 262 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
    },
    "fmt_sel": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+7: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 2 carrier(s) tested, 156 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. ROLE CORRECTION (EXP-0144, HW): byte+7's high nibble is a FORMAT selector, not a register and not the result destination. bits 6:5 select the format -- 0x0a/0x8a unorm8, 0x2a/0xaa snorm16, 0x4a/0xca unorm16, 0x6a/0xea unorm8 -- and bit7 is don't-care. The old inference also mis-explained our own compiler's unorm(...1cca) vs snorm(...1caa) pair."
    }
   },
   "vary_store": {
@@ -6390,13 +6408,13 @@
     "note": "MIS-TOKENIZATION FLAGGED: this descriptor currently also swallows the 6-byte fragment kill/target-mask op (byte0=0x57, byte+2=0x54) as an 8-byte vertex vary_store. A proper split is a pending DB change (EXP-0091)."
    },
    "hint1": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 259 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "14/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "hint2": {
     "label": "corpus-correlation",
@@ -6433,13 +6451,13 @@
     "note": ""
    },
    "b5_tag": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..127 dense (all 128 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 128 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "9/128 values disagree between the two gated runs; validated at points, not over a range"
    },
    "hint6": {
     "label": "untested",
@@ -6480,13 +6498,13 @@
     "evidence": []
    },
    "subop": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 10 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "9/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "srcA": {
     "label": "corpus-correlation",
@@ -6785,31 +6803,31 @@
     "note": " EMITTABLE VETO: byte0's HIGH nibble and byte+1 are HW-proven LIVE operand selectors (splicing them corrupts the tile dataflow) but neither is modelled as a field - db.json's match (0,8,0x1c) OVER-FITS the r1 form. An emitter must fill bytes this descriptor does not expose, and the value->register map is not a clean linear index (EXP-M4-14)."
    },
    "b3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "b4": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "b5": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    }
   },
   "link_save_restore": {
@@ -6884,31 +6902,30 @@
     ]
    },
    "dstlo": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "239 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 88 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 25, 'ok': 214}; ok at {214 values}"
    },
    "src": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte+2 = source register",
+    "target": "A18",
     "evidence": [
-     "EXP-0160"
-    ],
-    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes(seed set 1) {'ok': 224, 'wrong_value': 8, 'silent_zero': 24}; anchor value 0x18; P1=True P2=True P3=True model=M2 CLASS TABLE"
+     "EXP-0038"
+    ]
    },
    "b3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "242 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 86 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 26, 'ok': 216}; ok at {216 values}"
    }
   },
   "pad_operand": {
@@ -7000,22 +7017,18 @@
     ]
    },
    "subform": {
-    "label": "hardware-run",
-    "range": "249 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=32, not_written=26, ok=89, silent_zero=86, wrong_value=16 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
    },
    "companion": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "0x01 with subform 0x00 is the zero-extend high-half-zero companion",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=223, silent_zero=32 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
+     "EXP-M4-13"
+    ]
    }
   },
   "n3_addr_prep": {
@@ -7078,22 +7091,22 @@
     ]
    },
    "b1": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "b3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "tail": {
     "label": "isolated-byte-diff",
@@ -7423,58 +7436,56 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "15 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte0 high nibble proven to span r0..r15 by an own-MSL sweep (compile-only)",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence."
+     "EXP-M4-13"
+    ]
    },
    "sel": {
-    "label": "hardware-run",
-    "range": "127 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "0x7f simd-matrix wide builtin, 0x00 wide scalar base, 0x21/0x01/0x48 intersection_query property reads",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance)."
+     "EXP-M4-13"
+    ]
    },
    "width": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "toggles 0x02<->0x06 across successive component reads; 0x22/0x26/0x46 across property kinds",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xce) == 0x46 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xcf) == 0x46 | outcomes fault=16, ok=3, silent_zero=236 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance."
+     "EXP-M4-13"
+    ]
    },
    "operand": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "steps 0x00,0x10,0x18,.. with the wide-component index as dst advances",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
+     "EXP-M4-13"
+    ]
    },
    "marshal": {
-    "label": "hardware-run",
-    "range": "82 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
     "evidence": [
-     "EXP-0157"
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
     ],
-    "note": "outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
+    "note": "Getter/element operand descriptor; the marshal SEQUENCE is deliberately not reconstructed (clean-room rule 5)."
    },
    "phase": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte+7 0x80 marks the CANDIDATE (during-traversal) property read, 0x00 the COMMITTED (post-traversal) read; 0x20 a further candidate sub-variant",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
+     "EXP-M4-13"
     ],
-    "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
+    "note": "SUPERSEDES an earlier n=26 'const 0x00 reserved byte' note."
    }
   },
   "rt_query_traverse": {
@@ -7590,13 +7601,13 @@
     "note": "160 values return a silent zero"
    },
    "cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "dst": {
     "label": "hardware-run",
@@ -7617,22 +7628,22 @@
     "note": "128 values return a silent zero"
    },
    "mask_imm": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "256 values tested (dense over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 256}; ok at {256 values}"
    },
    "mask_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b6hi": {
     "label": "untested",
@@ -7699,22 +7710,22 @@
     ]
    },
    "amode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `corpus-correlation` (0x56 direct-value vs 0x54 RMW)."
    },
    "ret_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Was `corpus-correlation` (0x03 returns / 0x00 noret). The old value is never consumed in this carrier, which is why the byte is unobservable here."
    },
    "rsv4": {
     "label": "hardware-run",
@@ -7726,13 +7737,13 @@
     "note": "Was `tokenization-only`; the name is wrong."
    },
    "op_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 254 values dispatched, 1 carrier(s) tested, 16 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2 values skipped as known-hang exclusions"
    },
    "rsv6": {
     "label": "hardware-run",
@@ -7771,13 +7782,13 @@
     "note": "Was `tokenization-only`; the name is wrong."
    },
    "rsv10lo": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "EXP-0164 withheld: 64 values dispatched, 1 carrier(s) tested, 7 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": ""
    },
    "op": {
     "label": "hardware-run",
@@ -7817,13 +7828,13 @@
     "note": "Same shape as tile_read.dst shifted by this carrier's baseline: correct only at 0x08,0x09,0xc8,0xc9. Intra-run stable 256/256; 10 cross-run misses are load-related invalid_run."
    },
    "b4": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "rt_index": {
     "label": "hardware-run",
@@ -7844,13 +7855,13 @@
     "note": "Correct only at 0x2e,0x2f,0x6e,0x6f,0xae,0xaf,0xee,0xef (baseline 0x2e): bits 0, 6 and 7 are don't-care and bits 1-5 are the format selector. 104 values give a silent zero."
    },
    "tail": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "full 32-bit range, dense (1075 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 1038 values dispatched, 1 carrier(s) tested, 293 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Per-byte dense plus structured whole-field. Byte 1 and byte 2 almost entirely silent zero off baseline; 30 unstable cases not promoted."
    },
    "read_en": {
     "label": "hardware-run",
@@ -7862,13 +7873,13 @@
     "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero). FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    },
    "b6_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero). FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    }
   },
   "tex_addr_setup": {
@@ -8118,58 +8129,47 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "15 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "srcA": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.  ALSO: accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "opsel": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wrong_value=12 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.  ALSO: accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values."
+     "EXP-M4-13"
+    ]
    },
    "srcB": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.  ALSO: accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "ctrl": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wrong_value=90 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zero=36, wrong_value=84 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "mods": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    }
   },
   "h_coord_hi_ext": {
@@ -8183,67 +8183,54 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "15 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "srcA": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "opsel": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+     "EXP-M4-13"
+    ]
    },
    "srcB": {
-    "label": "hardware-run",
-    "range": "239 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "ext": {
-    "label": "hardware-run",
-    "range": "233 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "srcC": {
-    "label": "hardware-run",
-    "range": "253 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    },
    "tail": {
-    "label": "hardware-run",
-    "range": "82 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
    }
   },
   "packed_half2_hi": {
@@ -8266,13 +8253,13 @@
     "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'wrong_value': 15, 'not_written': 1}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "srcA": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+1 dense 0..255 (256 values actually dispatched)",
     "target": "G17P",
     "evidence": [
      "EXP-0162"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "opsel": {
     "label": "hardware-run",
@@ -8284,13 +8271,13 @@
     "note": "outcomes {'fault': 144, 'wrong_value': 96, 'invalid_run': 1, 'silent_zero': 15}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "srcB": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+3 dense 0..255 (256 values actually dispatched)",
     "target": "G17P",
     "evidence": [
      "EXP-0162"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "mods": {
     "label": "untested",
@@ -8348,22 +8335,18 @@
     "evidence": []
    },
    "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
+     "EXP-M4-13"
+    ]
    },
    "optype": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
    }
   },
   "ray_move_zero6": {
@@ -8388,13 +8371,12 @@
     "evidence": []
    },
    "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH)"
+     "EXP-M4-13"
+    ]
    },
    "b3": {
     "label": "untested",
@@ -8449,40 +8431,30 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "15 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2)"
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
    },
    "src": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
    },
    "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
+    "label": "corpus-correlation",
+    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
+    "target": "M4",
     "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=175, silent_zero=64, wrong_value=16 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=32, ok=191, silent_zero=32 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=62, ok=191, silent_zero=1 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier."
+     "EXP-M4-13"
+    ]
    },
    "b3": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=207, wrong_value=48 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=255 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general."
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
    }
   },
   "funary_imm": {
@@ -9272,13 +9244,13 @@
     "note": "REFUTES the hypothesis that this nibble selects the predicate the push consumes."
    },
    "scope": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "level": {
     "label": "tokenization-only",
@@ -9417,22 +9389,22 @@
     ]
    },
    "dst": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 4-bit range, dense (16 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "FULLY INERT over all 16 values in both runs. The arm's litmus-power probe does move the pixel, so this is measured inertness, not a blind spot. SCOPE LIMIT: the carrier has a single output slot."
    },
    "slot": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "FULLY INERT over all 256 values in both runs. SCOPE LIMIT: this carrier writes ONE varying slot, so this cannot distinguish 'don't-care' from 'only one legal slot exists' in a multi-varying program. A multi-varying carrier is the named follow-up."
    }
   },
   "vary_slot": {
@@ -9539,13 +9511,13 @@
     "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 13, 'ok': 1}; ok at {0x7}"
    },
    "cmpA": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "254 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 1 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -9557,22 +9529,22 @@
     "note": "12 values return a silent zero"
    },
    "cmpB": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "253 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 253}; ok at {253 values}"
    },
    "cmp_mode": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "untested",
+    "range": "255 values tested (sampled over 8-bit domain)",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes(seed set 1) {'wrong_value': 128, 'ok': 128}; anchor value 0x82; P1=True P2=True P3=True model=M2 CLASS TABLE"
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 127, 'ok': 128}; ok at {128 values}"
    },
    "selTrue": {
     "label": "hardware-run",
@@ -9776,31 +9748,31 @@
     ]
    },
    "flags": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 201 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse_file": {
-    "label": "untested",
+    "label": "isolated-byte-diff",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 68 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0139"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 13 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    }
   },
   "n2_compact2": {
@@ -9949,22 +9921,22 @@
     ]
    },
    "src_cache": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst_desc": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "byte+3: 255 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 184 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 231 measurements: 2 overturned by the majority vote (0.87%); where they disagree the revalidation wins."
    },
    "src_class": {
     "label": "hardware-run",
@@ -10013,13 +9985,13 @@
     ]
    },
    "operands": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    }
   },
   "ibfe_mesh_attr": {
@@ -10673,13 +10645,13 @@
     ]
    },
    "b7_lo": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "saturate": {
     "label": "hardware-run",
@@ -10690,13 +10662,13 @@
     ]
    },
    "b7_mid": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..31 dense (all 32 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 32 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "op_valid_marker": {
     "label": "hardware-run",
@@ -10848,40 +10820,40 @@
     "note": "The hang requires the loop context. One negative data point, not an exhaustive sweep of the interaction space."
    },
    "srcB_imm": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": ""
    },
    "mod_lo": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..7 dense (all 8 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 8 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB_neg": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "1/2 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "mod_hi": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext_srcmod": {
     "label": "tokenization-only",
@@ -10967,13 +10939,13 @@
     "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2, 'wrong_value': 123}; ok at {0x0-0x1}"
    },
    "src_flag": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "2 values tested (dense over 1-bit domain)",
     "target": "G17P",
     "evidence": [
      "EXP-0154"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "kind": {
     "label": "hardware-run",
