@@ -21,6 +21,12 @@ EMIT = {"hardware-run", "isolated-byte-diff"}
 DATA_WORD_ROLE = "data-word"
 HIST = re.compile(r"\b(was|were|withdrew|withdrawn|arc|historical|superseded|"
                   r"previously|used to|before|down from|→|->)\b", re.I)
+# A clause about a DIFFERENT measure that happens to share the 166/1040 denominator
+# is not a stale headline. "the only committed recipe registry covers 35 of 166
+# mnemonics" is recipe-dashboard coverage, not emittability. Keep this list narrow:
+# each word names a distinct dashboard or registry, never the emittability figure.
+OTHER = re.compile(r"\b(registry|recipe|dashboard|liveness|geometry|semantic|"
+                   r"resource|overflow|blocks?|rejects?)\b", re.I)
 FIG = re.compile(r"\b(\d{1,4})\s*(?:of|/)\s*(166|1040)\b")
 
 
@@ -68,7 +74,11 @@ def scan(text, cur, path, out):
             got, denom = int(m.group(1)), m.group(2)
             if got == cur[denom]:
                 continue
-            if HIST.search(clause_of(line, m.start())):
+            cl = clause_of(line, m.start())
+            if OTHER.search(cl):
+                out.append("    ok(other measure) %s:%d  %s" % (path, ln, m.group(0)))
+                continue
+            if HIST.search(cl):
                 out.append("    ok(historical) %s:%d  %s" % (path, ln, m.group(0)))
                 continue
             out.append("  STALE %s:%d  states %s, current is %d of %s"
@@ -88,12 +98,17 @@ def selftest(cur):
     row = ("| P0.6 | status | **OPEN** (%d of 166 emitter-relevant instructions "
            "emittable) | the number went down, from 79 to %d |"
            % (cur["166"] + 7, cur["166"] + 7))
+    other = "the only committed recipe registry covers %d of 166 mnemonics" % (cur["166"] + 7)
+    stale_near_other = ("%d of 166 instructions are emittable. Separately the recipe "
+                        "registry covers 35 of 166." % (cur["166"] + 7))
     o = []
     a, b, c = scan(stale, cur, "T", o), scan(fresh, cur, "T", o), scan(hist, cur, "T", o)
     d = scan(row, cur, "T", o)
-    if not (a == 1 and b == 0 and c == 0 and d == 1):
-        print("SELFTEST FAIL: stale=%d (want 1) fresh=%d (want 0) historical=%d "
-              "(want 0) long-row=%d (want 1)" % (a, b, c, d))
+    e = scan(other, cur, "T", o)          # different measure -> exempt
+    f = scan(stale_near_other, cur, "T", o)  # a real stale headline in the SAME line
+    if not (a == 1 and b == 0 and c == 0 and d == 1 and e == 0 and f == 1):
+        print("SELFTEST FAIL: stale=%d(1) fresh=%d(0) historical=%d(0) long-row=%d(1) "
+              "other-measure=%d(0) stale-beside-other=%d(1)" % (a, b, c, d, e, f))
         return False
     return True
 
@@ -102,8 +117,14 @@ def main():
     cur, nrel = current()
     if not selftest(cur):
         return 2
-    print("current figure: %d of 166 instructions, %d of 1040 fields"
+    print("legacy label figure: %d of 166 instructions, %d of 1040 fields"
           % (cur["166"], cur["1040"]))
+    print("NOTE: RE_EXPERIMENT_PROCESS_CORRECTIONS.md §8 RETIRES this as the completeness\n"
+          "      measure -- a checker 'must not derive a single N of 166 emittable headline\n"
+          "      from field labels'. The seven §9 dashboards are the accounting; run\n"
+          "      `python3 tools/agx-isa/dashboards.py`. This tool now only stops a STALE\n"
+          "      legacy figure from sitting in a normative doc as if it were current, and\n"
+          "      requires every doc that states one to carry the retirement notice.")
     if nrel != 166:
         print("NOTE: emitter-relevant count is %d, not 166 — the denominators in "
               "docs/ are hard-coded and now wrong." % nrel)
@@ -122,7 +143,26 @@ def main():
     for n in notes:
         print(n)
     print("STALE FIGURES: %d" % bad)
-    return 1 if bad else 0
+
+    # §8: a normative doc may still MENTION the legacy figure, but never as the
+    # completeness measure. If it states one, it must carry the retirement notice.
+    RET = "THE SINGLE EMITTABILITY HEADLINE IS RETIRED"
+    missing = []
+    for dp, _, fns in os.walk(os.path.join(ROOT, "docs")):
+        for fn in sorted(fns):
+            if not fn.endswith(".md"):
+                continue
+            rel = os.path.relpath(os.path.join(dp, fn), ROOT)
+            if rel == "docs/isa/emit-worklist.md":
+                continue
+            txt = open(os.path.join(dp, fn), encoding="utf-8", errors="replace").read()
+            if FIG.search(txt) and RET not in txt:
+                missing.append(rel)
+    for m in missing:
+        print("  §8 VIOLATION %s states a legacy emittability figure without the "
+              "retirement notice" % m)
+    print("DOCS STATING THE LEGACY FIGURE WITHOUT THE §8 NOTICE: %d" % len(missing))
+    return 1 if (bad or missing) else 0
 
 
 if __name__ == "__main__":

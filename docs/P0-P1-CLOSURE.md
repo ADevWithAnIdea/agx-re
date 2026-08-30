@@ -4,7 +4,42 @@ This is the live status board for closing every P0 and P1 item in
 `APPLE9_RE_IMPLEMENTATION_GAPS.md` (the authoritative task list, superseding the removed
 `AGX_RE_INFORMATION_GAPS.md` audit) using the local M4/G16G as the **sole test target**.
 
-> ### ⚠ SUPERSEDED 2026-08-28 — read this before the paragraph below it
+> #> ### ⚠ THE SINGLE EMITTABILITY HEADLINE IS RETIRED (2026-08-30)
+>
+> `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` §8 is explicit: a promotion checker **"must not derive a
+> single `N of 166 emittable` headline from field labels."** §9 requires **seven separate monotonic
+> dashboards** instead, because one number absorbing six kinds of evidence is exactly what let this
+> figure swing 79 → 41 → 55 → 38 → 37 → 34 → 33 → 32 in a single day.
+>
+> **The §8 promotion checker, which opens cited raw instead of trusting citations, blocks 631 of 631
+> emitter-grade rows, and 0 of the 32 mnemonics previously called `emittable` have all rows clear.**
+> `validate_labels.py` passes the same corpus at exit 0 — it validates schema, not evidence. Only
+> **5 rows corpus-wide** carry a real semantic check.
+>
+> Regenerate with `python3 tools/agx-isa/dashboards.py`. `attained` is a high-water mark over an
+> append-only ledger and **cannot fall**; monotonicity was demonstrated by re-scoring against an
+> empty evidence index, where `attained` held while `current` dropped to zero on six dashboards.
+>
+> | dashboard (top rung) | attained | denominator |
+> |---|---:|---:|
+> | Encoding geometry coverage / geometry-mappe | **502** | 1040 |
+> | Field/bit liveness coverag / decided-multi- | **99** | 1040 |
+> | Semantic-map coverage / semantically-m | **5** | 1040 |
+> | Canonical generated-recipe / canonical-reci | **2** | 166 |
+> | Direct G17P revalidation c / G17P-direct-re | **432** | 1040 |
+> | Reproducible evidence-chai / independently- | **264** | 1212 |
+> | Finite-resource limit and  / limit-mapped | **133** | 987 |
+>
+> Thin dashboards say why they are thin rather than scoring zero: **recipe** is registry-bound (the
+> only committed recipe registry covers 35 of 166 mnemonics), and §6's finite **resources** — slots,
+> banks, scoreboards, descriptor tables — report **0 of 0, no machine-readable registry exists**.
+> 420 geometry/liveness rows are `no-data` largely because their raw is pre-EXP-0138
+> `.txt`/`.hex`, i.e. *format-unreadable*, not *absent*.
+>
+> The legacy label count (**32 of 166 instructions, 544 of 1040 fields**) is retained below as a
+> historical promotion figure. It is **not** the completeness measure any more.
+
+## ⚠ SUPERSEDED 2026-08-28 — read this before the paragraph below it
 >
 > **The A18 Pro / G17P is now THE test target and closure is measured against full G17P**
 > (`CLAUDE.md`, user directive 2026-08-28). The 2026-08-27 hands-off directive quoted below was

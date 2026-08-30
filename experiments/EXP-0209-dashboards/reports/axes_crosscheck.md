@@ -8,25 +8,25 @@ Section 2 requires every field to carry independent status on six axes. The data
 
 | source | rows carrying an `axes` object |
 |---|---:|
-| validation.json (inline) | 28 |
+| validation.json (inline) | 43 |
 | EXP-0208-axis-reclassification/analysis/axes.json | 496 |
-| **union (an inline object wins)** | **501** |
-| **db.json fields with NO axes object** | **539 of 1040** |
+| **union (an inline object wins)** | **504** |
+| **db.json fields with NO axes object** | **536 of 1040** |
 
 ## Cross-check against this run's re-derivation
 
 | comparison | rows |
 |---|---:|
-| geometry:agree | 401 |
-| geometry:disagree | 80 |
-| geometry:not-comparable | 20 |
-| liveness:answer-asserted-without-a-firing-control | 128 |
-| liveness:declared-with-control-or-no-records | 149 |
-| semantics:agree | 435 |
-| semantics:disagree | 51 |
-| semantics:not-comparable | 15 |
+| geometry:agree | 390 |
+| geometry:disagree | 77 |
+| geometry:not-comparable | 37 |
+| liveness:answer-asserted-without-a-firing-control | 125 |
+| liveness:declared-with-control-or-no-records | 147 |
+| semantics:agree | 430 |
+| semantics:disagree | 53 |
+| semantics:not-comparable | 21 |
 
-## Disagreements - 224 row(s)
+## Disagreements - 222 row(s)
 
 A disagreement is not automatically a defect in either party: the declared axes may rest on a keying or a validity rule this indexer scores differently. It marks a row where two independent derivations from the same raw did not land in the same place, which is exactly what should be looked at next.
 
@@ -43,14 +43,13 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `atomic_tg.ret_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `b_alu10_lo7.src_flag` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `b_alu10_lo7.src_reg` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `call.tail` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `call.tail` | validation.json (inline) | liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `compute_fence_scoped.kind` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `compute_fence_scoped.mask` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `compute_fence_scoped.scope` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `cubearray_coord_const.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `cvt_i2f_src.dst_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `cvt_i2f_src.src_cache` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `dev_scoreboard_fence.scope_flag` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `device_load.access_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `device_load.addr_mode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `device_load.reserved13` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -73,7 +72,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `frag_color_pack.conv_scale` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
 | `frag_color_pack.fmt_class` | validation.json (inline) | geometry declared ledger-verified, re-derived geometry-mapped; liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `frag_color_pack.src_gate_select` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `frag_color_store.store_mode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `frag_color_store.store_mode` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `frag_tile_setup.access` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `frag_tile_setup.b5` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `frag_tile_setup.sel` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -81,6 +80,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `frame_prologue.marker` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
 | `frame_prologue.subop` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
 | `funary.mod` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared bounded-map, re-derived no-semantic-check |
+| `get_sr.form` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
 | `h_coord_hi_ext.ext` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `h_coord_hi_ext.srcB` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `h_coord_hi_ext.tail` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -143,7 +143,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `isel_reg8.selTrue` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `ishift.pad9` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `ishift.src_cache` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `iter.b9` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `iter.b9` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `iunary.b1` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `iunary.opsel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `jump.branch_ctrl` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived ledger-verified; liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -164,7 +164,6 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `mem_fence.b5` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `mem_fence.memclass` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `mem_fence.sub` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `mesh_out_src.sel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `n2_op10.opdesc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `n2_op10.opsel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `n2_op10.src` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
@@ -178,8 +177,9 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `packed_half2_hi.mods` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `packed_half2_hi.srcA` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
 | `packed_half2_hi.srcB` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `pop_reconverge.reserved` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `pop_reconverge.scope` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `pop_reconverge.scope` | validation.json (inline) | liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `ray_move.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
 | `ray_move.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
+| `ray_move.src` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
+| `ray_move_copy6.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
 
