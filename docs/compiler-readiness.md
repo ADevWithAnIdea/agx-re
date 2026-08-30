@@ -34,8 +34,14 @@ emitter can apply, not as prose descriptions of them.
 > 12 immediate-mode `iadd2`); and **its cross-run gate FAILS** under concurrent GPU load, with
 > EXP-0167 re-running it under isolation.
 >
-> **Backward:** the emittability figure this document leans on was **withdrawn from 79/166 to
-> 41/166** by `EXP-0164`, an adversarial audit that re-derived every emitter-grade field from
+> **Backward:** the emittability figure this document leans on has been **withdrawn repeatedly, and
+> the figure below is not current.** The arc for 2026-08-30 is **79 → 41 → 55 → 38 → 37 → 34 → 33 →
+> 32 of 166** emitter-relevant instructions (**544 of 1040** fields emitter-grade — the single rise of the day, EXP-0194, and it is M4-target); every fall came
+> from an audit that reproduced the published number before disputing it, and every fall was
+> correct. The live figure is generated, not written by hand — see `docs/isa/emit-worklist.md`,
+> which is regenerated from the label corpus and now agrees with `tools/agx-isa/validate_labels.py`
+> exactly. The first of those withdrawals, **79/166 to 41/166**, was `EXP-0164`, an adversarial
+> audit that re-derived every emitter-grade field from
 > committed `raw/`. It downgraded 81 `INERT-SINGLE` and 41 `UNSTABLE` fields, and found that
 > **144 fields (21.7%) have no per-value raw record attributable to them at all** — including
 > **13 of `falu2`'s 15**, the most-cited descriptor in the DB. Treat any field rule below that cites

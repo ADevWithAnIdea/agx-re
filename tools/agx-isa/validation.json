@@ -16,14 +16,14 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 481,
+   "hardware-run": 482,
    "isolated-byte-diff": 62,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 260
+   "untested": 259
   },
   "by_label_pct": {
    "hardware-run": 46.2,
@@ -803,13 +803,15 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2, 'wrong_value': 6}; ok at {0x0-0x1}"
    },
    "srcB_neg": {
-    "label": "untested",
-    "range": "2 values tested (dense over 1-bit domain)",
-    "target": "G17P",
+    "label": "hardware-run",
+    "range": "0..1 dense \u2014 a 1-bit field, so this is the COMPLETE encodable range",
+    "target": "M4",
     "evidence": [
-     "EXP-0154"
+     "EXP-0138",
+     "EXP-0154",
+     "EXP-0194"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "EXP-0194 found the second carrier this row's own note asked for -- it was already committed. EXP-0138 `raw/m4_20260828_run01|run05|run06/sweep.jsonl`: bytes `6901040501000080` vs `6901040501080080` differ in EXACTLY ONE BIT, bit 43, which is this field (start=43,width=1); `w0` moves 8.0 -> 2.0 with both sentinels holding, identical in all three runs. Critically the host oracle PREDICTED 8.0 AND 2.0 SEPARATELY and matched both -- a discriminating oracle, which is the exact gate the 46 AMBIGUOUS rows fail (their oracle is constant while the field varies, so it predicts the instruction's effect, not the field's). Orchestrator re-derived all three runs from raw before merging. **TARGET IS M4/G16G, NOT the G17P documentation target** -- this adds to the target-blindness debt EXP-0193 named. The instruction stays BLOCKED on srcA_size, ctrl and srcB_imm, so the emittable-instruction headline does not move."
    },
    "mod_hi": {
     "label": "hardware-run",

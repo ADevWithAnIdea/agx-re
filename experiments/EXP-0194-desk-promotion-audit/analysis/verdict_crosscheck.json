@@ -1,0 +1,2883 @@
+{
+ "copysign.operands": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "ok@-5.0: 256 values (0..255)",
+   "deterministic": true,
+   "live": false,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 256,
+     "cases_agreeing": 256,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0184-g17p-onefield-b/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0184-g17p-onefield-b",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "moved on 2 of the 2 arms that had detection power (2 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+   "semantics": "A live OPERAND DESCRIPTOR, not a raw byte. Both carriers give the identical 4-group partition over all 256 values: the ACCEPT set is {0,1,128,129}; {2,3,130,131} leaves lanes 1..7 UNWRITTEN (still poison); {4,5,132,133} substitutes a different source operand; the remaining 244 values collapse to one common wrong result. Bit 0 and bit 7 are indistinguishable at every base value that has more than one behaviour -- the `(reg<<1)|size` operand-byte shape db.json already documents for falu2, with the inert top bit EXP-0099 HW-tested on five other families.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2_ext.ctrl": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "hardware-run",
+   "target": "M4",
+   "range": "123 of 128 encodable values",
+   "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes(seed set 1) {'wrong_value': 64, 'ok': 16, 'silent_zero': 48}; anchor value 0x01; P1=True P2=True P3=True model=M2 CLASS TABLE",
+   "semantics": "complete 16-class behaviour table over the non-inert bits [0, 1, 5, 6] (bits [2, 3, 4] inert); every class confirmed by >=8 distinct field values",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes(seed set 1) {'wrong_value': 64, 'ok': 16, 'silent_zero': 48}; anchor value 0x01; P1=True P2=True P3=True model=M2 CLASS TABLE",
+   "semantics": "complete 16-class behaviour table over the non-inert bits [0, 1, 5, 6] (bits [2, 3, 4] inert); every class confirmed by >=8 distinct field values",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2_ext.srcA_size": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "exploratory@3.0: 0; ok@8.0: 1",
+   "deterministic": true,
+   "live": true,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 2,
+     "cases_agreeing": 2,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2_ext.srcB_imm": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "ok@8.0: 0; wrong_value@3.0: 1",
+   "deterministic": true,
+   "live": true,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 2,
+     "cases_agreeing": 2,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2_ext.srcB_neg": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "ok@8.0: 0; ok@2.0: 1",
+   "deterministic": true,
+   "live": true,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 2,
+     "cases_agreeing": 2,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2_srcmod10.ctrl": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "hardware-run",
+   "target": "M4",
+   "range": "122 of 128 encodable values",
+   "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 6 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  }
+ ],
+ "falu2i.ctrl_lo": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "hardware-run",
+   "target": "M4",
+   "range": "124 of 128 encodable values",
+   "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 28/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 4 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_addimm@falu2i[18:24]; outcomes(seed set 1) {'ok': 4, 'wrong_value': 76, 'silent_zero': 48}; anchor value 0x00; P1=True P2=True P3=True model=M1 MASK + M2 CLASS TABLE",
+   "semantics": "ok <=> (v & 0x6b) == 0x00, 0 exceptions over the dense 128-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_addimm@falu2i[18:24]; outcomes(seed set 1) {'ok': 4, 'wrong_value': 76, 'silent_zero': 48}; anchor value 0x00; P1=True P2=True P3=True model=M1 MASK + M2 CLASS TABLE",
+   "semantics": "ok <=> (v & 0x6b) == 0x00, 0 exceptions over the dense 128-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu2i.mods": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "wrong_value@11.0: 128 values (16..255); wrong_value@3.0: 96 values (2..239); ok@8.0: 16 values (0..225); wrong_value@-2.0: 16 values (8..233)",
+   "deterministic": true,
+   "live": true,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 256,
+     "cases_agreeing": 256,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "{0x00, 0x40, 0x80, 0xC0} x {ALU-sourced, load-sourced}",
+   "note": "EXP-0101 H1 REPRODUCES on G17P.",
+   "semantics": "ALU-sourced srcA: all four values deliver the correct result. LOAD-sourced srcA: only 0xC0 does; 0x00/0x40/0x80 leave the loaded operand reading 0. Bits 6 and 7 are required TOGETHER -- neither alone suffices.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu3_srcmod12.ctrl": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "hardware-run",
+   "target": "M4",
+   "range": "123 of 128 encodable values",
+   "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 30/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  }
+ ],
+ "falu3_srcmod12.opsel": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "hardware-run",
+   "target": "M4",
+   "range": "0..7 dense (all 8 values)",
+   "note": "NOT deterministic across the two gated runs; HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  }
+ ],
+ "falu_srcmod12b.ext_srcmod": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "untested",
+   "alt_label": "isolated-byte-diff",
+   "target": "M4",
+   "range": "each of the 6 constituent bytes swept 0..255 dense; the 48-bit field's full space is NOT claimed",
+   "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 11 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `isolated-byte-diff` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here.",
+   "primary": false
+  }
+ ],
+ "falu_srcmod12b.mod_hi": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..15 dense (all 16 values)",
+   "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+   "semantics": "ok@8.0: 0,2,4,6,8,10,12,14; wrong_value@8.0: 1,3,5,7,9,11,13,15",
+   "deterministic": true,
+   "live": false,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 16,
+     "cases_agreeing": 16,
+     "identical": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "falu_srcmod12b.mod_lo": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..7 dense (all 8 values)",
+   "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+   "semantics": "wrong_value@8.0: 1,2,3,4,5,6,7; ok@8.0: 0",
+   "deterministic": true,
+   "live": false,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 8,
+     "cases_agreeing": 8,
+     "identical": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "falu_srcmod12b.srcB_imm": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "ok@8.0: 0,1",
+   "deterministic": true,
+   "live": false,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 2,
+     "cases_agreeing": 2,
+     "identical": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "falu_srcmod12b.srcB_neg": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "1/2 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+   "semantics": "ok@8.0: 0; wrong_value@8.0: 1",
+   "deterministic": true,
+   "live": false,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 2,
+     "cases_agreeing": 2,
+     "identical": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "fspecial_est.srcA": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "isolated-byte-diff",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 1 distinct non-zero results), so an emitter may not generalise",
+   "semantics": "ok@0.5: 256 values (0..255)",
+   "deterministic": true,
+   "live": false,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "29 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rsqrt@fspecial_est[18:24]; outcomes {'ok': 29}; ok at {29 values}",
+   "semantics": "inert across the 29 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 254 of 256 on SYNTH:k_rsqrt@fspecial_est+18; cross-run agreement 1.0000 (256 agree / 0 disagree); 2 admitted carriers [FRAME,SYNTH | k_rsqrt]; accept-set size 2 = [3, 131]; outcomes {\"ok\": 2, \"wrong_value\": 254}",
+   "semantics": "E2_FSPEC_EST_RCP: 0..255 (251 values) / E_FSPEC_EST: 0..255 (256 values)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "half_alu_fma12.dst": [
+  {
+   "file": "experiments/EXP-0138-m4-emit-falu/analysis/field_verdicts.json",
+   "exp": "EXP-0138-m4-emit-falu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "3/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+   "semantics": "ok@0.125: 250 values (0..255); ok@0.1875: 2; ok@0.25: 4; ok@0.375: 5; wrong_value@0.1875: 130; wrong_value@0.25: 132; wrong_value@0.375: 133",
+   "deterministic": true,
+   "live": true,
+   "cross_run": {
+    "m4_20260828_run05": {
+     "cases_shared": 256,
+     "cases_agreeing": 256,
+     "identical": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0180-g17p-halfalu-rerecord/analysis/field_verdicts.json",
+   "exp": "EXP-0180-g17p-halfalu-rerecord",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "iadd2.addsub": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "1 = add, 0 = subtract, and the register-mode subtract polarity is d = r_N - r0 (EXP-0128 SS1.4) -- re-confirmed here, matched.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0153-g17p-revalidation/analysis/field_verdicts.json",
+   "exp": "EXP-0153-g17p-revalidation",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "the single bit, in both polarities, over 12 input rows x 5 repetitions x 2 gated runs",
+   "note": "",
+   "semantics": "0 = 64-bit subtract, 1 = a COMPLETE NATIVE 64-BIT ADD with carry across the 32-bit word boundary, in ONE 10-byte instruction. Byte0 1f -> 9f.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}",
+   "semantics": "exact rule (v & 0x01) == 0x01, 0 exceptions",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0166-exp0146-recovery/analysis/field_verdicts.json",
+   "exp": "EXP-0166-exp0146-recovery",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (2 of 2 encodings actually spliced), 2/2 values comparable across both gated runs; 1 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+   "note": "byte0 bit 7, the ADD/SUBTRACT selector, in the 64-bit carrier `k_u64sub` (`1f 01 56 00 02 08 00 50 17 05`). Both values of a 1-bit field executed: 0 reproduces the compiled 64-bit SUBTRACT, 1 produces (a + b) mod 2^64 EXACTLY on all 8 frozen rows including full 64-bit wrap and lo->hi carry, matched against a host-computed oracle. This is the encoding behind EXP-0146's headline (a native single-instruction 64-bit integer ADD the Apple compiler never emits). REVALIDATED ON G17P by EXP-0153 (12 rows x 5 repetitions x 2 gated runs) \u2014 cited, not merged; this row is the M4 half. The field currently reads `untested` because EXP-0164's audit bucketed it INERT-SINGLE with `max_values_dispatched: 5`; a 1-bit field has only 2 values and both moved.",
+   "semantics": null,
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "iadd2.b2_fmt": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..63 dense (all 64 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 64 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "23 values tested (sampled over 6-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 23}; ok at {0x0-0x5, 0x7-0x9, 0xf-0x11, 0x15, 0x18, 0x1f-0x21, 0x28, 0x2a, 0x30, 0x38, 0x3e-0x3f}",
+   "semantics": "inert across the 23 SAMPLED values only; the full 64-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "63 values sampled",
+   "note": "EXP-0139's INERT reading REPRODUCES on G17P for this field (non-ok observations were victim/invalid_run class).",
+   "semantics": "63 of 63 delivered the sum",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "iadd2.srcB_imm": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "7 values sampled (boundaries + powers of two + interior)",
+   "note": "",
+   "semantics": "srcB_imm = 4*N selects r_N (EXP-0128's rule), re-confirmed here on an independently built program with a 16-register seed table: N = 0,1,2,3,7,13,14 each produced 10 + seed[N] exactly.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0166-exp0146-recovery/analysis/field_verdicts.json",
+   "exp": "EXP-0166-exp0146-recovery",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 252 moved the observable, 4 reproduced it, 0 disagreed; accept-set {0x8, 0x9, 0xa, 0xb}",
+   "note": "64-bit form, carrier `k_u64sub`. Dense 0..255, both gated runs agreeing on every value. Accept-set {0x08,0x09,0x0a,0x0b} = (v & 0xFC) == 0x08 \u2014 the low two bits are free; 4 values silently zero and 248 return a wrong value. Consistent with EXP-0139's 32-bit-form model of a 9-bit immediate stored (K<<1) at b5 + b6bit0. \u26a0 Carrier-scoped: this carrier's srcB is a REGISTER, so the accept-set is 'the descriptor bits that keep this operand', not the immediate's legal range.",
+   "semantics": null,
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "iadd2.srcB_reg_hi": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..127 dense (all 128 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 128 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "26 values tested (sampled over 7-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 26}; ok at {26 values}",
+   "semantics": "inert across the 26 SAMPLED values only; the full 128-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "16 values sampled",
+   "note": "EXP-0139's INERT reading REPRODUCES on G17P for this field (non-ok observations were victim/invalid_run class).",
+   "semantics": "16 of 16 delivered the sum",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0166-exp0146-recovery/analysis/field_verdicts.json",
+   "exp": "EXP-0166-exp0146-recovery",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..127 dense (128 of 128 encodings actually spliced), 128/128 values comparable across both gated runs; 64 moved the observable, 64 reproduced it, 0 disagreed",
+   "note": "64-bit form, carrier `k_u64sub`. Dense 0..127 (7-bit field), both gated runs agreeing on every value. Exactly the 64 EVEN values reproduce and the 64 odd ones return a wrong value \u2014 i.e. only bit 0 of the field is live and it must be clear; bits 1..6 are HW-tested free across all 64 combinations. Reproduces EXP-0139's 32-bit-form finding on a second, structurally different carrier.",
+   "semantics": null,
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibfe.b2_bit0": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as b2_fmt.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+   "semantics": "2 values tested (dense over 1-bit domain)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibfe.sign_ext": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (signed vs unsigned extract. k_bfe (unsigned) and k_bfe_s (signed) are compiler-chosen anchors on either side of exactly this bit.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+   "semantics": "2 values tested (dense over 1-bit domain)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibfins.cache": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibfins.mask_hi": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "1 values return a silent zero",
+   "semantics": "value space fully enumerated on hardware; whether the instruction still produces its correct result is decided ENTIRELY by bit [0]. Working values: 0",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibitcount.cache": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..1 dense (all 2 values))",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibitcount.dst": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "16 values sampled (boundaries + powers of two + interior)",
+   "note": "1/16 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 1 values return a silent zero; second independent carrier IBITCOUNT_NAT DIFFERS (untested over 0..255 dense (all 256 values))",
+   "semantics": "pre-registered semantic model executed and matched: dst=reg<<1: result lands in r0, the store still reads r6 -- model held at 14/16 modelled values; NOT matched at 20,30",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "icmp_pred.neg": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "imad.b11": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 256 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "29 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 29}; ok at {29 values}",
+   "semantics": "inert across the 29 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "imad.b1hi": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..127 dense (all 128 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 128 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "26 values tested (sampled over 7-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 26}; ok at {26 values}",
+   "semantics": "inert across the 26 SAMPLED values only; the full 128-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "imad.b2_bit0": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 2 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "imad.b2_fmt": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..63 dense (all 64 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 64 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "23 values tested (sampled over 6-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 23}; ok at {0x0-0x5, 0x7-0x9, 0xf-0x11, 0x15, 0x18, 0x1f-0x21, 0x28, 0x2a, 0x30, 0x38, 0x3e-0x3f}",
+   "semantics": "inert across the 23 SAMPLED values only; the full 64-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "imad.store_en": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..1 dense (all 2 values)",
+   "note": "",
+   "semantics": "value space fully enumerated on hardware; whether the instruction still produces its correct result is decided ENTIRELY by bit [0]. Working values: 1",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "isel10_c.flags": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "isolated-byte-diff",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)",
+   "semantics": "value space fully enumerated on hardware and fully deterministic; correct execution is decided by bits [1, 2, 4] and nothing else -- an emitter must fix those and may choose the remaining 5 bits freely. Working values: 0-3,6-11,14-15,32-35,38-43,46,64-67,70-75,78-79,96-99,102-107,110-111,128-131,134-139,142-143,160-163,166-171,174-175,192-195,198-203,206-207,224-227,230-235,238-239",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "isel10_c.selFalse": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)",
+   "semantics": "value space fully enumerated on hardware; whether the instruction still produces its correct result is decided ENTIRELY by bits []. Working values: 0-1,3-24,26-114,116-255",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "isel10_c.selFalse_file": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "isolated-byte-diff",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)",
+   "semantics": "value space fully enumerated on hardware and fully deterministic; correct execution is decided by bits [5, 6, 7] and nothing else -- an emitter must fix those and may choose the remaining 5 bits freely. Working values: 0-127,160-223,225-255",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ishift.pad9": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "INERT: every one of the 256 encodable values reproduced the carrier's correct result. An emitter may choose any value.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "29 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_ashr@ishift[18:28]; outcomes {'ok': 29}; ok at {29 values}",
+   "semantics": "inert across the 29 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ishift.src_cache": [
+  {
+   "file": "experiments/EXP-0139-m4-emit-ialu/analysis/field_verdicts.json",
+   "exp": "EXP-0139-m4-emit-ialu",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 dense (all 256 values)",
+   "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 128 values return a silent zero",
+   "semantics": "value space fully enumerated on hardware; whether the instruction still produces its correct result is decided ENTIRELY by bit [1]. Working values: 2-3,6-7,10-11,14-15,18-19,22,26-27,30-31,34-35,38-39,42-43,46-47,50-51,54-55,58-59,62-63,66-67,70-71,74-75,78-79,82-83,86-87,90-91,94-95,98-99,102-103,106-107,110-111,114-115,118-119,122-123,126-127,130-131,134-135,13...",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "29 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_ashr@ishift[18:28]; outcomes {'ok': 29}; ok at {29 values}",
+   "semantics": "inert across the 29 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_mem.amode": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here.",
+   "semantics": "INERT on the device register-operand form: all 256 values leave the atomic correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_mem.base_slot": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only.",
+   "semantics": "INERT on this carrier: all 256 values leave the atomic correct, so the buffer address does NOT come from this byte for a single-bound-buffer atomic.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_mem.rsv3": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `tokenization-only`.",
+   "semantics": "INERT. All 256 values leave the atomic correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_rmw.amode": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+   "semantics": "INERT on the device register-operand form: all 256 values leave the atomic correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_rmw.base_slot": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+   "semantics": "INERT on this carrier: all 256 values leave the atomic correct, so the buffer address does NOT come from this byte for a single-bound-buffer atomic.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_rmw.rsv3": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+   "semantics": "INERT. All 256 values leave the atomic correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_tg.amode": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `corpus-correlation` (0x56 direct-value vs 0x54 RMW).",
+   "semantics": "INERT: all 256 values leave the threadgroup reduction correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_tg.ret_desc": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `corpus-correlation` (0x03 returns / 0x00 noret). The old value is never consumed in this carrier, which is why the byte is unobservable here.",
+   "semantics": "INERT: all 256 values leave the reduction correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "device_load.access_desc": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "M4 confirmation of EXP-0012/RT-1a-FIX's A18 exhaustive result (was target A18 only).",
+   "semantics": "INERT. All 256 values leave the loaded value unchanged.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "3 values sampled one-field-at-a-time: ['0', '255', '90']",
+   "note": "NOT `hardware-run`: this is a sparse single-field probe on one carrier, chosen to validate the specific off-natural values this experiment's generator emits, not a dense sweep. EXP-0141's dense M4 sweep is the range claim; this is its on-target spot-check.",
+   "semantics": "values delivering the load unchanged: [0, 90, 255]",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "device_load.addr_mode": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "db.json models this byte as an addressing-mode ENUM (0x44 indexed / 0x54 base-rel / rare CF and RT forms). On this shape none of it is observable; the enum is a corpus correlation, not a hardware selector. See db_defects.",
+   "semantics": "INERT for a terminal scalar 32-bit indexed load: all 256 values -- including every code db.json's enum names -- leave the load correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "3 values sampled one-field-at-a-time: ['0', '165', '255']",
+   "note": "NOT `hardware-run`: this is a sparse single-field probe on one carrier, chosen to validate the specific off-natural values this experiment's generator emits, not a dense sweep. EXP-0141's dense M4 sweep is the range claim; this is its on-target spot-check.",
+   "semantics": "values delivering the load unchanged: [0, 165, 255]",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "device_load.reserved13": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `tokenization-only`.",
+   "semantics": "INERT. All 256 values leave the load correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 values sampled one-field-at-a-time: ['255', '90']",
+   "note": "NOT `hardware-run`: this is a sparse single-field probe on one carrier, chosen to validate the specific off-natural values this experiment's generator emits, not a dense sweep. EXP-0141's dense M4 sweep is the range claim; this is its on-target spot-check.",
+   "semantics": "values delivering the load unchanged: [90, 255]",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "device_load.reserved7": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `tokenization-only` (framing only, no semantics).",
+   "semantics": "INERT. All 256 values leave the load, its consumer and the store correct.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0158-g17p-generator-synthesis/analysis/field_verdicts.json",
+   "exp": "EXP-0158-g17p-generator-synthesis",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 values sampled one-field-at-a-time: ['255', '90']",
+   "note": "NOT `hardware-run`: this is a sparse single-field probe on one carrier, chosen to validate the specific off-natural values this experiment's generator emits, not a dense sweep. EXP-0141's dense M4 sweep is the range claim; this is its on-target spot-check.",
+   "semantics": "values delivering the load unchanged: [90, 255]",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "tg_addr_compute.b3": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "M4 confirmation of EXP-M4-14's A18 result (5 values there, 256 here).",
+   "semantics": "INERT on M4: all 256 values leave the tile dataflow exact.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "tg_addr_compute.b4": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "M4 confirmation of EXP-M4-14 (A18, 3 values).",
+   "semantics": "INERT on M4: all 256 values pass.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "tg_addr_compute.b5": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "M4 confirmation of EXP-M4-14 (A18, 3 values).",
+   "semantics": "INERT on M4: all 256 values pass.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "threadgroup_barrier.b5": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `single-template-inference` (0x00 in every observed instance).",
+   "semantics": "INERT: all 256 values leave the litmus exact.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "threadgroup_barrier.flags": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `corpus-correlation` (0x09 tg/none, 0x08 device, 0x0e texture). The litmus is proven fence-sensitive by its own falsifier (224/256 lanes read stale zeros when the barrier is neutralised), so this is a real negative, not an insensitive carrier.",
+   "semantics": "INERT with respect to the fence: all 256 values leave the 256-lane litmus exact.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "threadgroup_barrier.mem_scope": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Dense confirmation of EXP-0093's 'byte+3 bit0 is the EXECUTION-CONVERGENCE enable, independent of the requested memory-fence class', now over all 256 values.",
+   "semantics": "Only BIT 0 matters for a threadgroup-memory litmus: all 128 odd values pass and all 128 even values fail with 224/256 lanes reading stale zeros. The memory-CLASS bits are don't-care here; bit 0 is the execution-convergence enable.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "threadgroup_barrier.sub": [
+  {
+   "file": "experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0141-m4-emit-mem",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "0..255 step 1 (256 of 256)",
+   "note": "Was `isolated-byte-diff` over 3 values.",
+   "semantics": "Machine-derived exact rule `v & 0x06 == 0x04`: bit 2 must be 1 and bit 1 must be 0; bit 0 and bits 3..7 are DON'T CARE (64 of 256 values work, the compiler's own 0x04 and its 0x05 neighbour among them).",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "cvt_f2i.b9": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+9: 256 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
+   "semantics": "byte+9 INERT: all 256 values reproduce the result",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "cvt_i2f_src.dst_desc": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+3: 255 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 231 measurements: 2 overturned by the majority vote (0.87%); where they disagree the revalidation wins.",
+   "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 operand0: source-register map measured (see byte_scans.json) | byte+3 silent zeros: 0 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 2 ambiguous",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "cvt_i2f_src.src_cache": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+2: 256 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
+   "semantics": "byte+2 INERT: all 256 values reproduce the result",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "unpack_convert.cache": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+2: 256 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
+   "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values) | byte+2 silent zeros: 64 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "unpack_convert.size": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+7: 256 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
+   "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json) | byte+7 silent zeros: 192 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous | byte+7 FORMAT CODES: {\"0x0a\": [\"unorm8_lo\"], \"0x0b\": [\"unorm8_lo\"], \"0x2a\": [\"snorm2x16_lo\"], \"0x2b\": [\"snorm2x16_lo\"], \"0x3a\": [\"snorm8_lo\"], \"0x3b\": [\"snorm8_lo\"], \"0x4a\": [\"unorm2x16_lo\"], \"0x4b\": [\"unorm2x16_lo\"], \"0x6a\": [\"unorm8_lo\"], \"0x6b\": [\"unorm8_lo\"], \"0x7a\": [\"snorm8_lo\"], \"0x7b\": [\"snorm8_lo\"], \"0x8a\": [\"unorm8_lo\"], \"0x8b\": [\"unorm8_lo\"], \"0xaa\": [\"snorm2x16_lo\"], \"0xab\": [\"snorm2x16_lo\"], \"0xba\": [\"snorm8_lo\"], \"0xbb\": [\"snorm8_lo\"], \"0xca\": [\"unorm2x16_lo\"], \"0xcb\": [\"unorm2x16_lo\"], \"0xea\": [\"unorm8_lo\"], \"0xeb\": [\"unorm8_lo\"], \"0xfa\": [\"snorm8_lo\"], \"0xfb\": [\"snorm8_lo\"]}",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "unpack_convert.src_class": [
+  {
+   "file": "experiments/EXP-0144-m4-emit-pack/analysis/field_verdicts.json",
+   "exp": "EXP-0144-m4-emit-pack",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "byte+1: 256 of 256 values (dense 0..255)",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 8 overturned by the majority vote (3.12%); where they disagree the revalidation wins.",
+   "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json) | byte+1 silent zeros: 0 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 93 ambiguous",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "half_pack.b3": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "242 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 26, 'ok': 216}; ok at {216 values}",
+   "semantics": "source (released-on-read) operand descriptor: reg = (v>>1)&63, matched 23/23 identified over 12 distinct registers (38 values produced no observable release/write); no exact rule; 216/242 values ok",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "half_pack.dstlo": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "239 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 25, 'ok': 214}; ok at {214 values}",
+   "semantics": "destination (register identified; the result value is 0 in this carrier, so destination-write and release-on-read are not separated) operand descriptor: reg = (v>>1)&63, matched 23/23 identified over 13 distinct registers (37 values produced no observable release/write); no exact rule; 214/239 values ok",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ibfins.mask_imm": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 values tested (dense over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 256}; ok at {256 values}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ilogic.z6": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "254 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}",
+   "semantics": "inert across the 254 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ilogic.z8": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "254 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}",
+   "semantics": "inert across the 254 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ilogic.z9": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "255 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 255}; ok at {255 values}",
+   "semantics": "inert across the 255 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "isel8.cmpA": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "254 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 254}; ok at {254 values}",
+   "semantics": "inert across the 254 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "isel8.cmpB": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "253 values tested (sampled over 8-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 253}; ok at {253 values}",
+   "semantics": "inert across the 253 SAMPLED values only; the full 256-value range was NOT swept",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "shift_amt_move.src_flag": [
+  {
+   "file": "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+   "exp": "EXP-0154-g17p-emit-alu",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2}; ok at {0x0-0x1}",
+   "semantics": "INERT across the whole encodable range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0168-g17p-dst-resweep/analysis/field_verdicts.json",
+   "exp": "EXP-0168-g17p-dst-resweep",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "2 distinct values dispatched on the best arm",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "frag_color_pack.fmt_class": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "fcp@pack0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 1,
+     "moved04": 1,
+     "stable_live": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "frag_color_store.store_mode": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fcs@iter0', 'fcs@pack0'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "fcs@iter0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "fcs@pack0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "frag_tile_setup.access": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "fts@iter0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "fts@iter1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "frag_tile_setup.b5": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "fts@iter0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "fts@iter1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "frag_tile_setup.sel": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "fts@iter0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "fts@iter1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "imageblock_store.b4": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['ibs@t1', 'ibs@tc'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "ibs@t1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "ibs@tc": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "imageblock_store.src": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "swept 249/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "ibs@t1": {
+     "agree": 100.0,
+     "common": 248,
+     "disagreements": 0,
+     "moved03": 246,
+     "moved04": 246,
+     "stable_live": true
+    },
+    "ibs@tc": {
+     "agree": 100.0,
+     "common": 248,
+     "disagreements": 0,
+     "moved03": 246,
+     "moved04": 246,
+     "stable_live": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0172-g17p-onefield-tail/analysis/field_verdicts.json",
+   "exp": "EXP-0172-g17p-onefield-tail",
+   "label": "hardware-run",
+   "target": "G17P (Apple A18 Pro, applegpu_g17p)",
+   "range": "0..245 dense executed, 2 arms x 2 gated runs; 246 and 247 are a REPRODUCED device hang and stopped the sweep at 248 of 256",
+   "note": "LIVE. A source-register byte: 244 of 248 executed values change the stored value, on both a 1-sample and a 4-sample carrier. HAZARD: src = 246 and 247 hang the device (reproduced). NOTE: this does NOT make imageblock_store emittable -- b4 is still single-template-inference.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "iter.b9": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter@cent1', 'iter@frag0W', 'iter@frag1'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "iter@cent1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "iter@frag0W": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "iter@frag1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "tex_deriv.dstsrc": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+   "note": "2/39 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from tex_deriv@d0 to tex_deriv@d1, where the field is demonstrably live (39/39 of 39 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "tex_deriv@d0": {
+     "agree": 100.0,
+     "common": 39,
+     "disagreements": 0,
+     "moved03": 38,
+     "moved04": 38,
+     "stable_live": true
+    },
+    "tex_deriv@d1": {
+     "agree": 100.0,
+     "common": 39,
+     "disagreements": 0,
+     "moved03": 39,
+     "moved04": 39,
+     "stable_live": true
+    }
+   },
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0172-g17p-onefield-tail/analysis/field_verdicts.json",
+   "exp": "EXP-0172-g17p-onefield-tail",
+   "label": "hardware-run",
+   "target": "G17P (Apple A18 Pro, applegpu_g17p)",
+   "range": "39 of 65 sampled 24-bit values on each of 4 arms x 2 gated runs (0, 1, 2, max-1, max, every power of two, every all-ones prefix, 16 hashed interior samples); the sweep STOPPED at the reproduced hang values 0x3FFFF / 0x7FFFF",
+   "note": "LIVE. A packed destination+source operand: 37 of the 39 values compared across runs change the derivative result on every arm, identically in both runs. HAZARD: dstsrc = 0x3FFFF and 0x7FFFF hang the device (reproduced, majority-of-3).",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "tex_write.amode": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1', 'tex_write@w2'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "tex_write@w0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "tex_write@w1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "tex_write@w2": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "tex_write.rsv11": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1'].]",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "tex_write@w0": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "tex_write@w1": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    }
+   },
+   "primary": true
+  }
+ ],
+ "vary_store.b5_tag": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "0..127 dense (all 128 values)",
+   "note": "9/128 values disagree between the two gated runs; validated at points, not over a range",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "vary_store@c_iter/vert106": {
+     "agree": 100.0,
+     "common": 128,
+     "disagreements": 0,
+     "moved03": 95,
+     "moved04": 95,
+     "stable_live": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "vary_store.hint1": [
+  {
+   "file": "experiments/EXP-0155-g17p-emit-tex-frag/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0155-g17p-emit-tex-frag",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "14/256 values disagree between the two gated runs; validated at points, not over a range",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": {
+    "vary_store@c_iter/vert106": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 224,
+     "moved04": 224,
+     "stable_live": true
+    }
+   },
+   "primary": true
+  }
+ ],
+ "atomic_rmw.op_msb": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_rmw.per_lane": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_tg.op_desc": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "2 values skipped as known-hang exclusions",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "atomic_tg.rsv10lo": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "jump.branch_ctrl": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "2 values skipped as known-hang exclusions",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "jump_cond.cf_scope": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "jump_cond.offset": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "56 values sampled",
+   "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "jump_cond.reserved": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "pop_reconverge.reserved": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "35 values sampled",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ret_luse.linkmode": [
+  {
+   "file": "experiments/EXP-0156-g17p-emit-cf-mem/analysis/field_verdicts.json",
+   "exp": "EXP-0156-g17p-emit-cf-mem",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values)",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "h_coord_hi_ext.ext": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "233 values executed (boundaries + samples)",
+   "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "233 values executed (boundaries + samples)",
+   "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "h_coord_hi_ext.srcB": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "239 values executed (boundaries + samples)",
+   "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "239 values executed (boundaries + samples)",
+   "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "h_coord_hi_ext.tail": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "82 values executed (boundaries + samples)",
+   "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "82 values executed (boundaries + samples)",
+   "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move.b3": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes ok=255 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+3: all 256 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move.dst": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "15 values executed (boundaries + samples)",
+   "note": "outcomes ok=15 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | Destination nibble: all 16 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move.src": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes ok=255 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+1: all 256 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_copy6.dst": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "15 values executed (boundaries + samples)",
+   "note": "outcomes ok=15 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_copy6.optype": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_copy6.src": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes ok=255 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_zero6.b3": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes ok=255 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_zero6.dst": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "15 values executed (boundaries + samples)",
+   "note": "outcomes ok=15 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ray_move_zero6.src": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "255 values executed (boundaries + samples)",
+   "note": "outcomes ok=255 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "rt_ray_mem.field_off": [
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "three values observed: 0xc4, 0xc6, 0xc8 (the field's range was NOT swept)",
+   "note": "outcomes ok=3 | carrier k_rq_getters.metal :: k_cand_baryx / k_cand_baryy / k_cand_td_dist, anchor +None, 1 agreeing captures (gate differential-compilation) | byte+10 of the 14-byte rt_ray_mem is the RAY-QUERY PROPERTY SELECTOR. Three intersection_query<triangle_data> kernels that differ ONLY in the getter they read compile to programs that are byte-identical except at 14 offsets, each a single byte taking 0xc4 (barycentric.x) / 0xc6 (barycentric.y) / 0xc8 (triangle distance) -- the selector steps by 2 per property. Each of the three programs was executed and returned its own host-computed oracle exactly, so the byte change produced the predicted effect. db.json already models this byte as `field_off` at `corpus-correlation`; this is an independent confirmation by a second method, and it upgrades the label to isolated-byte-diff. | This is why sweeping `sr_read_wide.sel` never yielded another property: on G17P the property selector is not in sr_read_wide at all. Raw: raw/g17p_census01/getter_diff.json plus the three committed .hex files, reproduced from the committed kernel source.",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0157-g17p-emit-misc/analysis/field_verdicts_by_carrier.json",
+   "exp": "EXP-0157-g17p-emit-misc",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "three values observed: 0xc4, 0xc6, 0xc8 (the field's range was NOT swept)",
+   "note": "This is why sweeping `sr_read_wide.sel` never yielded another property: on G17P the property selector is not in sr_read_wide at all. Raw: raw/g17p_census01/getter_diff.json plus the three committed .hex files, reproduced from the committed kernel source.",
+   "semantics": "byte+10 of the 14-byte rt_ray_mem is the RAY-QUERY PROPERTY SELECTOR. Three intersection_query<triangle_data> kernels that differ ONLY in the getter they read compile to programs that are byte-identical except at 14 offsets, each a single byte taking 0xc4 (barycentric.x) / 0xc6 (barycentric.y) / 0xc8 (triangle distance) -- the selector steps by 2 per property. Each of the three programs was executed and returned its own host-computed oracle exactly, so the byte change produced the predicted effect. db.json already models this byte as `field_off` at `corpus-correlation`; this is an independent confirmation by a second method, and it upgrades the label to isolated-byte-diff.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu3.op": [
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK",
+   "semantics": "ok <=> (v & 0xd7) == 0x16, 0 exceptions over the dense 256-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK",
+   "semantics": "ok <=> (v & 0xd7) == 0x16, 0 exceptions over the dense 256-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "falu3_ext.op": [
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK",
+   "semantics": "ok <=> (v & 0xd7) == 0x16, 0 exceptions over the dense 256-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0160-g17p-last-field/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0160-g17p-last-field",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK",
+   "semantics": "ok <=> (v & 0xd7) == 0x16, 0 exceptions over the dense 256-value range",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "packed_half2_hi.srcA": [
+  {
+   "file": "experiments/EXP-0162-g17p-pack-and-splices/analysis/field_verdicts.json",
+   "exp": "EXP-0162-g17p-pack-and-splices",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+   "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero.",
+   "semantics": "INERT: all 256 values tested reproduce the reference result",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "packed_half2_hi.srcB": [
+  {
+   "file": "experiments/EXP-0162-g17p-pack-and-splices/analysis/field_verdicts.json",
+   "exp": "EXP-0162-g17p-pack-and-splices",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+   "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero.",
+   "semantics": "INERT: all 256 values tested reproduce the reference result",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ilogic.lut_a_sel": [
+  {
+   "file": "experiments/EXP-0166-exp0146-recovery/analysis/field_verdicts.json",
+   "exp": "EXP-0166-exp0146-recovery",
+   "label": "hardware-run",
+   "target": "M4",
+   "range": "A5-DECOMPOSED from EXP-0146 arm(s) lut_a,srcA. 0..3 dense (4 of 4 encodings actually spliced), 4/4 values comparable across both gated runs; 3 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+   "note": "A5-decomposed from EXP-0146's dense byte+4 sweep: the 4 sub-values of bits 32-33 with every other bit of byte+4 at its compiled value. All 4 executed; only 0 reproduces the carrier's AND, and the other 3 select DIFFERENT boolean functions (that is the field's job \u2014 see EXP-0146's 16-function LUT table). Currently `untested` because EXP-0154's G17P sweep was orphaned by the concurrent lut_a split and then withdrawn. \u26a0 OPERAND-LABEL TRAP (EXP-0154 DEF-0154-5): the published LUT table's `a`/`b` are SWAPPED relative to db.json's `srcA`/`srcB`; that affects which function a selector value names, not this field's liveness.",
+   "semantics": null,
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  },
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "4 of 4 sub-values, DENSE (4 distinct encodings of the byte)",
+   "note": "MOVED 3 of 4 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (4 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [0]; outcomes {\"ok\": 1, \"wrong_value\": 3} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+   "semantics": "A5-DECOMPOSED from EXP-0146 arm(s) lut_a,srcA. 0..3 dense (4 of 4 encodings actually spliced), 4/4 values comparable across both gated runs; 3 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "irotate.operands": [
+  {
+   "file": "experiments/EXP-0166-exp0146-recovery/analysis/field_verdicts.json",
+   "exp": "EXP-0166-exp0146-recovery",
+   "label": "isolated-byte-diff",
+   "target": "M4",
+   "range": "BYTE-WISE MARGINAL ONLY: 5 constituent bytes x 0..255 dense each (1280 encodings); the 40-bit field was NEVER swept jointly and its max/max-1 were never encoded",
+   "note": "\u26a0 MARGINAL COVERAGE ONLY. 40-bit raw field swept BYTE-WISE \u2014 each of bytes +3..+7 over all 256 values with the other four at their compiled value (1280 of 2^40 combinations). No joint value, and neither `max` nor `max-1` of the 40-bit field was ever encoded, so FIELD-SWEEP-PROTOCOL \u00a73.3's coverage bar for w>8 is NOT met \u2014 hence `isolated-byte-diff`, not `hardware-run` (A6). Per-byte accept-sets (M4): +3 {0x00,0x01}; +4 (v&0x02)==0x02; +5 (v&0xfc)==0x00; +6 {0x6c,0x6e}; +7 (v&0xf1)==0x00. The ROTATE AMOUNT is NOT independently emittable from this carrier (+6 admits only two values). \u26a0 SAFETY: EXP-0154 reports byte+7 = 231/232 GENUINELY HANGS the GPU on G17P (kIOGPUCommandBufferCallbackErrorHang, contained, majority-of-3). EXP-0154 left byte+7 `untested` on G17P; this M4 row is the only evidence there is.",
+   "semantics": null,
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "get_sr.dst_hi": [
+  {
+   "file": "experiments/EXP-0168-g17p-dst-resweep/analysis/field_verdicts.json",
+   "exp": "EXP-0168-g17p-dst-resweep",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "8 distinct values dispatched on the best arm",
+   "note": "",
+   "semantics": "",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.modA": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 248 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 8 = [0, 4, 8, 12, 16, 20, 24, 28]; outcomes {\"ok\": 8, \"silent_zero\": 208, \"wrong_value\": 40}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.modB": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 240 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 16 = [0, 8, 32, 40, 64, 72, 96, 104, 128, 136, 160, 168, 192, 200, 224, 232]; outcomes {\"ok\": 16, \"silent_zero\": 240}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.outmod": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.srcA": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 254 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 2 = [1, 129]; outcomes {\"ok\": 2, \"silent_zero\": 244, \"wrong_value\": 10}",
+   "semantics": "byte+3 second-source descriptor (0x81 = single-source marker)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.src_flag": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "note": "DENSE-INERT: 0 of 2 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as srcA.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+   "semantics": "byte+1 bit7 source-class / uniform flag",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_loe.src_reg": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
+   "note": "MOVED 127 of 128 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (128 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [3]; outcomes {\"ok\": 1, \"silent_zero\": 122, \"wrong_value\": 5} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+   "semantics": "byte+1 bits0-6 source register (covaries with dst across the subgroup-matrix load/store sweep)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.modA": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 248 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 8 = [0, 4, 8, 12, 16, 20, 24, 28]; outcomes {\"ok\": 8, \"silent_zero\": 208, \"wrong_value\": 40}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.modB": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 240 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 16 = [0, 8, 32, 40, 64, 72, 96, 104, 128, 136, 160, 168, 192, 200, 224, 232]; outcomes {\"ok\": 16, \"silent_zero\": 240}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.outmod": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 128 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 128; outcomes {\"ok\": 128, \"silent_zero\": 128}",
+   "semantics": "framing only (round-trips; no value semantics established)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.srcA": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "note": "MOVED 254 of 256 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (256 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_and]; accept-set size 2 = [1, 129]; outcomes {\"ok\": 2, \"silent_zero\": 244, \"wrong_value\": 10}",
+   "semantics": "byte+3 second-source descriptor (0x81 = single-source marker)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.src_flag": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "note": "DENSE-INERT: 0 of 2 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as srcA.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+   "semantics": "byte+1 bit7 source-class / uniform flag",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "b_alu10_lof.src_reg": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
+   "note": "MOVED 127 of 128 on NAT:k_and@ilogic+32; cross-run agreement 1.0000 (128 agree / 0 disagree); 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor]; accept-set size 1 = [3]; outcomes {\"ok\": 1, \"silent_zero\": 122, \"wrong_value\": 5} CAVEAT (EXP-0166 6.2): a SINGLETON accept-set establishes 'every other value breaks THIS carrier', NOT an operand/sub-op map -- and for a sub-op selector a non-ok outcome may simply mean 'a different function', not 'invalid'.",
+   "semantics": "byte+1 bits0-6 source register (covaries with dst across the subgroup-matrix load/store sweep)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "ilogic.lut_a_free": [
+  {
+   "file": "experiments/EXP-0171-g17p-ilogic-srca/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0171-g17p-ilogic-srca",
+   "label": "isolated-byte-diff",
+   "target": "G17P",
+   "range": "8 of 8 sub-values, DENSE (8 distinct encodings of the byte)",
+   "note": "DENSE-INERT: 0 of 8 sub-values moved, on 7 admitted carriers [FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"1\": 6, \"3\": 6, \"5\": 2}). 8 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (WHICH LUT2 boolean function is selected. Five store-consumed NAT carriers with compiler-chosen selectors for and / or / xor / andn / nand.), across 5 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+   "semantics": "byte+4 bits 2-4, DON'T-CARE (free mask 0x1c; EXP-0146, dense 0..255 on the byte)",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "call.tail": [
+  {
+   "file": "experiments/EXP-0179-g17p-call/analysis/field_verdicts.json",
+   "exp": "EXP-0179-g17p-call",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..255 dense (all 256 values), 2 carriers",
+   "note": "",
+   "semantics": "INERT over the full 0..255 range, same evidence shape as call.b6: one distinct full observation per carrier across 256 values x 2 runs. CONFIRMED BY ARM S: all 256 values also legal on the REAL compiler-emitted call (256/256 cross-run agreement), so `tail` is a don't-care in BOTH a generated leaf call and a compiled non-leaf call.",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ],
+ "rt_query_traverse.dst": [
+  {
+   "file": "experiments/EXP-0184-g17p-onefield-b/analysis/field_verdicts_flat.json",
+   "exp": "EXP-0184-g17p-onefield-b",
+   "label": "hardware-run",
+   "target": "G17P",
+   "range": "0..15 dense (all 16 values)",
+   "note": "moved on 4 of the 10 arms that had detection power (56 arms swept in total; the rest had a control that never fired and are barred from supporting any verdict)",
+   "semantics": "Destination selector. On every arm with detection power the ACCEPT set is EXACTLY the 4-value block that shares the compiled value's top 2 bit(s); the low 2 bit(s) are a don't-care. Outside that block the traversal commits a different hit (committed-distance carrier) or returns a SILENT ZERO (committed-primitive-id carrier).",
+   "deterministic": null,
+   "live": null,
+   "cross_run": null,
+   "primary": true
+  }
+ ]
+}

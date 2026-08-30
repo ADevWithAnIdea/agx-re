@@ -16,8 +16,8 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 1 | 24 |
 | 2 | 18 |
-| 3 | 23 |
-| 4 | 27 |
+| 3 | 24 |
+| 4 | 26 |
 | 5 | 11 |
 | 6 | 7 |
 | 7 | 7 |
@@ -127,7 +127,7 @@ Every named field is emitter-grade; the instruction-level label is not. **These 
 
 | label | fields |
 |---|---:|
-| `untested` | 260 |
+| `untested` | 259 |
 | `corpus-correlation` | 141 |
 | `tokenization-only` | 135 |
 | `single-template-inference` | 30 |
