@@ -96,11 +96,6 @@
     <value value="7">s_lt</value>
   </enum>
 
-  <enum kind="mov_zext16_src_flag" name="mov_zext16 src_flag">
-    <value value="0">gpr</value>
-    <value value="1" label="uniform/class">uniform_class</value>
-  </enum>
-
   <enum kind="ilogic_op_base" name="ilogic op_base">
     <value value="0" label="xor-base">xor_base</value>
     <value value="1" label="and/or-base">and_or_base</value>
@@ -112,11 +107,11 @@
   </enum>
 
   <enum kind="fspecial_fnclass" name="fspecial fnclass">
-    <value value="0" label="rcp|round">rcp_round</value>
+    <value value="0" label="rcp|round -- on the std-SFU datapath (fnsel 0xb0): 0x2f -&gt; rint, 0xaf -&gt; +inf (rcp needs fnsel 0x10)">rcp_round_on_the_std_SFU_datapath_0x2f_rint_0xaf_inf</value>
     <value value="1" label="rsqrt|sqrt">rsqrt_sqrt</value>
-    <value value="2" label="exp2|log2">exp2_log2</value>
-    <value value="3" label="sincos/tan primitive (inferred)">sincos_tan_primitive</value>
-    <value value="4" label="compound intermediate (pow/exp range-reduce, inferred)">compound_intermediate</value>
+    <value value="2" label="exp2|log2 (fn_hi selects: 0 -&gt; log2, 1 -&gt; exp2; HW-confirmed by computed value on G17P)">exp2_log2</value>
+    <value value="3" label="sincos/tan primitive -- on 0x2f returns NaN for 11 of 12 positive finite inputs; on 0xaf indistinguishable from class 1 (rsqrt)">sincos_tan_primitive_on_0x2f_returns_NaN_for_11_of_12_positive_finite_inputs_on_0xaf_indistinguishable_from_class_1</value>
+    <value value="4" label="NOT a separate class: 4 = class 0 with bit 2 set, which stores nothing at all on both datapaths (HW, G17P)">NOT_a_separate_class_4_class_0_with_bit_2_set_which_stores_nothing_at_all_on_both_datapaths</value>
   </enum>
 
   <enum kind="fspecial_src_cache" name="fspecial src_cache">
@@ -153,6 +148,7 @@
 
   <enum kind="fspecial_roundmode" name="fspecial roundmode">
     <value value="0" label="nearest / none">nearest_none</value>
+    <value value="1" label="DO NOT EMIT -- bit 0 set returns NaN in every lane for every input on the rsqrt and log2 SFU datapaths (HW, G17P)">DO_NOT_EMIT_bit_0_set_returns_NaN_in_every_lane_for_every_input_on_the_rsqrt_and_log2_SFU_datapaths</value>
     <value value="2">floor</value>
     <value value="4">ceil</value>
     <value value="6">trunc</value>
@@ -638,6 +634,11 @@
     <value value="240" label="reg-operand(loaded)">reg_operand</value>
   </enum>
 
+  <enum kind="b_alu10_lo7_src_flag" name="b_alu10_lo7 src_flag">
+    <value value="0">gpr</value>
+    <value value="1" label="uniform/class">uniform_class</value>
+  </enum>
+
   <enum kind="b_alu10_lo7_opsel_hi" name="b_alu10_lo7 opsel_hi">
     <value value="0">0x07</value>
     <value value="1" label="and_mask(0x17)">and_mask</value>
@@ -922,9 +923,9 @@
     <ins name="iadd" addsub="1"/>
   </group>
 
-  <!-- imad: d = srcA*srcB (+ srcC) -->
+  <!-- imad: d = m * (srcA * srcB) + A -->
   <!-- provenance: HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); 12-byte length = b1 bit0==0 (HW). EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO ... -->
-  <ins name="imad" length="12" label="d = srcA*srcB (+ srcC)">
+  <ins name="imad" length="12" label="d = m * (srcA * srcB) + A">
     <exact bit="0:6">0011111</exact>
     <modifier name="b0bit7" bit="7"/>
     <modifier name="lenbit" bit="8"/>
@@ -934,8 +935,8 @@
     <modifier name="b2_fmt" bit="18:23"/>
     <dest name="dst" bit="24:31"/>
     <modifier name="opmode" bit="32:39"/>
-    <src name="srcB" bit="40:47"/>
-    <modifier name="srcC_lo" bit="48:55"/>
+    <modifier name="srcC_lo" bit="40:47"/>
+    <src name="srcB" bit="48:55"/>
     <modifier name="srcC_desc" bit="56:63"/>
     <modifier name="mulsel" bit="64:71"/>
     <modifier name="b9" bit="72:79"/>
@@ -950,11 +951,11 @@
     <exact bit="16:18">110</exact>
     <exact bit="32:34">sel</exact>
     <dest name="dst" bit="4:7"/>
-    <dest name="dst_full" bit="8:15"/>
+    <src name="srcA" bit="8:15"/>
     <modifier name="fmt" bit="19:23"/>
-    <src name="srcA" bit="24:31"/>
+    <src name="srcB" bit="24:31"/>
     <modifier name="selhi" bit="35:39"/>
-    <src name="srcB" bit="40:47"/>
+    <modifier name="dst_full" bit="40:47"/>
 
     <ins name="fmax" sel="000"/>
     <ins name="fmin" sel="001"/>
@@ -1161,14 +1162,15 @@
     <ins name="bf_fma" opsel="00011110" label="bf_fma(10B)"/>
   </group>
 
-  <!-- mov_zext16: d(r1) = a & 0xFFFF -->
-  <!-- provenance: HW-VALIDATED (EXP-0013): u2us zero-extends the low 16 bits (0xFFFFFFFF -> 0xFFFF, 0x18000 -> 0x8000). EXP-M4-13 R8 (own-MSL byte-diff, compile-only) ... -->
-  <ins name="mov_zext16" length="4" label="d(r1) = a &amp; 0xFFFF">
-    <exact bit="0:7">00010011</exact>
-    <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+  <!-- mov_zext16: r[n] = r[n] & 0xFFFF - 16-bit ZERO-extend / narrow, IN PLACE on ONE register used as BOTH source ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0013): u2us zero-extends the low 16 bits (0xFFFFFFFF -> 0xFFFF, 0x18000 -> 0x8000). OPERAND MODEL SUPERSEDED AND CORRECTED ... -->
+  <ins name="mov_zext16" length="4" label="r[n] = r[n] &amp; 0xFFFF -- 16-bit ZERO-extend / narrow, IN PLACE on ONE register used as BOTH source ...">
+    <exact bit="0:3">0011</exact>
+    <exact bit="24:26">001</exact>
+    <src name="src_reg" bit="4:7"/>
+    <modifier name="src_flag" bit="8:15"/>
     <modifier name="subform" bit="16:23"/>
-    <modifier name="extend" bit="24:31"/>
+    <modifier name="extend" bit="27:31"/>
   </ins>
 
   <!-- ilogic: d = LUT2(a, b) -->
@@ -1198,11 +1200,11 @@
     <exact bit="0:6">0101111</exact>
     <modifier name="fn_hi" bit="7" kind="fspecial_fn_hi"/>
     <modifier name="fnclass" bit="8:11" kind="fspecial_fnclass"/>
-    <dest name="dst" bit="12:15"/>
+    <modifier name="src_ext" bit="12:15"/>
     <modifier name="src_cache" bit="16:23" kind="fspecial_src_cache"/>
-    <src name="src" bit="24:31"/>
+    <dest name="dst" bit="24:31"/>
     <modifier name="src_class" bit="32:39" kind="fspecial_src_class"/>
-    <src name="src_ext" bit="40:47"/>
+    <src name="src" bit="40:47"/>
     <modifier name="fnsel" bit="48:55" kind="fspecial_fnsel"/>
     <modifier name="precsel" bit="56:63" kind="fspecial_precsel"/>
     <modifier name="roundmode" bit="64:71" kind="fspecial_roundmode"/>
@@ -2220,7 +2222,7 @@
   <ins name="half_pack" length="4" label="HALF-LANE PACK (assemble a half2 into a packed 32-bit register)">
     <exact bit="0:7">00011000</exact>
     <dest name="dstlo" bit="8:15"/>
-    <src name="src" bit="16:23"/>
+    <modifier name="src" bit="16:23"/>
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
     <zero bit="24:31"/>
   </ins>
@@ -2603,11 +2605,13 @@
     <exact bit="16:31">0000000000000000</exact>
   </ins>
 
-  <!-- sfu_marker: SFU / transcendental helper marker word -->
+  <!-- sfu_marker: SFU / transcendental helper CONTROL WORD (byte0 0x06, byte+1 0x02 as the compiler emits it), 2 ... -->
   <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 02 across 59 corpus occurrences in 22 own-compiled shaders; reproduced in an isolated OWN fast::sin ... -->
-  <ins name="sfu_marker" length="2" label="SFU / transcendental helper marker word">
-    <exact bit="0:7">00000110</exact>
-    <exact bit="8:15">00000010</exact>
+  <ins name="sfu_marker" length="2" label="SFU / transcendental helper CONTROL WORD (byte0 0x06, byte+1 0x02 as the compiler emits it), 2 ...">
+    <exact bit="0:2">110</exact>
+    <exact bit="8:9">10</exact>
+    <modifier name="b0_hi" bit="3:7"/>
+    <modifier name="b1_hi" bit="10:15"/>
   </ins>
 
   <!-- ray_move_copy6: RAY register-marshalling MOVE, bit6 copy form (4B) -->
@@ -2678,7 +2682,7 @@
     <exact bit="16:19">0111</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="opsel_hi" bit="20:23" kind="b_alu10_lo7_opsel_hi"/>
     <src name="srcA" bit="24:31"/>
     <modifier name="modA" bit="32:39"/>
@@ -2696,7 +2700,7 @@
     <exact bit="16:19">1110</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="opsel_hi" bit="20:23" kind="b_alu10_loe_opsel_hi"/>
     <src name="srcA" bit="24:31"/>
     <modifier name="modA" bit="32:39"/>
@@ -2714,7 +2718,7 @@
     <exact bit="16:19">1111</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="opsel_hi" bit="20:23" kind="b_alu10_lof_opsel_hi"/>
     <src name="srcA" bit="24:31"/>
     <modifier name="modA" bit="32:39"/>
@@ -2732,7 +2736,7 @@
     <exact bit="16:19">0000</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="src_class" bit="20:23" kind="reg_move_c0_src_class"/>
     <modifier name="op_desc" bit="24:31" kind="reg_move_c0_op_desc"/>
   </ins>
@@ -2744,7 +2748,7 @@
     <exact bit="16:19">0001</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="src_class" bit="20:23" kind="reg_move_c1_src_class"/>
     <modifier name="op_desc" bit="24:31" kind="reg_move_c1_op_desc"/>
   </ins>
@@ -2756,7 +2760,7 @@
     <exact bit="16:19">1001</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="src_class" bit="20:23" kind="reg_move_c9_src_class"/>
     <modifier name="op_desc" bit="24:31" kind="reg_move_c9_op_desc"/>
   </ins>
@@ -3238,7 +3242,7 @@
     <exact bit="16:19">1100</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="kind" bit="20:23" kind="shift_amt_move_kind"/>
     <modifier name="op_desc" bit="24:31"/>
   </ins>
@@ -3250,7 +3254,7 @@
     <exact bit="20:23">0010</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src_reg" bit="8:14"/>
-    <modifier name="src_flag" bit="15" kind="mov_zext16_src_flag"/>
+    <modifier name="src_flag" bit="15" kind="b_alu10_lo7_src_flag"/>
     <modifier name="subform" bit="16:19"/>
     <modifier name="op_desc" bit="24:31"/>
   </ins>

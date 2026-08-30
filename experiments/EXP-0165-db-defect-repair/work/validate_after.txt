@@ -1,0 +1,39 @@
+OK: 172 instructions, 1060 fields, all labels valid.
+  hardware-run                588  (55.5%)
+  isolated-byte-diff          111  (10.5%)
+  corpus-correlation          106  (10.0%)
+  tokenization-only           166  (15.7%)
+  single-template-inference     8  ( 0.8%)
+  api-accept-reject             0  ( 0.0%)
+  host-private                  0  ( 0.0%)
+  untested                     81  ( 7.6%)
+
+  EMITTABILITY
+    old headline (every db.json descriptor):       72 / 172  (41.9%)
+    corrected (emitter-relevant instructions):     72 / 166  (43.4%)
+      denominator = 172 descriptors - 6 data words
+      data words excluded (own committed semantics say they are not
+      standalone hardware opcodes -- an emitter never emits one):
+        - operand_word
+        - operand_word_a2_01
+        - operand_word_x2_h5
+        - operand_word_x2_h6
+        - operand_word_x2_h7
+        - pad_operand
+    informational lower bound, NOT the headline:   72 / 162  (44.4%)
+      also setting aside 4 scaffolding descriptors EXP-0148 leaves
+      UNRESOLVED (3 continuation-word candidates + 1 unreachable):
+        - frame_marker_compact
+        - n2_compact2
+        - b_alu14_prep2
+        - cubearray_coord_const
+    zero-field descriptors (fully match-pinned, nothing to synthesize):
+        - n1_word                tokenization-only
+        - n2_compact2            tokenization-only
+        - n3_word                tokenization-only
+        - operand_word_a2_01     tokenization-only
+        - rtq_pred               tokenization-only
+        - sfu_marker             tokenization-only  [byte-invariance REFUTED by EXP-0146]
+      These are IN the denominator: `emittable` is decided by their
+      `_instruction` label, which is a validation.json decision, not a
+      db.json one. Reported so the label owner can rule on them.

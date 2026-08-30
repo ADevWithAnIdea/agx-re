@@ -1,0 +1,223 @@
+{
+ "experiment": "EXP-0165-db-defect-repair",
+ "title": "db.json defect repair: EXP-0161 (7), EXP-0160 (5 applicable), EXP-0157 (2)",
+ "kind": "analysis + tool repair -- NO DEVICE WORK",
+ "target": "G17P (all re-derived evidence); EXP-0146's M4/G16G evidence cited where a defect reproduces it",
+ "utc": "2026-08-30T08:02:10Z",
+ "git_revision": "459bb8bd84d8885060f06dc5e412870e35e1c2f8",
+ "git_dirty_at_write": true,
+ "clean_room": {
+  "provenance": "OWN-SHADER + HW-PROBE (re-analysis of committed raw observations from our own authored probes)",
+  "apple_binary_introspection": "NONE",
+  "inputs": [
+   "experiments/EXP-0161-g17p-carry-fspecial/raw/**",
+   "experiments/EXP-0160-g17p-last-field/raw/**",
+   "experiments/EXP-0157-g17p-emit-misc/analysis/length_rule.json",
+   "experiments/EXP-0157-g17p-emit-misc/analysis/length_map_q.json",
+   "experiments/EXP-M4-13-full-corpus/hex/** (our own compiled shader bytes)"
+  ]
+ },
+ "db_json_sha256": {
+  "final_after_write_2": "addf5edaf29cc218954af6fbdc277a4c0dd827267c177bbd8af6a57e90f71b8f",
+  "note": "the pre-edit and intermediate copies are not committed (git history holds the pre-edit file); before=83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341, after_write_1=30ae6a41a7616f1e06aa47731be08e7a2861df9c474e8deb0d923130d4e1f2db"
+ },
+ "gates": {
+  "roundtrip_test": {
+   "before": "ALL PASS 302 OK / 0 FAIL",
+   "after": "ALL PASS 302 OK / 0 FAIL"
+  },
+  "corpus_clean_files": {
+   "before": 833,
+   "after": 833,
+   "total": 1080
+  },
+  "corpus_strict_leftover_bytes": {
+   "before": 388604,
+   "after": 388604
+  },
+  "corpus_tokens": {
+   "before": 25419,
+   "after": 25419
+  },
+  "functional_check_decode": {
+   "before": "42 ok / 37 bad",
+   "after": "72 ok / 7 bad"
+  },
+  "functional_check_reemit": {
+   "before": "73 ok / 6 bad",
+   "after": "73 ok / 6 bad"
+  },
+  "validate_labels": {
+   "before": "exit 0",
+   "after": "exit 1 -- exactly 2 MISSING-label errors for sfu_marker.b0_hi/.b1_hi, cleared by merging analysis/field_verdicts.json"
+  }
+ },
+ "defects": {
+  "DEF-0161-1": "CONFIRMED -- applied",
+  "DEF-0161-2": "CONFIRMED (severity claim REFUTED: n3_mov already exposes the nibble) -- applied",
+  "DEF-0161-3": "CONFIRMED IN PART, REFUTED IN PART -- applied as corrected",
+  "DEF-0161-4": "CONFIRMED -- applied",
+  "DEF-0161-5": "CONFIRMED -- applied to scoreboard_model",
+  "DEF-0161-6": "CONFIRMED EXHAUSTIVELY -- decode relaxation NOT applied (needs new field names)",
+  "DEF-0161-7": "CONFIRMED -- applied",
+  "DEF-0160-1": "CONFIRMED -- applied (bit map documented; field not split, no name budget)",
+  "DEF-0160-2": "CONFIRMED -- applied (3-cycle rename)",
+  "DEF-0160-3": "CONFIRMED and sharpened -- applied",
+  "DEF-0160-4": "CONFIRMED -- field applied; length change measured (IMPROVES) but left to the length-rule owner",
+  "DEF-0160-5": "CONFIRMED -- methodological, no db.json field change",
+  "DEF-0160-6": "CONFIRMED -- applied (srcB <-> srcC_lo swap)",
+  "DEF-0160-7": "CONFIRMED -- applied",
+  "EXP-0157 sfu_marker.fields": "APPLIED -- two fields added, zero decode delta",
+  "EXP-0157 op04_len8.length": "MEASURED, NOT APPLIED -- regresses the corpus gate (833->823 clean, +1964 leftover)",
+  "EXP-0157 mesh_out_src.length": "RECORDED, NOT APPLIED -- belongs with the op04 rework"
+ },
+ "new_finding": "isadb.py's R9 trailing-word closure mis-lengths 16 legal carry_gen srcA values; the guard was measured and REGRESSES the corpus gate, so it is recorded in db.json length_rule_gaps and not applied",
+ "verdicts_for_merge": "analysis/field_verdicts.json -- 27 entries, merge_verdicts.py --dry-run applies 27 / skips 0",
+ "files": {
+  "PROGRESS.md": {
+   "sha256": "c12e6c7615ea68d73fcf61ceb348ff71b1f6a63183b32ce5c81a70994892191b",
+   "bytes": 9806
+  },
+  "README.md": {
+   "sha256": "d3a85b60c411e7e3e9896eb2d98b7c6016231193e88c4dd02bbbf9aefe2f98bc",
+   "bytes": 6076
+  },
+  "RESULTS.md": {
+   "sha256": "80d7d3914d636e366c8f0d17107bb5e9ff61df7030a6243aff4bec792d77a5c2",
+   "bytes": 24214
+  },
+  "analysis/ab_gate.py": {
+   "sha256": "b2882359dc9fea88c660868379ababedf3a86bcb324bf2e827cc4c1b17166b88",
+   "bytes": 3596
+  },
+  "analysis/ab_metrics.json": {
+   "sha256": "2270eb3ae767d498f8078191354dbf4750ac53abb9cec5a16acd9200e70abe69",
+   "bytes": 207
+  },
+  "analysis/apply_defects.py": {
+   "sha256": "f3e55169dc0a9cf91003c506f1400c6a4cb79bebf2cead341914296f6ff2f83d",
+   "bytes": 29952
+  },
+  "analysis/apply_defects2.py": {
+   "sha256": "734ca679fe5c383afe85b83fa2c51845d9ebdd5c6eda368b698dfca4ca554ada",
+   "bytes": 23012
+  },
+  "analysis/def1_summary.py": {
+   "sha256": "f6baf3d5ff16cb3383dd79d06fd9911eb38e3efcb6eabb2c33fee2f627f35837",
+   "bytes": 3024
+  },
+  "analysis/field_verdicts.json": {
+   "sha256": "217e8c451f105b3be5c7755d7ca9fd5fe018318adb15c9d10d68e0fe6b023cc5",
+   "bytes": 22506
+  },
+  "analysis/functional_check.py": {
+   "sha256": "fd4760ed9f0950523377a9976c64dec26005b60940d606fa091c9e04181bb58a",
+   "bytes": 4473
+  },
+  "analysis/make_verdicts.py": {
+   "sha256": "ac826bbd0856e868e31f5f8e30fa9047feccb5ec97fa63cbfb9e716e10589bb6",
+   "bytes": 26389
+  },
+  "analysis/rederive_0160_misc.py": {
+   "sha256": "10b462b28e87113ce43de00f0b1500b535a55de90265a14c11f54baec079aef0",
+   "bytes": 7470
+  },
+  "analysis/rederive_def1_fspecial.py": {
+   "sha256": "bb5f4ae98af2614e8999ee81abe2b8063b216f140135f0aed62c685bf0e9c622",
+   "bytes": 4336
+  },
+  "analysis/rederive_def2_zext.py": {
+   "sha256": "40d531672e623c491ab61391295850ed809f507a9a7cd449ba0efb40a2250d61",
+   "bytes": 7619
+  },
+  "analysis/rederive_def3_fnclass.py": {
+   "sha256": "b690b07f305bd80f6b97d13be336e16478a6ea6e2280e81ca03f1ff87108f547",
+   "bytes": 5211
+  },
+  "analysis/rederive_def4_roundmode.py": {
+   "sha256": "3a8bf93a98eeb3fc57b79816f4b37c8c0bd8e77f31aacd729cc8526a6883a093",
+   "bytes": 2898
+  },
+  "analysis/rederive_def67_carry.py": {
+   "sha256": "830075af59208e437ba40ec2f5058334f55ad5f819b6f1129f1c72fbdba324ef",
+   "bytes": 5142
+  },
+  "analysis/rederive_gen03.py": {
+   "sha256": "ba959c0c85b4eaa9a251faba477f9f9ed4c9f4981caaee79f2e096a74106b136",
+   "bytes": 2789
+  },
+  "analysis/rederive_imad.py": {
+   "sha256": "2013fd6dbc8f35581fdb40c929f9e910241a6367f351dba4b26140f2977e7901",
+   "bytes": 5839
+  },
+  "analysis/revert_sfu_marker_fields.py": {
+   "sha256": "163a3165347ca748e07a649fd3248579976ca509034dcfdf5c16b262221ac583",
+   "bytes": 1607
+  },
+  "work/PROBES.md": {
+   "sha256": "9e6899e71b80e48fe808887cd5837928108c4ed118a478b9fc6756199c6eafcc",
+   "bytes": 2560
+  },
+  "work/def1_dump.json": {
+   "sha256": "f8360add8fb76f35076ad8a3012cc595be967f576f6a0f6beb4f99e6af5cee46",
+   "bytes": 104999
+  },
+  "work/def1_summary.json": {
+   "sha256": "63097e656439f798840a99a85400a9d7a5feec1cd5c3cf712624ebf18cef187b",
+   "bytes": 7187
+  },
+  "work/def2_dump.json": {
+   "sha256": "7251abceed00ff568e0d70572a8701acc69146dc0e2389420b6e96e2e87a160f",
+   "bytes": 9872
+  },
+  "work/def3_summary.json": {
+   "sha256": "bbdea1e574d9a7292b6ce754112a8cd43e3b54551596451cf05d727986dc1eb5",
+   "bytes": 4775
+  },
+  "work/def4_summary.json": {
+   "sha256": "7340bd5a81c46fe41e9cb5358d780d6d709bb554c92ecb5afb804fc7b809c1e9",
+   "bytes": 785
+  },
+  "work/def67_summary.json": {
+   "sha256": "6719ba883915a96b422c3d5da90f928e3774e874aa0242e029345359895b07f0",
+   "bytes": 18798
+  },
+  "work/imad_1d.txt": {
+   "sha256": "b523d50946dfe9615a2e82a367fdf2411cb072a33acc7e07a6030fab4e70d119",
+   "bytes": 633
+  },
+  "work/imad_summary.json": {
+   "sha256": "535b130adccc437018cbfd424515c69b579d77d590e201398237fdf174b58a3c",
+   "bytes": 7050
+  },
+  "work/iminmax_confirm.txt": {
+   "sha256": "5320e9c166df1fc00c6543c673ef9ea34a44be0e53212f5c1c6f2752239acea1",
+   "bytes": 680
+  },
+  "work/misc0160.json": {
+   "sha256": "82ea4cac1d6dd85e372ced9e5d0f2c307f7c09aed9a5f2c8a707009e90c4dc0c",
+   "bytes": 10113
+  },
+  "work/validate_after.err": {
+   "sha256": "f9987f04f4df89f2e517758bf70b26540dbbc97ba5cba42e2a8f9c870d83fcd1",
+   "bytes": 227
+  },
+  "work/validate_after.txt": {
+   "sha256": "7b14db0b191aca0d7c6c20bcb4d6f9a006f189cdb7fe769546a7a1de19079269",
+   "bytes": 1830
+  },
+  "work/validate_before.txt": {
+   "sha256": "7b14db0b191aca0d7c6c20bcb4d6f9a006f189cdb7fe769546a7a1de19079269",
+   "bytes": 1830
+  },
+  "work/validate_cand2.err": {
+   "sha256": "2b60a1866790c9e7bfb4182ba2fcf18e71ac3bbdf9f3b63ea31e95329319ee41",
+   "bytes": 388
+  },
+  "work/validate_final.err": {
+   "sha256": "2b60a1866790c9e7bfb4182ba2fcf18e71ac3bbdf9f3b63ea31e95329319ee41",
+   "bytes": 388
+  }
+ },
+ "note_on_reapplying": "analysis/apply_defects.py and apply_defects2.py are guarded by assertions on the values they replace, so re-running them against the ALREADY-PATCHED db.json aborts by design. Run them against a pristine db.json (git show <pre-edit rev>:tools/agx-isa/db.json)."
+}
