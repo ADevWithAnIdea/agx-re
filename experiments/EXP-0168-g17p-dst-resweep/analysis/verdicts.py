@@ -72,6 +72,73 @@ def load(rundir):
     return recs
 
 
+POISON = 0xDEADBEEF
+EXPECTED_PRE = 0x5A5A5A5A & 0x7F          # 90
+
+
+def recorrect_terminating(recs):
+    """RE-DERIVE `validity`/`outcome` for the STOP/midprogram arm from each
+    record's OWN preserved observation, uniformly across every run.
+
+    WHY THIS EXISTS. That arm places the stop under test BEFORE the register
+    dump, so if the stop does its documented job the dump never runs, the
+    register window stays 0xDEADBEEF and the POST sentinel is never
+    materialized. **That absence IS the measurement.** The generic
+    run-integrity rule scores it as corruption, and it did: in gated run02,
+    835 of 836 STOP/midprogram cases were written `invalid_sentinel` /
+    `undecodable`, which excluded them from every count and reduced
+    `stop.reserved`, `stop.b1`, `stop.b2` and `stop.b3` to ONE carrier each --
+    silently gutting the only carrier in which a program-end token's field can
+    express what it controls. Two of my own rules were in direct conflict and
+    the integrity one won without saying so.
+
+    `harness/sweeprun.py::validity_of(terminating=True)` now records this
+    correctly at the point of measurement. This function applies the SAME rule
+    to runs already on disk, so run02, run03 and any later run are scored
+    identically rather than one of them being re-run under a different rule.
+    Nothing in `raw/` is edited -- raw is append-only evidence; the correction
+    is computed here, from fields the raw already carries
+    (`observed.pre`, `observed.post`, `observed.regs`, `observed.tail_ok`),
+    and every corrected record is counted and reported.
+
+    The rule, which is a discriminator and not a waiver -- PRE is written to
+    MEMORY BEFORE the stop under test, so a correct dispatch must always show it:
+        tail written                              -> invalid_sentinel
+        PRE absent                                -> invalid_sentinel
+        PRE present, POST poison, window poison   -> valid, outcome `ok`
+                                                     (the stop TERMINATED)
+        PRE present, dump present                 -> valid, outcome
+                                                     `wrong_value`
+                                                     (it did NOT terminate)
+    """
+    n = 0
+    for r in recs:
+        if r.get("arm") != "STOP/midprogram":
+            continue
+        if not r.get("attempts"):
+            continue
+        atts = r.get("attempts") or [{}]
+        if (atts[-1].get("status") or "OK") != "OK":
+            continue                       # a genuine fault/hang IS a result
+        o = r.get("observed") or {}
+        if "pre" not in o or "post" not in o or not o.get("regs"):
+            continue
+        old_v, old_o = r.get("validity"), r.get("outcome")
+        if not o.get("tail_ok", True):
+            v, oc = "invalid_sentinel", old_o
+        elif o["pre"] != EXPECTED_PRE:
+            v, oc = "invalid_sentinel", old_o
+        elif o["post"] == POISON and all(x == POISON for x in o["regs"]):
+            v, oc = "valid", "ok"
+        else:
+            v, oc = "valid", "wrong_value"
+        if (v, oc) != (old_v, old_o):
+            r["validity"], r["outcome"] = v, oc
+            r["_recorrected"] = {"from": [old_v, old_o], "rule": "terminating"}
+            n += 1
+    return n
+
+
 def is_placeholder(r):
     """Never dispatched. Excluded from every count."""
     if r.get("role") == "arm_not_run":
@@ -99,6 +166,11 @@ def analyse(runs):
         if not recs:
             print("  (no records in %s)" % rd)
             continue
+        nfix = recorrect_terminating(recs)
+        if nfix:
+            print("  %s: re-derived validity/outcome on %d STOP/midprogram "
+                  "records (terminating rule; raw untouched)"
+                  % (Path(rd).name, nfix))
         per_run[Path(rd).name] = recs
 
     # ---- ladders and falsifiers, per arm, per run --------------------------
@@ -196,6 +268,13 @@ def analyse(runs):
                      "cross_run_agreement_pct": ORCH_AGREE_PCT,
                      "movement_over_disagreement": ORCH_MOVE_OVER_DISAGREE}},
         "schema": "FIELD-SWEEP-PROTOCOL section 5, flat <mnemonic>.<field>",
+        "corrections_applied": [
+            "STOP/midprogram validity/outcome re-derived from each record's own "
+            "observed.{pre,post,regs,tail_ok} -- on that carrier the ABSENCE of "
+            "the POST sentinel is the measurement (the stop terminated before "
+            "the dump), and the generic run-integrity rule scored it as "
+            "corruption, discarding 835 of 836 cases in run02. raw/ is NOT "
+            "edited; the rule is applied identically to every run."],
         "note": "skip placeholders are EXCLUDED from every count; a field that "
                 "is inert everywhere is labelled `proven-dont-care`, not "
                 "`hardware-run`, and is reported with its ladder numbers",

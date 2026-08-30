@@ -16,33 +16,33 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 524,
-   "isolated-byte-diff": 92,
+   "hardware-run": 507,
+   "isolated-byte-diff": 81,
    "corpus-correlation": 91,
-   "tokenization-only": 151,
+   "tokenization-only": 150,
    "single-template-inference": 19,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 185
+   "untested": 214
   },
   "by_label_pct": {
-   "hardware-run": 49.3,
-   "isolated-byte-diff": 8.7,
+   "hardware-run": 47.7,
+   "isolated-byte-diff": 7.6,
    "corpus-correlation": 8.6,
-   "tokenization-only": 14.2,
+   "tokenization-only": 14.1,
    "single-template-inference": 1.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 17.4
+   "untested": 20.2
   },
-  "emittable_instructions": 41,
+  "emittable_instructions": 35,
   "emittable_mnemonics": [
    "bf_add_dst",
+   "bf_alu",
    "carry_gen",
    "cvt_bf16",
    "cvt_f2h_dst",
    "cvt_i2f",
-   "falu2",
    "falu3",
    "falu3_ext",
    "frag_depth_store",
@@ -50,7 +50,6 @@
    "fspecial",
    "h_coord_hi",
    "h_coord_hi_ext",
-   "half_alu",
    "hminmax",
    "iminmax",
    "isel10",
@@ -63,11 +62,6 @@
    "pixel_order",
    "pop_reconverge",
    "psel",
-   "reg_move_c0",
-   "reg_move_c1",
-   "reg_move_c2var",
-   "reg_move_c9",
-   "reg_move_cb",
    "ret_luse",
    "rtq_state_move",
    "sel",
@@ -79,7 +73,7 @@
    "tex_addr_setup",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 131,
+  "decodable_not_yet_emittable": 137,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -90,7 +84,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 41
+  "emittable_of_emitter_relevant": 35
  },
  "instructions": {
   "falu2": {
@@ -106,166 +100,214 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "r0..r13 of the 16 encodable nibble values, dense, including physical-register REUSE (44/100 generated DAGs required it; up to 13 simultaneously live)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0112",
-     "EXP-0090"
-    ]
+     "EXP-0169"
+    ],
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "srcA_size": {
-    "label": "isolated-byte-diff",
-    "range": "0,1",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006"
+     "EXP-0169"
     ],
-    "note": "16-bit reads the LOW halfword of the 32-bit register (HW-confirmed)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 8,
+    "width": 1
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "0..63 dense (15-point sweep with poison-register controls); 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
-    "target": "M4",
+    "range": "0..63 dense (all 64 values), 64 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0112",
-     "EXP-0099",
-     "EXP-0105",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 64,
+    "distinct_bytes": 64,
+    "encodable_range": 64,
+    "start": 9,
+    "width": 6
    },
    "opsel": {
     "label": "hardware-run",
-    "range": "3-bit field swept via a 256-value byte+2 sweep: 4=fadd and 5=fmul validated on all 8 don't-care combinations; 0b111 -> contained GPU hang",
-    "target": "A18",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0005",
-     "EXP-0006"
+     "EXP-0169"
     ],
-    "note": "Instruction bit 17 is part of THIS field, not a free cache bit (EXP-0086 splice)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "each of bits 19..23 individually at {0,1}: 19=release srcA, 20=release srcB, 21=destination publication, 22/23=silent corrupt-to-zero",
-    "target": "M4",
+    "range": "0..31 dense (all 32 values), 32 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0086",
-     "EXP-0089",
-     "EXP-0099",
-     "EXP-0105",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "DISAGREEMENT, UNRESOLVED: EXP-0090 finding_1 established that a both-real falu2 REQUIRES opflags=3 (bit0+bit1) and that opflags=1 is a SILENT ZERO of the srcB read, falsified over 4 independent kernels. EXP-0112 then swept all 4 raw values in TWO shapes - including a byte-for-byte re-creation of EXP-0090's own falsifying construction - on a DIFFERENT carrier file and got the correct sum in all 8 runs, i.e. opflags had NO observable effect there. The release contract itself is separately established under two-run gates by EXP-0086/0089/0099/0119 across six families; the carrier dependence is not root-caused. Safe policy: emit opflags=3 for a both-real falu2 (correct under BOTH observations)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 19,
+    "width": 5
    },
    "srcB_size": {
-    "label": "isolated-byte-diff",
-    "range": "0,1",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 24,
+    "width": 1
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "0..63 dense; 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
-    "target": "M4",
+    "range": "0..63 dense (all 64 values), 320 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0112",
-     "EXP-0099",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 64,
+    "distinct_bytes": 320,
+    "encodable_range": 64,
+    "start": 25,
+    "width": 6
    },
    "ctrl": {
     "label": "hardware-run",
-    "range": "all 7 bits individually at {0,1}: bits0/1 are the 0x09-group instruction-LENGTH selector (and therefore corrupt when flipped in place), bits2/3/4 inert, bits5/6 silent corruptors",
-    "target": "M4",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0105",
-     "EXP-0113",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "EXP-0105 reported bits0/1 as 'general corruptors'; EXP-0119 identified them as the length selector. Compatible, but the length reading is the load-bearing one."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 32,
+    "width": 7
    },
    "srcB_imm": {
-    "label": "isolated-byte-diff",
-    "range": "0,1",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006",
-     "EXP-0020",
-     "RT-1a-FIX"
+     "EXP-0169"
     ],
-    "note": "bit39=1 switches srcB to the minifloat immediate (falu2i) or, when bit15=0, to a uniform-register source (falu2_uni)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 39,
+    "width": 1
    },
    "srcB_neg": {
-    "label": "isolated-byte-diff",
-    "range": "0,1 (byte+5 0xc0 -> 0xc8 on a real add: 5+3 becomes 5-3)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-10"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 43,
+    "width": 1
    },
    "mod_hi": {
     "label": "hardware-run",
-    "range": "bit44 at {0,1} (silent corrupt-to-zero, crossed against reg field 3 and 67); bits45-47 at all 8 values (no observable effect)",
-    "target": "M4",
+    "range": "0..15 dense (all 16 values), 32 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0105",
-     "EXP-0099"
+     "EXP-0169"
     ],
-    "note": "EXP-0099 H4 REFUTED the 'consumer route' hypothesis for bits45-47."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 16,
+    "distinct_bytes": 32,
+    "encodable_range": 16,
+    "start": 44,
+    "width": 4
    },
    "srcA_reg_top": {
     "label": "hardware-run",
-    "range": "{0,1} crossed against reg-field values {3,67} and against opflags bit19 in {0,1}; reproduced in falu2i, falu2_ext (both slots), falu3_srcmod12 (both slots) and under 15-deep register pressure",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 6 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0099",
-     "EXP-0105",
-     "EXP-0113",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 6,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "srcB_reg_top": {
     "label": "hardware-run",
-    "range": "{0,1} crossed against reg-field values {3,67} and against opflags bit20 in {0,1}",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 6 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0099",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 6,
+    "encodable_range": 2,
+    "start": 31,
+    "width": 1
    },
    "srcA_class": {
     "label": "hardware-run",
-    "range": "the field is 1 bit(s) wide, so its full encodable range is 2 values, and both were executed; EXP-0170 re-scored it over 64 common CASES at 100.0% per-value cross-run agreement (runs m4_20260828_run01 vs m4_20260828_run05)",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "RESTORED by orchestrator 2026-08-30 after EXP-0170. EXP-0164 withdrew this field on a pairing against EXP-0138's run02, which EXP-0138's own README disowns -- killed by a machine-wide MTLCompilerService collapse and replaced by run06. Scored against an eligible partner the field reaches 100.00% agreement on 64 common cases and passes the UNCHANGED EXP-0164 gate; no placeholder records are involved. Not superseded by any sweep in flight.",
+    "note": "moved on 2 of 2 ladder-passing carriers",
     "values_dispatched": 2,
+    "distinct_bytes": 2,
     "encodable_range": 2,
     "start": 40,
-    "width": 1,
-    "distinct_bytes": null
+    "width": 1
    },
    "srcB_class": {
     "label": "hardware-run",
-    "range": "the field is 2 bit(s) wide, so its full encodable range is 4 values, and both were executed; EXP-0170 re-scored it over 64 common CASES at 100.0% per-value cross-run agreement (runs m4_20260828_run01 vs m4_20260828_run05)",
-    "target": "M4",
+    "range": "0..3 dense (all 4 values), 4 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "RESTORED by orchestrator 2026-08-30 after EXP-0170. EXP-0164 withdrew this field on a pairing against EXP-0138's run02, which EXP-0138's own README disowns -- killed by a machine-wide MTLCompilerService collapse and replaced by run06. Scored against an eligible partner the field reaches 100.00% agreement on 64 common cases and passes the UNCHANGED EXP-0164 gate; no placeholder records are involved. Not superseded by any sweep in flight.",
+    "note": "moved on 2 of 2 ladder-passing carriers",
     "values_dispatched": 4,
+    "distinct_bytes": 4,
     "encodable_range": 4,
     "start": 41,
-    "width": 2,
-    "distinct_bytes": null
+    "width": 2
    }
   },
   "falu2i": {
@@ -281,119 +323,172 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "r0..r13 of 16 encodable, dense, with reuse",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0112",
-     "EXP-0090"
-    ]
+     "EXP-0169"
+    ],
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "imm_flag": {
     "label": "untested",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 8,
+    "width": 1
    },
    "imm_mant": {
     "label": "hardware-run",
-    "range": "0..7 exhaustive across the 16 spliced constants and the generated boundary-weighted immediate pool",
-    "target": "M4+A18",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006",
-     "EXP-0090",
-     "EXP-0112"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 9,
+    "width": 3
    },
    "imm_exp": {
     "label": "hardware-run",
-    "range": "8..15 (the valid minifloat domain, values +-{1/32..30} incl. both extremes); exp<8 is NOT an immediate - it is the falu2_uni uniform-source overload",
-    "target": "M4+A18",
+    "range": "0..15 dense (all 16 values), 512 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006",
-     "EXP-0090",
-     "EXP-0112",
-     "RT-1a-FIX"
+     "EXP-0169"
     ],
-    "note": "imm_decode() must be guarded to exp>=8; the unguarded form silently invents a tiny value for what is really a uniform read."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 16,
+    "distinct_bytes": 512,
+    "encodable_range": 16,
+    "start": 12,
+    "width": 4
    },
    "opsel": {
-    "label": "isolated-byte-diff",
-    "range": "4 (fadd) and 5 (fmul) of 8 encodable, both constructed and executed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0090",
-     "EXP-0112"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "imm_sign": {
     "label": "hardware-run",
-    "range": "0,1 (+-30.0 max/min and +-1.0/+-0.5 constructed and executed)",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0090",
-     "EXP-0112"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 19,
+    "width": 1
    },
    "opflags": {
-    "label": "hardware-run",
-    "range": "bit20 at {0,1} (source release, load-bearing); bits21-23 NOT tested in this form",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0119",
-     "EXP-0090",
-     "EXP-0086"
+     "EXP-0169"
     ],
-    "note": "In falu2i, imm_sign occupies bit19, so the single source-release flag sits at bit20 - a DIFFERENT absolute position from falu2's bit19 for the same role."
+    "note": "24 of 32 values disagreed with the HOST-COMPUTED oracle; see reproduction.json",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "srcA_size": {
-    "label": "isolated-byte-diff",
-    "range": "0,1",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0006"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 24,
+    "width": 1
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "0..63 dense; value 67 reads r3 (mod-64 alias); 64..112 alias; 126,127 fault",
-    "target": "M4",
-    "evidence": [
-     "EXP-0105",
-     "EXP-0112"
-    ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
-   },
-   "ctrl_lo": {
-    "label": "hardware-run",
-    "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+    "range": "0..63 dense (all 64 values), 64 distinct encodings, 1 carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0169"
     ],
-    "note": "carrier SYNTH+LIFTED:k_addimm@falu2i[18:24]; outcomes(seed set 1) {'ok': 4, 'wrong_value': 76, 'silent_zero': 48}; anchor value 0x00; P1=True P2=True P3=True model=M1 MASK + M2 CLASS TABLE"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 64,
+    "distinct_bytes": 64,
+    "encodable_range": 64,
+    "start": 25,
+    "width": 6
+   },
+   "ctrl_lo": {
+    "label": "untested",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 1 carriers",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0169"
+    ],
+    "note": "248 of 256 values disagreed with the HOST-COMPUTED oracle; see reproduction.json",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 32,
+    "width": 7
    },
    "mods": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": ""
+    "note": "480 of 512 values disagreed with the HOST-COMPUTED oracle; see reproduction.json",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "srcA_reg_top": {
-    "label": "hardware-run",
-    "range": "{0,1} crossed against reg-field values {3,67}",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0105",
-     "EXP-0119"
+     "EXP-0169"
     ],
-    "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
+    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 31,
+    "width": 1
    }
   },
   "falu2_uni": {
@@ -407,85 +502,130 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "16/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "usrc": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "10/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 5 distinct non-zero results), so an emitter may not generalise"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "opsel": {
-    "label": "untested",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "NOT deterministic across the two gated runs; 2 cases failed the integrity sentinel without a structural explanation"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
-    "label": "untested",
-    "range": "0..31 dense (all 32 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "NOT deterministic across the two gated runs"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 19,
+    "width": 5
    },
    "srcA_size": {
-    "label": "untested",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 24,
+    "width": 1
    },
    "srcA_reg": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "31/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 14 distinct non-zero results), so an emitter may not generalise"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 25,
+    "width": 7
    },
    "ctrl_lo": {
-    "label": "untested",
-    "range": "127 of 128 encodable values",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "NOT deterministic across the two gated runs; 1 cases failed the integrity sentinel without a structural explanation; sweep not dense over the encodable range; 1 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 32,
+    "width": 7
    },
    "uni_mode": {
-    "label": "isolated-byte-diff",
-    "range": "0,1 (toggling makes the operand read the GPR, i.e. 0)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0020",
-     "RT-1a-FIX"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 39,
+    "width": 1
    },
    "mods": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": ""
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    }
   },
   "falu3": {
@@ -2149,34 +2289,60 @@
     ]
    },
    "opsel": {
-    "label": "isolated-byte-diff",
-    "range": "0x1c add vs 0x1d mul (2 of 256), spliced and observed",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-O2D"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "766 of 16777216 encodable values (0.0%), 766 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 766,
+    "distinct_bytes": 766,
+    "encodable_range": 16777216,
+    "start": 40,
+    "width": 24
    }
   },
   "mov_zext16": {
@@ -3135,58 +3301,87 @@
    },
    "form": {
     "label": "untested",
-    "range": "2 values sampled: [0, 1]",
-    "target": "M4",
+    "range": "swept but NOT ruled on here: 0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 3,
+    "width": 1
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "R = 0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; R=112 NONDETERMINISTIC (fault in one run, silent-all-zero in the other, 8 further informal repeats split 5/3)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0092"
+     "EXP-0169"
     ],
-    "note": "This is the ONLY validated write path to r64..r95 anywhere in the repository (EXP-0113). 96 is the hard register-file ceiling."
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "sr_sel": {
-    "label": "hardware-run",
-    "range": "0x00..0xFF EXHAUSTIVE (256 values x 2 runs, zero faults, zero hangs): 0x80-0xFF reaches the special-register file (16 named, ~106 aliasing 0x9c/0x99/0x9a/0x82/0x85, 4 unclassified constants, 2 period-4 structured); 0x00-0x7F is a distinct 'selector materialized as an immediate' region, not an SR read",
-    "target": "M4+A18",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0092",
-     "EXP-0031",
-     "EXP-M4-14"
+     "EXP-0169"
     ],
-    "note": "Two caveats an implementer will hit: (1) 0xa8/0xa9/0xaa is NOT threadgroups_per_grid - a bare get_sr 0xa8 returns threads_per_threadgroup; the builtin is get_sr + a device_load + a divide (RT-7). (2) unclassified 0x80-0xFF values must not be treated as reserved-safe no-ops."
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "dp_width": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "256/256 values reproduced identically across both gated runs"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "dp_marker": {
-    "label": "hardware-run",
-    "range": "0..31 dense (all 32 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "32/32 values reproduced identically across both gated runs"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 24,
+    "width": 5
    },
    "dst_hi": {
-    "label": "hardware-run",
-    "range": "the register EXTENSION half of the same lockstep 0..127 boundary sweep",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0092"
-    ]
+     "EXP-0169"
+    ],
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 29,
+    "width": 3
    }
   },
   "mov_imm": {
@@ -6054,56 +6249,88 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "opsel": {
-    "label": "isolated-byte-diff",
-    "range": "0x1c hadd vs 0x1d hmul (byte+2 low 3 bits), splice-observed",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14",
-     "EXP-0033"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "0..31 dense (all 32 values)",
-    "target": "M4",
+    "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0169"
     ],
-    "note": ""
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 19,
+    "width": 5
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "0x02, 0x04, 0x06, 0x08 swept: only 0x02 reads a; every other value makes srcA read 0 so the result is b alone",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
+     "EXP-0169"
     ],
-    "note": "RETYPES the former 'srcB@byte+3' label - byte+3 is the FIRST, negatable source."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "srcB": {
     "label": "hardware-run",
-    "range": "0x00, 0x02, 0x04, 0x06, 0x08 swept: 0x00/0x04 read b, 0x02/0x06 null the op, 0x08 gives a+const",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "src_modifier": {
     "label": "hardware-run",
-    "range": "byte+5 swept with distinct per-lane inputs: bits6:7 (0xc0) are a required operand-valid base (clearing them yields 0), bit3 (0x08) = srcA-negate (0xc8 -> -a+b), bit0 suppresses srcB, bits1/2 suppress srcA",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0169"
+    ],
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    }
   },
   "ibitcount": {
@@ -6118,76 +6345,115 @@
    },
    "fn_hi": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0169"
     ],
-    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 7,
+    "width": 1
    },
    "form": {
     "label": "hardware-run",
-    "range": "(byte0 bit7, byte+1): (0x27,0x05) popcount, (0xa7,0x05) find_msb -> [3,4,15,30], (0xa7,0x04) reverse_bits",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
+     "EXP-0169"
     ],
-    "note": "CORRECTION: the sub-op selector is (byte0 bit7 + byte+1), NOT byte+4."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "cache": {
-    "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0169"
     ],
-    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 17,
+    "width": 1
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "16 values sampled (boundaries + powers of two + interior)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0169"
     ],
-    "note": "1/16 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 1 values return a silent zero; second independent carrier IBITCOUNT_NAT DIFFERS (untested over 0..255 dense (all 256 values))"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "op_enable": {
     "label": "hardware-run",
-    "range": "byte+4 swept 0x00..0x0a: only bit1 matters - 0x02/0x03/0x06/0x07/0x0a compute, 0x00/0x01/0x04/0x05/0x08/0x09 give 0",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
+     "EXP-0169"
     ],
-    "note": "CORRECTION: byte+4 is an op-ENABLE gate, NOT the sub-op selector. The former 'optype 0x02 popcount vs 0x03 find_msb' label was correlation, not causation."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "src": {
     "label": "hardware-run",
-    "range": "16 values sampled (boundaries + powers of two + interior)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0169"
     ],
-    "note": "1 values return a silent zero; second independent carrier IBITCOUNT_NAT DIFFERS (untested over 0..255 dense (all 256 values))"
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "srcdesc": {
     "label": "hardware-run",
-    "range": "byte+6 swept: 0x00 degenerates the op to identity (raw input returned, popcount NOT applied); bit6 (0x40) must be set for the GPR source to be read (0x3c/0x9c -> 0; 0x5c/0x4e/0x58/0x5e/0x7c/0xdc read normally); EXP-0129 additionally swept the genuinely free bits (22 cases): bit4 is a real BIDIRECTIONAL release control, bit0 and bit3 also break the stored result, all other bits inert",
-    "target": "M4+A18",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14",
-     "EXP-0129"
+     "EXP-0169"
     ],
-    "note": "EXP-0129: bit4 is ibitcount's release control - the analogue of falu2's own mechanism, routed differently. Both falu2 signatures reproduce here: restore-on-rewrite (20.0 -> 28.0 when the register is rewritten before the later read) and distance-invariance (identical at 0, 1 and 4 intervening instructions). Supports ONE underlying release concept per family, not several unrelated mechanisms sharing a bit position."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 48,
+    "width": 8
    },
    "tail": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0169"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 524 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "moved on 1 of 1 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 56,
+    "width": 8
    }
   },
   "irotate": {
@@ -8961,50 +9227,74 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "16/16 dense, verified by reading r_D back and checking a control register"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "src_reg": {
-    "label": "hardware-run",
-    "range": "producer-independent and register-PAIR-quantized at every one of 4 tested pairs; src_reg is ALWAYS 0 in all 1545 corpus instances",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0101",
-     "EXP-0113"
+     "EXP-0169"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 8,
+    "width": 7
    },
    "src_flag": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "src_class": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "op_desc": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "see analysis/field_masks.json"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "reg_move_c1": {
@@ -9021,50 +9311,74 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "16/16 dense, verified by reading r_D back and checking a control register"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "src_reg": {
-    "label": "hardware-run",
-    "range": "4 src_reg values (0,2,4,8) x 3 buffer-count variants: content was uniformly 0 in all 12 cases, both runs",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0101",
-     "EXP-0113"
+     "EXP-0169"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 8,
+    "width": 7
    },
    "src_flag": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "src_class": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "op_desc": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "see analysis/field_masks.json"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "reg_move_c9": {
@@ -9081,49 +9395,74 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "16/16 dense, verified by reading r_D back and checking a control register"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "src_reg": {
-    "label": "hardware-run",
-    "range": "4 tested register pairs, both runs: X and X^1 read identical content, producer-independent",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0113"
+     "EXP-0169"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 8,
+    "width": 7
    },
    "src_flag": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "src_class": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "op_desc": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "see analysis/field_masks.json"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "reg_move_cb": {
@@ -9140,40 +9479,60 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "16/16 dense, verified by reading r_D back and checking a control register"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "src": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "form": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "b3": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "see analysis/field_masks.json"
+    "note": "moved on 2 of 2 ladder-passing carriers",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "b_alu14_c83": {
@@ -11078,49 +11437,74 @@
     ]
    },
    "dst": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "16/16 dense, verified by reading r_D back and checking a control register"
+    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "src_reg": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..127 dense (all 128 values), 128 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 8,
+    "width": 7
    },
    "src_flag": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "subform": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 16,
+    "width": 4
    },
    "op_desc": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0169"
     ],
-    "note": "see analysis/field_masks.json"
+    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "bf_alu8_var": {

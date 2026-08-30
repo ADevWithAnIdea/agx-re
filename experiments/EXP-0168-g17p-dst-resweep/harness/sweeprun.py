@@ -260,24 +260,61 @@ def digest_hex(d):
             + "%08x%08x%08x" % (d["pre"], d["post"], d["probe"]))
 
 
-def validity_of(status, err, d, expect_probe=False):
+def validity_of(status, err, d, expect_probe=False, terminating=False):
     """Run integrity, kept strictly separate from the FIELD-SWEEP-PROTOCOL
-    `outcome` enum. See the module docstring, point 2."""
+    `outcome` enum. See the module docstring, point 2.
+
+    `terminating=True` is the STOP/midprogram arm, where THE ABSENCE OF THE
+    POST SENTINEL IS THE RESULT, not corruption. That arm places the stop under
+    test BEFORE the register dump, so if the stop does its documented job the
+    dump never runs, the register window stays poison, and POST is never
+    materialized. The default rule scores exactly that as `invalid_poison` /
+    `invalid_sentinel` -- and it did: in gated run02, 835 of 836 STOP/midprogram
+    cases were discarded as invalid, which reduced `stop.reserved`, `stop.b1`,
+    `stop.b2` and `stop.b3` to ONE carrier each and made the arm that is the
+    only carrier able to express what a program-end token controls contribute
+    nothing. Two of my own rules were in direct conflict and the run-integrity
+    one silently won.
+
+    What still makes a terminating case INVALID, and it is a real discriminator
+    rather than a waiver: the PRE sentinel is written to MEMORY BEFORE the stop
+    under test, so a correct dispatch must ALWAYS show it. So
+        PRE present, POST absent, window poison -> the stop TERMINATED  (valid)
+        PRE present, POST present, dump present -> it did NOT terminate  (valid)
+        PRE absent                              -> the program never got that
+                                                   far (genuinely invalid)
+        tail region written                     -> out-of-bounds  (invalid)
+    """
     if is_victim(err):
         return "invalid_victim"
     if status != "OK":
         return "valid"          # a genuine fault/hang IS a measurement
     if d is None:
         return "invalid_nodata"
+    if not d["tail_ok"]:
+        return "invalid_sentinel"
+    if terminating:
+        # PRE is the only sentinel that must survive a correct termination.
+        return "valid" if d["pre"] == H.expected_pre() else "invalid_sentinel"
     if d["all_poison"]:
         return "invalid_poison"
     if d["pre"] != H.expected_pre():
         return "invalid_sentinel"
     if d["post"] != H.SENT_POST:
         return "invalid_sentinel"
-    if not d["tail_ok"]:
-        return "invalid_sentinel"
     return "valid"
+
+
+def terminated(d):
+    """Did the stop under test terminate the program before the dump?
+
+    True  == the register window is still poison and POST was never written.
+    False == the dump ran, so the stop did not terminate.
+    Only meaningful on the STOP/midprogram carrier.
+    """
+    if d is None or "post" not in d:
+        return None
+    return d["post"] == H.POISON and all(r == H.POISON for r in d["regs"])
 
 
 def moved_slots(obs, base):

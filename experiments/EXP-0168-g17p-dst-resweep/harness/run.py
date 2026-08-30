@@ -359,7 +359,8 @@ def main():
         if d is None:
             return "invalid_nodata"
         if case["style"] == "S":
-            return S.validity_of(status, err, d)
+            return S.validity_of(status, err, d,
+                                 terminating=(case["arm"] == "STOP/midprogram"))
         return "invalid_poison" if d["all_poison"] else "valid"
 
     def observe(case, car, want_valid=True):

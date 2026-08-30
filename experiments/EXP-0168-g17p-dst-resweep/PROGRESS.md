@@ -667,3 +667,161 @@ family `itr`, deliberately bounded:
 
 `work/render_build/mocktest.py`: **MOCK TEST PASS** with the new family and
 carrier in place. `work/gfrun3` built on the target (75,960 B).
+
+## 2026-08-30 — M12: run02 COMPLETE (10,366 cases, ZERO hangs) and the render
+##                  census exposed a fourth by-construction defect, this one
+##                  fatal to the whole iter_at arm
+### run02 — first gated run, G17P
+```
+DONE 10366  hang: 0   stopped_fields: 0
+ok 3229 · wrong_value 5144 · undecodable 836 · fault 664 · silent_zero 491
+invalid 849 (re-run, NOT counted) · victim 83 · baseline_fail 10
+```
+`00_env.json` reads the identity from the LIVE device: `Apple A18 Pro`,
+`Mac17,5`, 5 cores, macOS 26.6 (25G5043d), `matrix_sha256 90f79d21…`,
+`db_sha256 07ad894d…`. Nothing is taken from a literal.
+**Zero hangs across 10,366 spliced cases, and no field hit its stop budget** — so
+unlike EXP-0144 and EXP-0155 there are **no skip placeholders in this run at
+all**, which is what made those two experiments' verdicts unscoreable.
+Ten `baseline_fail` events, all on `STOP/midprogram` (n=8100/8400/8700, …); the
+driver restarted the persistent child each time, which is the designed response.
+That arm deliberately runs programs that may not terminate, so it is the arm
+where a drifting baseline is expected — recorded, and it is why the baseline
+revalidation exists.
+run02 pulled back in full (16.5 MB `sweep.jsonl`, plus `baseline.jsonl` and
+`gpuwatch.jsonl`). **run03 launched with `--order reverse`.**
+
+### DEFECT 4 — `NEEDED` was a HAND-MAINTAINED LIST, and it silently voided the
+### entire `iter_at` arm by turning a lookup omission into a hardware claim
+`renderrun.NEEDED` hardcoded
+`{"vertex": [vtx_out_pos, vary_store], "fragment": [pixel_order, frag_color_pack]}`.
+Adding `iter_at` to `TARGETS` therefore changed nothing: the census never looked
+for it, `--mode freeze` would have skipped every iter_at arm with *"no occurrence
+in this carrier — a STRUCTURAL RESULT about when the instruction is emitted, not
+a failure"*, and that sentence is **false and load-bearing**. The instruction was
+there all along: tokenizing the census's own recorded fragment hex with the
+frozen `isadb` shows `iter_at@8` in both carriers. A hand-maintained lookup list
+converting an omission into a structural claim about the hardware is precisely
+the class of error this experiment exists to find, and this is the fourth one it
+has found in its own harness. `NEEDED` is now **derived** from `TARGETS`,
+`LADDERS` and `FALSIFIERS`, so adding a target cannot silently fail to be
+censused.
+
+### And the census corrected my carrier before it could produce a wrong answer
+`r_i8`/`r_i8s` first pointed at `r_v8.metal` (default centre-perspective
+interpolation). The census found **no `iter_at` at all** in that fragment
+program: plain smooth interpolation lowers to the location-implicit form, and
+`iter_at` — "interpolate AT a location" — is what the compiler emits when the
+location is EXPLICIT. That is why EXP-0155's carrier was named `c_cent1`.
+`kernels/r_icent.metal` is `r_v8` with `[[centroid_perspective]]` on all eight
+varyings, on **both** members of the pair, so the two carriers still differ in
+exactly one dimension (`rasterSampleCount`) — using `sample_perspective` for the
+4x member would have confounded the qualifier with the sample count and
+reproduced EXP-0155's own mistake in a new place. After the fix:
+`f/iter_at=1` in `r_i8`, `r_i8s`, `r_rog2`, `r_rog8`, `r_rogx`.
+
+### Frozen render arm table: 19 arms, and every target has >= 2 DISTINCT dims
+| mnemonic | distinct carrier dimensions |
+|---|---|
+| `vtx_out_pos` | 3 — single-varying CONTROL · 8 scalar FLAT · **MIXED-WIDTH** |
+| `pixel_order` | 3 — commutative RMW · non-commutative affine RMW · two resources |
+| `frag_color_pack` | 3 — immediate-source (EXP-0155 replica) · 4x MSAA · 4 RTs register-source |
+| `iter_at` | 2 — centroid fetch at **samples=1 vs samples=4** |
+That is the R2 bar met by measurement rather than by counting arms: EXP-0155's
+"2 carriers" for `frag_color_pack.dst` were two occurrences in one program, and
+its two `iter_at` carriers were both samples=1.
+
+### Two STRUCTURAL results that fall out of the census for free
+1. **`vtx_out_pos` is emitted only by the vertex carriers that do NOT write a
+   device buffer.** It is present in `r_v1`, `r_v8f`, `r_vmix` (no `out_buf`) and
+   **absent** from `r_v8`, `r_v4v`, `r_vsrc` (all three bind `--out-buf` to the
+   vertex stage). So the "second, independent observation path" those carriers
+   were built for is **not available for this instruction** — when the vertex
+   stage also writes a device buffer, the position output is lowered some other
+   way. Recorded as a limit on the arm rather than quietly enjoyed.
+2. **`frag_color_pack` is emitted only for the 8-bit unorm attachments.** Absent
+   from `r_fcpf` (RGBA32Float) and `r_fcph` (16-bit float), present in `r_fcp1`,
+   `r_fcp1s`, `r_fcp4`. The pack step exists because the conversion does.
+
+## 2026-08-30 — M13: DEFECT 5, and it was silently gutting four fields —
+##                  "the sentinel is missing" WAS the measurement
+`analysis/verdicts.py` on run02 alone showed `stop.reserved`, `stop.b1`,
+`stop.b2`, `stop.b3` at **carriers=1** when both STOP arms sweep all four. The
+raw says why: of 836 `STOP/midprogram` records, **835 were written
+`invalid_sentinel` / `undecodable` and excluded from every count.**
+
+The cause is a head-on collision between two of my own rules, in which the
+run-integrity one won without announcing itself:
+- `STOP/midprogram` places the stop under test **before** the register dump, so
+  when the stop does its documented job the dump never runs, the register window
+  stays `0xDEADBEEF` and POST is never materialized. **That absence is the
+  result** — it is the entire reason the arm exists, and `synth_program_midstop`
+  says so in its docstring.
+- `validity_of()` says a read-back that is entirely poison, or whose POST
+  sentinel is missing, is corrupt and must be re-run.
+
+So the only carrier in which a program-end token's field can express what it
+controls contributed **nothing**, and `stop.*` was quietly reduced to the
+terminal carrier alone — which is blind to termination by construction. Had I
+not cross-checked the carrier count against the arm table, this would have been
+reported as "one carrier, insufficient" and read as a fact about the hardware.
+
+**The fix is a discriminator, not a waiver.** The PRE sentinel is written to
+MEMORY BEFORE the stop under test, so a correct dispatch must ALWAYS show it:
+```
+tail region written                     -> invalid_sentinel  (out of bounds)
+PRE absent                              -> invalid_sentinel  (never got there)
+PRE present, POST poison, window poison -> VALID, outcome `ok`
+                                           -- the stop TERMINATED
+PRE present, dump present                -> VALID, outcome `wrong_value`
+                                           -- it did NOT terminate
+```
+Applied in two places on purpose:
+1. `harness/sweeprun.py::validity_of(terminating=True)`, routed from
+   `run.py`, so future runs record it correctly at the point of measurement;
+2. `analysis/verdicts.py::recorrect_terminating()`, which applies the SAME rule
+   to runs already on disk from each record's own preserved
+   `observed.{pre,post,regs,tail_ok}`. **`raw/` is not edited** — it is
+   append-only evidence — and the correction is reported per run
+   ("re-derived ... on 836 records") and recorded in `_meta.corrections_applied`.
+   run02, run03 and any later run are therefore scored by one identical rule
+   rather than one of them being re-run under a different one.
+After the correction `stop.*` reads **carriers=2**.
+
+### First movement numbers, run02 alone (no cross-run pair yet, so every row is
+### correctly `still-underpowered` at this point)
+| field | moved | carriers |
+|---|---|---|
+| `mov_imm.byte1` | 767 | 2 |
+| `uniform_mov.form_b2` | 232 | 1 |
+| `cvt_f2h.op` | 221 | 2 |
+| **`uniform_mov.dst`** | **214** | **3** |
+| `uniform_mov.opdesc_b3` | 208 | 1 |
+| `cvt_f2i.dst` | 190 · `pack_convert.b7` 190 · `unpack_convert.dst` 188 | 2–3 |
+| `falu2.dst` / `falu2i.dst` / `get_sr.dst` | 15 each | 1 |
+| `get_sr.dst_hi` 8 · `falu_acc.cache` 28 · `shift_amt_move.src_flag` 22 · `atomic_mem.addr_desc_hi` 15 · `mov_imm.imm_top` 5 | | |
+| `if_push.scope` | **0** across **4** carriers | 4 |
+| `cvt_f2i.b9` / `get_sr.form` / `stop.*` | **0** | 2 / 1 / 2 |
+
+**`uniform_mov.dst` moved 214 times.** EXP-0164's withheld row for it reads
+"16 values dispatched, 0 observations moved". The difference is not more data —
+it is an oracle that does not co-vary with the field.
+
+## 2026-08-30 — M14: render smoke STOPPED early, deliberately, and the reason is
+##                  itself a measurement
+Ran the render smoke alongside gated run03 on the orchestrator's "sweeps run
+unlocked" ruling. After 468 cases on 2 of 19 arms it had produced **3 hangs** on
+the `frag_color_pack@r_fcp1` arms, and run03's **victim count rose from run02's
+83 to 119** over the same window. run03 itself stayed clean (0 hangs, victims
+re-run and recovered), but a hang can kill a sibling's in-flight command buffers
+and run03 is the primary deliverable, so the render smoke was **killed** and the
+render arm deferred until the compute runs finish.
+
+Recorded as a concrete number for FIELD-SWEEP-PROTOCOL §7: **running two of this
+repo's own sweeps concurrently on one G17P cost a 43% rise in victim
+re-dispatches** (83 -> 119) in the arm that was already running. Unlocked sweeps
+are cheap when both arms are hang-free; they are not free when one of them
+splices a known-hazardous field.
+Also noted from the 468 smoke cases, to be settled when the arm runs properly:
+`falsifier_held: 2` — two render falsifiers did NOT fire, the same class of
+defect the compute smoke found in four arms.

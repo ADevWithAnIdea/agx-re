@@ -1,0 +1,2813 @@
+{
+ "_meta": {
+  "coverage_keys": "every row carries values_dispatched / distinct_bytes / encodable_range / start / width / coverage_pct / thin / under_covered. THIN = values_dispatched < encodable_range. UNDER-COVERED = distinct_bytes < values_dispatched, which is the only signal that a sweep dispatched values it never actually encoded (DEF-0166-1).",
+  "experiment": "EXP-0169-g17p-rerecord",
+  "field_geometry_source": "work/frozen/db.json",
+  "foreign_fields": "`dst` on every descriptor is EXP-0168's verdict (coordinator directive 2026-08-30). Swept here as this experiment's detection instrument; NO verdict emitted.",
+  "gate": "cross-run agreement >= 99% AND min(movedA,movedB) >= 2.0 x disagreements, over >= 2 common values; the (arm,carrier) liveness ladder must have passed first",
+  "gated_runs": [
+   "raw/g17p_20260830_run01",
+   "raw/g17p_20260830_run02"
+  ],
+  "labels": "docs/evidence-classification.md section 2, and nothing else",
+  "pairing": "per field, the two runs with the most distinct attributed values (EXP-0164 cross_run's own rule), so an arm captured in a separate later pair is not diluted by the earlier one",
+  "question": "does the ORIGINAL promotion recorded in validation.json reproduce in this fresh capture?",
+  "runs_meta": {
+   "raw/g17p_20260830_run01": {
+    "00_env.json": {
+     "calibration": {
+      "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+      "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+      "idx_off_word_indices": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "idx_unit_words": 1,
+      "load_is_asynchronous": true,
+      "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
+      "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+      "status": "OK",
+      "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
+     },
+     "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+     "devices": {
+      "C1_alu": "Apple A18 Pro",
+      "C3_uni": "Apple A18 Pro"
+     },
+     "experiment": "EXP-0169-g17p-rerecord",
+     "host": "users-MacBook-Neo.local",
+     "inputs": {
+      "imem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run01/imem_ramp.bin",
+      "mem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run01/mem_ramp.bin",
+      "uni": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run01/uni.bin"
+     },
+     "isadb_sha256": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
+     "load_idx_unit_words": 1,
+     "machine": "Mac17,5",
+     "matrix_cases": 16827,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3",
+     "os": "26.6 (25G5043d)",
+     "python": "3.9.6",
+     "target": "G17P",
+     "utc": "2026-08-30T09:03:06Z"
+    },
+    "02_summary.json": {
+     "cases": 16827,
+     "counters": {
+      "baseline_fail": 0,
+      "fault": 116,
+      "hang": 0,
+      "ok": 5305,
+      "sem_checked": 972,
+      "sem_match": 594,
+      "sentinel_bad": 0,
+      "silent_zero": 2228,
+      "undecodable": 0,
+      "victim": 73,
+      "wrong_value": 9178
+     },
+     "elapsed_s": 189.9,
+     "hangs_seen": {
+      "C1_alu": 0,
+      "C3_uni": 0
+     },
+     "matrix_len": 16827,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3"
+    },
+    "field_geometry_source": "work/frozen/db.json",
+    "path": "raw/g17p_20260830_run01",
+    "records": 16827
+   },
+   "raw/g17p_20260830_run02": {
+    "00_env.json": {
+     "calibration": {
+      "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+      "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+      "idx_off_word_indices": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "idx_unit_words": 1,
+      "load_is_asynchronous": true,
+      "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
+      "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+      "status": "OK",
+      "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
+     },
+     "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+     "devices": {
+      "C1_alu": "Apple A18 Pro",
+      "C3_uni": "Apple A18 Pro"
+     },
+     "experiment": "EXP-0169-g17p-rerecord",
+     "host": "users-MacBook-Neo.local",
+     "inputs": {
+      "imem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run02/imem_ramp.bin",
+      "mem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run02/mem_ramp.bin",
+      "uni": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run02/uni.bin"
+     },
+     "isadb_sha256": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
+     "load_idx_unit_words": 1,
+     "machine": "Mac17,5",
+     "matrix_cases": 16827,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3",
+     "os": "26.6 (25G5043d)",
+     "python": "3.9.6",
+     "target": "G17P",
+     "utc": "2026-08-30T09:06:32Z"
+    },
+    "02_summary.json": {
+     "cases": 16827,
+     "counters": {
+      "baseline_fail": 0,
+      "fault": 115,
+      "hang": 0,
+      "ok": 5305,
+      "sem_checked": 972,
+      "sem_match": 594,
+      "sentinel_bad": 0,
+      "silent_zero": 2228,
+      "undecodable": 0,
+      "victim": 17,
+      "wrong_value": 9179
+     },
+     "elapsed_s": 191.5,
+     "hangs_seen": {
+      "C1_alu": 0,
+      "C3_uni": 0
+     },
+     "matrix_len": 16827,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3"
+    },
+    "field_geometry_source": "work/frozen/db.json",
+    "path": "raw/g17p_20260830_run02",
+    "records": 16827
+   }
+  },
+  "target": "G17P"
+ },
+ "bf_alu.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-O2D"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0x1c add vs 0x1d mul (2 of 256), spliced and observed",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "bf_alu.srcA": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [],
+  "original_label": "untested",
+  "original_range": "none",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "bf_alu.srcB": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [],
+  "original_label": "untested",
+  "original_range": "none",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "bf_alu.tail": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0036",
+   "EXP-M4-12",
+   "EXP-M4-13"
+  ],
+  "original_label": "tokenization-only",
+  "original_range": "framing only (round-trips; no value semantics established)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.ctrl": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "all 7 bits individually at {0,1}: bits0/1 are the 0x09-group instruction-LENGTH selector (and therefore corrupt when flipped in place), bits2/3/4 inert, bits5/6 silent corruptors",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.mod_hi": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0099"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "bit44 at {0,1} (silent corrupt-to-zero, crossed against reg field 3 and 67); bits45-47 at all 8 values (no observable effect)",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.opflags": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0086",
+   "EXP-0089",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "each of bits 19..23 individually at {0,1}: 19=release srcA, 20=release srcB, 21=destination publication, 22/23=silent corrupt-to-zero",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0005",
+   "EXP-0006"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "3-bit field swept via a 256-value byte+2 sweep: 4=fadd and 5=fmul validated on all 8 don't-care combinations; 0b111 -> contained GPU hang",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+5 bit0, within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense (15-point sweep with poison-register controls); 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_reg_top": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0099",
+   "EXP-0105",
+   "EXP-0113",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67} and against opflags bit19 in {0,1}; reproduced in falu2i, falu2_ext (both slots), falu3_srcmod12 (both slots) and under 15-deep register pressure",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcA_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_class": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+5 bits[2:1], within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_imm": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0020",
+   "RT-1a-FIX"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_neg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-10"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1 (byte+5 0xc0 -> 0xc8 on a real add: 5+3 becomes 5-3)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0112",
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense; 64..112 alias r(R mod 64); 126,127 -> CMDBUF_ERROR",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 512,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_reg_top": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0099",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67} and against opflags bit20 in {0,1}",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2.srcB_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.ctrl_lo": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "untested",
+  "original_range": "127 of 128 encodable values",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.mods": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.opflags": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "untested",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "untested",
+  "original_range": "0..7 dense (all 8 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.srcA_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.srcA_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.uni_mode": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0020",
+   "RT-1a-FIX"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1 (toggling makes the operand read the GPR, i.e. 0)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2_uni.usrc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.ctrl_lo": {
+  "fresh_class": "SEMANTIC-ORACLE-FAILED",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0119",
+   "EXP-0036",
+   "EXP-M4-12",
+   "EXP-M4-13"
+  ],
+  "original_label": "tokenization-only",
+  "original_range": "framing only (round-trips; no value semantics established)",
+  "reproduction": "NEEDS-ADJUDICATION",
+  "sem_checked": 256,
+  "sem_failure_examples": [
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      18432,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 1,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 2,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 3,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1207959552,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 5,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 6,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 7,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1090650112,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 8,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      18448,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 9,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      3735928559,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 10,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 11,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1090650112,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 12,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1209008128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 13,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   }
+  ],
+  "sem_failures": 248
+ },
+ "falu2i.imm_exp": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112",
+   "RT-1a-FIX"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "8..15 (the valid minifloat domain, values +-{1/32..30} incl. both extremes); exp<8 is NOT an immediate - it is the falu2_uni uniform-source overload",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 528,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_flag": {
+  "fresh_class": "INERT-SINGLE",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 4,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_mant": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006",
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..7 exhaustive across the 16 spliced constants and the generated boundary-weighted immediate pool",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 16,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.imm_sign": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0,1 (+-30.0 max/min and +-1.0/+-0.5 constructed and executed)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 4,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.mods": {
+  "fresh_class": "SEMANTIC-ORACLE-FAILED",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "DOES-NOT-REPRODUCE",
+  "sem_checked": 512,
+  "sem_failure_examples": [
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 2,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 3,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 4,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 5,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 6,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 7,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      3221225472,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 8,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      3221225472,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 9,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 10,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 11,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 12,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1077936128,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 13,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   }
+  ],
+  "sem_failures": 480
+ },
+ "falu2i.opflags": {
+  "fresh_class": "SEMANTIC-ORACLE-FAILED",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0119",
+   "EXP-0090",
+   "EXP-0086"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "bit20 at {0,1} (source release, load-bearing); bits21-23 NOT tested in this form",
+  "reproduction": "DOES-NOT-REPRODUCE",
+  "sem_checked": 32,
+  "sem_failure_examples": [
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 4,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 5,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 6,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 7,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 8,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 9,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 10,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 11,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 12,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 13,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      1084227584,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 14,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   },
+   {
+    "cross": null,
+    "observed": {
+     "n_stray": 0,
+     "post": 111,
+     "pre": 90,
+     "regs": [
+      0,
+      1069547520,
+      1077936128,
+      1056964608,
+      1088421888,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "stray": []
+    },
+    "sem_match": false,
+    "value": 15,
+    "want": {
+     "claim": "EXP-0006 packed minifloat immediate (isadb.imm_decode)",
+     "dst": 0,
+     "op": "fadd",
+     "srcA": 5.0,
+     "srcA_reg": 0,
+     "srcB": 3.0,
+     "want": 8.0,
+     "want_bits": 1090519040
+    }
+   }
+  ],
+  "sem_failures": 24
+ },
+ "falu2i.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0090",
+   "EXP-0112"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "4 (fadd) and 5 (fmul) of 8 encodable, both constructed and executed",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 4,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0112"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 dense; value 67 reads r3 (mod-64 alias); 64..112 alias; 126,127 fault",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 32,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_reg_top": {
+  "fresh_class": "INERT-SINGLE",
+  "fresh_label": "untested",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0105",
+   "EXP-0119"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "{0,1} crossed against reg-field values {3,67}",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 2,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "falu2i.srcA_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0006"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0,1",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 2,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "get_sr.dp_marker": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "get_sr.dp_width": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "get_sr.dst_hi": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0092"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "the register EXTENSION half of the same lockstep 0..127 boundary sweep",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "get_sr.sr_sel": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0092",
+   "EXP-0031",
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0x00..0xFF EXHAUSTIVE (256 values x 2 runs, zero faults, zero hangs): 0x80-0xFF reaches the special-register file (16 named, ~106 aliasing 0x9c/0x99/0x9a/0x82/0x85, 4 unclassified constants, 2 period-4 structured); 0x00-0x7F is a distinct 'selector materialized as an immediate' region, not an SR read",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu.opflags": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu.opsel": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14",
+   "EXP-0033"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0x1c hadd vs 0x1d hmul (byte+2 low 3 bits), splice-observed",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu.srcA": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0x02, 0x04, 0x06, 0x08 swept: only 0x02 reads a; every other value makes srcA read 0 so the result is b alone",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu.srcB": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0x00, 0x02, 0x04, 0x06, 0x08 swept: 0x00/0x04 read b, 0x02/0x06 null the op, 0x08 gives a+const",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu.src_modifier": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+5 swept with distinct per-lane inputs: bits6:7 (0xc0) are a required operand-valid base (clearing them yields 0), bit3 (0x08) = srcA-negate (0xc8 -> -a+b), bit0 suppresses srcB, bits1/2 suppress srcA",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.b5": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "bits3/4 null in this instance; largely inert",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.b7_lo": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.b7_mid": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.op_valid_marker": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "every byte+7 value WITHOUT bit7 set nulls the op (result 0) - a required op-valid marker",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.opflags": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.opsel": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "gains 6 = hfma (byte+2 = 0x1e); half fma compiles to this 8-byte form",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.rsv6": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0x00..0xc0 swept, every value kept the result - fully INERT/reserved in the add+saturate instance",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.saturate": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+7 0x82 clamps saturate(9) to 1; 0x80 (bit1 clear) passes 9 unclamped; 0xc0 also passes",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.srcA": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_ext8.srcB_desc": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_fma12.ext": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14",
+   "EXP-0036",
+   "EXP-M4-12",
+   "EXP-M4-13"
+  ],
+  "original_label": "tokenization-only",
+  "original_range": "framing only (round-trips; no value semantics established)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_fma12.opflags": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0138"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..31 dense (all 32 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_fma12.opsel": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "6 = hfma (byte+2 = 0x1e)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "half_alu_fma12.srcA": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.cache": {
+  "fresh_class": "INERT-SINGLE",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0139"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.fn_hi": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0139"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..1 dense (all 2 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.form": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "(byte0 bit7, byte+1): (0x27,0x05) popcount, (0xa7,0x05) find_msb -> [3,4,15,30], (0xa7,0x04) reverse_bits",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.op_enable": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-M4-14"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+4 swept 0x00..0x0a: only bit1 matters - 0x02/0x03/0x06/0x07/0x0a compute, 0x00/0x01/0x04/0x05/0x08/0x09 give 0",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.src": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0139"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "16 values sampled (boundaries + powers of two + interior)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.srcdesc": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-M4-14",
+   "EXP-0129"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "byte+6 swept: 0x00 degenerates the op to identity (raw input returned, popcount NOT applied); bit6 (0x40) must be set for the GPR source to be read (0x3c/0x9c -> 0; 0x5c/0x4e/0x58/0x5e/0x7c/0xdc read normally); EXP-0129 additionally swept the genuinely free bits (22 cases): bit4 is a real BIDIRECTIONAL release control, bit0 and bit3 also break the stored result, all other bits inert",
+  "reproduction": "CONTRADICTS-INERT-CLAIM",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "ibitcount.tail": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0139"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.op_desc": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_class": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_flag": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c0.src_reg": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "producer-independent and register-PAIR-quantized at every one of 4 tested pairs; src_reg is ALWAYS 0 in all 1545 corpus instances",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.op_desc": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_class": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_flag": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c1.src_reg": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0101",
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "4 src_reg values (0,2,4,8) x 3 buffer-count variants: content was uniformly 0 in all 12 cases, both runs",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.op_desc": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.src_flag": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.src_reg": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c2var.subform": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.op_desc": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_class": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_flag": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_c9.src_reg": {
+  "fresh_class": "NO-DETECTION-POWER",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0113"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "4 tested register pairs, both runs: X and X^1 read identical content, producer-independent",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.b3": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.form": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "reg_move_cb.src": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0140"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 dense (all 256 values)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ }
+}

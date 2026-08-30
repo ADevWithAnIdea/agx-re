@@ -487,12 +487,31 @@ BASELINE_RETRIES = 4
 # ---------------------------------------------------------------------------
 KNOWN_FAULT_VALUES = {
     ("frag_color_pack", "dst"): {
-        "values": [192, 193],
-        "expect": "contained fault (CMDBUF_ERROR), device survives",
-        "cite": "EXP-0155 raw/g17p_20260829_run03 + _run04, arms fcp@pack0 and "
-                "fcp@pack1: outcome `fault` at 192 and 193 in 4 of 4 "
-                "(arm, run) pairs; both runs then stopped at value 194",
-        "coverage_gap": "194..255 never dispatched on any target",
+        # 192, 193: EXP-0155's contained faults.
+        # 194, 196: MEASURED BY THIS EXPERIMENT'S OWN PREFREEZE SMOKE on G17P
+        # (work/smoke_rsmoke01/sweep.jsonl, arm frag_color_pack@r_fcp1/
+        # fragment#0) -- and they are GENUINE HANGS, not contained faults. They
+        # are the first two values past the point where EXP-0155's per-field
+        # stop rule fired, i.e. the first two values of the 194..255 region that
+        # had never been dispatched on ANY target. That is a new hardware fact
+        # and it is also the reason the region was never covered: the moment a
+        # sweep reaches 194 it hangs, spends its budget, and stops -- so the
+        # gap is SELF-PERPETUATING under a forward order.
+        #
+        # Deferring all four to the END of the order is what actually closes the
+        # gap: 197..255 is banked BEFORE the hazardous values are touched, so a
+        # reset costs the least remaining coverage instead of all of it.
+        "values": [192, 193, 194, 196],
+        "expect": "192/193 contained fault (CMDBUF_ERROR, device survives); "
+                  "194/196 GENUINE HANG",
+        "cite": "192,193: EXP-0155 raw/g17p_20260829_run03 + _run04, arms "
+                "fcp@pack0 and fcp@pack1, outcome `fault` in 4 of 4 "
+                "(arm, run) pairs, after which both runs stopped at 194. "
+                "194,196: EXP-0168 raw/prefreeze render smoke on G17P, "
+                "outcome `hang`, which is why EXP-0155 could never get past it.",
+        "coverage_gap": "194..255 had never been dispatched on any target; this "
+                        "experiment dispatches 197..255 FIRST and the four "
+                        "hazardous values last",
     },
 }
 

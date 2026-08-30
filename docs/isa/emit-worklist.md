@@ -8,19 +8,19 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 41 | 125 | 166 |
+| 35 | 131 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 31 |
-| 2 | 25 |
-| 3 | 19 |
-| 4 | 14 |
-| 5 | 9 |
-| 6 | 6 |
+| 1 | 32 |
+| 2 | 26 |
+| 3 | 18 |
+| 4 | 13 |
+| 5 | 13 |
+| 6 | 8 |
 | 7 | 5 |
 | 8 | 2 |
 | 9 | 2 |
@@ -35,23 +35,23 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 35 |
-| `srcA` | 17 |
-| `tail` | 15 |
+| `dst` | 46 |
+| `srcA` | 16 |
+| `tail` | 13 |
 | `src` | 10 |
 | `b5` | 10 |
 | `b3` | 9 |
-| `opsel` | 8 |
-| `srcB` | 8 |
-| `form` | 7 |
+| `src_flag` | 9 |
+| `src_reg` | 9 |
+| `cache` | 7 |
+| `opsel` | 7 |
 | `b4` | 7 |
+| `srcB` | 7 |
+| `form` | 7 |
 | `flags` | 7 |
-| `cache` | 6 |
 | `b1` | 6 |
-| `b7` | 6 |
-| `src_flag` | 5 |
 
-## ONE field away (31 instructions)
+## ONE field away (32 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -61,14 +61,14 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `cubearray_coord_const` | `b3` | tokenization-only |
 | `cvt_f2h` | `op` | untested |
 | `dev_scoreboard_fence` | `scope_flag` | corpus-correlation |
-| `falu2i` | `imm_flag` | untested |
+| `falu2` | `dst` | untested |
+| `falu2_uni` | `dst` | untested |
 | `falu_acc` | `cache` | untested |
 | `frag_color_pack` | `dst` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
 | `frame_marker_compact` | `b1` | tokenization-only |
-| `get_sr` | `form` | untested |
+| `half_alu` | `dst` | untested |
 | `half_alu_fma12` | `ext` | tokenization-only |
-| `ibitcount` | `tail` | untested |
 | `if_push` | `scope` | untested |
 | `irotate` | `b2` | untested |
 | `iter` | `b9` | single-template-inference |
@@ -77,6 +77,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
 | `pack_convert` | `b7` | untested |
+| `reg_move_cb` | `dst` | untested |
 | `ret` | `scoreboard` | corpus-correlation |
 | `rt_query_traverse` | `dst` | untested |
 | `shift_amt_move` | `src_flag` | untested |
@@ -87,7 +88,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `uniform_mov` | `dst` | untested |
 | `vary_slot` | `slot` | corpus-correlation |
 
-## TWO fields away (25 instructions)
+## TWO fields away (26 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -101,6 +102,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `half_alu_ext8` | `b7_lo`, `b7_mid` | untested, untested |
 | `half_pack` | `dstlo`, `b3` | untested, untested |
 | `iadd2` | `b2_fmt`, `srcA` | untested, untested |
+| `ibitcount` | `cache`, `dst` | untested, untested |
 | `if_push_pred` | `scope`, `level` | untested, tokenization-only |
 | `imageblock_store` | `src`, `b4` | untested, single-template-inference |
 | `isel8` | `cmpA`, `cmpB` | untested, untested |
@@ -130,7 +132,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 185 |
-| `tokenization-only` | 141 |
+| `untested` | 214 |
+| `tokenization-only` | 140 |
 | `corpus-correlation` | 91 |
 | `single-template-inference` | 19 |
