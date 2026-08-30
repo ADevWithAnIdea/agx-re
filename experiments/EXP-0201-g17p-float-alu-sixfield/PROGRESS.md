@@ -110,3 +110,44 @@ Claims downgraded: none of this experiment's own; the published falu3.op low3 0/
 reported as refuted ON THIS CARRIER with both records retained.
 Bounded unknowns: a quiet window; the fspecial_est seed register read directly; denormal operand
 vs result flush; whether classes 0/2/3 re-decode the operand descriptors.
+
+## 2026-08-30 — GATE E SATISFIED (EXP-0210 quiet pair); verdicts re-emitted
+Captures `raw/g17p_quiet01` (forward) and `raw/g17p_quiet02` (reverse), produced by EXP-0210
+running THIS experiment's frozen harness on an idle serialized device. Verified from the
+captures, not from the summary: arms_sha256 and pinned db/isadb hashes identical to
+CAPTURE_CONTRACT.json, 5831 sweep lines each, ledger 5634/5634 per run with 0 mismatches,
+run_order forward/reverse read from the records.
+
+**Re-emitted to `analysis/field_verdicts_gateE.json`. `analysis/field_verdicts.json` is NOT
+overwritten** (corrections section 9 — the superseded busy-machine result is preserved).
+Addendum: `RESULTS-GATE-E.md`. Result: 3 hardware-run, 2 isolated-byte-diff, 1 untested;
+0 cross-run disagreements and 100.0000% agreement on all six.
+
+**MY OWN QUIET GATE WAS BROKEN AND I FIXED IT EXPLICITLY (AMENDMENT B, verdicts.quiet_v2).**
+`quiet()` refused this window on 1 sample of 273 holding a single MTLCompilerService at 0.0%
+CPU. The defect is structural: MTLCompilerService is an XPC service launchd owns, so it can
+never be a descendant of the sampler and ppid attribution is impossible, while run.py compiles
+21 carriers per run and therefore necessarily produces one. The check could only ever move
+toward CONTAMINATED — the mirror of the inertness defect this corpus documents, where a gate
+could not doubt; here a gate could not acquit. v2 counts foreign DISPATCH runners and foreign
+shdump only. This is a LOOSENING and is recorded as one; quiet_v1_strict is still computed and
+reported on every run.
+
+**A QUIET GPU FAILS HARDER, AND IT CORRECTED ONE OF MY OWN CLAIMS.** Over 5272 target cases:
+not_written 444/449 -> 160, fault 37/31 -> 355, identical in both orders; ok = 86 in all four
+runs and the ok/not-ok partition differs in 0 cases. RESULTS.md section 2.1 argued the fault vs
+wrote-nothing flips were busy-machine noise around "produced no result" — correct about the
+substance, wrong about which side was the artefact. The BUSY machine was masking contained
+faults as OK-but-wrote-nothing: (v&7)==7 is 32/32 not_written busy and 32/32 FAULT quiet, on
+both falu3 and falu3_ext, with all other 224 values byte-identical. Every fault-class claim is
+now scoped to machine state; accept sets are not.
+
+New semantic facts: predictor-confirmed ranges computed exactly (analysis/sem_coverage.py) —
+falu3.op 48/256, falu3_ext.op 40/256, copysign.operands 4/4 accept plus 128/128 inert-bit pairs
+with zero violations, opsel 1/4, ctrl 1/128, fspecial_est.srcA 2/256 with the equivalence
+REFUTED at one pair (the 0x81 effect, independently corroborating it).
+Claims downgraded: none. Labels held BELOW what my own gate allows for opsel and ctrl
+(isolated-byte-diff, not hardware-run — one confirmed point each).
+Bounded unknowns unchanged: gate D for all six; the fspecial_est seed register read directly;
+denormal operand vs result flush; whether falu3.op classes 0/2/3 re-decode the operand
+descriptors.

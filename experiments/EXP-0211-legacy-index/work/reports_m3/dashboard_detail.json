@@ -1312,7 +1312,7 @@
    "status": "geometry-mapped",
    "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -1799,6 +1799,7 @@
    "why": "32/32 encodable values reached the hardware",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -1809,6 +1810,7 @@
    "why": "8/8 encodable values reached the hardware",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -3577,20 +3579,18 @@
    ]
   },
   "half_alu_fma12.dst": {
-   "status": "bytes-seen",
-   "why": "ledger present but 1530 record(s) disagree; Gate A unmet",
+   "status": "geometry-mapped",
+   "why": "16/16 encodable values reached the hardware",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
   "half_alu_fma12.ext": {
-   "status": "ledger-verified",
-   "why": "Gate A holds; 4096/18446744073709551616 encodable values reached the hardware",
+   "status": "bytes-seen",
+   "why": "ledger present but 25088 record(s) disagree; Gate A unmet",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -3658,17 +3658,17 @@
    ]
   },
   "half_pack.b3": {
-   "status": "bytes-seen",
-   "why": "ledger present but 765 record(s) disagree; Gate A unmet",
+   "status": "geometry-mapped",
+   "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
-   "status": "bytes-seen",
-   "why": "ledger present but 765 record(s) disagree; Gate A unmet",
+   "status": "geometry-mapped",
+   "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -4134,7 +4134,7 @@
    "status": "geometry-mapped",
    "why": "2/2 encodable values reached the hardware",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -4142,7 +4142,7 @@
    "status": "geometry-mapped",
    "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -4869,10 +4869,9 @@
   },
   "irotate.operands": {
    "status": "bytes-seen",
-   "why": "12 record(s) carried actual bytes but stated no requested value",
+   "why": "ledger present but 9312 record(s) disagree; Gate A unmet",
    "evidence": [
-    "EXP-0146-m4-emit-int-misc",
-    "EXP-0166-exp0146-recovery",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -5458,10 +5457,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "geometry-mapped",
+   "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -5479,10 +5478,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "geometry-mapped",
+   "why": "256/256 encodable values reached the hardware",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -7259,7 +7258,7 @@
    "status": "geometry-mapped",
    "why": "2/2 encodable values reached the hardware",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -9641,7 +9640,7 @@
    "status": "decided-multi-carrier",
    "why": "1 control arm(s) fired across 6 carriers",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -10125,9 +10124,10 @@
   },
   "falu2.opflags": {
    "status": "decided-multi-carrier",
-   "why": "6 control arm(s) fired across 4 carriers",
+   "why": "6 control arm(s) fired across 5 carriers",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -10135,9 +10135,10 @@
   },
   "falu2.opsel": {
    "status": "decided-multi-carrier",
-   "why": "6 control arm(s) fired across 4 carriers",
+   "why": "6 control arm(s) fired across 5 carriers",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -11907,19 +11908,17 @@
   },
   "half_alu_fma12.dst": {
    "status": "decided-multi-carrier",
-   "why": "8 control arm(s) fired across 5 carriers",
+   "why": "5 control arm(s) fired across 5 carriers",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
   "half_alu_fma12.ext": {
    "status": "decided-multi-carrier",
-   "why": "8 control arm(s) fired across 5 carriers",
+   "why": "5 control arm(s) fired across 5 carriers",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -11987,17 +11986,17 @@
    ]
   },
   "half_pack.b3": {
-   "status": "records-no-control",
-   "why": "768 record(s) but none of the 1 control arm(s) moved -- Gate B: zero movement without a firing control is carrier-undecidable, not inertness",
+   "status": "decided-multi-carrier",
+   "why": "5 control arm(s) fired across 2 carriers",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
-   "status": "records-no-control",
-   "why": "768 record(s) but none of the 1 control arm(s) moved -- Gate B: zero movement without a firing control is carrier-undecidable, not inertness",
+   "status": "decided-multi-carrier",
+   "why": "5 control arm(s) fired across 2 carriers",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -12461,17 +12460,17 @@
   },
   "ibitcount.cache": {
    "status": "decided-multi-carrier",
-   "why": "4 control arm(s) fired across 2 carriers",
+   "why": "1 control arm(s) fired across 10 carriers",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
   "ibitcount.dst": {
    "status": "decided-multi-carrier",
-   "why": "4 control arm(s) fired across 2 carriers",
+   "why": "1 control arm(s) fired across 6 carriers",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -13197,11 +13196,10 @@
    ]
   },
   "irotate.operands": {
-   "status": "records-no-control",
-   "why": "12 record(s) but no detection-power control in the cited raw -- Gate B: zero movement without a firing control is carrier-undecidable, not inertness",
+   "status": "decided-multi-carrier",
+   "why": "1 control arm(s) fired across 7 carriers",
    "evidence": [
-    "EXP-0146-m4-emit-int-misc",
-    "EXP-0166-exp0146-recovery",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -13787,10 +13785,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "decided-multi-carrier",
+   "why": "1 control arm(s) fired across 2 carriers",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -13808,10 +13806,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "decided-multi-carrier",
+   "why": "1 control arm(s) fired across 2 carriers",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -15585,10 +15583,10 @@
    ]
   },
   "shift_amt_move.src_flag": {
-   "status": "decided-one-carrier",
-   "why": "1 control arm(s) fired, 1 carrier (None)",
+   "status": "decided-multi-carrier",
+   "why": "1 control arm(s) fired across 10 carriers",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -17967,10 +17965,10 @@
    ]
   },
   "cvt_f2i.b9": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks; 21 record(s) exist only outside raw/ () -- derived artifacts, not dispatches",
+   "status": "checks-present",
+   "why": "3072 check(s) covering 1 behaviour bucket(s) (correct)",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -18457,6 +18455,7 @@
    "why": "0 semantic checks (raw carries instead: 128 liveness prediction(s))",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -18467,6 +18466,7 @@
    "why": "0 semantic checks (raw carries instead: 32 liveness prediction(s))",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -20235,20 +20235,18 @@
    ]
   },
   "half_alu_fma12.dst": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 1536 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "384 checks over 3 buckets, 64 distinct oracle payloads, 8 runs",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
   "half_alu_fma12.ext": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 12288 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "25088 checks over 3 buckets, 92 distinct oracle payloads, 8 runs",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -20316,17 +20314,17 @@
    ]
   },
   "half_pack.b3": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 768 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "3616 checks over 2 buckets, 126 distinct oracle payloads, 6 runs",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 768 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "3616 checks over 2 buckets, 126 distinct oracle payloads, 6 runs",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -20789,18 +20787,18 @@
    ]
   },
   "ibitcount.cache": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 4 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "40 checks over 2 buckets, 19 distinct oracle payloads, 7 runs",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
   "ibitcount.dst": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks (raw carries instead: 512 liveness prediction(s))",
+   "status": "semantically-mapped",
+   "why": "2556 checks over 4 buckets, 12 distinct oracle payloads, 7 runs",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -21526,11 +21524,10 @@
    ]
   },
   "irotate.operands": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks; cited raw holds 70 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "semantically-mapped",
+   "why": "4640 checks over 4 buckets, 138 distinct oracle payloads, 7 runs",
    "evidence": [
-    "EXP-0146-m4-emit-int-misc",
-    "EXP-0166-exp0146-recovery",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -22116,10 +22113,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks; cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "semantically-mapped",
+   "why": "1024 checks over 4 buckets, 6 distinct oracle payloads, 4 runs",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -22137,10 +22134,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks; cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "semantically-mapped",
+   "why": "1024 checks over 2 buckets, 6 distinct oracle payloads, 4 runs",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -23914,10 +23911,10 @@
    ]
   },
   "shift_amt_move.src_flag": {
-   "status": "no-semantic-check",
-   "why": "0 semantic checks; 30 record(s) exist only outside raw/ () -- derived artifacts, not dispatches",
+   "status": "semantically-mapped",
+   "why": "224 checks over 2 buckets, 14 distinct oracle payloads, 7 runs",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -27227,9 +27224,9 @@
   },
   "cvt_f2i.b9": {
    "status": "G17P-direct-repeated",
-   "why": "2560 record(s) over 2 G17P raw runs",
+   "why": "4608 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -27716,6 +27713,7 @@
    "why": "128 record(s) over 2 G17P raw runs",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -27726,6 +27724,7 @@
    "why": "32 record(s) over 2 G17P raw runs",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -29495,19 +29494,17 @@
   },
   "half_alu_fma12.dst": {
    "status": "G17P-direct-repeated",
-   "why": "1536 record(s) over 2 G17P raw runs",
+   "why": "320 record(s) over 5 G17P raw runs",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
   "half_alu_fma12.ext": {
    "status": "G17P-direct-repeated",
-   "why": "12288 record(s) over 2 G17P raw runs",
+   "why": "24576 record(s) over 5 G17P raw runs",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -29576,16 +29573,16 @@
   },
   "half_pack.b3": {
    "status": "G17P-direct-repeated",
-   "why": "768 record(s) over 3 G17P raw runs",
+   "why": "3584 record(s) over 5 G17P raw runs",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
    "status": "G17P-direct-repeated",
-   "why": "768 record(s) over 3 G17P raw runs",
+   "why": "3584 record(s) over 5 G17P raw runs",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -30049,17 +30046,17 @@
   },
   "ibitcount.cache": {
    "status": "G17P-direct-repeated",
-   "why": "4 record(s) over 2 G17P raw runs",
+   "why": "58 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
   "ibitcount.dst": {
    "status": "G17P-direct-repeated",
-   "why": "512 record(s) over 2 G17P raw runs",
+   "why": "3584 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -30785,11 +30782,10 @@
    ]
   },
   "irotate.operands": {
-   "status": "G16G-direct-only",
-   "why": "12 record(s) on G16G/M4 only. Committed M4 evidence stays valid on its own target; it does not close a G17P row",
+   "status": "G17P-direct-repeated",
+   "why": "9636 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-0146-m4-emit-int-misc",
-    "EXP-0166-exp0146-recovery",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -31375,10 +31371,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "no-direct-target-evidence",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "G17P-direct-repeated",
+   "why": "1536 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -31396,10 +31392,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "no-direct-target-evidence",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "G17P-direct-repeated",
+   "why": "1536 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -33174,9 +33170,9 @@
   },
   "shift_amt_move.src_flag": {
    "status": "G17P-direct-repeated",
-   "why": "52 record(s) over 2 G17P raw runs",
+   "why": "296 record(s) over 3 G17P raw runs",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -35748,9 +35744,9 @@
   },
   "cvt_f2i.b9": {
    "status": "independently-confirmed",
-   "why": "2574 record(s) over 4 raw runs, 6 carrier(s), 2 cited experiment(s)",
+   "why": "4662 record(s) over 5 raw runs, 6 carrier(s), 2 cited experiment(s)",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -36259,12 +36255,13 @@
   },
   "falu2._instruction": {
    "status": "citation-resolves",
-   "why": "citation resolves with raw/ and an authored probe, but no record for this row was found under any keying inside raw/; 117 non-record file(s) hold the evidence in an unreadable format",
+   "why": "citation resolves with raw/ and an authored probe, but no record for this row was found under any keying inside raw/; 128 non-record file(s) hold the evidence in an unreadable format",
    "evidence": [
     "EXP-0005-float-alu-isa",
     "EXP-0006-falu-operands",
     "EXP-0090-m4-handbuilt-program-suite",
     "EXP-0112-m4-program-generator",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0006-falu-operands",
     "EXP-0047-m4-numerical-behavior",
@@ -36303,9 +36300,10 @@
   },
   "falu2.opflags": {
    "status": "independently-confirmed",
-   "why": "234 record(s) over 6 raw runs, 4 carrier(s), 4 cited experiment(s)",
+   "why": "236 record(s) over 6 raw runs, 5 carrier(s), 5 cited experiment(s)",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -36313,9 +36311,10 @@
   },
   "falu2.opsel": {
    "status": "independently-confirmed",
-   "why": "138 record(s) over 6 raw runs, 4 carrier(s), 4 cited experiment(s)",
+   "why": "140 record(s) over 6 raw runs, 5 carrier(s), 5 cited experiment(s)",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -38356,8 +38355,7 @@
    "status": "incomplete",
    "why": "QUARANTINED: EXP-0050-fragment-output-abi",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -38365,8 +38363,7 @@
    "status": "incomplete",
    "why": "QUARANTINED: EXP-0050-fragment-output-abi",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -38449,17 +38446,17 @@
    ]
   },
   "half_pack.b3": {
-   "status": "auditable",
-   "why": "768 record(s) in raw/ over 3 run(s), 1 carrier(s)",
+   "status": "independently-confirmed",
+   "why": "3616 record(s) over 6 raw runs, 2 carrier(s), 1 cited experiment(s)",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
-   "status": "auditable",
-   "why": "768 record(s) in raw/ over 3 run(s), 1 carrier(s)",
+   "status": "independently-confirmed",
+   "why": "3616 record(s) over 6 raw runs, 2 carrier(s), 1 cited experiment(s)",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -38979,17 +38976,17 @@
   },
   "ibitcount.cache": {
    "status": "independently-confirmed",
-   "why": "10 record(s) over 5 raw runs, 2 carrier(s), 2 cited experiment(s)",
+   "why": "73 record(s) over 7 raw runs, 10 carrier(s), 2 cited experiment(s)",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
   "ibitcount.dst": {
    "status": "independently-confirmed",
-   "why": "518 record(s) over 5 raw runs, 2 carrier(s), 2 cited experiment(s)",
+   "why": "3622 record(s) over 7 raw runs, 6 carrier(s), 2 cited experiment(s)",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -39813,10 +39810,9 @@
   },
   "irotate.operands": {
    "status": "independently-confirmed",
-   "why": "12 record(s) over 3 raw runs, 1 carrier(s), 3 cited experiment(s)",
+   "why": "9750 record(s) over 7 raw runs, 7 carrier(s), 2 cited experiment(s)",
    "evidence": [
-    "EXP-0146-m4-emit-int-misc",
-    "EXP-0166-exp0146-recovery",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -40487,10 +40483,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "incomplete",
-   "why": "no raw/ in EXP-M4-14-a18-splice; no authored probe in EXP-M4-14-a18-splice",
+   "status": "independently-confirmed",
+   "why": "1552 record(s) over 4 raw runs, 2 carrier(s), 1 cited experiment(s)",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -40508,10 +40504,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "incomplete",
-   "why": "no raw/ in EXP-M4-14-a18-splice; no authored probe in EXP-M4-14-a18-splice",
+   "status": "independently-confirmed",
+   "why": "1552 record(s) over 4 raw runs, 2 carrier(s), 1 cited experiment(s)",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -42807,9 +42803,9 @@
   },
   "shift_amt_move.src_flag": {
    "status": "independently-confirmed",
-   "why": "58 record(s) over 5 raw runs, 1 carrier(s), 2 cited experiment(s)",
+   "why": "338 record(s) over 7 raw runs, 10 carrier(s), 2 cited experiment(s)",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -45325,7 +45321,7 @@
    "status": "full-domain-swept",
    "why": "all 256 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0184-g17p-onefield-b",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0047-m4-numerical-behavior"
    ]
   },
@@ -45786,9 +45782,10 @@
   },
   "falu2.opflags": {
    "status": "limit-mapped",
-   "why": "all 32 encodable values dispatched; 202 legal and 32 rejected/hard outcome(s) -- the boundary was crossed",
+   "why": "all 32 encodable values dispatched; 203 legal and 33 rejected/hard outcome(s) -- the boundary was crossed",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -45796,9 +45793,10 @@
   },
   "falu2.opsel": {
    "status": "limit-mapped",
-   "why": "all 8 encodable values dispatched; 102 legal and 36 rejected/hard outcome(s) -- the boundary was crossed",
+   "why": "all 8 encodable values dispatched; 103 legal and 37 rejected/hard outcome(s) -- the boundary was crossed",
    "evidence": [
     "EXP-0169-g17p-rerecord",
+    "EXP-0003-hw-testbed",
     "EXP-0005-float-alu-isa",
     "EXP-0047-m4-numerical-behavior",
     "EXP-0102-m4-int-pack-semantics"
@@ -47475,11 +47473,10 @@
    ]
   },
   "half_alu_fma12.dst": {
-   "status": "partial-sweep",
-   "why": "1 of 16 encodable values reached the hardware",
+   "status": "full-domain-swept",
+   "why": "all 16 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0180-g17p-halfalu-rerecord",
-    "EXP-0183-halfalu-descriptor",
+    "EXP-0203-g17p-half-oracle",
     "EXP-0050-fragment-output-abi"
    ]
   },
@@ -47547,17 +47544,17 @@
    ]
   },
   "half_pack.b3": {
-   "status": "partial-sweep",
-   "why": "1 of 256 encodable values reached the hardware",
+   "status": "full-domain-swept",
+   "why": "all 256 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.dstlo": {
-   "status": "partial-sweep",
-   "why": "1 of 256 encodable values reached the hardware",
+   "status": "full-domain-swept",
+   "why": "all 256 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0154-g17p-emit-alu"
+    "EXP-0203-g17p-half-oracle"
    ]
   },
   "half_pack.src": {
@@ -48005,15 +48002,15 @@
    "status": "full-domain-swept",
    "why": "all 2 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
   "ibitcount.dst": {
    "status": "limit-mapped",
-   "why": "all 256 encodable values dispatched; 390 legal and 128 rejected/hard outcome(s) -- the boundary was crossed",
+   "why": "all 256 encodable values dispatched; 2712 legal and 910 rejected/hard outcome(s) -- the boundary was crossed",
    "evidence": [
-    "EXP-0169-g17p-rerecord",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },
@@ -49285,10 +49282,10 @@
    ]
   },
   "iunary.b1": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "limit-mapped",
+   "why": "all 256 encodable values dispatched; 968 legal and 584 rejected/hard outcome(s) -- the boundary was crossed",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.dst": {
@@ -49306,10 +49303,10 @@
    ]
   },
   "iunary.opsel": {
-   "status": "no-data",
-   "why": "cited raw holds 1 non-record file(s) (.txt/.log/.hex) and 0 machine-readable records: FORMAT-UNREADABLE, not absent",
+   "status": "full-domain-swept",
+   "why": "all 256 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-M4-14-a18-splice"
+    "EXP-0202-g17p-int-shift-convert"
    ]
   },
   "iunary.src": {
@@ -50979,7 +50976,7 @@
    "status": "full-domain-swept",
    "why": "all 2 encodable values dispatched, but no value was rejected. Section 6: a nominal size without excess-capacity behaviour is an incomplete result",
    "evidence": [
-    "EXP-0168-g17p-dst-resweep",
+    "EXP-0202-g17p-int-shift-convert",
     "EXP-0102-m4-int-pack-semantics"
    ]
   },

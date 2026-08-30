@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 485,
-   "isolated-byte-diff": 65,
+   "hardware-run": 488,
+   "isolated-byte-diff": 67,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 253
+   "untested": 248
   },
   "by_label_pct": {
-   "hardware-run": 46.6,
-   "isolated-byte-diff": 6.2,
+   "hardware-run": 46.9,
+   "isolated-byte-diff": 6.4,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.3
+   "untested": 23.8
   },
-  "emittable_instructions": 35,
+  "emittable_instructions": 38,
   "emittable_mnemonics": [
    "bf_add_dst",
    "bf_alu",
@@ -48,6 +48,9 @@
    "device_store",
    "falu2",
    "falu2_uni",
+   "falu3",
+   "falu3_ext",
+   "falu3_srcmod12",
    "falu_acc",
    "fspecial",
    "h_coord_hi",
@@ -73,7 +76,7 @@
    "sr_read_wide",
    "uniform_mov"
   ],
-  "decodable_not_yet_emittable": 137,
+  "decodable_not_yet_emittable": 134,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -84,7 +87,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 35
+  "emittable_of_emitter_relevant": 38
  },
  "instructions": {
   "falu2": {
@@ -849,27 +852,19 @@
     "note": "EXP-0181 refresh from corpus-correlation: EXP-0138 HW-VALIDATED the OPERAND-SLOT model against a host oracle over 1809+2321 cases and corrected db.json's names by measurement (byte0 high nibble is the destination, byte+1/+3/+5 the sources, byte+4 the length-selecting control that re-lengths the instruction on 192 of 256 values); EXP-0160 then mapped byte+2 densely on G17P in two seed sets. Anchor 09011e0581080200 decodes back to falu3. This is a three-source float ALU proven by moving its operands and predicting the result."
    },
    "op": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Pre-registered predictor CONFIRMED on 48 of 256 in both quiet runs: the 16 values with (v & 0xC0) == 0 and (v & 7) in {4,6}, which compute -b and a*b+c bit-exactly, and the 32 values with (v & 7) == 7, which are contained faults. REFUTED on 176. Outside those 48 the field is live with role unknown; do not extrapolate.",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 428 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "LIVE and SEMANTICALLY MAPPED on G17P, NOT PROMOTED: the only failing gate is E (no quiet confirmation window -- five sibling experiments dispatched GPU work throughout). 3 independent arms. On the compiled 3-source fma carrier with bits 6/7 clear: low3=4 -> -b (bit-exact, incl. -(-0.0)=+0.0 and -inf), low3=5 -> 0.0*b (NOT a constant zero: sign follows srcB, inf srcB gives NaN -- DEF-0201-2), low3=6 -> a*b+c (bit-exact FMA), low3=7 -> no output (32 of 256 values). Bits 3/4/5 inert in that envelope; bits 6/7 corrupt. db.json's published low3 entries 0 (a+b), 1 (a*b) and 2 (a*b+a) are REFUTED on this carrier -- 0/2 return a lane-uniform 7.5 (an unrelated live register) and 1 returns +0.0. Every cross-run disagreement in 8 runs is a fault/wrote-nothing flip inside the (v&7)==7 class; adjudicated agreement 100.00%. GATE E NOW SATISFIED (EXP-0210 quiet pair, forward + reversed): 0 cross-run disagreements. NOTE THE FAULT-CLASS CORRECTION: on the quiet device (v&7)==7 is 32/32 CONTAINED FAULTS; the busy pair reported the same 32 values as not_written. The busy machine MASKED faults as OK-but-wrote-nothing, so any fault-class claim is scoped to machine state.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 16,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "live: 122 moved, 12 distinct valid payloads",
-     "semantics": "bounded-map (see db_defects)",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "blocking_gate": "E only",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** ledger 5831/5831; 5312/5312 = 100.0000% (the busy pair had 1 disagreement); 896 cases"
-    }
+    "width": 8
    },
    "ctrl": {
     "label": "hardware-run",
@@ -1254,27 +1249,19 @@
     "note": "EXP-0181 refresh from corpus-correlation: EXP-0138's operand-slot rename is recorded as applying to falu3_ext verbatim, its own baselines reproduced their oracle 3/3, EXP-0154 ran a saturate-fma carrier and EXP-0160 mapped byte+2 densely on G17P. Anchor 09011e05820802000080 decodes back to falu3_ext at length 10."
    },
    "op": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Pre-registered predictor CONFIRMED on 40 of 256 in both quiet runs: the 8 values (v & 0xC7) == 0x06, which compute the saturating a*b+c bit-exactly, and the 32 values (v & 7) == 7, which are contained faults. REFUTED on 184. Outside those 40 the field is live with role unknown.",
     "target": "G17P",
     "evidence": [
-     "EXP-0160"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 450 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "LIVE and SEMANTICALLY MAPPED on G17P, NOT PROMOTED: only gate E fails. 4 independent arms. Accept rule is EXACTLY (v & 0xC7) == 0x06 -- 8 of 256 values -- so on the 10-byte saturating form ONLY low3=6 computes the fma; -b and the multiply-by-zero do NOT reproduce, and low3=5 leaves the output entirely unwritten. Bits 3/4/5 inert in this envelope, bits 6/7 corrupt. THE TWO `op` FIELDS DO NOT SHARE AN OPERATION MAP, although db.json currently carries one identical note on both descriptors. GATE E NOW SATISFIED. Same fault-class correction: (v&7)==7 is 32/32 contained faults on the quiet device vs 8 fault + 24 not_written on the busy pair.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 16,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "live: 125 moved, 10 distinct valid payloads",
-     "semantics": "bounded-map (see db_defects)",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "blocking_gate": "E only",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair; 992 cases, 100%"
-    }
+    "width": 8
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -5557,25 +5544,18 @@
    },
    "srcA": {
     "label": "untested",
-    "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+    "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings) on 5 carriers. NOT a coverage gap -- a DETECTION POWER gap: gate B fails on every arm.",
     "target": "G17P",
     "evidence": [
-     "EXP-0171"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 4 arm(s), 1 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "CARRIER-UNDECIDABLE, NOT inert. 5 arms (precise rsqrt / divide / sqrt, plus a two-estimate kernel giving two occurrences), 256 values each, 0 faults: all 1280 read-backs are the carrier's exactly correct result. The POSITIVE CONTROL FAILED ON EVERY ARM -- sweeping subop over 20 values moves nothing, and the pre-registered falsifier (subop=0, which our own tokenizer then reads as a different instruction entirely) does not fire either. So the estimate's own result is not observable at the refined output of a precise:: lowering on these carriers, and zero movement here is not evidence of inertness. Safe wording: inert in this exact tested envelope; global role unknown. ONE reproducible effect was seen and is kept: srcA = 0x81, and only 0x81, in all 6 runs that carried the arm, makes the register holding a second live float read as 0.0 while leaving the estimate untouched -- consistent with the release-on-read lifecycle db.json documents for falu2, reached through a (reg 64 << 1)|1 source descriptor. One moving value with a dead control promotes nothing. NEXT: read the seed register directly (redirect the store, as EXP-0026 did). GATE E NOW SATISFIED and IT CHANGES NOTHING: the blocker was never E. Gate B fails on all five arms and still does on the quiet pair. The inert-bit equivalence f(v)==f(v^0x80) is REFUTED at exactly one pair, which is the 0x81 effect.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 8,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "CARRIER-UNDECIDABLE \u2014 control AND falsifier both dead on all five arms. Scoring \"0 of 256 moved\" as inertness would have published a confident FALSE inert claim; Gate B's control conjunct is the only thing that prevented it.",
-     "semantics": "unknown",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.00% both, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
-     "blocking_gate": "B and E",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
-    }
+    "width": 8
    },
    "subop": {
     "label": "hardware-run",
@@ -30117,27 +30097,19 @@
     ]
    },
    "operands": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Predictor confirmed over the FULL range: the accept rule (v & 0x7E) == 0x00 holds 4/4, all 252 other values fail as predicted, and the inert-bit equivalence f(v) == f(v ^ 0x81) holds 128/128 pairs on three arms in both quiet runs with ZERO violations. THE LABEL LICENSES ONLY: emit 0x00, 0x01, 0x80 or 0x81. It licenses NO inference about which operand or register the byte names -- see DEF-0201-3, the operand ROLE is not in this byte.",
     "target": "G17P",
     "evidence": [
-     "EXP-0184"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 3 arm(s), 443 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
+    "note": "LIVE on G17P with a NAMED function, NOT PROMOTED: only gate E fails. This field was previously left untested after a dense M4 sweep of 256 legal values and 256 distinct encodings, because that sweep produced ONE distinct valid payload against ONE constant oracle. The binding constraint was the oracle, not the range, so this experiment changed the oracle and not the coverage: 13 pairwise-distinct named host candidates (asserted bit-exactly before freezing), a -0.0 sign source, two lanes where sign(a)==sign(b) on purpose, a ROLE-EXCHANGED carrier, and an adversarial set with +-0, +-inf, NaN, the smallest denormal and 2^24. Result: 252 of 256 values move, V = 4 distinct valid payloads on the chosen arm (19 across the directory), 0 cross-run disagreements in 8 runs, and the accept set is EXACTLY {0x00,0x01,0x80,0x81} -- rule (v & 0x7E) == 0x00, i.e. bits 0 and 7 inert and bits 1..6 required zero, the (reg<<1)|size operand shape with the inert top bit now measured on a sixth family. At the accept set the hardware computes copysign(a,b) on the load carrier and copysign(b,a) on the role-exchanged one, from BYTE-IDENTICAL instructions -- so the operand ROLE is not carried in this byte (DEF-0201-3). Every other value degrades quietly; the field never faults. GATE E NOW SATISFIED: 0 cross-run disagreements over all 256 values, both orders.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
     "start": 24,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "live: 252 moved, 4 distinct valid payloads",
-     "semantics": "bounded-map (see db_defects)",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "blocking_gate": "E only",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair; 1280 cases, 100%"
-    }
+    "width": 8
    }
   },
   "ibfe_mesh_attr": {
@@ -31379,25 +31351,19 @@
     "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 2, 'wrong_value': 24}; ok at {0x0, 0x40}"
    },
    "opsel": {
-    "label": "untested",
-    "range": "7 values tested (sampled over 3-bit domain)",
+    "label": "isolated-byte-diff",
+    "range": "0..7 dense, 8 distinct ACTUAL dispatched encodings, but the ENCODABLE range inside this mnemonic is 4 values {2,3,6,7} (DEF-0201-1: the field span overlaps its own match bit 17). Predicted effect confirmed at ONE point, v = 6 (a*b+c); the other three in-mnemonic values move but are unpredicted.",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 6, 'ok': 1}; ok at {0x6}",
-    "axes": {
-     "geometry": "geometry-mapped: 8 dispatched, 8 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "live: 3 moved, 5 distinct valid payloads",
-     "semantics": "bounded-map (see db_defects)",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "blocking_gate": "E only",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair; 21 cases, 100%"
-    }
+    "note": "LIVE within the mnemonic, NOT PROMOTED: only gate E fails. THE FIELD'S SPAN OVERLAPS ITS OWN DESCRIPTOR'S MATCH BIT (DEF-0201-1): opsel is bits 16..18 and the descriptor pins [17,1,1], so only 2 of 3 bits are free and the encodable range inside this mnemonic is 4 values {2,3,6,7}, not 8. Values {0,1,4,5} clear bit 17 and the pinned tokenizer re-labels the bytes falu_srcmod12b -- their movement is EXCLUDED from this field's count and reported separately. No assembler is used, so the prior aliasing (nominal 4 and 6 assembling to identical bytes) does not recur: 8 distinct requested values produced 8 distinct ACTUAL dispatched encodings, 0 ledger mismatches. Accept rule (v & 7) == 6; moved 3 of the 4 in-mnemonic values, 0 cross-run disagreements in 8 runs. GATE E NOW SATISFIED: 0 cross-run disagreements over all 8 dispatched values.",
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 4,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
     "label": "hardware-run",
@@ -31427,25 +31393,19 @@
     "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
-    "label": "untested",
-    "range": "128 values tested (dense over 7-bit domain)",
+    "label": "isolated-byte-diff",
+    "range": "0..127 dense, 128 distinct ACTUAL dispatched encodings. Predicted effect confirmed at ONE point, v = 0x03; the accept set is exactly {0x03}. The length model 6 + 2*(v & 3) is not contradicted, but that is FRAMING, not operand semantics.",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0201",
+     "EXP-0210"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 12, 'wrong_value': 116}; ok at {0x0-0x1, 0x3-0x4, 0x8-0x9, 0xb-0xc, 0x10, 0x14, 0x18, 0x1c}",
-    "axes": {
-     "geometry": "geometry-mapped: 128 dispatched, 128 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
-     "liveness": "live: 31 moved, 7 distinct valid payloads",
-     "semantics": "bounded-map (see db_defects)",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "blocking_gate": "E only",
-     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
-     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair; 288 cases, 100%"
-    }
+    "note": "LIVE on G17P, NOT PROMOTED: only gate E fails. 128 values dense x 2 carriers, 0 cross-run disagreements in 8 runs. Accept set is exactly {0x03}: rule (v & 0x7F) == 0x03, so all 7 modelled bits are load-bearing on this carrier. The pre-registered length model length = 6 + 2*(v & 3) is NOT contradicted -- only (v & 3) == 3 preserves the 12-byte framing, and values that re-length the instruction re-tokenize everything after it; that movement is recorded as a FRAMING effect with the mutated token, never as operand semantics. 64 of 128 values return an all-zero vector, 28 return a*b (third source dropped), 1 returns a*b-c, 24 fault in a contiguous region dispatched without a hang budget. GATE E NOW SATISFIED: 0 cross-run disagreements over all 128 values.",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 32,
+    "width": 7
    },
    "srcB_imm": {
     "label": "hardware-run",

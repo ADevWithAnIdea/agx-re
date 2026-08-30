@@ -20,8 +20,8 @@ Section 2 requires every field to carry independent status on six axes. The data
 | geometry:agree | 398 |
 | geometry:disagree | 69 |
 | geometry:not-comparable | 38 |
-| liveness:answer-asserted-without-a-firing-control | 121 |
-| liveness:declared-with-control-or-no-records | 151 |
+| liveness:answer-asserted-without-a-firing-control | 124 |
+| liveness:declared-with-control-or-no-records | 148 |
 | semantics:agree | 420 |
 | semantics:disagree | 64 |
 | semantics:not-comparable | 21 |
@@ -101,9 +101,9 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `ibfins.srcdesc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `ibitcount.cache` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
 | `ibitcount.dst` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
-| `icmp_pred.cond` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmp_pred.cond` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmp_pred.neg` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `icmp_pred.opclass` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmp_pred.opclass` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmp_pred.srcA` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmp_pred.srcB` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmpsel.cache` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
@@ -160,7 +160,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `link_save_restore.reserved7` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
 | `mask_op.mask_bank` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `mask_op.scope_kind` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
-| `matrix_mac.a_reg` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
+| `matrix_mac.a_reg` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `matrix_mac.acc_en` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
 | `matrix_mac.b_reg` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
 | `matrix_mac.c_src` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |

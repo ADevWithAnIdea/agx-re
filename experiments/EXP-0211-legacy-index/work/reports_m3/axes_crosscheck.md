@@ -8,7 +8,7 @@ Section 2 requires every field to carry independent status on six axes. The data
 
 | source | rows carrying an `axes` object |
 |---|---:|
-| validation.json (inline) | 505 |
+| validation.json (inline) | 494 |
 | EXP-0208-axis-reclassification/analysis/axes.json | 496 |
 | **union (an inline object wins)** | **505** |
 | **db.json fields with NO axes object** | **535 of 1040** |
@@ -17,16 +17,16 @@ Section 2 requires every field to carry independent status on six axes. The data
 
 | comparison | rows |
 |---|---:|
-| geometry:agree | 346 |
-| geometry:disagree | 121 |
+| geometry:agree | 350 |
+| geometry:disagree | 117 |
 | geometry:not-comparable | 38 |
-| liveness:answer-asserted-without-a-firing-control | 160 |
-| liveness:declared-with-control-or-no-records | 112 |
-| semantics:agree | 430 |
-| semantics:disagree | 53 |
-| semantics:not-comparable | 22 |
+| liveness:answer-asserted-without-a-firing-control | 157 |
+| liveness:declared-with-control-or-no-records | 115 |
+| semantics:agree | 420 |
+| semantics:disagree | 64 |
+| semantics:not-comparable | 21 |
 
-## Disagreements - 274 row(s)
+## Disagreements - 279 row(s)
 
 A disagreement is not automatically a defect in either party: the declared axes may rest on a keying or a validity rule this indexer scores differently. It marks a row where two independent derivations from the same raw did not land in the same place, which is exactly what should be looked at next.
 
@@ -52,7 +52,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `b_alu10_lo7.opsel_hi` | validation.json (inline) | geometry declared no-data, re-derived bytes-seen |
 | `b_alu10_lo7.outmod` | validation.json (inline) | geometry declared no-data, re-derived bytes-seen |
 | `b_alu10_lo7.srcA` | validation.json (inline) | geometry declared no-data, re-derived bytes-seen |
-| `b_alu10_lo7.src_flag` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `b_alu10_lo7.src_flag` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `b_alu10_lo7.src_reg` | validation.json (inline) | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `b_alu10_lo7.z6` | validation.json (inline) | geometry declared no-data, re-derived bytes-seen |
 | `b_alu10_loe.dst` | validation.json (inline) | geometry declared no-data, re-derived bytes-seen |
@@ -71,6 +71,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `compute_fence_scoped.mask` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `compute_fence_scoped.scope` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `cubearray_coord_const.b3` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `cvt_f2i.b9` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present |
 | `cvt_i2f_src.dst_desc` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `cvt_i2f_src.src_cache` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `device_load.access_desc` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -128,9 +129,10 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `h_coord_hi_ext.ext` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `h_coord_hi_ext.srcB` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `h_coord_hi_ext.tail` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `half_alu_fma12.dst` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen |
-| `half_pack.b3` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `half_pack.dstlo` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `half_alu_fma12.dst` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
+| `half_alu_fma12.ext` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived bytes-seen; semantics declared no-semantic-check, re-derived semantically-mapped |
+| `half_pack.b3` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
+| `half_pack.dstlo` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
 | `iadd2.addsub` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `iadd2.srcB_imm` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `iadd2.srcB_reg_hi` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -141,6 +143,8 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `ibfins.mask_hi` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `ibfins.mask_imm` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `ibfins.srcdesc` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibitcount.cache` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
+| `ibitcount.dst` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived semantically-mapped |
 | `icmp_pred.cond` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmp_pred.neg` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `icmp_pred.opclass` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -165,7 +169,7 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `imad.store_en` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `imageblock_store.b4` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `imageblock_store.src` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `irotate.operands` | validation.json (inline) | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `irotate.operands` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived bytes-seen; semantics declared no-semantic-check, re-derived semantically-mapped |
 | `isel10_c.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `isel10_c.cmpA` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `isel10_c.cmpB` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
@@ -178,8 +182,4 @@ A disagreement is not automatically a defect in either party: the declared axes 
 | `isel8.cmpB` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `isel_reg.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `isel_reg.cmpB` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg.cmp_mode` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
-| `isel_reg8.cmpA` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.cmpB` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 

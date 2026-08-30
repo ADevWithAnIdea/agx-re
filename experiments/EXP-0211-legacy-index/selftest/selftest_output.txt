@@ -1,0 +1,37 @@
+PASS EXTRACT: jump.offset -> 0 is recovered from the EXP-0010 prose as a HANG
+PASS EXTRACT: the same anchor also yields offset->+8 as cmdbuf_error
+PASS EXTRACT: no `bytes` is ever synthesized for a splice record
+PASS EXTRACT: `splice +12 0x46->0x42` reaches device_load.elem_size (byte 12)
+PASS EXTRACT: RT-5 `[a_reg(+5)=... 0x08] STATUS OK` reaches matrix_mac.a_reg
+PASS EXTRACT: `out=/exp=/PASS` is emitted with an oracle and sem_match
+PASS EXTRACT: a P1 sweep row yields a record on the byte-7 field(s)
+PASS EXTRACT: a P1 `FAULT:CMDBUF_ERROR` row is kept as a hard outcome
+PASS EXTRACT: a P1 row's `raw=` output buffer never becomes `bytes`
+PASS EXTRACT: program bytes + a committed outcome emit dispatch records
+PASS REFUSE: `splice cp[0] 0x03->0x00` (constant program) emits nothing
+PASS REFUSE: a splice with no anchored instruction bytes emits nothing
+PASS REFUSE: bytes our own disassembler cannot tokenize are not an anchor
+PASS REFUSE: `payload` is not a db.json field of `stop`, so nothing is emitted
+PASS REFUSE: byte +9 of a 4-byte `stop` is outside the instruction
+PASS REFUSE: two live anchors make the splice ambiguous, not resolvable
+PASS REFUSE: a splice with no outcome token is not an observation
+PASS REFUSE: `a_reg(+9)` contradicts a_reg's own bit span (byte 5)
+PASS REFUSE: a sweep table with no committed baseline encoding emits nothing
+PASS REFUSE: a sweep table with no stated byte index emits nothing
+PASS REFUSE: program bytes with NO outcome are compile-only, not dispatch
+PASS REFUSE: two candidate programs of the stated length -> unparsed
+PASS EXTRACT: exactly one candidate program resolves the absolute offset
+PASS EXTRACT: `main[4]` resolves through the committed program to its owner
+PASS REFUSE: an absolute main[N] with no committed program emits nothing
+PASS REFUSE: a main index past the end of the program emits nothing
+PASS EXTRACT: P5 emits the requested byte AND the actual dispatched bytes
+PASS REFUSE: a splice that destroys the descriptor's own match bits is not evidence about that descriptor's field
+PASS ATTRIB: a known encoding tokenizes to its db.json mnemonic
+PASS ATTRIB: odd-length / non-hex is refused
+PASS ATTRIB: a byte index past the descriptor length has no fields
+PASS ATTRIB: byte 12 of device_load resolves to elem_size
+PASS ATTRIB: a field name that is not in db.json is refused
+PASS SHAPE: the record is admitted by evidence_index's own Indexer
+PASS SHAPE: a hang is NOT counted as a valid payload
+
+LEGACY-INDEX SELFTEST PASS

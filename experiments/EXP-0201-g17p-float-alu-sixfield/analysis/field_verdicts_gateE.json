@@ -1,0 +1,622 @@
+{
+ "falu3.op": {
+  "label": "hardware-run",
+  "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Pre-registered predictor CONFIRMED on 48 of 256 in both quiet runs: the 16 values with (v & 0xC0) == 0 and (v & 7) in {4,6}, which compute -b and a*b+c bit-exactly, and the 32 values with (v & 7) == 7, which are contained faults. REFUTED on 176. Outside those 48 the field is live with role unknown; do not extrapolate.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 16,
+  "width": 8,
+  "note": "LIVE and SEMANTICALLY MAPPED on G17P, NOT PROMOTED: the only failing gate is E (no quiet confirmation window -- five sibling experiments dispatched GPU work throughout). 3 independent arms. On the compiled 3-source fma carrier with bits 6/7 clear: low3=4 -> -b (bit-exact, incl. -(-0.0)=+0.0 and -inf), low3=5 -> 0.0*b (NOT a constant zero: sign follows srcB, inf srcB gives NaN -- DEF-0201-2), low3=6 -> a*b+c (bit-exact FMA), low3=7 -> no output (32 of 256 values). Bits 3/4/5 inert in that envelope; bits 6/7 corrupt. db.json's published low3 entries 0 (a+b), 1 (a*b) and 2 (a*b+a) are REFUTED on this carrier -- 0/2 return a lane-uniform 7.5 (an unrelated live register) and 1 returns +0.0. Every cross-run disagreement in 8 runs is a fault/wrote-nothing flip inside the (v&7)==7 class; adjudicated agreement 100.00%. GATE E NOW SATISFIED (EXP-0210 quiet pair, forward + reversed): 0 cross-run disagreements. NOTE THE FAULT-CLASS CORRECTION: on the quiet device (v&7)==7 is 32/32 CONTAINED FAULTS; the busy pair reported the same 32 values as not_written. The busy machine MASKED faults as OK-but-wrote-nothing, so any fault-class claim is scoped to machine state.",
+  "gate_verdict": "PROMOTE",
+  "gate_blocking_reasons": [],
+  "values_dispatched": 256,
+  "distinct_bytes": 256,
+  "distinct_actual_encodings": 256,
+  "encodable_range": 256,
+  "distinct_oracles": 128,
+  "V_distinct_valid_payloads": 7,
+  "moved": 88,
+  "moved_min": 88,
+  "disagree": 0,
+  "common": 256,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 18,
+  "falsifier_moved": 1,
+  "hard_outcomes": {
+   "fault": 64
+  },
+  "accept_values": [
+   4,
+   6,
+   12,
+   14,
+   20,
+   22,
+   28,
+   30,
+   36,
+   38,
+   44,
+   46,
+   52,
+   54,
+   60,
+   62
+  ],
+  "n_arms": 4,
+  "chosen_arm": "f3_fma#0/falu3.op",
+  "gateA_ledger": {
+   "cases_with_ledger": 512,
+   "cases_total": 512,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 256,
+   "distinct_actual_encodings": 256,
+   "match_bit_collision": false,
+   "program_hashes": 256
+  },
+  "sem_checked": 384,
+  "sem_confirmed": 32,
+  "semantic_buckets": {
+   "different_unclassified": 160,
+   "silent_zero_or_no_write": 136,
+   "correct_effect": 32,
+   "rejected_or_faulted": 64,
+   "different_but_coherent": 120
+  },
+  "sem_coverage": {
+   "arm": "f3_fma#0/falu3.op",
+   "vector_predicted": 192,
+   "vector_confirmed": 16,
+   "vector_refuted": 176,
+   "fault_predicted": 32,
+   "fault_confirmed": 32,
+   "inert_bit_equivalence": null,
+   "confirmed_total_both_runs": 48
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "semantics": "bounded-map over 48 of 256 values; live, role unknown elsewhere",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 99.21875
+  }
+ },
+ "falu3_ext.op": {
+  "label": "hardware-run",
+  "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Pre-registered predictor CONFIRMED on 40 of 256 in both quiet runs: the 8 values (v & 0xC7) == 0x06, which compute the saturating a*b+c bit-exactly, and the 32 values (v & 7) == 7, which are contained faults. REFUTED on 184. Outside those 40 the field is live with role unknown.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 16,
+  "width": 8,
+  "note": "LIVE and SEMANTICALLY MAPPED on G17P, NOT PROMOTED: only gate E fails. 4 independent arms. Accept rule is EXACTLY (v & 0xC7) == 0x06 -- 8 of 256 values -- so on the 10-byte saturating form ONLY low3=6 computes the fma; -b and the multiply-by-zero do NOT reproduce, and low3=5 leaves the output entirely unwritten. Bits 3/4/5 inert in this envelope, bits 6/7 corrupt. THE TWO `op` FIELDS DO NOT SHARE AN OPERATION MAP, although db.json currently carries one identical note on both descriptors. GATE E NOW SATISFIED. Same fault-class correction: (v&7)==7 is 32/32 contained faults on the quiet device vs 8 fault + 24 not_written on the busy pair.",
+  "gate_verdict": "PROMOTE",
+  "gate_blocking_reasons": [],
+  "values_dispatched": 256,
+  "distinct_bytes": 256,
+  "distinct_actual_encodings": 256,
+  "encodable_range": 256,
+  "distinct_oracles": 128,
+  "V_distinct_valid_payloads": 7,
+  "moved": 88,
+  "moved_min": 88,
+  "disagree": 0,
+  "common": 256,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 18,
+  "falsifier_moved": 1,
+  "hard_outcomes": {
+   "fault": 64
+  },
+  "accept_values": [
+   6,
+   14,
+   22,
+   30,
+   38,
+   46,
+   54,
+   62
+  ],
+  "n_arms": 5,
+  "chosen_arm": "f3e_sat#0/falu3_ext.op",
+  "gateA_ledger": {
+   "cases_with_ledger": 512,
+   "cases_total": 512,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 256,
+   "distinct_actual_encodings": 256,
+   "match_bit_collision": false,
+   "program_hashes": 256
+  },
+  "sem_checked": 384,
+  "sem_confirmed": 16,
+  "semantic_buckets": {
+   "different_unclassified": 208,
+   "silent_zero_or_no_write": 200,
+   "correct_effect": 16,
+   "rejected_or_faulted": 64,
+   "different_but_coherent": 24
+  },
+  "sem_coverage": {
+   "arm": "f3e_sat#0/falu3_ext.op",
+   "vector_predicted": 192,
+   "vector_confirmed": 8,
+   "vector_refuted": 184,
+   "fault_predicted": 32,
+   "fault_confirmed": 32,
+   "inert_bit_equivalence": null,
+   "confirmed_total_both_runs": 40
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "semantics": "bounded-map over 40 of 256 values; live, role unknown elsewhere",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 99.609375
+  }
+ },
+ "fspecial_est.srcA": {
+  "label": "untested",
+  "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings) on 5 carriers. NOT a coverage gap -- a DETECTION POWER gap: gate B fails on every arm.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 8,
+  "width": 8,
+  "note": "CARRIER-UNDECIDABLE, NOT inert. 5 arms (precise rsqrt / divide / sqrt, plus a two-estimate kernel giving two occurrences), 256 values each, 0 faults: all 1280 read-backs are the carrier's exactly correct result. The POSITIVE CONTROL FAILED ON EVERY ARM -- sweeping subop over 20 values moves nothing, and the pre-registered falsifier (subop=0, which our own tokenizer then reads as a different instruction entirely) does not fire either. So the estimate's own result is not observable at the refined output of a precise:: lowering on these carriers, and zero movement here is not evidence of inertness. Safe wording: inert in this exact tested envelope; global role unknown. ONE reproducible effect was seen and is kept: srcA = 0x81, and only 0x81, in all 6 runs that carried the arm, makes the register holding a second live float read as 0.0 while leaving the estimate untouched -- consistent with the release-on-read lifecycle db.json documents for falu2, reached through a (reg 64 << 1)|1 source descriptor. One moving value with a dead control promotes nothing. NEXT: read the seed register directly (redirect the store, as EXP-0026 did). GATE E NOW SATISFIED and IT CHANGES NOTHING: the blocker was never E. Gate B fails on all five arms and still does on the quiet pair. The inert-bit equivalence f(v)==f(v^0x80) is REFUTED at exactly one pair, which is the 0x81 effect.",
+  "gate_verdict": "NOT PROMOTED",
+  "gate_blocking_reasons": [
+   "the pre-registered falsifier did not fire -- instrument blind"
+  ],
+  "values_dispatched": 256,
+  "distinct_bytes": 256,
+  "distinct_actual_encodings": 256,
+  "encodable_range": 256,
+  "distinct_oracles": 128,
+  "V_distinct_valid_payloads": 2,
+  "moved": 1,
+  "moved_min": 1,
+  "disagree": 0,
+  "common": 256,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 0,
+  "falsifier_moved": 0,
+  "hard_outcomes": {},
+  "accept_values": [
+   3,
+   131
+  ],
+  "n_arms": 5,
+  "chosen_arm": "fsp_rcp#0/fspecial_est.srcA",
+  "gateA_ledger": {
+   "cases_with_ledger": 512,
+   "cases_total": 512,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 256,
+   "distinct_actual_encodings": 256,
+   "match_bit_collision": false,
+   "program_hashes": 256
+  },
+  "sem_checked": 4,
+  "sem_confirmed": 4,
+  "semantic_buckets": {
+   "different_but_coherent": 508,
+   "correct_effect": 4
+  },
+  "sem_coverage": {
+   "arm": "fsp_rcp#0/fspecial_est.srcA",
+   "vector_predicted": 2,
+   "vector_confirmed": 2,
+   "vector_refuted": 0,
+   "fault_predicted": 0,
+   "fault_confirmed": 0,
+   "inert_bit_equivalence": {
+    "mask": 128,
+    "pairs": 128,
+    "violations": 1,
+    "violating_pairs": [
+     [
+      1,
+      129
+     ]
+    ]
+   },
+   "confirmed_total_both_runs": 2
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live at 1 of 256 values; control FAILED so the remaining values are carrier-undecidable, not inert",
+   "semantics": "unknown -- carrier-undecidable",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 100.0
+  }
+ },
+ "falu3_srcmod12.opsel": {
+  "label": "isolated-byte-diff",
+  "range": "0..7 dense, 8 distinct ACTUAL dispatched encodings, but the ENCODABLE range inside this mnemonic is 4 values {2,3,6,7} (DEF-0201-1: the field span overlaps its own match bit 17). Predicted effect confirmed at ONE point, v = 6 (a*b+c); the other three in-mnemonic values move but are unpredicted.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 16,
+  "width": 3,
+  "note": "LIVE within the mnemonic, NOT PROMOTED: only gate E fails. THE FIELD'S SPAN OVERLAPS ITS OWN DESCRIPTOR'S MATCH BIT (DEF-0201-1): opsel is bits 16..18 and the descriptor pins [17,1,1], so only 2 of 3 bits are free and the encodable range inside this mnemonic is 4 values {2,3,6,7}, not 8. Values {0,1,4,5} clear bit 17 and the pinned tokenizer re-labels the bytes falu_srcmod12b -- their movement is EXCLUDED from this field's count and reported separately. No assembler is used, so the prior aliasing (nominal 4 and 6 assembling to identical bytes) does not recur: 8 distinct requested values produced 8 distinct ACTUAL dispatched encodings, 0 ledger mismatches. Accept rule (v & 7) == 6; moved 3 of the 4 in-mnemonic values, 0 cross-run disagreements in 8 runs. GATE E NOW SATISFIED: 0 cross-run disagreements over all 8 dispatched values.",
+  "gate_verdict": "PROMOTE",
+  "gate_blocking_reasons": [],
+  "values_dispatched": 8,
+  "distinct_bytes": 8,
+  "distinct_actual_encodings": 8,
+  "encodable_range": 4,
+  "distinct_oracles": 8,
+  "V_distinct_valid_payloads": 4,
+  "moved": 2,
+  "moved_min": 2,
+  "disagree": 0,
+  "common": 8,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 14,
+  "falsifier_moved": 1,
+  "hard_outcomes": {
+   "fault": 2
+  },
+  "accept_values": [
+   6
+  ],
+  "n_arms": 3,
+  "chosen_arm": "f12_abs#0/falu3_srcmod12.opsel",
+  "gateA_ledger": {
+   "cases_with_ledger": 16,
+   "cases_total": 16,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 8,
+   "distinct_actual_encodings": 8,
+   "match_bit_collision": false,
+   "program_hashes": 8
+  },
+  "sem_checked": 2,
+  "sem_confirmed": 2,
+  "semantic_buckets": {
+   "different_unclassified": 8,
+   "silent_zero_or_no_write": 4,
+   "correct_effect": 2,
+   "rejected_or_faulted": 2
+  },
+  "sem_coverage": {
+   "arm": "f12_abs#0/falu3_srcmod12.opsel",
+   "vector_predicted": 1,
+   "vector_confirmed": 1,
+   "vector_refuted": 0,
+   "fault_predicted": 0,
+   "fault_confirmed": 0,
+   "inert_bit_equivalence": null,
+   "confirmed_total_both_runs": 1
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "semantics": "hypothesis -- confirmed at 1 of 4 encodable values",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 100.0
+  }
+ },
+ "falu3_srcmod12.ctrl": {
+  "label": "isolated-byte-diff",
+  "range": "0..127 dense, 128 distinct ACTUAL dispatched encodings. Predicted effect confirmed at ONE point, v = 0x03; the accept set is exactly {0x03}. The length model 6 + 2*(v & 3) is not contradicted, but that is FRAMING, not operand semantics.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 32,
+  "width": 7,
+  "note": "LIVE on G17P, NOT PROMOTED: only gate E fails. 128 values dense x 2 carriers, 0 cross-run disagreements in 8 runs. Accept set is exactly {0x03}: rule (v & 0x7F) == 0x03, so all 7 modelled bits are load-bearing on this carrier. The pre-registered length model length = 6 + 2*(v & 3) is NOT contradicted -- only (v & 3) == 3 preserves the 12-byte framing, and values that re-length the instruction re-tokenize everything after it; that movement is recorded as a FRAMING effect with the mutated token, never as operand semantics. 64 of 128 values return an all-zero vector, 28 return a*b (third source dropped), 1 returns a*b-c, 24 fault in a contiguous region dispatched without a hang budget. GATE E NOW SATISFIED: 0 cross-run disagreements over all 128 values.",
+  "gate_verdict": "PROMOTE",
+  "gate_blocking_reasons": [],
+  "values_dispatched": 128,
+  "distinct_bytes": 128,
+  "distinct_actual_encodings": 128,
+  "encodable_range": 128,
+  "distinct_oracles": 128,
+  "V_distinct_valid_payloads": 6,
+  "moved": 31,
+  "moved_min": 31,
+  "disagree": 0,
+  "common": 128,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 14,
+  "falsifier_moved": 1,
+  "hard_outcomes": {
+   "fault": 64
+  },
+  "accept_values": [
+   3
+  ],
+  "n_arms": 3,
+  "chosen_arm": "f12_abs#0/falu3_srcmod12.ctrl",
+  "gateA_ledger": {
+   "cases_with_ledger": 256,
+   "cases_total": 256,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 128,
+   "distinct_actual_encodings": 128,
+   "match_bit_collision": false,
+   "program_hashes": 128
+  },
+  "sem_checked": 2,
+  "sem_confirmed": 2,
+  "semantic_buckets": {
+   "silent_zero_or_no_write": 128,
+   "rejected_or_faulted": 64,
+   "correct_effect": 2,
+   "different_but_coherent": 58,
+   "different_unclassified": 4
+  },
+  "sem_coverage": {
+   "arm": "f12_abs#0/falu3_srcmod12.ctrl",
+   "vector_predicted": 1,
+   "vector_confirmed": 1,
+   "vector_refuted": 0,
+   "fault_predicted": 0,
+   "fault_confirmed": 0,
+   "inert_bit_equivalence": null,
+   "confirmed_total_both_runs": 1
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "semantics": "hypothesis -- confirmed at 1 of 128 values, plus an uncontradicted framing rule",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 100.0
+  }
+ },
+ "copysign.operands": {
+  "label": "hardware-run",
+  "range": "0..255 dense (256 values, 256 distinct ACTUAL dispatched encodings). Predictor confirmed over the FULL range: the accept rule (v & 0x7E) == 0x00 holds 4/4, all 252 other values fail as predicted, and the inert-bit equivalence f(v) == f(v ^ 0x81) holds 128/128 pairs on three arms in both quiet runs with ZERO violations. THE LABEL LICENSES ONLY: emit 0x00, 0x01, 0x80 or 0x81. It licenses NO inference about which operand or register the byte names -- see DEF-0201-3, the operand ROLE is not in this byte.",
+  "target": "G17P",
+  "evidence": [
+   "EXP-0201",
+   "EXP-0210"
+  ],
+  "start": 24,
+  "width": 8,
+  "note": "LIVE on G17P with a NAMED function, NOT PROMOTED: only gate E fails. This field was previously left untested after a dense M4 sweep of 256 legal values and 256 distinct encodings, because that sweep produced ONE distinct valid payload against ONE constant oracle. The binding constraint was the oracle, not the range, so this experiment changed the oracle and not the coverage: 13 pairwise-distinct named host candidates (asserted bit-exactly before freezing), a -0.0 sign source, two lanes where sign(a)==sign(b) on purpose, a ROLE-EXCHANGED carrier, and an adversarial set with +-0, +-inf, NaN, the smallest denormal and 2^24. Result: 252 of 256 values move, V = 4 distinct valid payloads on the chosen arm (19 across the directory), 0 cross-run disagreements in 8 runs, and the accept set is EXACTLY {0x00,0x01,0x80,0x81} -- rule (v & 0x7E) == 0x00, i.e. bits 0 and 7 inert and bits 1..6 required zero, the (reg<<1)|size operand shape with the inert top bit now measured on a sixth family. At the accept set the hardware computes copysign(a,b) on the load carrier and copysign(b,a) on the role-exchanged one, from BYTE-IDENTICAL instructions -- so the operand ROLE is not carried in this byte (DEF-0201-3). Every other value degrades quietly; the field never faults. GATE E NOW SATISFIED: 0 cross-run disagreements over all 256 values, both orders.",
+  "gate_verdict": "PROMOTE",
+  "gate_blocking_reasons": [],
+  "values_dispatched": 256,
+  "distinct_bytes": 256,
+  "distinct_actual_encodings": 256,
+  "encodable_range": 256,
+  "distinct_oracles": 64,
+  "V_distinct_valid_payloads": 4,
+  "moved": 252,
+  "moved_min": 252,
+  "disagree": 0,
+  "common": 256,
+  "cross_run_agree_pct": 100.0,
+  "control_moved": 5,
+  "falsifier_moved": 1,
+  "hard_outcomes": {},
+  "accept_values": [
+   0,
+   1,
+   128,
+   129
+  ],
+  "n_arms": 5,
+  "chosen_arm": "cs_load#0/copysign.operands",
+  "gateA_ledger": {
+   "cases_with_ledger": 512,
+   "cases_total": 512,
+   "ledger_mismatches": 0,
+   "distinct_requested_values": 256,
+   "distinct_actual_encodings": 256,
+   "match_bit_collision": false,
+   "program_hashes": 256
+  },
+  "sem_checked": 8,
+  "sem_confirmed": 8,
+  "semantic_buckets": {
+   "correct_effect": 8,
+   "different_unclassified": 504
+  },
+  "sem_coverage": {
+   "arm": "cs_load#0/copysign.operands",
+   "vector_predicted": 4,
+   "vector_confirmed": 4,
+   "vector_refuted": 0,
+   "fault_predicted": 0,
+   "fault_confirmed": 0,
+   "inert_bit_equivalence": {
+    "mask": 129,
+    "pairs": 128,
+    "violations": 0,
+    "violating_pairs": []
+   },
+   "confirmed_total_both_runs": 4
+  },
+  "axes": {
+   "encoding_geometry": "geometry-mapped",
+   "liveness": "live",
+   "semantics": "bounded-map for the ACCEPT RULE over the full range; the operand ROLE is unknown (DEF-0201-3). If the merge prefers a single axis value, `live; role unknown` is the honest reading of the role and is not contradicted here.",
+   "compiler_recipe": "not-generated",
+   "target": "G17P-direct",
+   "reproducibility": "independently-confirmed"
+  },
+  "quiet_confirmation": true,
+  "superseded_verdict": {
+   "source": "analysis/field_verdicts.json",
+   "label": "untested",
+   "verdict": "NOT PROMOTED",
+   "reason": "busy-machine pair; gate E CONTAMINATED",
+   "cross_run_agree_pct": 100.0
+  }
+ },
+ "_meta": {
+  "experiment": "EXP-0201-g17p-float-alu-sixfield",
+  "supersedes": "analysis/field_verdicts.json (busy-machine pair, all six NOT PROMOTED on gate E)",
+  "confirmation_pair": [
+   "g17p_quiet01 (forward)",
+   "g17p_quiet02 (reverse)"
+  ],
+  "captured_by": "EXP-0210-quiet-confirmation, running THIS experiment's frozen harness: arms201.json sha256 80b13594060525d33654b1690040aa9ca6764a475680d0920a3547a02de789d5 (identical to CAPTURE_CONTRACT.json), pinned db.json 2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "quiet_model_v1_strict": {
+   "g17p_quiet01": {
+    "samples": 273,
+    "samples_with_foreign_gpu_proc": 0,
+    "samples_with_foreign_DISPATCH_runner": 0,
+    "quiet": true,
+    "quiet_dispatch": true,
+    "foreign_comms": []
+   },
+   "g17p_quiet02": {
+    "samples": 273,
+    "samples_with_foreign_gpu_proc": 1,
+    "samples_with_foreign_DISPATCH_runner": 0,
+    "quiet": false,
+    "quiet_dispatch": true,
+    "foreign_comms": [
+     "MTLCompilerService"
+    ]
+   }
+  },
+  "quiet_model_v2_amended": {
+   "g17p_quiet01": {
+    "samples": 273,
+    "samples_with_any_foreign_proc": 0,
+    "samples_with_foreign_DISPATCH_runner": 0,
+    "samples_with_foreign_shdump": 0,
+    "samples_with_unattributable_MTLCompilerService": 0,
+    "quiet_v1_strict": true,
+    "quiet_v2": true,
+    "foreign_comms": []
+   },
+   "g17p_quiet02": {
+    "samples": 273,
+    "samples_with_any_foreign_proc": 1,
+    "samples_with_foreign_DISPATCH_runner": 0,
+    "samples_with_foreign_shdump": 0,
+    "samples_with_unattributable_MTLCompilerService": 1,
+    "quiet_v1_strict": false,
+    "quiet_v2": true,
+    "foreign_comms": [
+     "MTLCompilerService"
+    ]
+   }
+  },
+  "quiet_model_amendment": "AMENDMENT B, verdicts.quiet_v2(): MTLCompilerService is an XPC service launchd owns, so it can never be a descendant of the sampler and ppid attribution is structurally impossible; our own run compiles 21 carriers and therefore necessarily produces one. The strict model could only ever move toward CONTAMINATED and did, on 1 sample of 273 in g17p_quiet02. v2 counts foreign DISPATCH runners and foreign shdump only. This is a LOOSENING, recorded as one; both figures are reported.",
+  "corroborating_independent_instrument": "experiments/EXP-0210-quiet-confirmation/raw/e0201_q01/quietcheck.json and .../e0201_q02/quietcheck.json -- max_foreign_runner 0, max_foreign_legacy_incl_compiler_svc 0, busy_count 0, renderer_util 0, Q2a_no_foreign_reset true, 274 samples over 554 s each.",
+  "fault_class_caveat": "Silent-no-write outcomes on the busy pair became contained faults on the quiet pair (not_written 444/449 -> 160, fault 37/31 -> 355, identical in both orders). The ok/not-ok partition is UNCHANGED: 0 differences over 5272 target cases, and ok = 86 in all four runs. Severity labels are scoped to machine state; the accept sets are not.",
+  "label_rule": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 2 -- hardware-run only over the range where the pre-registered predictor was confirmed in BOTH quiet runs."
+ },
+ "db_defects": {
+  "DEF-0201-1": {
+   "descriptor": "falu3_srcmod12",
+   "field": "opsel",
+   "claim": "The modelled field span (start 16, width 3) OVERLAPS the descriptor's own match constraint [17,1,1]. Only 2 of the 3 bits are free within this mnemonic; the encodable range is 4 values {2,3,6,7}, not 8. Values with bit 17 clear are a DIFFERENT instruction (falu_srcmod12b), which the pinned tokenizer confirms per case.",
+   "evidence": [
+    "raw/g17p_20260830_a_run01/sweep.jsonl",
+    "raw/g17p_20260830_a_run02/sweep.jsonl",
+    "analysis/maps.json"
+   ],
+   "target": "G17P",
+   "note": "This is the cause behind the earlier aliasing symptom (an assembler that could not clear the pinned bit). db.json is NOT edited here."
+  },
+  "DEF-0201-2": {
+   "descriptor": "falu3",
+   "field": "op",
+   "claim": "db.json's falu3.op note maps low-3 class 5 to `0` (a constant zero). It is a MULTIPLY BY ZERO: the result's sign follows srcB (-0.0 for negative srcB) and an INFINITE srcB yields NaN (0x7fc00000). Additionally, low-3 classes 0, 1 and 2 (`a+b`, `a*b`, `a*b+a`) are REFUTED on a compiled three-source fma carrier: 0 and 2 return a lane-uniform constant drawn from an unrelated live register and 1 returns +0.0. Classes 4, 6 and 7 are confirmed bit-exactly.",
+   "evidence": [
+    "analysis/op_semantics.json",
+    "raw/g17p_20260830_a_run01/sweep.jsonl",
+    "raw/g17p_20260830_a_run02/sweep.jsonl"
+   ],
+   "target": "G17P",
+   "note": "The published map came from a synthesized-and-lifted carrier with seeded registers; this is a compiled 3-source fma carrier. Neither record is retracted here. A hypothesis that would reconcile them -- classes 0/2/3 re-decoding the operand descriptors to a source class a 3-source carrier does not name -- is NOT established."
+  },
+  "DEF-0201-3": {
+   "descriptor": "copysign",
+   "field": "operands / _instruction",
+   "claim": "byte+3 is a live operand descriptor with accept rule (v & 0x7E) == 0x00, but it does NOT encode the operand ROLE. Two carriers differing only in which argument is the magnitude source compile to BYTE-IDENTICAL instructions (07 c2 88 00 at the same offset) and compute copysign(a,b) and copysign(b,a) respectively. The role is established by the surrounding register allocation, behind bytes the descriptor models as match constants.",
+   "evidence": [
+    "analysis/maps.json",
+    "raw/g17p_20260830_a_run01/sweep.jsonl"
+   ],
+   "target": "G17P",
+   "note": "Consequence: copysign._instruction stays corpus-correlation. The 4-byte word can be generated from the descriptor and executes correctly (generated-point), but a canonical recipe must state how the roles are established, which this experiment cannot."
+  },
+  "OBS-0201-1": {
+   "descriptor": "falu3",
+   "field": "(numeric behaviour, not an encoding field)",
+   "claim": "A denormal operand and/or a denormal RESULT does not survive the falu3 fused multiply-add on G17P: 1.4e-45 * 2.0 + 0.0, whose IEEE result is 0x00000002, returned 0x00000000. The two flush points are NOT separated by this arm.",
+   "evidence": [
+    "analysis/op_semantics.json"
+   ],
+   "target": "G17P",
+   "note": "Found only by the bit-exact offline classifier; the sweep's own tolerance-based comparison accepted it as correct."
+  },
+  "OBS-0201-2": {
+   "descriptor": "fspecial_est",
+   "field": "subop",
+   "claim": "COMPILER OBSERVATION about our own source, not a hardware claim: on G17P precise::rsqrt and precise::sqrt both lower to subop 0x0f, and precise::divide(1,x) to subop 0x0d, where db.json's enum reads 9 = rcp, 11 = rsqrt, 13 = sqrt, 15 = rsqrt.",
+   "evidence": [
+    "work/census.json"
+   ],
+   "target": "G17P",
+   "note": "Recorded so the enum's provenance can be revisited; nothing is concluded about what the hardware computes for each subop."
+  }
+ }
+}

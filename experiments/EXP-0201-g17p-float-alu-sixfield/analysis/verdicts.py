@@ -112,6 +112,86 @@ def quiet(run_dirs):
     return out
 
 
+DISPATCH_RUNNERS = ("agxrun", "gfrun", "rendersweep", "agxrender", "renderpersist")
+FOREIGN_COMPILERS = ("shdump",)
+# XPC services launchd owns. See quiet_v2() for why these cannot be attributed.
+XPC_UNATTRIBUTABLE = ("MTLCompilerService",)
+
+
+def quiet_v2(run_dirs):
+    """AMENDMENT B (2026-08-30) -- the quiet model, corrected. Stated, not silent.
+
+    THE DEFECT. `quiet()` above counts ANY process matching gpuwatch's pattern
+    list that is not a descendant of the sampler's own process tree. That is a
+    check which, for one of those patterns, CANNOT COME OUT THE OTHER WAY:
+
+      * `MTLCompilerService` is an **XPC service**. launchd spawns it, so it is
+        never a descendant of the requesting process and ppid attribution is
+        STRUCTURALLY IMPOSSIBLE -- "ours" can never be true for it.
+      * `run.py` compiles 21 carriers per run through `shdump`, so our own run
+        NECESSARILY causes compiler-service processes to exist while it samples.
+
+    Together those two facts mean the strict model can only ever move towards
+    CONTAMINATED, and it did: on `g17p_quiet02` it flagged **1 sample of 273**,
+    holding a single `MTLCompilerService` at 0.0 % CPU, and refused six fields
+    that agreed 100 % across a reversed-order pair. That is the mirror of the
+    inertness defect this corpus already documents -- there a gate could not
+    doubt; here a gate could not acquit.
+
+    THE CORRECTION, and its exact scope. `quiet_v2` counts as contamination:
+      * any foreign **GPU dispatch runner** (`agxrun*`, `gfrun*`, `rendersweep`,
+        `agxrender`, `renderpersist`) -- the mechanism FIELD-SWEEP-PROTOCOL
+        section 7 names, because a hang triggers a DEVICE RESET that kills
+        in-flight command buffers in other contexts; and
+      * any foreign `shdump` -- not because compiling perturbs the GPU, but
+        because it is positive evidence that ANOTHER AGENT IS ACTIVE.
+    It does NOT count `MTLCompilerService`, on the stated ground above.
+
+    This is a LOOSENING and it is recorded as one. Both figures are returned on
+    every run, `quiet_v1_strict` is never removed, and the corroborating
+    independent instrument (EXP-0210's `quietcheck.json`, which carries
+    GPU-level counters this sampler does not read) is cited in RESULTS.md rather
+    than substituted for our own measurement.
+    """
+    out = {}
+    for d in run_dirs:
+        run = os.path.basename(os.path.normpath(d))
+        p = os.path.join(d, "gpuwatch.jsonl")
+        if not os.path.exists(p):
+            out[run] = {"samples": 0, "quiet_v1_strict": None, "quiet_v2": None,
+                        "note": "no gpuwatch.jsonl -- quietness UNMEASURED"}
+            continue
+        n = strict = disp = comp = xpc = 0
+        comms = set()
+        for ln in open(p, errors="replace"):
+            try:
+                r = json.loads(ln)
+            except ValueError:
+                continue
+            n += 1
+            foreign = [x for x in r.get("procs", []) if not x["ours"]]
+            if foreign:
+                strict += 1
+                comms |= {x["comm"].split("/")[-1] for x in foreign}
+            if any(k in x["comm"] for k in DISPATCH_RUNNERS for x in foreign):
+                disp += 1
+            if any(k in x["comm"] for k in FOREIGN_COMPILERS for x in foreign):
+                comp += 1
+            if any(k in x["comm"] for k in XPC_UNATTRIBUTABLE for x in foreign):
+                xpc += 1
+        out[run] = {
+            "samples": n,
+            "samples_with_any_foreign_proc": strict,
+            "samples_with_foreign_DISPATCH_runner": disp,
+            "samples_with_foreign_shdump": comp,
+            "samples_with_unattributable_MTLCompilerService": xpc,
+            "quiet_v1_strict": (n > 0 and strict == 0),
+            "quiet_v2": (n > 0 and disp == 0 and comp == 0),
+            "foreign_comms": sorted(comms),
+        }
+    return out
+
+
 def arm_stats(recs, arm, run):
     """Per-value deterministic signature for one arm in one run, plus the
     baseline signature captured immediately before the arm.

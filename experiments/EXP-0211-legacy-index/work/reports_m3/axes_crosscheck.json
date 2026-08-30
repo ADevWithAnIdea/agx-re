@@ -1,19 +1,19 @@
 {
  "counts": {
-  "validation.json (inline)": 505,
+  "validation.json (inline)": 494,
   "EXP-0208-axis-reclassification/analysis/axes.json": 496
  },
  "union": 505,
  "denominator": 1040,
  "agreement": {
-  "geometry:agree": 346,
-  "semantics:agree": 430,
-  "liveness:answer-asserted-without-a-firing-control": 160,
+  "geometry:agree": 350,
+  "semantics:agree": 420,
+  "liveness:answer-asserted-without-a-firing-control": 157,
   "geometry:not-comparable": 38,
-  "geometry:disagree": 121,
-  "liveness:declared-with-control-or-no-records": 112,
-  "semantics:not-comparable": 22,
-  "semantics:disagree": 53
+  "geometry:disagree": 117,
+  "liveness:declared-with-control-or-no-records": 115,
+  "semantics:not-comparable": 21,
+  "semantics:disagree": 64
  },
  "rows": [
   {
@@ -403,11 +403,11 @@
    "geometry_rederived": "bytes-seen",
    "semantics_declared": "no-semantic-check",
    "semantics_rederived": "no-semantic-check",
-   "liveness_declared": "live",
+   "liveness_declared": "inert",
    "liveness_decidedness": "records-no-control",
    "disagreements": [
     "geometry declared geometry-mapped, re-derived bytes-seen",
-    "liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable`"
+    "liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable`"
    ]
   },
   {
@@ -1117,13 +1117,16 @@
   },
   {
    "key": "cvt_f2i.b9",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
    "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "checks-present",
    "liveness_declared": "live",
-   "liveness_decidedness": "decided-multi-carrier"
+   "liveness_decidedness": "decided-multi-carrier",
+   "disagreements": [
+    "semantics declared no-semantic-check, re-derived checks-present"
+   ]
   },
   {
    "key": "cvt_i2f_src.dst_desc",
@@ -2095,26 +2098,30 @@
   },
   {
    "key": "half_alu_fma12.dst",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
-   "geometry_rederived": "bytes-seen",
-   "semantics_declared": null,
-   "semantics_rederived": "no-semantic-check",
+   "geometry_rederived": "geometry-mapped",
+   "semantics_declared": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
    "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
-    "geometry declared geometry-mapped, re-derived bytes-seen"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
    "key": "half_alu_fma12.ext",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "ledger-verified",
-   "geometry_rederived": "ledger-verified",
+   "geometry_rederived": "bytes-seen",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "decided-multi-carrier"
+   "liveness_decidedness": "decided-multi-carrier",
+   "disagreements": [
+    "geometry declared ledger-verified, re-derived bytes-seen",
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
+   ]
   },
   {
    "key": "half_compact4.dst",
@@ -2158,30 +2165,28 @@
   },
   {
    "key": "half_pack.b3",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
-   "geometry_rederived": "bytes-seen",
+   "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "records-no-control",
+   "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
-    "geometry declared geometry-mapped, re-derived bytes-seen",
-    "liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable`"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
    "key": "half_pack.dstlo",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
-   "geometry_rederived": "bytes-seen",
+   "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "records-no-control",
+   "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
-    "geometry declared geometry-mapped, re-derived bytes-seen",
-    "liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable`"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
@@ -2377,23 +2382,29 @@
   },
   {
    "key": "ibitcount.cache",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
    "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "decided-multi-carrier"
+   "liveness_decidedness": "decided-multi-carrier",
+   "disagreements": [
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
+   ]
   },
   {
    "key": "ibitcount.dst",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
    "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "decided-multi-carrier"
+   "liveness_decidedness": "decided-multi-carrier",
+   "disagreements": [
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
+   ]
   },
   {
    "key": "icmp_pred.cond",
@@ -2947,16 +2958,16 @@
   },
   {
    "key": "irotate.operands",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "ledger-verified",
    "geometry_rederived": "bytes-seen",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "records-no-control",
+   "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
     "geometry declared ledger-verified, re-derived bytes-seen",
-    "liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable`"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
@@ -3260,28 +3271,28 @@
   },
   {
    "key": "iunary.b1",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
-   "geometry_rederived": "no-data",
+   "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "no-data",
+   "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
-    "geometry declared geometry-mapped, re-derived no-data"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
    "key": "iunary.opsel",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
-   "geometry_rederived": "no-data",
+   "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "no-data",
+   "liveness_decidedness": "decided-multi-carrier",
    "disagreements": [
-    "geometry declared geometry-mapped, re-derived no-data"
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
    ]
   },
   {
@@ -5205,13 +5216,16 @@
   },
   {
    "key": "shift_amt_move.src_flag",
-   "source": "validation.json (inline)",
+   "source": "EXP-0208-axis-reclassification/analysis/axes.json",
    "geometry_declared": "geometry-mapped",
    "geometry_rederived": "geometry-mapped",
    "semantics_declared": "no-semantic-check",
-   "semantics_rederived": "no-semantic-check",
+   "semantics_rederived": "semantically-mapped",
    "liveness_declared": "live",
-   "liveness_decidedness": "decided-one-carrier"
+   "liveness_decidedness": "decided-multi-carrier",
+   "disagreements": [
+    "semantics declared no-semantic-check, re-derived semantically-mapped"
+   ]
   },
   {
    "key": "simd_ballot.cache",
