@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 525,
+   "hardware-run": 522,
    "isolated-byte-diff": 92,
-   "corpus-correlation": 93,
-   "tokenization-only": 153,
-   "single-template-inference": 8,
+   "corpus-correlation": 91,
+   "tokenization-only": 151,
+   "single-template-inference": 19,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 191
+   "untested": 187
   },
   "by_label_pct": {
-   "hardware-run": 49.4,
+   "hardware-run": 49.2,
    "isolated-byte-diff": 8.7,
-   "corpus-correlation": 8.8,
-   "tokenization-only": 14.4,
-   "single-template-inference": 0.8,
+   "corpus-correlation": 8.6,
+   "tokenization-only": 14.2,
+   "single-template-inference": 1.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 18.0
+   "untested": 17.6
   },
-  "emittable_instructions": 44,
+  "emittable_instructions": 40,
   "emittable_mnemonics": [
    "bf_add_dst",
    "carry_gen",
@@ -44,9 +44,7 @@
    "cvt_i2f",
    "falu3",
    "falu3_ext",
-   "frag_color_store",
    "frag_depth_store",
-   "frag_tile_setup",
    "frame_prologue",
    "fspecial",
    "h_coord_hi",
@@ -55,7 +53,6 @@
    "hminmax",
    "iminmax",
    "isel10",
-   "iter",
    "iter_flat",
    "iunary",
    "link_save_restore",
@@ -79,10 +76,9 @@
    "sr_read_wide",
    "stop",
    "tex_addr_setup",
-   "tex_write",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 128,
+  "decodable_not_yet_emittable": 132,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -93,7 +89,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 44
+  "emittable_of_emitter_relevant": 40
  },
  "instructions": {
   "falu2": {
@@ -3431,13 +3427,13 @@
     "note": "2/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "amode": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values) x 6 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1', 'tex_write@w2'].]"
+    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert."
    },
    "seq_idx": {
     "label": "hardware-run",
@@ -3494,13 +3490,13 @@
     "note": ""
    },
    "rsv11": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "untested",
+    "range": "0..255 dense (all 256 values) x 6 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1'].]"
+    "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert."
    },
    "wop": {
     "label": "hardware-run",
@@ -3725,16 +3721,13 @@
     ]
    },
    "cache": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "single-template-inference",
+    "range": "0..1 dense (all 2 values) x 8 arms",
+    "target": "G17P",
     "evidence": [
-     "EXP-0086",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0163"
     ],
-    "note": "Literal 0x54/0x56 bit - DOWNGRADED to UNKNOWN (EXP-0086)."
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 4 structurally different carriers (sball, scache, sdiv, stype), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -3793,12 +3786,12 @@
    },
    "rsv9": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "range": "0..255 dense (all 256 values) x 8 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['sshuffle@simd1', 'sshuffle@simd6'].]"
+    "note": "LIVE: moved the observation on 2 arm(s) across stype. Inert on sball, scache, sdiv, stype -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    }
   },
   "simd_ballot": {
@@ -3823,14 +3816,13 @@
     "note": "Treat the high nibble as a decode label, not an independently settable field."
    },
    "cache": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 4 arms",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0163"
+    ],
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 4 arms across 3 structurally different carriers (sball, scache, sdiv), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -5240,13 +5232,13 @@
     "note": ""
    },
    "b9": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 6 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter@cent1', 'iter@frag0W', 'iter@frag1'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 6 arms across 6 structurally different carriers (atoff1, cent4, mrt3, vflat, vhalf, vmany), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    }
   },
   "iter_at": {
@@ -5305,12 +5297,12 @@
    },
    "loc": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "range": "0..255 dense (all 256 values) x 10 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter_at@cent1_0', 'iter_at@cent1_1'].]"
+    "note": "LIVE: moved the observation on 7 arm(s) across atoff4, cent4, ms4cent, ms4out. Inert on atoff1, cent1 -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    }
   },
   "iter_flat": {
@@ -5370,13 +5362,13 @@
     ]
    },
    "store_mode": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 8 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fcs@iter0', 'fcs@pack0'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 7 structurally different carriers (cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -5533,13 +5525,13 @@
     "note": "EXP-0164 withheld: 249 values dispatched, 2 carrier(s) tested, 125 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
    },
    "b4": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 3 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['ibs@t1', 'ibs@tc'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 3 arms across 3 structurally different carriers (atoff4, ibms4, ibsamp), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "slice_off": {
     "label": "isolated-byte-diff",
@@ -5661,31 +5653,31 @@
     "note": ""
    },
    "sel": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 8 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "access": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 8 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "b5": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 8 arms",
     "target": "G17P",
     "evidence": [
-     "EXP-0155"
+     "EXP-0163"
     ],
-    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    }
   },
   "frag_color_pack": {
@@ -6430,12 +6422,13 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 259 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
    },
    "hint2": {
-    "label": "corpus-correlation",
-    "range": "carries the same 0x54/0x55/0x56 data-source mode as the device_store amode",
-    "target": "M4",
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0163"
+    ],
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -6473,16 +6466,22 @@
     "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 128 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
    },
    "hint6": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "LIVE: moved the observation on 7 arm(s) across vflat, vhalf, vmany, vsrc. Inert on vclip, vmany -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    },
    "b7": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    }
   },
   "tex_coord_setup": {
@@ -6536,36 +6535,49 @@
     ]
    },
    "b5": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "LIVE: moved the observation on 8 arm(s) across bits, fclass, ms4out, sball, vhalf, vsrc. Inert on fclass -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    },
    "b6": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    },
    "idx": {
-    "label": "corpus-correlation",
-    "range": "byte+7 = dst-slot index (dst<<2) in the vertex-attribute role",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0163"
+    ],
+    "note": "LIVE: moved the observation on 1 arm(s) across vsrc. Inert on bits, fclass, ms4out, sball, vhalf, vsrc -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    },
    "b8": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon."
    },
    "b9": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "single-template-inference",
+    "range": "0..255 dense (all 256 values) x 9 arms",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0163"
+    ],
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 6 structurally different carriers (bits, fclass, ms4out, sball, vhalf, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
    }
   },
   "coord_madf": {

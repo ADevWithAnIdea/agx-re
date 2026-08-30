@@ -1,0 +1,1769 @@
+{
+ "carriers": {
+  "r_fcp1": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "1 RT, 8-bit unorm, IMMEDIATE-source packs (EXP-0155 replica)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_fcp1.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "80",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "fcp",
+   "priority": 1,
+   "src": "kernels/r_fcp1.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "974554000280005004c2974554000280005004c2",
+     "len": 20,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 0,
+         "length": 10,
+         "occ": 0
+        },
+        {
+         "abs_off": 4106,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 10,
+         "length": 10,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "EXP-0155's configuration re-authored (BGRA8Unorm, 1 RT, 1 sample, four scalar varyings written as literals so the compiler may fold them into the pack's own `val` immediate). This is the CONTROL that reproduces the prior unstable result; its two pack occurrences are ONE carrier, which is exactly what EXP-0164 mis-counted as two."
+  },
+  "r_fcp1s": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "1 RT, 8-bit unorm, 4x MSAA tile path",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_fcp1.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "80",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "4",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>",
+    "--resolve"
+   ],
+   "family": "fcp",
+   "priority": 3,
+   "src": "kernels/r_fcp1.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "974554000280005004c2974554000280005004c2",
+     "len": 20,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 0,
+         "length": 10,
+         "occ": 0
+        },
+        {
+         "abs_off": 4106,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 10,
+         "length": 10,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "Same source as r_fcp1 with rasterSampleCount 4 -- a controlled comparison under one changed pipeline parameter (NOT a byte-for-byte pair: Metal lowers the multisampled fragment build differently, per EXP-0163's corrected sec.2). Four constant-per-sample channels resolve to exactly their own value, so the oracle is unchanged."
+  },
+  "r_fcp4": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "4 RTs, 8-bit unorm, REGISTER-source packs (16 live colours)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_fcpmrt.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "80",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "4",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "fcp",
+   "priority": 1,
+   "src": "kernels/r_fcpmrt.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "974554000280005004c2974554000280005004c2974554000280005004c2974554000280005004c2974554000280005004c2974554000280005004c2974554000280005004c2974554000280005004c2",
+     "len": 80,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 0,
+         "length": 10,
+         "occ": 0
+        },
+        {
+         "abs_off": 4106,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 10,
+         "length": 10,
+         "occ": 1
+        },
+        {
+         "abs_off": 4116,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 20,
+         "length": 10,
+         "occ": 2
+        },
+        {
+         "abs_off": 4126,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 30,
+         "length": 10,
+         "occ": 3
+        },
+        {
+         "abs_off": 4136,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 40,
+         "length": 10,
+         "occ": 4
+        },
+        {
+         "abs_off": 4146,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 50,
+         "length": 10,
+         "occ": 5
+        },
+        {
+         "abs_off": 4156,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 60,
+         "length": 10,
+         "occ": 6
+        },
+        {
+         "abs_off": 4166,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 70,
+         "length": 10,
+         "occ": 7
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 8
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "Sixteen distinct live colour values in sixteen registers, so redirecting one pack's destination onto another's register produces a DECODABLE cross-contamination naming the register it came from. The set of live colour registers genuinely differs from r_fcp1's, which is what makes this a second carrier and not a second occurrence. Runtime-sourced, so the packs must read registers (db.json's `src_present_mask` 0xd0 register vs 0x50 immediate)."
+  },
+  "r_fcpf": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "4 RTs, 32-bit FLOAT attachment (pack may be absent)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_fcpmrt.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "4",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "fcp",
+   "priority": 2,
+   "src": "kernels/r_fcpmrt.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "Same source and same 4-RT shape as r_fcp4 with the attachment format changed to RGBA32Float, which needs no conversion. If the census finds ZERO frag_color_pack occurrences here that is a first-class structural result about when the instruction exists, recorded rather than treated as a failed build."
+  },
+  "r_fcph": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "1 RT, 16-bit FLOAT attachment (different conversion class)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_fcph.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "115",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "fcp",
+   "priority": 2,
+   "src": "kernels/r_fcph.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "974554000280005004c2974554000280005004c2",
+     "len": 20,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 0,
+         "length": 10,
+         "occ": 0
+        },
+        {
+         "abs_off": 4106,
+         "fields": {
+          "comp_off": 128,
+          "conv_scale": 194,
+          "dst": 0,
+          "fmt_class": 84,
+          "mode": 2,
+          "src_desc": 69,
+          "src_gate_select": 4,
+          "src_present_mask": 80,
+          "val": 0
+         },
+         "hex": "974554000280005004c2",
+         "instr_off": 10,
+         "length": 10,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "r_fcp1 and r_fcp4 both convert float -> 8-bit normalised integer. RGBA16Float is a different conversion class (no normalisation, two halves per word). If the pack's destination assignment depends on how many components share a word, an 8-bit-only set cannot see it."
+  },
+  "r_rog2": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "TWO ordered resources of different type, data-dependent",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_rog2.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "1",
+    "--height",
+    "1",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>",
+    "--tex-write",
+    "1,1",
+    "--tex-write-uint",
+    "1,1",
+    "--clear",
+    "0.125,0.25,0.375,0.5",
+    "--instances",
+    "8",
+    "--texw-reset",
+    "0.0625,0.125,0.25,0.5",
+    "--texwu-reset",
+    "1000,2000,3000,4000"
+   ],
+   "family": "rog",
+   "priority": 3,
+   "src": "kernels/r_rog2.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "071454500600070454d00600",
+     "len": 12,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 20,
+          "scope": 80
+         },
+         "hex": "071454500600",
+         "instr_off": 0,
+         "length": 6,
+         "occ": 0
+        },
+        {
+         "abs_off": 4102,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 4,
+          "scope": 208
+         },
+         "hex": "070454d00600",
+         "instr_off": 6,
+         "length": 6,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "Two raster order groups (float group 0, uint group 1) where group 1's increment derives from group 0's post-update value. Ordering failure can present as an INCONSISTENCY BETWEEN the two resources, a third distinct signature, and it puts two independent pixel_order brackets with different scope in one program."
+  },
+  "r_rog8": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "COMMUTATIVE additive RMW, one ordered resource",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_rog8.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "1",
+    "--height",
+    "1",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>",
+    "--tex-write",
+    "1,1",
+    "--clear",
+    "0.125,0.25,0.375,0.5",
+    "--instances",
+    "8",
+    "--texw-reset",
+    "0.0,0.0,0.0,0.0"
+   ],
+   "family": "rog",
+   "priority": 1,
+   "src": "kernels/r_rog8.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "071454500600070454d00600",
+     "len": 12,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 20,
+          "scope": 80
+         },
+         "hex": "071454500600",
+         "instr_off": 0,
+         "length": 6,
+         "occ": 0
+        },
+        {
+         "abs_off": 4102,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 4,
+          "scope": 208
+         },
+         "hex": "070454d00600",
+         "instr_off": 6,
+         "length": 6,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "Direct replication of EXP-0162's `pixel_order` carrier (same src, clear, reset, instance count), so its committed per-value partition is a PRE-REGISTERED PREDICTION this run is scored against rather than an inert 'differs from baseline' oracle. Ordering failure presents as a LOST-UPDATE COUNT; being commutative, this carrier is blind to a pure permutation."
+  },
+  "r_rogx": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "NON-COMMUTATIVE affine RMW (order-sensitive, not only loss)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_rogx.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "1",
+    "--height",
+    "1",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>",
+    "--tex-write",
+    "1,1",
+    "--clear",
+    "0.125,0.25,0.375,0.5",
+    "--instances",
+    "8",
+    "--texw-reset",
+    "0.0625,0.125,0.25,0.5"
+   ],
+   "family": "rog",
+   "priority": 2,
+   "src": "kernels/r_rogx.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "071454500600070454d00600",
+     "len": 12,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "tokenize",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 20,
+          "scope": 80
+         },
+         "hex": "071454500600",
+         "instr_off": 0,
+         "length": 6,
+         "occ": 0
+        },
+        {
+         "abs_off": 4102,
+         "fields": {
+          "b5": 0,
+          "flags": 6,
+          "kind": 4,
+          "scope": 208
+         },
+         "hex": "070454d00600",
+         "instr_off": 6,
+         "length": 6,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a54",
+     "len": 16,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 1
+      }
+     }
+    }
+   },
+   "why": "v <- v*2 + src is not permutation-invariant and not idempotent, so ordering failure presents as a WRONG VALUE that names how many updates were applied -- a different failure signature from r_rog8, which is the dimension `kind` (acquire vs release) controls."
+  },
+  "r_v1": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "varying-slot-count=1 (single-varying CONTROL)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_v1.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "1",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "vtx",
+   "priority": 1,
+   "src": "kernels/r_v1.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a540b0026004000000457025400e0004a54",
+     "len": 32,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4120,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 24,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4112,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 16,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    }
+   },
+   "why": "Reproduces EXP-0147's blind shape on purpose: ONE user varying, so `slot` -- which selects WHICH output slot -- has nothing to select. If slot moves nothing here and something on r_v8/r_v4v/r_vsrc, the EXP-0147 null is a carrier limitation, not a hardware don't-care."
+  },
+  "r_v4v": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "varying-slot-count=4 VECTOR (16 components)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_v4vec.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "4",
+    "--build-archive",
+    "<archive>",
+    "--out-buf",
+    "1=384"
+   ],
+   "family": "vtx",
+   "priority": 2,
+   "src": "kernels/r_v4vec.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a540b0026004000000457025400e0004a54",
+     "len": 32,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4120,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 24,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4112,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 16,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    }
+   },
+   "why": "Same component count as r_v8 doubled, but carried as four float4s rather than eight floats. If slot's stride-4 corpus values are a BYTE OFFSET into an output block rather than a slot ordinal, the slot->offset map differs between scalar and vector programs and only a set containing both can tell the readings apart."
+  },
+  "r_v8": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "varying-slot-count=8 scalar + vertex-stage device out-buf",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_v8.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "2",
+    "--build-archive",
+    "<archive>",
+    "--out-buf",
+    "1=384"
+   ],
+   "family": "vtx",
+   "priority": 1,
+   "src": "kernels/r_v8.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a540b0026004000000457025400e0004a54",
+     "len": 32,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4120,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 24,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4112,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 16,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    }
+   },
+   "why": "Eight scalar varyings carrying eight distinct powers of two, so a redirected slot is DECODABLE rather than merely different; plus the direct per-vertex device-buffer observable, which separates 'the value was computed' from 'the value was routed to slot k' from 'the program never ran'."
+  },
+  "r_v8f": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "varying-slot-count=8 scalar, FLAT interpolation, no out-buf",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_v8flat.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "2",
+    "--build-archive",
+    "<archive>"
+   ],
+   "family": "vtx",
+   "priority": 3,
+   "src": "kernels/r_v8flat.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a540b0026004000000457025400e0004a54",
+     "len": 32,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4120,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 24,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4112,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 16,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    }
+   },
+   "why": "Two controls in one: flat vs smooth changes how the vertex-side store is lowered (EXP-0163's vflat is one of five carriers that moved vary_store.hint6), and the absence of the device write identifies the write itself as a confound if the writing carriers behave differently."
+  },
+  "r_vsrc": {
+   "archive_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "carrier_dim": "8 varyings from a SERIAL CHAIN (8 distinct live registers)",
+   "cmd": [
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/work/gfrun3",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0168-g17p-dst-resweep/kernels/r_vsrc.metal",
+    "--vertex",
+    "v_main",
+    "--fragment",
+    "f_main",
+    "--color-format",
+    "125",
+    "--width",
+    "16",
+    "--height",
+    "16",
+    "--samples",
+    "1",
+    "--rt-count",
+    "2",
+    "--build-archive",
+    "<archive>",
+    "--out-buf",
+    "1=384"
+   ],
+   "family": "vtx",
+   "priority": 2,
+   "src": "kernels/r_vsrc.metal",
+   "src_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "stages": {
+    "fragment": {
+     "abs_off": 4096,
+     "hex": "0e00",
+     "len": 2,
+     "occurrences": {
+      "frag_color_pack": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      },
+      "pixel_order": {
+       "hits": [],
+       "located_via": "scan",
+       "n": 0
+      }
+     }
+    },
+    "vertex": {
+     "abs_off": 4096,
+     "hex": "0b0026004000000457025400e0004a540b0026004000000457025400e0004a54",
+     "len": 32,
+     "occurrences": {
+      "vary_store": {
+       "hits": [
+        {
+         "abs_off": 4104,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 8,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4120,
+         "fields": {
+          "b5_tag": 0,
+          "b7": 84,
+          "hint1": 2,
+          "hint2": 84,
+          "hint6": 74,
+          "out_slot": 224,
+          "out_slot_hi": 0,
+          "src": 0
+         },
+         "hex": "57025400e0004a54",
+         "instr_off": 24,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      },
+      "vtx_out_pos": {
+       "hits": [
+        {
+         "abs_off": 4096,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 0,
+         "length": 8,
+         "occ": 0
+        },
+        {
+         "abs_off": 4112,
+         "fields": {
+          "dst": 0,
+          "slot": 4
+         },
+         "hex": "0b00260040000004",
+         "instr_off": 16,
+         "length": 8,
+         "occ": 1
+        }
+       ],
+       "located_via": "tokenize",
+       "n": 2
+      }
+     }
+    }
+   },
+   "why": "`dst` is a 4-bit register selector; the only dimension it controls is which register feeds the output. A serial dependency chain forces eight simultaneously live distinct values, which is the register-space condition EXP-0138's copysign.operands sweep lacked (two live float registers -> a register selector has nothing to select)."
+  }
+ },
+ "isadb_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+ "kind": "census",
+ "run_id": "mock",
+ "started_utc": "2026-08-30T08:38:07Z",
+ "tools": "/Users/user/asahi_re/public/agx-re/tools"
+}

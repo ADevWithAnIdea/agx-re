@@ -423,11 +423,16 @@ def observe(resp, name):
     pr = {}
     for tag, buf in sorted(surf.items()):
         if tag.startswith("PIX") and "_S" not in tag:
-            pr[tag] = [RC.decode_pixel(buf, fmt, x, y, w)
-                       for (x, y) in RC.probe_pixels(cfg)]
-            # every probe pixel of a covered full-screen triangle must agree
-            if len(pr[tag]) > 1 and all(v == pr[tag][0] for v in pr[tag]):
-                pr[tag] = pr[tag][0]
+            vv = [RC.decode_pixel(buf, fmt, x, y, w)
+                  for (x, y) in RC.probe_pixels(cfg)]
+            # Every carrier draws a FULL-SCREEN triangle whose varyings are equal
+            # at all three vertices, so every probe pixel must hold the same
+            # value.  Collapse when they agree; keep the list when they do not,
+            # because disagreement is itself an observation (and `oracle_match`
+            # then reports a mismatch rather than silently comparing pixel 0).
+            pr[tag] = vv[0] if all(x == vv[0] for x in vv) else vv
+            if len(vv) > 1 and pr[tag] is not vv[0]:
+                o["probe_pixels_disagree"] = o.get("probe_pixels_disagree", []) + [tag]
         elif tag == "TEXW":
             pr[tag] = RC.decode_texw(buf)
         elif tag == "TEXWU":
@@ -830,12 +835,13 @@ class Run:
                 obs, v, att = self.dispatch_valid(arm, [], bufs={0: ov}, rec=rec)
                 got_alt = oracle_match(name, obs, alt=True)
                 failed_baseline = not same_obs(obs, base)
-                held = bool(got_alt and failed_baseline)
+                held = ("held" if (got_alt and failed_baseline)
+                        else ("partial" if failed_baseline else "failed"))
                 S["falsifiers"][F["id"]] = {"held": held, "alt_exact": bool(got_alt),
                                             "differs_from_baseline": bool(failed_baseline)}
                 rec.update(observed=obs, validity=v, accepted=True, attempt=att,
-                           match=held, outcome="falsifier_held" if held
-                           else "falsifier_FAILED", rt_ok=obs.get("rt_ok"),
+                           match=(held == "held"), outcome="falsifier_" + held,
+                           rt_ok=obs.get("rt_ok"),
                            oracle={k: vv for k, vv in RC.oracle(name, alt=True).items()},
                            confirm=None, note=F["note"])
                 self.emit(rec)
@@ -858,11 +864,10 @@ class Run:
             hung = self._count_hang(arm, S, obs, conf)
             oc = classify(name, obs, base)
             held = self._falsifier_held(F, obs, base, oc)
-            S["falsifiers"][F["id"]] = {"held": bool(held), "observed_outcome": oc}
+            S["falsifiers"][F["id"]] = {"held": held, "observed_outcome": oc}
             rec.update(observed=obs, validity=v, accepted=True, attempt=att,
-                       confirm=conf, match=bool(held),
-                       outcome=("hang" if hung else
-                                ("falsifier_held" if held else "falsifier_FAILED")),
+                       confirm=conf, match=(held == "held"),
+                       outcome=("hang" if hung else "falsifier_" + held),
                        rt_ok=obs.get("rt_ok"), oracle=None,
                        note="%s | predicted=%s observed=%s"
                             % (F["note"], F["predict"], oc))
@@ -870,26 +875,38 @@ class Run:
 
     @staticmethod
     def _falsifier_held(F, obs, base, oc):
+        """`held` | `partial` | `failed`.
+
+        THREE states, not two.  A falsifier whose prediction is directionally
+        right but not exact (the observation differs from the baseline, but not
+        with the predicted signature) is NOT a pass; recording it as one would
+        launder a wrong prediction into a passed control.
+        """
         p = F["predict"]
         if p == "contained_fault":
-            return obs.get("status") in ("CMDBUF_ERROR", "PIPELINE_MISS",
-                                         "COMPILE_FAIL")
+            if obs.get("status") in ("CMDBUF_ERROR", "PIPELINE_MISS", "COMPILE_FAIL"):
+                return "held"
+            return "partial" if obs.get("status") == "HANG" else "failed"
         if p == "not_ok":
-            return oc != "ok"
+            return "held" if oc != "ok" else "failed"
         if p == "lost_7_of_8":
-            return oc == "lost_7_of_8"
+            if oc == "lost_7_of_8":
+                return "held"
+            return "partial" if oc not in ("ok",) else "failed"
         if p == "all_fragment_channels_zero":
-            return oc == "silent_zero"
-        return not same_obs(obs, base)
+            if oc == "silent_zero":
+                return "held"
+            return "partial" if oc not in ("ok",) else "failed"
+        return "held" if not same_obs(obs, base) else "failed"
 
     # -- byte-mate -----------------------------------------------------------
     def run_bytemate(self, arm, orig, base, S):
-        bm = RA.BYTE_MATES.get((arm["mnemonic"], "dst"))
-        key = None
+        key, bm = None, None
         for fname in arm["fields"]:
+            spec = RA.BYTE_MATES.get((arm["mnemonic"], fname), None)
             if (arm["mnemonic"], fname) in RA.BYTE_MATES:
-                if RA.BYTE_MATES[(arm["mnemonic"], fname)] is not None:
-                    key, bm = fname, RA.BYTE_MATES[(arm["mnemonic"], fname)]
+                if spec is not None:
+                    key, bm = fname, spec
                 else:
                     self.emit(dict(instr=arm["mnemonic"], carrier=arm["carrier"],
                                    arm=arm["arm"], carrier_dim=arm["carrier_dim"],
@@ -1158,7 +1175,6 @@ def do_run(args):
                                         "hex": buf.hex()}
             except Exception as e:                   # noqa: BLE001
                 ent["stages"][stage] = {"error": str(e)[:400]}
-        carriers_by = ent
         inputs["carriers"][name] = ent
 
     # FROZEN-OCCURRENCE INTEGRITY: the census bytes must still be there, at the

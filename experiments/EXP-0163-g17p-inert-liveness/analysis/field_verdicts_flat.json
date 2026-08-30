@@ -8,7 +8,8 @@
   "label_policy": "(stated so a reviewer can disagree with it explicitly):\n  LIVE               -> `hardware-run`.  The full 2^w range executed on real\n                        hardware; the value->behaviour partition is exact and\n                        reproduced across runs.  An emitter can choose the\n                        value and get documented behaviour, which is what\n                        emitter-grade means.\n  INERT-ROBUST       -> `single-template-inference`.  NOT `hardware-run`.\n                        `hardware-run` is one of the two labels\n                        validate_labels.py counts as EMITTER-GRADE, and\n                        emitter-grade asserts that an implementer can CHOOSE the\n                        field's value.  For these eleven our own\n                        `emitter_guidance` says the opposite -- emit the\n                        COMPILER-OBSERVED value -- which is a dependency on\n                        Apple's template and is exactly what Definition-of-Done\n                        rule 1 forbids (\"value generated, not merely decoded\n                        from a captured template\").  A negative result must not\n                        be able to inflate the emittable count.\n                        `single-template-inference` states the emitter's real\n                        position: we know the value that works because the\n                        compiler used it, we have hardware evidence the field is\n                        inert across a stated envelope, and we cannot say what\n                        it controls.\n                        THE MEASUREMENT IS NOT DOWNGRADED, only the claim about\n                        what an emitter may do with it: the full strength of the\n                        negative lives in `note`, `range`, `inert_arms`\n                        (including `proven_live_controls`) and\n                        `hardware_evidence` below.\n  STILL-UNDERPOWERED -> `untested`.  FIELD-SWEEP-PROTOCOL sec.5: \"if a sweep is\n                        inconclusive ... do not round up.\"  The cases are in\n                        raw/ and are described, but the field is NOT promoted.",
   "question": "whether the 22 fields EXP-0155 never observed to move are don't-cares or were merely unexercised",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "target": "G17P (Apple A18 Pro, applegpu_g17p)"
  },
@@ -70,7 +71,7 @@
     "vflat"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2048,
+   "total_hardware_observations": 4096,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -78,10 +79,12 @@
     "baseline_value": 84,
     "carrier": "cent4",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -97,17 +100,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@ibhalf/fragment#0": {
     "baseline_value": 84,
     "carrier": "ibhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -121,17 +127,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@layer/fragment#0": {
     "baseline_value": 84,
     "carrier": "layer",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -145,17 +154,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@mrt3/fragment#0": {
     "baseline_value": 84,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -172,17 +184,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@mrt3/fragment#2": {
     "baseline_value": 84,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 2,
@@ -196,17 +211,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@tileread/fragment#0": {
     "baseline_value": 84,
     "carrier": "tileread",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -220,17 +238,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@tilerw2/fragment#0": {
     "baseline_value": 84,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -246,17 +267,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_color_store@vflat/fragment#0": {
     "baseline_value": 84,
     "carrier": "vflat",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 7,
     "occ": 0,
@@ -271,7 +295,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -289,7 +314,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 7 structurally different carriers (cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -315,7 +341,7 @@
     "tilerw2"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2048,
+   "total_hardware_observations": 4096,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -323,10 +349,12 @@
     "baseline_value": 8,
     "carrier": "ibmrt",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -335,17 +363,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@layer/fragment#0": {
     "baseline_value": 6,
     "carrier": "layer",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -355,17 +386,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#0": {
     "baseline_value": 6,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -375,17 +409,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#1": {
     "baseline_value": 8,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -394,17 +431,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#3": {
     "baseline_value": 8,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -413,17 +453,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tileread/fragment#1": {
     "baseline_value": 8,
     "carrier": "tileread",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -432,17 +475,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#2": {
     "baseline_value": 8,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 2,
@@ -451,17 +497,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#3": {
     "baseline_value": 8,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -470,7 +519,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -486,7 +536,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -512,7 +563,7 @@
     "tilerw2"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2048,
+   "total_hardware_observations": 4096,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -520,10 +571,12 @@
     "baseline_value": 0,
     "carrier": "ibmrt",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -532,17 +585,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@layer/fragment#0": {
     "baseline_value": 0,
     "carrier": "layer",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -552,17 +608,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#0": {
     "baseline_value": 0,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -572,17 +631,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#1": {
     "baseline_value": 0,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -591,17 +653,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#3": {
     "baseline_value": 0,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -610,17 +675,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tileread/fragment#1": {
     "baseline_value": 0,
     "carrier": "tileread",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -629,17 +697,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#2": {
     "baseline_value": 0,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 2,
@@ -648,17 +719,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#3": {
     "baseline_value": 0,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -667,7 +741,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -683,7 +758,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -709,7 +785,7 @@
     "tilerw2"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2048,
+   "total_hardware_observations": 4096,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -717,10 +793,12 @@
     "baseline_value": 192,
     "carrier": "ibmrt",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -729,17 +807,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@layer/fragment#0": {
     "baseline_value": 0,
     "carrier": "layer",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -749,17 +830,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#0": {
     "baseline_value": 0,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -769,17 +853,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#1": {
     "baseline_value": 192,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -788,17 +875,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@mrt3/fragment#3": {
     "baseline_value": 12,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -807,17 +897,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tileread/fragment#1": {
     "baseline_value": 8,
     "carrier": "tileread",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 1,
@@ -826,17 +919,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#2": {
     "baseline_value": 32,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 2,
@@ -845,17 +941,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "frag_tile_setup@tilerw2/fragment#3": {
     "baseline_value": 16,
     "carrier": "tilerw2",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 3,
@@ -864,7 +963,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -880,7 +980,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -904,7 +1005,7 @@
     "ibsamp"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 768,
+   "total_hardware_observations": 1536,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -912,10 +1013,12 @@
     "baseline_value": 0,
     "carrier": "atoff4",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -929,17 +1032,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "imageblock_store@ibms4/fragment#0": {
     "baseline_value": 0,
     "carrier": "ibms4",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -953,17 +1059,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "imageblock_store@ibsamp/fragment#0": {
     "baseline_value": 0,
     "carrier": "ibsamp",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -977,7 +1086,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -991,7 +1101,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 3 arms across 3 structurally different carriers (atoff4, ibms4, ibsamp), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 3 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -1018,7 +1129,7 @@
     "vmany"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 1536,
+   "total_hardware_observations": 3072,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -1026,10 +1137,12 @@
     "baseline_value": 0,
     "carrier": "atoff1",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 0,
@@ -1038,17 +1151,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter@cent4/fragment#0": {
     "baseline_value": 0,
     "carrier": "cent4",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 1,
     "occ": 0,
@@ -1057,17 +1173,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter@mrt3/fragment#2": {
     "baseline_value": 0,
     "carrier": "mrt3",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 10,
     "occ": 2,
@@ -1085,17 +1204,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter@vflat/fragment#1": {
     "baseline_value": 0,
     "carrier": "vflat",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 10,
     "occ": 1,
@@ -1113,17 +1235,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter@vhalf/fragment#3": {
     "baseline_value": 0,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 10,
     "occ": 3,
@@ -1141,17 +1266,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter@vmany/fragment#5": {
     "baseline_value": 0,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 10,
     "occ": 5,
@@ -1169,7 +1297,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -1186,7 +1315,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 6 arms across 6 structurally different carriers (atoff1, cent4, mrt3, vflat, vhalf, vmany), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 6 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -1215,7 +1345,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit1 clear",
@@ -1234,7 +1365,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 1,
     "rule": "exactly the values with bit1 set",
@@ -1253,7 +1385,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit1 set",
@@ -1272,7 +1405,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 1,
     "rule": "exactly the values with bit1 clear",
@@ -1291,7 +1425,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 2,
     "rule": "exactly the values with bit1 clear",
@@ -1310,7 +1445,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit1 set",
@@ -1329,7 +1465,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit1 set",
@@ -1349,7 +1486,7 @@
     "ms4out"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2560,
+   "total_hardware_observations": 5120,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -1357,10 +1494,12 @@
     "baseline_value": 3,
     "carrier": "atoff1",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -1372,17 +1511,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter_at@cent1/fragment#0": {
     "baseline_value": 1,
     "carrier": "cent1",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 0,
@@ -1395,17 +1537,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "iter_at@cent1/fragment#1": {
     "baseline_value": 3,
     "carrier": "cent1",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 1,
@@ -1418,7 +1563,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -1433,7 +1579,8 @@
   "note": "LIVE: moved the observation on 7 arm(s) across atoff4, cent4, ms4cent, ms4out. Inert on atoff1, cent1 -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 10 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "bit1 selects the interpolation LOCATION the setup computes: 0 = centroid, 1 = per-sample.  bit0 and bits 2..7 are don't-cares (0x81 behaves exactly as 0x01, 0x83 exactly as 0x03).  Two equivalence classes of exactly 128 values each.  Observable ONLY at rasterSampleCount > 1: the identical program at 1 sample gives 0/256 (carrier `cent1`), because centroid, sample point and pixel centre are then the same point.  This REFINES db.json's enum {1: centroid, 3: sample} to a single-bit selector and tells an emitter which bits are free.",
   "target": "G17P",
@@ -1469,7 +1616,7 @@
     "sdiv"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 1024,
+   "total_hardware_observations": 2048,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -1477,10 +1624,12 @@
     "baseline_value": 84,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 0,
@@ -1493,17 +1642,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_ballot@sball/compute#1": {
     "baseline_value": 84,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 7,
     "occ": 1,
@@ -1518,17 +1670,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_ballot@scache/compute#0": {
     "baseline_value": 84,
     "carrier": "scache",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 7,
     "occ": 0,
@@ -1543,17 +1698,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_ballot@sdiv/compute#0": {
     "baseline_value": 84,
     "carrier": "sdiv",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 0,
@@ -1567,7 +1725,8 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -1581,7 +1740,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 4 arms across 3 structurally different carriers (sball, scache, sdiv), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 4 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -1606,7 +1766,7 @@
     "stype"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 16,
+   "total_hardware_observations": 32,
    "values_executed_per_arm": 2
   },
   "inert_arms": {
@@ -1614,10 +1774,12 @@
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 11,
     "occ": 0,
@@ -1636,17 +1798,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@scache/compute#0": {
     "baseline_value": 0,
     "carrier": "scache",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 0,
@@ -1666,17 +1831,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@scache/compute#2": {
     "baseline_value": 0,
     "carrier": "scache",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 2,
@@ -1686,17 +1854,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@sdiv/compute#0": {
     "baseline_value": 0,
     "carrier": "sdiv",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 0,
@@ -1716,17 +1887,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@stype/compute#10": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 12,
     "occ": 10,
@@ -1746,17 +1920,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@stype/compute#13": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 15,
     "occ": 13,
@@ -1776,17 +1953,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@stype/compute#15": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 14,
     "occ": 15,
@@ -1806,17 +1986,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    },
    "simd_shuffle@stype/compute#8": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 8,
@@ -1836,7 +2019,8 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 2
+     "g17p_20260830_run01": 2,
+     "g17p_20260830_run02": 2
     }
    }
   },
@@ -1851,7 +2035,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 4 structurally different carriers (sball, scache, sdiv, stype), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..1 dense (all 2 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -1889,7 +2074,8 @@
     ],
     "n_equivalence_classes": 10,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 13,
     "rule": "240 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f...",
@@ -1918,7 +2104,8 @@
     ],
     "n_equivalence_classes": 8,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 248
+     "g17p_20260830_run01": 248,
+     "g17p_20260830_run02": 248
     },
     "occ": 15,
     "rule": "248 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f...",
@@ -1936,7 +2123,7 @@
     "stype"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2048,
+   "total_hardware_observations": 4096,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -1944,10 +2131,12 @@
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 11,
     "occ": 0,
@@ -1966,17 +2155,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_shuffle@scache/compute#0": {
     "baseline_value": 0,
     "carrier": "scache",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 0,
@@ -1996,17 +2188,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_shuffle@scache/compute#2": {
     "baseline_value": 0,
     "carrier": "scache",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 2,
@@ -2016,17 +2211,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_shuffle@sdiv/compute#0": {
     "baseline_value": 0,
     "carrier": "sdiv",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 0,
@@ -2046,17 +2244,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_shuffle@stype/compute#10": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 12,
     "occ": 10,
@@ -2076,17 +2277,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "simd_shuffle@stype/compute#8": {
     "baseline_value": 0,
     "carrier": "stype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 13,
     "occ": 8,
@@ -2106,7 +2310,8 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -2127,7 +2332,8 @@
   "note": "LIVE: moved the observation on 2 arm(s) across stype. Inert on sball, scache, sdiv, stype -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 8 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "NOT reserved.  On the mode-0x06 rotate / shuffle-and-fill form (which no EXP-0155 arm emitted) bits 1, 2, 6 and 7 are live: bits 6 and 7 CHANGE THE RESULT VALUE of the shuffle-and-fill (result word 31 -> 116 -> 256 across the four combinations, with bit2 giving a further distinct value), while bit1 suppresses the stores that follow the op.  240-248 of 256 values move; 8-10 equivalence classes.  Inert on the mode-0x00/0x04/0x05 forms.",
   "target": "G17P",
@@ -2157,7 +2363,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 0,
     "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
@@ -2180,7 +2387,8 @@
     ],
     "n_equivalence_classes": 3,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 1,
     "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
@@ -2203,7 +2411,8 @@
     ],
     "n_equivalence_classes": 3,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 1,
     "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
@@ -2227,7 +2436,8 @@
     ],
     "n_equivalence_classes": 3,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 192
+     "g17p_20260830_run01": 192,
+     "g17p_20260830_run02": 192
     },
     "occ": 0,
     "rule": "192 values, set = 0x1,0x3,0x5,0x7,0x9,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f...",
@@ -2249,7 +2459,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 208
+     "g17p_20260830_run01": 208,
+     "g17p_20260830_run02": 208
     },
     "occ": 0,
     "rule": "208 values, set = 0x1,0x3,0x4,0x5,0x7,0x9,0xb,0xc,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x24,0x25,0x27,0x29...",
@@ -2275,7 +2486,8 @@
     ],
     "n_equivalence_classes": 5,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 208
+     "g17p_20260830_run01": 208,
+     "g17p_20260830_run02": 208
     },
     "occ": 0,
     "rule": "208 values, set = 0x1,0x3,0x5,0x7,0x8,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x28,0x29...",
@@ -2300,7 +2512,8 @@
     ],
     "n_equivalence_classes": 4,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 208
+     "g17p_20260830_run01": 208,
+     "g17p_20260830_run02": 208
     },
     "occ": 0,
     "rule": "208 values, set = 0x1,0x3,0x5,0x7,0x8,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x28,0x29...",
@@ -2324,7 +2537,8 @@
     ],
     "n_equivalence_classes": 3,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 200
+     "g17p_20260830_run01": 200,
+     "g17p_20260830_run02": 200
     },
     "occ": 1,
     "rule": "200 values, set = 0x1,0x3,0x5,0x7,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x29,0x2a,0x2b...",
@@ -2344,7 +2558,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -2352,10 +2566,12 @@
     "baseline_value": 2,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -2365,7 +2581,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -2383,7 +2600,8 @@
   "note": "LIVE: moved the observation on 8 arm(s) across bits, fclass, ms4out, sball, vhalf, vsrc. Inert on fclass -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "live on BOTH forms.  On the 0x42 destination-address form the classes are: bit0 set -> the addressed varying reads 0.0; bits 2..5 (b6) clear and bit3 set -> the varying's VALUE shifts slightly (6.08333 -> 6.0918 / 6.10946), i.e. a small address/offset perturbation rather than a kill.  4-5 equivalence classes; 200-240 of 256 values move.",
   "target": "G17P",
@@ -2413,7 +2631,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 0,
     "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
@@ -2435,7 +2654,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 0,
     "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
@@ -2457,7 +2677,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 0,
     "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
@@ -2479,7 +2700,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 240
+     "g17p_20260830_run01": 240,
+     "g17p_20260830_run02": 240
     },
     "occ": 1,
     "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
@@ -2499,7 +2721,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -2507,10 +2729,12 @@
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -2527,17 +2751,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@bits/fragment#1": {
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -2554,17 +2781,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#0": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -2574,17 +2804,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#1": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -2601,17 +2834,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@sball/compute#0": {
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -2627,7 +2863,8 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -2646,7 +2883,8 @@
   "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "bits 2,3,4,5 are live and must ALL be clear for the store to work: exactly 16 of 256 values (those with (v & 0x3c) == 0) reproduce the baseline; the other 240 zero the addressed varying.  Two equivalence classes on every live arm.",
   "target": "G17P",
@@ -2675,7 +2913,8 @@
     ],
     "n_equivalence_classes": 3,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 192
+     "g17p_20260830_run01": 192,
+     "g17p_20260830_run02": 192
     },
     "occ": 0,
     "rule": "192 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27...",
@@ -2694,7 +2933,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit3 set",
@@ -2713,7 +2953,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit3 set",
@@ -2733,7 +2974,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 192
+     "g17p_20260830_run01": 192,
+     "g17p_20260830_run02": 192
     },
     "occ": 1,
     "rule": "192 values, set = 0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f...",
@@ -2753,7 +2995,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -2761,10 +3003,12 @@
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -2781,17 +3025,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@bits/fragment#1": {
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -2808,17 +3055,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#0": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -2828,17 +3078,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#1": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -2855,17 +3108,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@sball/compute#0": {
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -2881,7 +3137,8 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -2898,7 +3155,8 @@
   "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "bit3 alone (plus bit4 on two arms) is live, with the same signature as idx bit7: setting it zeroes exactly the one varying this occurrence addresses.  Only on the byte+4 == 0x42 form; inert over all 256 values on the 0x00 form.",
   "target": "G17P",
@@ -2925,7 +3183,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -2933,10 +3191,12 @@
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -2953,17 +3213,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@bits/fragment#1": {
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -2980,17 +3243,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#0": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -3000,17 +3266,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#1": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -3027,17 +3296,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@ms4out/fragment#0": {
     "baseline_value": 0,
     "carrier": "ms4out",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -3054,17 +3326,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@sball/compute#0": {
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -3080,17 +3355,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@vhalf/vertex#0": {
     "baseline_value": 0,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -3107,17 +3385,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@vsrc/vertex#0": {
     "baseline_value": 0,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 11,
     "occ": 0,
@@ -3136,17 +3417,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@vsrc/vertex#1": {
     "baseline_value": 0,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -3163,7 +3447,8 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -3180,7 +3465,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 6 structurally different carriers (bits, fclass, ms4out, sball, vhalf, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -3207,7 +3493,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit7 clear",
@@ -3227,7 +3514,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -3235,10 +3522,12 @@
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -3255,17 +3544,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@bits/fragment#1": {
     "baseline_value": 0,
     "carrier": "bits",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -3282,17 +3574,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#0": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 2,
     "occ": 0,
@@ -3302,17 +3597,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@fclass/fragment#1": {
     "baseline_value": 0,
     "carrier": "fclass",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -3329,17 +3627,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@ms4out/fragment#0": {
     "baseline_value": 0,
     "carrier": "ms4out",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -3356,17 +3657,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@sball/compute#0": {
     "baseline_value": 0,
     "carrier": "sball",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 8,
     "occ": 0,
@@ -3382,17 +3686,20 @@
     ],
     "stage": "compute",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@vhalf/vertex#0": {
     "baseline_value": 20,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 0,
@@ -3409,17 +3716,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_coord_setup@vsrc/vertex#1": {
     "baseline_value": 12,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 9,
     "occ": 1,
@@ -3436,7 +3746,8 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -3455,7 +3766,8 @@
   "note": "LIVE: moved the observation on 1 arm(s) across vsrc. Inert on bits, fclass, ms4out, sball, vhalf, vsrc -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "on the byte+4 == 0x42 form (vertex attribute / varying DESTINATION-address setup) bit7 alone is live: with bit7 clear the ONE varying this occurrence addresses reads back 0.0 while the other three are untouched, so the byte selects that store's destination and its top bit must be set for our slot.  This is the form db.json says carries `idx = dst<<2`; on the byte+4 == 0x00 float-classify form idx was inert over all 256 values, which is consistent with the same note.",
   "target": "G17P",
@@ -3478,7 +3790,7 @@
     "twtype"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 1536,
+   "total_hardware_observations": 3072,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -3486,10 +3798,12 @@
     "baseline_value": 84,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 17,
     "occ": 0,
@@ -3509,17 +3823,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#1": {
     "baseline_value": 84,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 1,
@@ -3539,17 +3856,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#2": {
     "baseline_value": 84,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 2,
@@ -3569,17 +3889,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#3": {
     "baseline_value": 85,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 3,
@@ -3599,17 +3922,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twtype/fragment#2": {
     "baseline_value": 84,
     "carrier": "twtype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 17,
     "occ": 2,
@@ -3629,17 +3955,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twtype/fragment#3": {
     "baseline_value": 85,
     "carrier": "twtype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 3,
@@ -3659,7 +3988,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -3672,7 +4002,8 @@
   "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
   "range": "0..255 dense (all 256 values) x 6 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -3695,7 +4026,7 @@
     "twtype"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 1536,
+   "total_hardware_observations": 3072,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -3703,10 +4034,12 @@
     "baseline_value": 0,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 17,
     "occ": 0,
@@ -3726,17 +4059,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#1": {
     "baseline_value": 0,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 1,
@@ -3756,17 +4092,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#2": {
     "baseline_value": 0,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 2,
@@ -3786,17 +4125,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twdim/fragment#3": {
     "baseline_value": 0,
     "carrier": "twdim",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 3,
@@ -3816,17 +4158,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twtype/fragment#2": {
     "baseline_value": 0,
     "carrier": "twtype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 17,
     "occ": 2,
@@ -3846,17 +4191,20 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "tex_write@twtype/fragment#3": {
     "baseline_value": 0,
     "carrier": "twtype",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 18,
     "occ": 3,
@@ -3876,7 +4224,8 @@
     ],
     "stage": "fragment",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -3889,7 +4238,8 @@
   "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
   "range": "0..255 dense (all 256 values) x 6 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -3915,7 +4265,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -3923,10 +4273,12 @@
     "baseline_value": 0,
     "carrier": "vclip",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -3938,17 +4290,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vflat/vertex#4": {
     "baseline_value": 0,
     "carrier": "vflat",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 4,
@@ -3962,17 +4317,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vhalf/vertex#0": {
     "baseline_value": 0,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 0,
@@ -3985,17 +4343,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vhalf/vertex#6": {
     "baseline_value": 0,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 6,
@@ -4009,17 +4370,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#0": {
     "baseline_value": 0,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -4031,17 +4395,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#16": {
     "baseline_value": 0,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 16,
@@ -4054,17 +4421,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#9": {
     "baseline_value": 0,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 9,
@@ -4078,17 +4448,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vsrc/vertex#5": {
     "baseline_value": 0,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 5,
@@ -4102,17 +4475,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vsrc/vertex#6": {
     "baseline_value": 0,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 6,
@@ -4126,7 +4502,8 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -4142,7 +4519,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -4168,7 +4546,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -4176,10 +4554,12 @@
     "baseline_value": 84,
     "carrier": "vclip",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -4191,17 +4571,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vflat/vertex#4": {
     "baseline_value": 85,
     "carrier": "vflat",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 4,
@@ -4215,17 +4598,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vhalf/vertex#0": {
     "baseline_value": 84,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 0,
@@ -4238,17 +4624,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vhalf/vertex#6": {
     "baseline_value": 86,
     "carrier": "vhalf",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 6,
@@ -4262,17 +4651,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#0": {
     "baseline_value": 84,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -4284,17 +4676,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#16": {
     "baseline_value": 84,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 5,
     "occ": 16,
@@ -4307,17 +4702,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#9": {
     "baseline_value": 84,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 9,
@@ -4331,17 +4729,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vsrc/vertex#5": {
     "baseline_value": 85,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 5,
@@ -4355,17 +4756,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vsrc/vertex#6": {
     "baseline_value": 86,
     "carrier": "vsrc",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 6,
     "occ": 6,
@@ -4379,7 +4783,8 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -4395,7 +4800,8 @@
   "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
   "target": "G17P",
@@ -4422,7 +4828,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 4,
     "rule": "exactly the values with bit4 set",
@@ -4450,7 +4857,8 @@
     ],
     "n_equivalence_classes": 4,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 0,
     "rule": "exactly the values with bit4 set",
@@ -4469,7 +4877,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 6,
     "rule": "exactly the values with bit4 set",
@@ -4505,7 +4914,8 @@
     ],
     "n_equivalence_classes": 65,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 16,
     "rule": "exactly the values with bit4 set",
@@ -4524,7 +4934,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 9,
     "rule": "exactly the values with bit4 set",
@@ -4543,7 +4954,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 5,
     "rule": "exactly the values with bit4 set",
@@ -4562,7 +4974,8 @@
     ],
     "n_equivalence_classes": 2,
     "n_moved_per_run": {
-     "g17p_20260830_run01": 128
+     "g17p_20260830_run01": 128,
+     "g17p_20260830_run02": 128
     },
     "occ": 6,
     "rule": "exactly the values with bit4 set",
@@ -4581,7 +4994,7 @@
     "vsrc"
    ],
    "method": "dense splice-and-execute sweep on real hardware",
-   "total_hardware_observations": 2304,
+   "total_hardware_observations": 4608,
    "values_executed_per_arm": 256
   },
   "inert_arms": {
@@ -4589,10 +5002,12 @@
     "baseline_value": 73,
     "carrier": "vclip",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -4604,17 +5019,20 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    },
    "vary_store@vmany/vertex#0": {
     "baseline_value": 74,
     "carrier": "vmany",
     "faults_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "moved_per_run": {
-     "g17p_20260830_run01": 0
+     "g17p_20260830_run01": 0,
+     "g17p_20260830_run02": 0
     },
     "n_proven_live_controls_same_instruction": 4,
     "occ": 0,
@@ -4626,7 +5044,8 @@
     ],
     "stage": "vertex",
     "values_swept_per_run": {
-     "g17p_20260830_run01": 256
+     "g17p_20260830_run01": 256,
+     "g17p_20260830_run02": 256
     }
    }
   },
@@ -4648,7 +5067,8 @@
   "note": "LIVE: moved the observation on 7 arm(s) across vflat, vhalf, vmany, vsrc. Inert on vclip, vmany -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
   "range": "0..255 dense (all 256 values) x 9 arms",
   "runs": [
-   "g17p_20260830_run01"
+   "g17p_20260830_run01",
+   "g17p_20260830_run02"
   ],
   "semantics": "bit4 (0x10) alone determines whether the varying store WORKS: with bit4 set, all four fragment output channels read back 0.0 on every live arm -- the whole varying block is lost, not just this one component -- while the compiler-chosen values (0x48..0x4d across our carriers) have it clear.  Exactly 128 of 256 values move, on 7 arms across 5 carriers; two equivalence classes on five of them.  db.json types this byte `mod` with no semantics; it is not a free hint.",
   "target": "G17P",
