@@ -1,0 +1,138 @@
+{
+ "experiment": "EXP-0175-db-defects-2",
+ "title": "Apply EXP-0171's five defects and EXP-0174's DEF-0174-1; fold the 25 vacuous fields into match; enumerate the wrong-operand defect class",
+ "date_utc": "2026-08-30T11:01:33Z",
+ "type": "desk experiment -- NO device work, no dispatch to the neo / M4 GPU / M5",
+ "target_of_the_underlying_evidence": "A18 Pro / G17P (EXP-0171, EXP-0174)",
+ "clean_room": {
+  "provenance": "OWN-SHADER + HW-PROBE (re-analysis of committed evidence) + PUBLIC",
+  "apple_binary_introspection": "NONE",
+  "inputs": [
+   "experiments/EXP-0171-g17p-ilogic-srca/raw/**",
+   "experiments/EXP-0174-g17p-n3mov/raw/**",
+   "tools/agx-isa/db.json",
+   "tools/agx-isa/validation.json",
+   "experiments/EXP-M4-13-full-corpus/hex/**"
+  ]
+ },
+ "db_json": {
+  "before_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+  "after_sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "instructions": [
+   172,
+   172
+  ],
+  "fields": [
+   1062,
+   1036
+  ]
+ },
+ "defects_re_derived": {
+  "DEF-0171-1": "CONFIRMED -- ilogic byte0 == (dst<<4)|0x0b; 15/15 observable destinations, 0 misses, both gated runs. APPLIED. Refinement found here: byte0 BIT 3 is a don't-care on this datapath (low nibble 0x3 shows the same dst<<4 behaviour for 15 of 16); recorded, NOT folded into the match.",
+  "DEF-0171-2": "CONFIRMED with a SCOPE CORRECTION -- the three G17P bfloat anchors raise `unknown instruction length (byte0=0x31)`, but the blocker is isadb.py's LENGTH RULE, not the descriptors: bf_add/mul/fma_dst already claim those bytes with 12 match bits vs bf_alu8_var's 4. db.json half APPLIED (fmt enum gains 0x00 on three descriptors + notes); the isadb.py fix is REPORTED.",
+  "DEF-0171-3": "CONFIRMED -- ibfe.sign_ext is 0/2 inert in BOTH the unsigned and the SIGNED anchor on three carriers x two runs, while byte+6 moves 254/256. APPLIED (semantics).",
+  "DEF-0171-4": "CONFIRMED -- outmod bit7 is a SOURCE-READ control: nand writes 0xFFFFFFFF x128 while and/or/xor/andn write 0 x128, poison_out==0, sentinels intact, both runs. APPLIED (enum + semantics, 3 descriptors).",
+  "DEF-0171-5": "CONFIRMED and stronger than reported -- subop 0x0f is not only emitted but ENCODABLE: the match leaves 2 free bits, so the legal set is {9,b,d,f} and the enum was 3 of 4 complete. APPLIED.",
+  "DEF-0174-1": "CONFIRMED -- n3_mov byte+1 is (S<<1)|half, S = bits 1..7, aliasing period 64, no uniform file. Scored the two competing models against a host oracle: 32/32 vs db.json's 3/32, both plans, both runs; aliasing 128/128. APPLIED to n3_mov (hardware) and frame_marker (STRUCTURAL, unswept); NOT applied to mov_zext16, whose byte+1 is a different, HW-proven-inert field."
+ },
+ "also_applied": [
+  "DEF-0174-2 (byte+2 op selector, byte+3 bit0 destination half) + the emitter-ready n3_mov encoding, semantics only",
+  "DEF-0174-4: reg_move_c0's 'no validated GPR-to-GPR move' marked SUPERSEDED",
+  "DEF-0174-3: pad_operand observation recorded, classification unchanged",
+  "EXP-0173's fold: 25 zero-free-bit fields into match, names preserved in new per-descriptor `match_notes` blocks"
+ ],
+ "measured_but_NOT_applied": {
+  "ilogic + b_alu10_lof + b_alu10_loe full merge": "corpus-neutral and population-conserving (b_alu10_lof 175->0, b_alu10_loe 52->0, ilogic 23->250) but the hardware evidence covers only opsel_hi == 1; orphans 24 rows. Orchestrator's call.",
+  "isadb.py length rule for byte0 0x31": "another file's owner; reported.",
+  "DEF-0175-1 mov_zext16 match tightening": "adding its own HW-validated (byte+2 & 0xC7)==0 accept rule is corpus-neutral but reclassifies 80 mov_zext16 -> n3_mov (correct) AND 70 frame_marker -> mov_zext16 (an unresolved 0x43 collision). Needs its own experiment."
+ },
+ "new_defects_found": {
+  "DEF-0175-1": "mov_zext16's match does not encode its own HW-validated byte+2 accept rule, so it claims byte+2 values the hardware rejects (including ilogic's 0x1f).",
+  "DEF-0175-2": "the shared A/B gate (EXP-0165/analysis/ab_gate.py, copied forward) runs roundtrip_test.py IN-PROCESS via runpy; `import isadb` resolves once, so every tree after the FIRST silently re-measures the first tree's database. It reported ALLPASS=True for a candidate that actually crashed. Fixed here by running each tree in a subprocess."
+ },
+ "gates": {
+  "corpus_before": {
+   "clean": "833/1080",
+   "strict_leftover": 388604,
+   "tokens": 25419
+  },
+  "corpus_after": {
+   "clean": "833/1080",
+   "strict_leftover": 388604,
+   "tokens": 25419
+  },
+  "firing_delta": {
+   "b_alu10_lof": [
+    182,
+    175
+   ],
+   "ilogic": [
+    16,
+    23
+   ],
+   "_note": "7 instructions, population conserved, listed in RESULTS.md 2.5"
+  },
+  "roundtrip": {
+   "before": "302 OK / 0 FAIL / ALL PASS",
+   "after": "302 OK / 0 FAIL / ALL PASS",
+   "_note": "needed a fixture-key patch to roundtrip_test.py; no byte changed"
+  },
+  "validate_labels": {
+   "exit": 1,
+   "fails": 34,
+   "_note": "27 orphaned rows + 1 missing ilogic.dst + 6 coverage counts; ALL mechanical, all enumerated in analysis/orphaned_validation_rows.json. The orchestrator owns validation.json."
+  },
+  "emit_worklist": "runs",
+  "match_overlap_report": "runs; 59->34 overlaps, 25->0 zero-free, 16->0 vacuous emitter-grade"
+ },
+ "validation_json_arithmetic": {
+  "before": "627 emitter-grade / 1062 fields / 172 instructions",
+  "fold_alone": "611 / 1037 / 172   (EXP-0173 predicted ~611/1037 -- CONFIRMED EXACTLY)",
+  "final_live": "612 / 1036 / 172   (fold, +ilogic.dst, -2 srcA_uni)"
+ },
+ "files_edited_outside_this_experiment": {
+  "tools/agx-isa/db.json": "the dispatched target; sole editor this session",
+  "tools/agx-isa/roundtrip_test.py": "FIXTURE KEYS ONLY -- forced by the fold; the suite crashed without it. No assembled byte changed. Pre-image at work/roundtrip_test.py.before."
+ },
+ "files_deliberately_NOT_edited": [
+  "tools/agx-isa/validation.json",
+  "docs/**",
+  "PROVENANCE.md",
+  "docs/P0-P1-CLOSURE.md",
+  "tools/agx-isa/isadb.py",
+  "any other experiment directory"
+ ],
+ "git": "NOTHING COMMITTED -- the orchestrator reviews and commits",
+ "artifacts_sha256": {
+  "PRE_REGISTRATION.md": "de713a674f9adc1ec952587f24c4aef2cb427a498186f2235a18660905c5133b",
+  "PROGRESS.md": "9d15161f24052a92919bab8a6b143bc48a9f63d26cd1b97f8b863608ae1fde6e",
+  "README.md": "d096f22213524b14b9fc81b93acc8be310b23d2266990129152a2ada13659817",
+  "RESULTS.md": "1542429c3ce1da2c0e70d1aa7630053cbd76613b027de1f0e5fcd14c935e70a2",
+  "analysis/ab_gate.py": "7dc1a54098e48d5d4df3681b569a1828f3304da08e90f36d079bb36a5416213e",
+  "analysis/ab_metrics.json": "60ff3ea06024510d19242dce5db4b8dd88ecb90df169044122dbb346f60f1500",
+  "analysis/apply_defects.py": "41d7dc4b9473ae08b4fe6ebb7ad7f22ec259b520f6e85332990a3fbedb0fff9f",
+  "analysis/def0174_1_rederived.json": "ee5c398a0b82128679268129d72a6d28dfe22ac600fbcf33ccd382b2bf3d8b5c",
+  "analysis/def1_rederived.json": "a9517dee55365819249f2f916a9aa3063f4468fb3f8a904da0cd463289037ada",
+  "analysis/def2_def5_rederived.json": "2e9f46c55475d407276ac5ada8ca2172f8feffcb1adc01a2f10702a212df5e60",
+  "analysis/def3_rederived.json": "a995eb73ddabb9a274b60b1e67cfd725ee1136f60fcecfbb4d2cd58b6188f04c",
+  "analysis/def4_rederived.json": "2025cca6da23071f7ce390a65ff602a16f70f6eedc01a11a1a54e82a1825a4d1",
+  "analysis/folded_fields.json": "7a30f271000b6250dd4fdfa1b638bf389e0410a7e8f7d85e6f10ee81d7c0253c",
+  "analysis/make_orphan_list.py": "63f58683afa1416eedcc33a8a446b6465549dca1480a2efe80d150063227cd8f",
+  "analysis/operand_defects.json": "2a1d4c2b9c2eaf0ac211ad36ee0fd73133e10db0854d542792b828f2bebeff47",
+  "analysis/operand_defects.py": "aa52149b2c0fdd4b6093b5cdb1e4f63d4c55e78677ed8f182078d9161ef159fb",
+  "analysis/operand_defects_prefix.json": "842207d6ae786d274a4412cbcbdba5b3f2ba85b8ffc36797612226c27e563ccd",
+  "analysis/operand_report.txt": "513e00bc55fc15d0675e905bb516f5c4869d19dbaf0c6c88d11a35a98f5c9b50",
+  "analysis/orphan_report.txt": "901faf190cd84096b01701db0b0b6db4ef42fa5e49491346629e44ac5baf1885",
+  "analysis/orphaned_validation_rows.json": "453c99638c9d45090f315f4ec8b88a3e4c93417d60b2c93fa3c8ee4b91ac2b15",
+  "analysis/rederive_def0174_1.py": "edc527f6bf34e8e495d46faa7c2bef033472d1c375e699b2e4e56d4bb9984eee",
+  "analysis/rederive_def1.py": "4d4c18885c386fa8cd6b01f7a79c1124908c5e206dee2fab99e9a14a303a027a",
+  "analysis/rederive_def2_def5.py": "7c59b104a4cd9296c90294ecd4d55147295caa8cbe0cf8dfdefc37c1d20072c9",
+  "analysis/rederive_def3_and_ibfe.py": "1bbadec0517f16875cabb98fca19a77a7864288a161f76349e8dc712ace33a61",
+  "analysis/rederive_def4.py": "e68e093d59645d28236cb74484dcddd7c7ed86d419429f9c88922dd936cd893d",
+  "analysis/subfield.py": "e363ddf15a70502a0c173e524d8080f115956b5b19dd911591e96c852a5b7b0f",
+  "analysis/validate_after.txt": "706d844331fe6e4bb640239227faa5f0e427057efffdfb6f0c3d90d439fdb529",
+  "analysis/validate_cand_all.txt": "34662cb4a970c42afbaa9b5054626d4b3bcc3ae5b20a680d1b155948361da778",
+  "work/roundtrip_test.py.before": "93010e63fb333f10bae2e8b621962f4072504377dffda37cafe8f76a51a452fc"
+ },
+ "_artifacts_note": "manifest.json itself and the disposable candidate trees work/cand_* / work/pre are excluded; work/pre is a byte copy of HEAD's tools/agx-isa and is regenerable with the command in README.md"
+}

@@ -1,0 +1,52 @@
+orphaned rows (fold): 27   (16 of them carried an emitter-grade label)
+  DELETE falu2_uni              uni_mode        label=hardware-run             pinned=0x01
+  DELETE funary                 op              label=untested                 pinned=0x0e
+  DELETE rt_intersect           subop           label=isolated-byte-diff       pinned=0xea
+  DELETE rt_transform_test      cmpmode         label=tokenization-only        pinned=0x22
+  DELETE rt_transform_test      marker          label=tokenization-only        pinned=0x27
+  DELETE rt_transform_test      subop           label=tokenization-only        pinned=0x81
+  DELETE ray_move               form            label=hardware-run             pinned=0x81
+  DELETE iter                   c7              label=hardware-run             pinned=0x02
+  DELETE frame_marker           srcA_uni        label=corpus-correlation       pinned=0x-1
+  DELETE irotate                b1              label=hardware-run             pinned=0x01
+  DELETE pack_convert           fmt_class       label=hardware-run             pinned=0x56
+  DELETE tex_coord_setup        subop           label=untested                 pinned=0x2f
+  DELETE coord_madf             op              label=tokenization-only        pinned=0x23
+  DELETE link_save_restore      b1              label=hardware-run             pinned=0x00
+  DELETE link_save_restore      marker          label=hardware-run             pinned=0x54
+  DELETE link_save_restore      scope           label=hardware-run             pinned=0x81
+  DELETE n3_mov                 srcA_uni        label=corpus-correlation       pinned=0x-1
+  DELETE cvt_bf16               fmt             label=hardware-run             pinned=0x01
+  DELETE cvt_bf16               src             label=hardware-run             pinned=0x81
+  DELETE packed_half2_hi        opsel           label=hardware-run             pinned=0x24
+  DELETE ray_move_copy6         form            label=hardware-run             pinned=0x41
+  DELETE ray_move_zero6         form            label=hardware-run             pinned=0x40
+  DELETE ray_move_zinit         form            label=corpus-correlation       pinned=0x80
+  DELETE rtq_state_move         b3              label=hardware-run             pinned=0x00
+  DELETE rtq_state_move         form            label=hardware-run             pinned=0x09
+  DELETE funary_imm             form            label=tokenization-only        pinned=0x0f
+  DELETE tg_atomic_prep10       form            label=corpus-correlation       pinned=0x06
+
+re-spanned rows (KEPT, but the bit span moved): 2
+  RESPAN frame_marker           srcA_reg        start/width (8, 7) -> (8, 8)
+  RESPAN n3_mov                 srcA_reg        start/width (8, 7) -> (8, 8)
+
+created rows: 1
+  ADD    ilogic                 dst             recommend hardware-run (0..14 dense (15 of 16 destination nibbles; 0x?b byte0))
+
+fold ALONE (Task 2)      : 611/1037 emitter-grade
+fold + DEF-0171-1 (both) : 612/1036 emitter-grade
+EXP-0173 predicted : 627/1062 -> ~611/1037, instruction count UNCHANGED
+EXP-0175 measured  : 627/1062 -> 612/1036, instruction count 172 -> 172
+
+  label                       before   after   delta
+  hardware-run                  541     527     -14
+  isolated-byte-diff             86      85      -1
+  corpus-correlation             80      76      -4
+  tokenization-only             143     138      -5
+  single-template-inference      27      27      +0
+  api-accept-reject               0       0      +0
+  host-private                    0       0      +0
+  untested                      185     183      -2
+  TOTAL                        1062    1036     -26
+  emitter-grade                 627     612     -15

@@ -1,0 +1,584 @@
+{
+ "_note": "validation.json is the orchestrator's file. EXP-0175 only READ it.",
+ "db_sha256_before": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+ "orphaned_rows": [
+  {
+   "mnemonic": "falu2_uni",
+   "field": "uni_mode",
+   "current_label": "hardware-run",
+   "current_range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0169"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 1,
+   "start": 39,
+   "width": 1,
+   "preserved_in": "db.json instructions[falu2_uni].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "funary",
+   "field": "op",
+   "current_label": "untested",
+   "current_range": "none",
+   "current_target": "M4",
+   "current_evidence": [],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 14,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[funary].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rt_intersect",
+   "field": "subop",
+   "current_label": "isolated-byte-diff",
+   "current_range": "0xea vs 0x00 - the op itself is load-bearing",
+   "current_target": "A18",
+   "current_evidence": [
+    "RT-5-isa-tex-simd-mat-rt-frag-falsify"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 234,
+   "start": 8,
+   "width": 8,
+   "preserved_in": "db.json instructions[rt_intersect].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "cmpmode",
+   "current_label": "tokenization-only",
+   "current_range": "framing only (round-trips; no value semantics established)",
+   "current_target": "M4+A18",
+   "current_evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 34,
+   "start": 32,
+   "width": 8,
+   "preserved_in": "db.json instructions[rt_transform_test].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "marker",
+   "current_label": "tokenization-only",
+   "current_range": "framing only (round-trips; no value semantics established)",
+   "current_target": "M4+A18",
+   "current_evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 39,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[rt_transform_test].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rt_transform_test",
+   "field": "subop",
+   "current_label": "tokenization-only",
+   "current_range": "framing only (round-trips; no value semantics established)",
+   "current_target": "M4+A18",
+   "current_evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 129,
+   "start": 24,
+   "width": 8,
+   "preserved_in": "db.json instructions[rt_transform_test].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "ray_move",
+   "field": "form",
+   "current_label": "hardware-run",
+   "current_range": "255 values executed (boundaries + samples)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0157"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 129,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[ray_move].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "iter",
+   "field": "c7",
+   "current_label": "hardware-run",
+   "current_range": "0..255 dense (all 256 values)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0155"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 2,
+   "start": 56,
+   "width": 8,
+   "preserved_in": "db.json instructions[iter].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "frame_marker",
+   "field": "srcA_uni",
+   "current_label": "corpus-correlation",
+   "current_range": "byte+1 bit7 uniform-file/high-half flag",
+   "current_target": "M4",
+   "current_evidence": [
+    "EXP-M4-13"
+   ],
+   "reason": "field DELETED as a descriptor defect (DEF-0174-1): byte+1 bit 7 is source-register bit 6, not a uniform selector; it is now inside the 8-bit `srcA_reg` operand descriptor. Its EVIDENCE is not lost -- EXP-0174's own srcA_uni verdict says the same thing and belongs in srcA_reg's row.",
+   "defect_class": "DEF-0174-1",
+   "pinned_value": null,
+   "start": null,
+   "width": null,
+   "preserved_in": "db.json instructions[frame_marker].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "irotate",
+   "field": "b1",
+   "current_label": "hardware-run",
+   "current_range": "256 values tested (dense over 8-bit domain)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0154"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 1,
+   "start": 8,
+   "width": 8,
+   "preserved_in": "db.json instructions[irotate].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "pack_convert",
+   "field": "fmt_class",
+   "current_label": "hardware-run",
+   "current_range": "byte+2: 256 of 256 values (dense 0..255)",
+   "current_target": "M4",
+   "current_evidence": [
+    "EXP-0144"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 86,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[pack_convert].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "field": "subop",
+   "current_label": "untested",
+   "current_range": "0..255 dense (all 256 values)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0155"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 47,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[tex_coord_setup].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "coord_madf",
+   "field": "op",
+   "current_label": "tokenization-only",
+   "current_range": "framing only (round-trips; no value semantics established)",
+   "current_target": "M4+A18",
+   "current_evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 35,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[coord_madf].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "b1",
+   "current_label": "hardware-run",
+   "current_range": "0x00, 0x01 inert; only 0xff perturbs the result",
+   "current_target": "A18",
+   "current_evidence": [
+    "EXP-M4-14"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 0,
+   "start": 8,
+   "width": 8,
+   "preserved_in": "db.json instructions[link_save_restore].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "marker",
+   "current_label": "hardware-run",
+   "current_range": "0x00, 0x04, 0x54, 0x55, 0xff all reproduce the baseline - RESERVED/inert",
+   "current_target": "A18",
+   "current_evidence": [
+    "EXP-M4-14"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 84,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[link_save_restore].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "link_save_restore",
+   "field": "scope",
+   "current_label": "hardware-run",
+   "current_range": "0x00, 0x01, 0x80, 0x81, 0x83, 0xff swept: 0x81/0x83 pass (bit7 AND bit0 both set), 0x00/0x80/0x01 corrupt the SAVE and HANG the RESTORE, 0xff -> GPU page-fault",
+   "current_target": "A18",
+   "current_evidence": [
+    "EXP-M4-14"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 129,
+   "start": 32,
+   "width": 8,
+   "preserved_in": "db.json instructions[link_save_restore].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "n3_mov",
+   "field": "srcA_uni",
+   "current_label": "corpus-correlation",
+   "current_range": "byte+1 bit7 uniform-file / high-half flag",
+   "current_target": "M4",
+   "current_evidence": [
+    "EXP-M4-13"
+   ],
+   "reason": "field DELETED as a descriptor defect (DEF-0174-1): byte+1 bit 7 is source-register bit 6, not a uniform selector; it is now inside the 8-bit `srcA_reg` operand descriptor. Its EVIDENCE is not lost -- EXP-0174's own srcA_uni verdict says the same thing and belongs in srcA_reg's row.",
+   "defect_class": "DEF-0174-1",
+   "pinned_value": null,
+   "start": null,
+   "width": null,
+   "preserved_in": "db.json instructions[n3_mov].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "field": "fmt",
+   "current_label": "hardware-run",
+   "current_range": "byte+4 dense 0..255 (256 values actually dispatched)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0162"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 1,
+   "start": 32,
+   "width": 8,
+   "preserved_in": "db.json instructions[cvt_bf16].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "field": "src",
+   "current_label": "hardware-run",
+   "current_range": "byte+3 dense 0..255 (256 values actually dispatched)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0162"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 129,
+   "start": 24,
+   "width": 8,
+   "preserved_in": "db.json instructions[cvt_bf16].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "packed_half2_hi",
+   "field": "opsel",
+   "current_label": "hardware-run",
+   "current_range": "byte+2 dense 0..255 (256 values actually dispatched)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0162"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 36,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[packed_half2_hi].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "ray_move_copy6",
+   "field": "form",
+   "current_label": "hardware-run",
+   "current_range": "255 values executed (boundaries + samples)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0157"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 65,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[ray_move_copy6].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "ray_move_zero6",
+   "field": "form",
+   "current_label": "hardware-run",
+   "current_range": "255 values executed (boundaries + samples)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0157"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 64,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[ray_move_zero6].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "ray_move_zinit",
+   "field": "form",
+   "current_label": "corpus-correlation",
+   "current_range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
+   "current_target": "M4",
+   "current_evidence": [
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 128,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[ray_move_zinit].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "field": "b3",
+   "current_label": "hardware-run",
+   "current_range": "255 values executed (boundaries + samples)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0157"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 0,
+   "start": 24,
+   "width": 8,
+   "preserved_in": "db.json instructions[rtq_state_move].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "rtq_state_move",
+   "field": "form",
+   "current_label": "hardware-run",
+   "current_range": "255 values executed (boundaries + samples)",
+   "current_target": "G17P",
+   "current_evidence": [
+    "EXP-0157"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 9,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[rtq_state_move].match_notes",
+   "was_vacuous_emitter_grade": true,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "funary_imm",
+   "field": "form",
+   "current_label": "tokenization-only",
+   "current_range": "framing only (round-trips; no value semantics established)",
+   "current_target": "M4+A18",
+   "current_evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 15,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[funary_imm].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  },
+  {
+   "mnemonic": "tg_atomic_prep10",
+   "field": "form",
+   "current_label": "corpus-correlation",
+   "current_range": "observed across corpus firings only; no value was chosen and executed",
+   "current_target": "M4",
+   "current_evidence": [
+    "EXP-0148"
+   ],
+   "reason": "folded into `match` -- zero free bits, exactly one legal value",
+   "defect_class": "fold",
+   "pinned_value": 6,
+   "start": 16,
+   "width": 8,
+   "preserved_in": "db.json instructions[tg_atomic_prep10].match_notes",
+   "was_vacuous_emitter_grade": false,
+   "action": "DELETE this row from validation.json"
+  }
+ ],
+ "created_rows": [
+  {
+   "mnemonic": "ilogic",
+   "field": "dst",
+   "action": "ADD this row to validation.json",
+   "recommended": {
+    "label": "hardware-run",
+    "range": "0..14 dense (15 of 16 destination nibbles; 0x?b byte0)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0171",
+     "EXP-0175"
+    ]
+   },
+   "justification": "DEF-0171-1. A dense byte0 sweep on the SYNTH 16-GPR-dump carrier puts the computed AND result in register (byte0 >> 4) for every value whose low nibble is 0xb -- 15 of 15 observable destinations, 0 misses, in BOTH gated runs, cross-run agreement 1.0000. r15 is unobservable IN THAT CARRIER by construction (it is the harness's own store-index register, re-seeded before every dump), so the range stops at 14 rather than claiming 16. Re-derived from the committed raw in EXP-0175/analysis/rederive_def1.py."
+  }
+ ],
+ "respanned_rows": [
+  {
+   "mnemonic": "frame_marker",
+   "field": "srcA_reg",
+   "before": {
+    "start": 8,
+    "width": 7
+   },
+   "after": {
+    "start": 8,
+    "width": 8
+   },
+   "action": "row KEPT -- but its bit span moved; any pending verdict must be re-checked against the new span",
+   "reason": "DEF-0174-1: byte+1 is one 8-bit operand descriptor `(S<<1)|half`, not a 7-bit register plus a uniform flag"
+  },
+  {
+   "mnemonic": "n3_mov",
+   "field": "srcA_reg",
+   "before": {
+    "start": 8,
+    "width": 7
+   },
+   "after": {
+    "start": 8,
+    "width": 8
+   },
+   "action": "row KEPT -- but its bit span moved; any pending verdict must be re-checked against the new span",
+   "reason": "DEF-0174-1: byte+1 is one 8-bit operand descriptor `(S<<1)|half`, not a 7-bit register plus a uniform flag"
+  }
+ ],
+ "arithmetic": {
+  "before": {
+   "total_fields": 1062,
+   "emitter_grade": 627,
+   "by_label": {
+    "hardware-run": 541,
+    "isolated-byte-diff": 86,
+    "corpus-correlation": 80,
+    "tokenization-only": 143,
+    "single-template-inference": 27,
+    "api-accept-reject": 0,
+    "host-private": 0,
+    "untested": 185
+   },
+   "total_instructions": 172
+  },
+  "after": {
+   "total_fields": 1036,
+   "emitter_grade": 612,
+   "by_label": {
+    "hardware-run": 527,
+    "single-template-inference": 27,
+    "untested": 183,
+    "isolated-byte-diff": 85,
+    "tokenization-only": 138,
+    "corpus-correlation": 76
+   },
+   "total_instructions": 172
+  },
+  "fold_only": {
+   "_note": "the Task-2 fold ALONE -- i.e. counting ONLY the 25 zero-free-bit rows, excluding DEF-0171-1's new ilogic.dst and DEF-0174-1's two srcA_uni deletions. This is the number EXP-0173 predicted.",
+   "total_fields": 1037,
+   "emitter_grade": 611
+  },
+  "exp0173_predicted": "627/1062 -> ~611/1037, instruction count UNCHANGED",
+  "measured": "627/1062 -> 612/1036, instruction count 172 -> 172"
+ }
+}

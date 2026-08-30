@@ -1,0 +1,43 @@
+operand-named fields with a structural defect: 97 rows
+  in EMITTABLE instructions: 33 ; high severity: 6
+
+  B-declares-more-than-it-can-choose     2
+  C-cannot-address-the-file              1
+  D-nibble-compaction                    69
+  E-operand-named-but-absent             8
+  F-operand-name-non-operand-type        9
+  G-range-claims-more-than-encodable     6
+  H-self-declared-operand-swap           2
+
+emit instr                  field            w  free label                  defect                            
+YES  cvt_f2h_dst            src              8     4 hardware-run           B-declares-more-than-it-can-choose
+YES  cvt_f2h_dst            src              8     4 hardware-run           C-cannot-address-the-file         
+YES  bf_add_dst             dst              4     4 hardware-run           G-range-claims-more-than-encodable
+YES  bf_fma_dst             dst              4     4 hardware-run           G-range-claims-more-than-encodable
+YES  cvt_f2h_dst            src              8     4 hardware-run           G-range-claims-more-than-encodable
+YES  hminmax                dst              4     4 hardware-run           G-range-claims-more-than-encodable
+YES  cvt_bf16               srcw             8     8 hardware-run           F-operand-name-non-operand-type   
+YES  cvt_f2h                src              8     8 isolated-byte-diff     F-operand-name-non-operand-type   
+YES  cvt_f2h_dst            src              8     4 hardware-run           F-operand-name-non-operand-type   
+YES  fspecial_est           srcA             8     8 hardware-run           F-operand-name-non-operand-type   
+YES  tex_deriv              dstsrc          24    24 hardware-run           F-operand-name-non-operand-type   
+     falu2_uni              usrc             8     7 hardware-run           B-declares-more-than-it-can-choose
+     falu2_uni              -                        None                   E-operand-named-but-absent        
+     falu2i                 -                        None                   E-operand-named-but-absent        
+     h_alu_hi_ext           -                        None                   E-operand-named-but-absent        
+     half_alu_fma12         -                        None                   E-operand-named-but-absent        
+     half_compact4          -                        None                   E-operand-named-but-absent        
+     imad                   -                        None                   E-operand-named-but-absent        
+     matrix_mac             -                        None                   E-operand-named-but-absent        
+     simd_shuffle           -                        None                   E-operand-named-but-absent        
+     half_pack              src              8     8 hardware-run           F-operand-name-non-operand-type   
+     ibfins                 srcC             8     8 isolated-byte-diff     F-operand-name-non-operand-type   
+     int_alu_ehi            srcB             8     8 tokenization-only      F-operand-name-non-operand-type   
+     int_alu_ehi            srcC             8     8 tokenization-only      F-operand-name-non-operand-type   
+     falu2_uni              usrc             8     7 hardware-run           G-range-claims-more-than-encodable
+     h_alu_hi               dst              4     4 hardware-run           G-range-claims-more-than-encodable
+     half_pack              -                        None                   H-self-declared-operand-swap      
+     ilogic                 -                        None                   H-self-declared-operand-swap      
+
+(D-nibble-compaction rows are `info` and are in the JSON, not printed here.)
+wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0175-db-defects-2/analysis/operand_defects.json

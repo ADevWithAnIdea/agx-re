@@ -1,0 +1,1682 @@
+{
+ "_meta": {
+  "experiment": "EXP-0176",
+  "question": "which committed experiments/EXP-* directories have NO PROVENANCE.md row, are they cited in docs/, and what did each actually establish?",
+  "method": "independent re-enumeration (analysis/enumerate.py) merged with hand-authored claim summaries read from each experiment's own committed RESULTS.md / report.md / QUARANTINE.md / STOP.md / SUPERSEDED.md / PROGRESS.md",
+  "scope_note": "EXP-0173's reverse-chain scan matched only `EXP-[0-9]{4}` directories. Re-derived over ALL experiments/EXP-* the totals are 67 missing / 43 cited in docs/, not 36/11. The extra 32 are the entire EXP-M5-* workstream (23) and EXP-M4-01..07/09/10/11 (9).",
+  "docs_citation_kind": {
+   "fact": "docs/ takes a fact from this experiment with no PROVENANCE row -> CODEX s9 violation",
+   "disclaimer": "docs/ names it only to say it is NOT evidence -> index gap, not a broken fact",
+   "none": "not cited in docs/ -> incomplete index"
+  },
+  "totals": {
+   "missing_rows": 67,
+   "cited_in_docs_as_fact": 40,
+   "cited_in_docs_as_disclaimer": 3,
+   "cited_in_docs_as_none": 24
+  }
+ },
+ "experiments": [
+  {
+   "id": "EXP-0050",
+   "dir": "experiments/EXP-0050-fragment-output-abi",
+   "first_commit": "c499d165",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED \u2014 v1 non-evidence; clean v2 never run",
+   "evidence_label": "UNKNOWN (attestation broken)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "21 intact cases plus a guarded splice completed with STATUS OK and PIPELINE_SOURCE archive in each of two fresh runs (44 forced-archive executions); every source hash, main, readback and status identical between runs; temporary archives SHA-identical.",
+    "Observed: reversing only the output-structure member order produced BYTE-IDENTICAL fragment mains and identical outputs for sparse RT0+RT2 (98 B), RT0/1/2 (142 B) and color+depth (156 B) - declaration order is canonicalized in the tested pairs.",
+    "ALL OF THE ABOVE IS QUARANTINED NON-EVIDENCE. The v1 runner called the shared parser with --stage fragment, which first carves EVERY stage and splits every symbol region, so it materialized bytes outside the experiment's own allowlist including constant/auxiliary program regions; the splice implementation also loaded whole archive byte arrays. The clean-room attestation in the v1 README/manifest is therefore FALSE and the provenance chain is broken, independent of whether the bytes were in fact the authored fragment mains.",
+    "P0.8 remains open on this tree. Restoration requires new runs under a new pre-registration writing only raw_v2/, with an independently audited locator and no whole-archive reads."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0056",
+   "dir": "experiments/EXP-0056-m4-compute-render-transition",
+   "first_commit": "cf5a1b97",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "STOPPED BEFORE PAYLOAD CAPTURE",
+   "evidence_label": "UNKNOWN (process result)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The frozen probe's CPU `Scene` struct used a 24-byte float2[3] prefix while its authored MSL `Scene` gives the succeeding float4 16-byte alignment, so the MSL write landed at the aligned location and the CPU acceptance check read the unpadded one: READBACK scene=0,0,0.25 against an expected first component of 0.25. The process exited 6 even though Metal reported status 4 with no error - the layout defect invalidates its own public readback gate.",
+    "The metadata-only trace mapped NONE of the four allowlisted VAs (0x100000b8000, 0x10000158000, 0x18000, 0x88000); no alternative mapping was selected and no .bin/.meta payload was produced.",
+    "The runner stopped after that first failed process: no retries, no rewritten raw, no partial payloads, no discarded failures. P0.5 remains open. Successor: EXP-0058, which must correct the layout before its first build and keep the same four-VA allowlist."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0057",
+   "dir": "experiments/EXP-0057-m4-scratch-pressure-envelope",
+   "first_commit": "e76f6250",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED / NON-EVIDENCE (2026-08-20)",
+   "evidence_label": "UNKNOWN (boundary exceeded)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "Two fresh runs completed all 14 pre-registered public-Metal trials (seven scratch levels x tg32 and tg256) with exact full output and exact prefix/suffix guards over the full 32,768-word buffer; the largest retained pipeline declared 16,400 B per-thread scratch and completed with 32,768 threads for both shapes.",
+    "Observed source->metadata scratch ladder: 0->absent (GPR field0 = 2), 576->592 (51), 1024->1040 (41), 2048->2064, 4096->4112, 8192->8208, 16384->16400 (all 41). The 16-byte delta and the GPR-field change are observations of THIS compiler's metadata for THESE sources, not an Apple9 scratch-header or allocation rule.",
+    "QUARANTINED: the metadata collector read a temporary pipeline archive and generically enumerated GPU-image/Mach-O containers, exceeding the pre-registered metadata-only boundary; raw records also lacked full output/guard data and complete environment/revision provenance. P0.1 remains OPEN on prior valid evidence only, NOT on EXP-0057.",
+    "The 16 KiB/thread ceiling tested is a safety cap chosen by the probe, not a measured maximum."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0058",
+   "dir": "experiments/EXP-0058-m4-compute-render-transition-fixed",
+   "first_commit": "18567cd4",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "PUBLIC DEPENDENCY VALIDATED; PAYLOAD ANALYSIS STOPPED",
+   "evidence_label": "HW-PROBE (public readback only; no packing claim)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "Six fresh M4 processes completed with Metal status 4 and their exact authored readbacks: compute-only reported 0.25,0.5,0.75; CPU-render and compute-render both reported centre BGRA bf8040ff with identical image FNV 4e6294d9841a3583. The corrected CPU/MSL Scene layout and the public compute-to-render data dependency are accepted for this small matrix.",
+    "NO command-BO payload conclusion is permitted: before any .bin byte was opened, hashed or compared, the complete-matrix metadata preflight stopped at plain_compute-only because the required exact EXP-0043 CDM0 start 0x100000b8000 was ABSENT. The padded compute-only process did expose it, but that does not authorize selective analysis or a mapping search.",
+    "The other retained fixed-VA files are opaque and unopened; no captured word was decoded, treated as a pointer, or used as a packing claim. P0.5 remains open."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0059",
+   "dir": "experiments/EXP-0059-isa-falu2i-property-vectors",
+   "first_commit": "606689bc",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "none (repository-only structural analysis)",
+   "status": "STOPPED \u2014 unbound raw-analysis provenance",
+   "evidence_label": "UNKNOWN (not promoted)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "raw/falu2i-property-v1.json reports 1,440/1,440 unique 6-byte falu2i encodings assembling, decoding and reassembling over the frozen semantic-domain cartesian product, with all_round_trip=true and modifier fields opflags/ctrl_lo/mods explicitly excluded.",
+    "NOT PROMOTED: the frozen analyzer failed to record its own SHA-256 and the repository revision at capture time, so a later lookup would be reconstruction rather than an auditable binding of this invocation. No db.json descriptor, XML, or central round-trip test changed.",
+    "Retained deliberately as a process counterexample: a passing codec audit is insufficient unless the exact authored analyzer and inputs are bound BEFORE execution."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0061",
+   "dir": "experiments/EXP-0061-m4-sampler-boundary-matrix",
+   "first_commit": "cb29ed88",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G (never reached the GPU)",
+   "status": "STOPPED BEFORE GPU RUN",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The first append-only build failed because the frozen authored Objective-C harness used simd_float4 without importing its host definition. 00_inputs.json binds the frozen inputs before the build and 01_build.json preserves the compiler rejection verbatim.",
+    "No probe binary was produced, no Metal command ran, and no shader/archive/BO data was captured or inspected. P1.3 remains open; correction only by a separately pre-registered successor."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0062",
+   "dir": "experiments/EXP-0062-m4-format-conversion-matrix",
+   "first_commit": "7cdd9870",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "STOPPED \u2014 run01 non-evidence",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "A six-case M4 run is retained append-only under raw/m4_20260820_run01/ and is explicitly NOT experiment evidence: it may not be staged, cited, summarized, or used to update P1.2.",
+    "The defect is internal to the frozen record: the pre-registration describes a 64-byte prefix guard + 16-byte payload + 64-byte suffix guard (144 bytes) but elsewhere calls the same layout an '80-byte compute backing'. The committed harness implements the consistent 144-byte form (compute_hex is 288 hex characters), so the implementation does not satisfy the literal frozen statement.",
+    "Detected during the required first-run completeness check, before the mandatory repeat; no second run was started and no retroactive repair is authorized."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0064",
+   "dir": "experiments/EXP-0064-m4-format-conversion-matrix-fixed",
+   "first_commit": "100ec777",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED / NON-EVIDENCE",
+   "evidence_label": "UNKNOWN (capture-time provenance incomplete)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "Both fresh runs matched exactly for all six named cases including the complete 384-byte render and 144-byte compute buffers and all guards. Observed physical texels / typed words: RGBA8Unorm edges 00 80 ff 80; BGRA8Unorm edges ff 80 00 80; RGBA8Unorm_sRGB threshold 0a 0a bc 80; R16Unorm midpoint 00 80; RGBA16Float finite edges 00 80 00 3c ff 7b 55 35; R32Uint exact ef be ad de.",
+    "QUARANTINED: capture-time provenance did not retain a hash of the exact harness source and the raw-record schemas were not fully frozen and closed at capture time. Later verifier hardening cannot reconstruct the missing capture-time proof.",
+    "PRESERVED PROCESS DEVIATION: the pre-registration asked for separate 10-second build and completion caps; the retained runner used a 30 s build timeout and a 20 s per-process outer timeout instead. No case timed out, but the deviation narrows the process claim.",
+    "P1.2 remains OPEN. No rerun or in-place repair authorized."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0065",
+   "dir": "experiments/EXP-0065-m4-sampler-filter-offcenter",
+   "first_commit": "e09945df",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "STOPPED FOR PROVENANCE",
+   "evidence_label": "UNKNOWN (not promoted)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "Two retained public transcripts are byte-identical and contain the printed nearest tuple 0,1,0,1 and linear tuple 0.5,0.5,0,1 at the authored second sample position.",
+    "NOT PROMOTED as a sampler semantic claim: the frozen runner omitted build/run argv, environment and timeout records required for a complete audit, and no after-the-fact reconstruction was attempted. A successor must pre-register full command/environment/timeout capture before execution.",
+    "No binary, archive, shader bytecode, BO or Apple implementation artifact was retained or inspected."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0067",
+   "dir": "experiments/EXP-0067-m4-format-conversion-contract",
+   "first_commit": "b79820b6",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G (never built)",
+   "status": "PRE-BUILD CONTRACT ONLY \u2014 no capture",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Only PRE_REGISTRATION.md and CAPTURE_CONTRACT.json exist. Six 1x1 P1.2 cases are frozen (RGBA8Unorm/BGRA8Unorm edge stores, RGBA8Unorm_sRGB near-knee, R16Unorm midpoint, RGBA16Float finite, R32Uint 0xdeadbeef), each render store followed by one typed compute read, with exact backing sizes fixed (render 64x 0x5a + 256 row + 64x 0xa5 = 384 B; compute 64 + 16 + 64 = 144 B) and quarantined EXP-0062/0064 explicitly excluded as evidence.",
+    "No kernels, harness, runner, analyzer, manifest or raw tree exists; no capture was ever made. This is the corrective contract written after the EXP-0062/0064 quarantines, retained as process history."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0068",
+   "dir": "experiments/EXP-0068-m4-robustness-contract",
+   "first_commit": "32b76f4f",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/P0-P1-CLOSURE.md"
+   ],
+   "docs_citation_kind": "disclaimer",
+   "target": "M4/G16G (planned; never run)",
+   "status": "SUPERSEDED WITHOUT CAPTURE",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Pre-GPU gate scaffold only: PRE_REGISTRATION.md + CAPTURE_CONTRACT.json for a P1.5 public-Metal M4 owned-buffer OOB probe. No kernels/, harness/, run.py, analysis.py, make_manifest.py or verify.py was ever authored; nothing was built; no capture exists.",
+    "Scope folded into EXP-0076 (MEM-06..MEM-12), which took a fresh complete pre-registration."
+   ],
+   "gap": "docs/P0-P1-CLOSURE.md P1.5 names it, but the row it sits in credits EXP-0076/EXP-0083; EXP-0068 supplies no fact."
+  },
+  {
+   "id": "EXP-0069",
+   "dir": "experiments/EXP-0069-isa-falu2i-modifier-vectors",
+   "first_commit": "46f310f9",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "none (repository-only structural analysis)",
+   "status": "QUARANTINED / NON-EVIDENCE",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "The planned domain was the 16 x 128 x 256 = 524,288-vector cartesian product of falu2i's non-semantic opflags/ctrl_lo/mods fields, to be checked for assemble/decode/round-trip without aliasing.",
+    "The analyzer wrote only raw/run01/00_inputs.json and then raised a DECODER TRUNCATION exception before producing any result or a durable failure transcript: the frozen plan assumed 6-byte falu2i encodings while the pinned decoder requested 8 bytes for the first assembled vector. That terminal observation was not retained by the frozen analyzer, so it must not be promoted as an instruction-length, modifier, codec, hardware, M4 or A18 claim.",
+    "A successor must pre-register a decoder-length preflight and write all exceptions atomically before making any coverage claim."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0071",
+   "dir": "experiments/EXP-0071-m4-vertex-fragment-abi-contract",
+   "first_commit": "027a4e46",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G (capture prohibited)",
+   "status": "QUARANTINED PRE-GPU SCAFFOLD \u2014 capture prohibited",
+   "evidence_label": "UNKNOWN",
+   "has_results_md": true,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": true,
+   "key_claims": [
+    "No public-Metal build, execution or readback occurred; no raw observation exists. P0.8 remains OPEN.",
+    "The frozen matrix is underspecified for a hardware experiment: it does not bind the per-case vertex-buffer byte payloads, descriptor field values, resource offsets, designated comparison pixels, expected record schema, or a sufficient case-to-entrypoint/pipeline mapping; the harness is a static contract stub and the runner/verifier lack the capture state machine needed for append-only two-run evidence.",
+    "Consequently no observation could satisfy its own promotion gate. Retained as the record of a rejected idea and its clean-room boundary; a future attempt takes a NEW number."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0072",
+   "dir": "experiments/EXP-0072-m4-typed-format-conversion-batch2",
+   "first_commit": "840ad570",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED / NON-EVIDENCE",
+   "evidence_label": "UNKNOWN (payloads lost)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "34 pre-registered compute-store + typed-read cases over 14 public pixel formats. Preflight and selftest passed - and the selftest, added after EXP-0073, caught several real pre-capture schema bugs including an unsatisfiable command_buffer_error status set.",
+    "Run 01 executed: 34/34 case processes exit 0, all guards intact, no API rejection, timeout, fault or hang. But EVERY case payload was truncated by a harness print race (the worker signals the dispatch semaphore before printing, and main returns and exits mid-print), so 0/34 payloads parse and the physical texel hex and typed read words were lost.",
+    "Post-capture repair is unauthorized under the frozen hash binding, so the tree is quarantined per the EXP-0064/0073 precedent. NOTHING can be derived: no DRV-FMT-01 increment answer exists in this tree. Successor: EXP-0075.",
+    "A schema self-test structurally cannot express this defect class - the failure is in the harness's output path, not its record schema."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0073",
+   "dir": "experiments/EXP-0073-m4-fp32-division-precision",
+   "first_commit": "e90255e5",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED / NON-EVIDENCE",
+   "evidence_label": "UNKNOWN (verifier contradiction)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "Preflight passed and run 01 captured 4171/4171 case lines with command-buffer status 4, all four guard regions intact, device 'Apple M4', fast_math=false, math_mode_raw=0 (Safe), language_version_raw=262144 (MSL 4.0), library compile 0.123 s, dispatch 0.001 s. No compile rejection, timeout, GPU fault, hang, device loss or reboot.",
+    "The --between-runs gate then failed closed on an UNSATISFIABLE CHECK INSIDE THE FROZEN VERIFIER: one_run() requires the dispatch receipt to carry the 9 base keys plus results_sha256/results_lines/summary, then passes that same record to receipt(), which requires exactly the 9 base keys. No capture can satisfy both. The failure is a verifier bug, not an observation.",
+    "The quarantined run-01 bits are not analyzed or interpreted; no OPT-02 claim may rest on them. Successor with the verified contract: EXP-0074."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0075",
+   "dir": "experiments/EXP-0075-m4-typed-format-conversion-batch2",
+   "first_commit": "203c3138",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "QUARANTINED \u2014 run01 clean and fully verified, run02 structurally unreachable",
+   "evidence_label": "UNKNOWN (single-run, repeat-unverified)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "Both dispatched fixes worked. The non-recorded smoke gate caught a real pre-capture defect on its FIRST invocation (a regenerated kernel header had dropped #include <metal_stdlib>; exit 3, library_failed, no raw/ created); after an authorized pre-capture repair run 01 captured clean: exactly the 37 contracted files, 34/34 cases exit 0, records 1801-1857 bytes (the EXP-0072 truncation class is gone), all guards intact, --between-runs PASS, manifest --check PASS.",
+    "The contracted second run is STRUCTURALLY UNREACHABLE: the frozen pre_second_run_gate sequence runs --between-runs (which requires raw/ to exist) then --selftest (contracted as PRE_GPU-only and failing its closed-root check the moment raw/ exists). Repairing either script would break the capture-time hash binding, so no repair was made.",
+    "The pre-registered promotion rule is unmet, so NO DRV-FMT-01 claim may be promoted. Everything in RESULTS.md is an honest single-run observation set, reproducible from raw/m4-20260827-run01 and repeat-unverified."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0078",
+   "dir": "experiments/EXP-0078-m4-base-slot-census",
+   "first_commit": "0a3051cb",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/isa/memory-model.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "QUARANTINED \u2014 run01 complete, run02 structurally unreachable",
+   "evidence_label": "HW-PROBE + OWN-SHADER (single-run, repeat-unverified)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "351/351 cases in one run, all `ok`, zero faults/timeouts/watchdogs across load/store/atomic.",
+    "census31 full 0..255 base-slot sweep: slots 1..30 return their own buffer's word 5; slot 0 returns P(5,0); 31..127 return 0x00000000; 128..255 mirror 0..127 exactly.",
+    "store cases: slot 3 retargets the write; slots 31/32/63/127/255 discard silently with status ok; slot 128 lands the store in the OUT buffer (binding 0) with witness_ok=false.",
+    "atomic exchange: selector 3 -> old P(3,5); 31/32/63/127/255 -> old 0, write discarded; 128 -> old P(5,0), write discarded."
+   ],
+   "gap": "The experiment DISOWNS all of this: `verify.py --between-runs` is unsatisfiable (it demands opcode 0x67 for every kernel, but the store probe is a 0xe7 device_store), so run01 is single-run, repeat-unverified, NOT promotable. `docs/isa/memory-model.md` MEM-15..17 nonetheless reads `ANSWERED - HW-VALIDATED` citing '351 cases x2, byte-identical, 702 executions' \u2014 those two runs are EXP-0083's, not EXP-0078's. The docs row is sound; the citation string is what makes EXP-0078 look promotable."
+  },
+  {
+   "id": "EXP-0080",
+   "dir": "experiments/EXP-0080-m4-mem-offset-semantics",
+   "first_commit": "0a3051cb",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/isa/memory-model.md"
+   ],
+   "docs_citation_kind": "disclaimer",
+   "target": "M4/G16G",
+   "status": "TERMINAL PROCESS HISTORY \u2014 one complete unverifiable run",
+   "evidence_label": "HW-PROBE + OWN-SHADER (non-evidence)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": true,
+   "key_claims": [
+    "run01 captured completely: 2164/2164 cases, all controls decoding as hand-predicted (ld_ctrl_idx64 -> a[64]; st_ctrl_idx64 -> tgt[64]=0x5A17C0DE), ~0.05 s/case.",
+    "The contracted --between-runs gate fails permanently: verify.py re-derives splice arguments instruction-relative while the runner records them main-relative (probe load at main+0x26). The synthetic self-test could not catch it because generator and checker shared the wrong helper.",
+    "No MEM-01..05 claim may be promoted from this tree; successor EXP-0081 fixes the root cause by giving splice_case the probe's main offset (ONE definition for runner, verifier and fixture)."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0103",
+   "dir": "experiments/EXP-0103-m4-fp-transcendental-semantics",
+   "first_commit": "bbb1e9fc",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE + OWN-SHADER-DIFF",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "precise::rcp / rsqrt / sqrt (FP32): every one of their 30 / 77 / 77 divergences from a correctly-rounded IEEE-754 reference is subnormal-related, and all 184 are EXACTLY predicted by the same DAZ+FTZ substitution model EXP-0074 found for division. Zero unexplained divergences; zero divergences outside the subnormal classes (1856/1886, 1809/1886, 1809/1886 otherwise bit-exact). Their precise path is correctly rounded subject to the identical DAZ+FTZ carve-out as division.",
+    "exp2/log2 are categorically different on two independent kinds of evidence: fast:: and precise:: produce byte-identical FP32 output for all 1362 cases each AND compile to identical 46-byte AGX streams. There is NO refined path - precise::exp2/log2 is the same single SFU estimate as fast::, bounded to <=1 ULP (exp2) / <=2 ULP (log2) even in the normal range, never correctly rounded.",
+    "FP16 is a clean contrast: rcp/rsqrt/sqrt (fast and precise) tested EXHAUSTIVELY over all 65536 bit patterns show ZERO mismatches against a correctly-rounded non-flushing reference, including 4094/4094 cases whose correct result is a genuine FP16 subnormal (e.g. rcp(0x7BFF) = 0x0100, returned unflushed). FP16 SFU ops neither DAZ nor FTZ; FP32 SFU ops do both.",
+    "SUPPLEMENTARY: fast::sin/fast::cos (FP32) return exactly +0/-0 - not NaN - for every NaN/Inf input and for every |x| at or above a bracketed cliff.",
+    "This closes docs/isa/encoding-tables.md's fspecial_est UNKNOWN flag for rcp/rsqrt/sqrt."
+   ],
+   "gap": "The experiment is COMPLETE and materially updates prior documentation, yet has no provenance row and is not cited anywhere in docs/ - the strongest un-indexed result in the missing set."
+  },
+  {
+   "id": "EXP-0104",
+   "dir": "experiments/EXP-0104-m4-controlflow-simd",
+   "first_commit": "574ee96f",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/compiler-readiness.md",
+    "docs/isa/encoding-tables.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE \u2014 two gated runs, cross-run gate PASS",
+   "evidence_label": "HW-VALIDATED (splice + downstream read) / OWN-SHADER-DIFF",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "92 cases x2 runs, every gated field byte-identical; gputime_ns differs in 81/92, proving the gated/nongated split is real. 71 OK/MATCH, 0 mismatch, 4 contained CMDBUF_ERROR, 1 contained hang recovered by an 8 s timeout, 16 no-single-value-oracle cases. selftest 103/103, seqtest 5/5.",
+    "CF-01: reducible if/else uses TWO lowerings selected by the presence of return/break/continue, NOT by nesting shape - pure predication (8 instrs, zero icmp_pred/if_push/pop_reconverge) vs real mask machinery (13 instrs). A two-nested-if kernel with inner loops and no return tokenized to ZERO icmp_pred (recorded negative, not discarded).",
+    "CF-03: no failure up to nested-if/return depth 128 and pure loop-nest depth 64 - report as >=128 / >=64, NOT as a discovered ceiling.",
+    "CF-05: the icmp_pred dst_pred nibble is load-bearing but the compiler NEVER emits it nonzero (0 of 18+ instances); splicing it nonzero silently corrupts the branch outcome in two value-dependent signatures. CF-06 consequence: always emit dst_pred=0 - there is no allocation to do.",
+    "Branch reach: the field is 48-bit signed, but a +-8-byte perturbation already faults or hangs, and a +4096 B perturbation past the code extent runs to completion with STATUS OK and SILENTLY ZEROED output.",
+    "SIMD-01: threads_per_simdgroup reports the constant 32 even for a 16-real-thread partial simdgroup at tg=48 - an architectural constant, not an occupancy count.",
+    "SIMD-03: out-of-range simd_shuffle(v,idx) behaves as idx & 0x1C (12/12 tested points, zero exceptions) while simd_shuffle_xor/quad_shuffle return hard ZERO - the family is NOT uniform.",
+    "SIMD-06: simdgroup_barrier(mem_none/threadgroup/device) all compile BYTE-IDENTICAL (46/46 bytes) to no barrier - stronger than threadgroup_barrier, which EXP-0093 showed does emit one.",
+    "NEGATIVE/SIMD-07: simd_active_threads_mask does NOT exclude a just-discarded neighbour (low-16 raw mask byte-identical 0xFFFF with and without discard) - the narrower hypothesis that vote ops exclude helper lanes is REFUTED, not confirmed."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0105",
+   "dir": "experiments/EXP-0105-m4-encoding-registers",
+   "first_commit": "79ab3da9",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/compiler-readiness.md",
+    "docs/isa/encoding-tables.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE \u2014 two gated runs, 01_results.jsonl byte-identical",
+   "evidence_label": "HW-VALIDATED (independent construction, downstream readback)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "16/16 cases each run, 01_results.jsonl byte-identical (sha256 b19327a48bc2857f36b7771202f1287fec2ab104a0dc12d518301517fca14453); 8/16 mismatched their oracle BY DESIGN - each oracle recorded one candidate model's prediction.",
+    "H1 REFUTED BY INDEPENDENT CONSTRUCTION: falu2i's srcA_reg value 67 (low 6 bits = 3, weight-64 bit set, r67 never written) reads register 3's seeded 30.0, not r67's zero. A parallel cross-check on falu2's own register-register form on this experiment's independent carrier/harness REPRODUCES EXP-0099's finding exactly.",
+    "Net: r64-95 addressing remains UNKNOWN, but the negative now covers TWO sibling instructions by direct test rather than one by test and one by structural analogy.",
+    "H2 REFUTED, and 5 of 7 candidates are a NEW decisive finding: opflags bits22/23, mod_hi bit44 and ctrl bits 0/1 SILENTLY CORRUPT the read to 0.0 regardless of the nominal register (confirmed by crossing three of them against BOTH reg=3 and reg=67 - a general corruptor, not a bank selector). They are NOT safely-reserved bits. Only ctrl bits 2 and 3 are confirmed inert.",
+    "DECLINED: a second register-addressing method (iminmax, plain 8-bit register fields) was attempted in the pilot phase and ABANDONED after two unexplained, uninterpretable hardware behaviours - reported as a first-class unresolved negative, not dropped."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0106",
+   "dir": "experiments/EXP-0106-m4-texture-isa-semantics",
+   "first_commit": "2858c20f",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/isa/encoding-tables.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE for the frozen b01..b09 subset",
+   "evidence_label": "OWN-SHADER + HW-PROBE + PUBLIC",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "56 cases x2 runs, repeat_exact: true (every record byte-identical); 40 match / 9 abort_confirmed / 7 rejection_confirmed / 0 deviation / 0 unexpected. All five gates PASS. Zero GPU wedges, zero host reboots.",
+    "All 28 Part-II TEX-* items are dispositioned: CLOSED (new) with M4 evidence, CLOSED (cite) against EXP-0016/0034/0094/0095, or DEFERRED with a named successor - none silently dropped.",
+    "TEX-05 is a genuine unexpected NEGATIVE: dynamic min_lod_clamp() operand forms crash pipeline creation; the isolation sources are committed at analysis/pilot/minlod_crash_isolation/.",
+    "TEX-25 records a genuine query/creation discrepancy in the MSAA sample-count set.",
+    "SELF-DISCLOSED PROCESS-BOUNDARY VIOLATION: throwaway probe binaries and JSON were written to /tmp before SUBAGENT_BRIEF.md's no-outside-writes rule was read; remediated by copying the load-bearing sources into analysis/pilot/ and deleting the /tmp files. No clean-room contamination (no Apple binary, leaked material or outside code entered the repo)."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0111",
+   "dir": "experiments/EXP-0111-m4-fragment-semantics",
+   "first_commit": "9739d612",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/isa/README.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE \u2014 two gated runs, cross-run PASS",
+   "evidence_label": "HW-VALIDATED (splice + pixel/buffer readback)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "56 cases x2 runs, every *.gated.json record byte-identical; zero GPU fault, hang, command-buffer error or host wedge across 112 case executions.",
+    "FS-01 HW-splice decisive: get_sr 0xa0 returns the fragment's INTEGER pixel X and 0xa1 the integer pixel Y. On a single-pixel triangle at (2,1), splicing the first get_sr 0xa0->0xa1 gives (1.5,1.5) and the second 0xa1->0xa0 gives (2.5,2.5) - a clean mutual swap. The MSL-visible float [[position]].xy is produced by explicit downstream convert+offset, so a backend can implement NIR load_pixel_coord as a direct raw-integer SR read.",
+    "This closes the gap EXP-0031 s5 flagged ('byte-diff only... should be re-confirmed').",
+    "OPT-07 (docs/isa/README): a varying cannot be read at a dynamically indexed slot - iter/iter_flat's slot field is a compile-time immediate in EVERY observed instance (0,6,8,10,12,14,16, never a register); an 8-way dynamic index reads every candidate through its own fixed slot and ALU-selects, 8/8 exact.",
+    "OPT-08 left UNKNOWN/PARTIAL on purpose: 2-way and 3-way divergent [[color(n)]] each compile to exactly ONE frag_color_store with rt_index=0, which is not the 1:1 scaling the pre-registered falsifier needed for a clean negative, yet readback proves correct routing.",
+    "SELF-DISCLOSED: early pilot commands wrote throwaway files to /tmp before the brief update was read; all deleted, and every finding derived from them was re-derived through the frozen kernels/harness before being relied on."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0114",
+   "dir": "experiments/EXP-0114-m4-texture-deferred",
+   "first_commit": "72c2dde8",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/isa/encoding-tables.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE for 3 items; 8 dispatched items explicitly NOT EXERCISED",
+   "evidence_label": "OWN-SHADER-DIFF + HW-PROBE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "49/49 cases x2 runs, repeat_exact: true, zero faults/timeouts/wedges; all five gates PASS. This is the THIRD capture: two earlier pairs are retained quarantined and unmodified (QUARANTINE-20260828d: run.py omitted CAPTURE_CONTRACT.json's own hash; QUARANTINE-20260828e: gen_contract.py hash-pinned README/RESULTS/PROGRESS, files meant to be written after capture, into the capture-time provenance registry). Neither was repaired in place.",
+    "TEX-15 CORRECTED PREMISE (first-class negative): a 128-texture kernel reading only [[texture(5)]], [[texture(50)]], [[texture(100)]] compiles to op4_sequence [0,128,0] - neither the MSL binding index nor a compacted use-order index. `op+4` is a short-lived, compiler-reused register/uniform-slot reference, NOT a per-resource identifier; a 4-texture kernel ping-pongs [0,128,0,128] identically. The real 0..127 selector must live in a preceding 4-byte pointer-materialisation instruction (byte0 low nibble 0xb), not decoded here.",
+    "TEX-01/12/19/20/21/22/26/27/28 are DEFERRED with named successor reasons in PRE_REGISTRATION.md s0 - none silently dropped."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0115",
+   "dir": "experiments/EXP-0115-m4-controlflow-simd-deferred",
+   "first_commit": "fec9315a",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/compiler-readiness.md",
+    "docs/isa/README.md",
+    "docs/isa/encoding-tables.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE \u2014 two gated runs; 13/308 cases genuinely differ (disclosed)",
+   "evidence_label": "HW-VALIDATED (independently constructed splices)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "308 cases x2 runs; 295/308 byte-identical. 13/308 branch-reach cases GENUINELY DIFFER between runs - same compiled bytes, different outcome on repeat - disclosed as a first-class finding, not a harness defect. selftest 321/321, seqtest 5/5. Zero device wedges.",
+    "Branch reach MAPPED, correcting the 'clean boundary' framing: forward has ZERO slack (delta=+1 already faults); backward has exactly ONE alias hole (delta=-2 is also fully correct); beyond the function's own 146-byte extent the forward region is a CHECKERBOARD of fault/hang/silent-zero, not a threshold; backward is uniformly fault/hang with ZERO silent-OK-zero points in either run.",
+    "CF-03 ceiling found is the MSL TOOLCHAIN's (clang bracket depth 256), NOT a hardware one: max compilable depths 254 (if-chain) / 255 (loop nest) / 255 (bounded-divergent nest), all HW-dispatched correctly at their max; one deeper is a deterministic COMPILE_FAIL in both runs.",
+    "dst_pred REFUTED the if_push_pred hypothesis decisively: a 25-point (dst_pred, if_push.pred) matrix shows output depends ONLY on dst_pred; the sibling if_push_pred.pred nibble is COMPLETELY INERT over 0-15. dst_pred itself: 0 correct, 1 a unique corruption, 2..15 one uniform second corruption.",
+    "Static-shuffle OOB does NOT match the dynamic form: the static single-instruction simd_shuffle gives HARD ZERO for any out-of-range index, unlike the dynamic form's idx & 0x1C.",
+    "SIMD-06 is NOT universally a no-op: under DIVERGENT call patterns the compiler retains real branch/reconvergence machinery around simdgroup_barrier (10 vs 5, 18 vs 11 instructions); under uniform patterns it stays byte-identical, reproducing EXP-0104.",
+    "Vote/popcount puzzle RESOLVED only for discard-specificity: an ordinary divergent return does NOT trigger the popcount jump, so the cause is discard_fragment() specifically; the exact byte-level mechanism remains UNKNOWN."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0118",
+   "dir": "experiments/EXP-0118-a18-pro-partial-render-workload",
+   "first_commit": "d5be38d9",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "A18 Pro / G17P-class (README also names M4)",
+   "status": "SOURCE-ONLY WORKLOAD; no captures committed",
+   "evidence_label": "HW-PROBE (thin record)",
+   "has_results_md": true,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "An authored partial-render trigger and semantic oracle: 48,217 concentrated triangles into eight 128x128 R32F attachments with additive blending, so successful framebuffer reloads converge to approximately 1..8 per attachment.",
+    "The control workload completes with Metal status 4 and semantic maxima close to 1..8.",
+    "NEGATIVE CONTROL (the load-bearing half): substituting clear state for the framebuffer-reload state completes without a GPU fault but retains only the FINAL render segment, producing roughly 1/2192 of the expected accumulation - distinguishing real partial-render execution from mere command retirement."
+   ],
+   "gap": "RESULTS.md is three sentences and the directory intentionally contains NO raw captures ('this source-only copy intentionally contains no GPU captures'), so the numbers above cannot be re-derived from this tree. The row must be labelled accordingly; it is a reusable workload, not a reproducible measurement."
+  },
+  {
+   "id": "EXP-0142",
+   "dir": "experiments/EXP-0142-m4-emit-tex",
+   "first_commit": "4fe49a1c",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/compiler-readiness.md"
+   ],
+   "docs_citation_kind": "disclaimer",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 frozen contract + partial run01, NO verdicts",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "Frozen PRE_REGISTRATION.md + CAPTURE_CONTRACT.json, authored kernels (tex_sample8/tex_write3/frag_deriv), persistent tex + render harnesses, and raw/run01 (run.log + sweep.jsonl) committed as append-only process history at the M4->G17P pivot.",
+    "raw/prefreeze/ retains three real pre-freeze failures verbatim: a carrier-calibration smoke transcript, a frag_deriv compile failure, and a frag_deriv stage-in failure.",
+    "NO verdict was reached and NOTHING was promoted: analysis/ carries only sweep.py, and tools/agx-isa/validation.json contains ZERO references to EXP-0142."
+   ],
+   "gap": "docs/compiler-readiness.md names it only in the clean-room attestation, explicitly as 'IN FLIGHT and not used as evidence for anything' - so this is an index gap, not a fact whose derivation is unrecorded. NOTE: this experiment may be under live re-dispatch; the orchestrator should re-check its state before pasting."
+  },
+  {
+   "id": "EXP-0145",
+   "dir": "experiments/EXP-0145-m4-emit-bf16-half",
+   "first_commit": "4fe49a1c",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 frozen contract + smoke only, NO verdicts",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "PRE_REGISTRATION.md + CAPTURE_CONTRACT.json frozen (matrix sha256 afd5d1e4..., 43,829 cases) and one smoke family generated (80 cases) before the local M4 was taken out of service.",
+    "17 authored bf16/half carrier kernels are committed (c_bf_f32, c_bf_native, c_bffma_native, c_bfmul_f32, c_bfmul_native, c_fabs, c_h2fma, c_hmax, c_hmin, c_orimm, ...).",
+    "NO verdict: analysis/ is empty and tools/agx-isa/validation.json contains ZERO references to EXP-0145. Committed as append-only process history and a head start for a G17P re-dispatch, which will re-run rather than inherit."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0149",
+   "dir": "experiments/EXP-0149-m4-generator-synthesis",
+   "first_commit": "51a301e5",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 authored generator only, NO capture",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": true,
+   "quarantined": false,
+   "key_claims": [
+    "Authored generator/synthesis sources (generator.py, synth.py, families.py, cf.py, baseline.py) plus kernels and harness are committed; raw/ is EMPTY (0 bytes) and analysis/ is empty.",
+    "NO capture, NO verdict, ZERO references in tools/agx-isa/validation.json. Committed as append-only process history at the M4->G17P pivot.",
+    "The generator-synthesis question it was written for was later answered on G17P by EXP-0119 / EXP-0167, which re-ran rather than inheriting."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0150",
+   "dir": "experiments/EXP-0150-m4-load-form-source-type",
+   "first_commit": "51a301e5",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 pre-registration frozen, NO capture",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": true,
+   "quarantined": false,
+   "key_claims": [
+    "PRE_REGISTRATION.md frozen at sha256 0acd69b3bab9540f1b3d5ef5a17ee5b6d4c91cb8a03ac0172f2c11dba32e1781, repo revision 7faf0db7 recorded (not gated on) - with its predictions written BEFORE any case was assembled: H1 REFUTED / H1-reg wins (device_load.extmode[7:6] is register bit 5 plus a must-be-zero bit, not a form field; accepted set with a fixed consumer {0x0E, 0x0F}), H4 CONFIRMED (ALU-sourced operands require the complementary code 0x00).",
+    "raw/ is EMPTY and analysis/ is empty: the predictions were never tested here. ZERO references in tools/agx-isa/validation.json.",
+    "Value of the record: a pre-registration whose predictions are frozen and untested is exactly what a later experiment needs to score itself honestly."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0151",
+   "dir": "experiments/EXP-0151-m4-emit-ialu-remainder",
+   "first_commit": "51a301e5",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 authored probe only, NO capture",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": true,
+   "quarantined": false,
+   "key_claims": [
+    "Authored kernels/harness/analysis scaffolding for the IALU emit remainder are committed; raw/ is EMPTY (0 bytes), analysis/ is empty, and there is no PRE_REGISTRATION.md.",
+    "NO capture, NO verdict, ZERO references in tools/agx-isa/validation.json. Committed as append-only process history at the M4->G17P pivot."
+   ],
+   "gap": "Unlike EXP-0145/0150 this tree has no frozen pre-registration at all, so it is scaffolding rather than a stopped experiment; the row should say that plainly."
+  },
+  {
+   "id": "EXP-0152",
+   "dir": "experiments/EXP-0152-m4-emit-cf-mem-remainder",
+   "first_commit": "51a301e5",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "M4/G16G",
+   "status": "M4-PIVOT SURVIVOR \u2014 pre-registration frozen, NO capture",
+   "evidence_label": "UNKNOWN (no promoted verdict)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": true,
+   "quarantined": false,
+   "key_claims": [
+    "PRE_REGISTRATION.md plus authored kernels/harness/analysis scaffolding for the CF+MEM emit remainder are committed; raw/ is EMPTY (0 bytes) and analysis/ is empty.",
+    "NO capture, NO verdict, ZERO references in tools/agx-isa/validation.json. Committed as append-only process history at the M4->G17P pivot; the CF/MEM emit questions were later run on G17P by EXP-0156, which re-ran rather than inheriting."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-0159",
+   "dir": "experiments/EXP-0159-g17p-questionnaire-tail",
+   "first_commit": "d60ae5ee",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "A18 Pro / G17P (direct, not INFERRED)",
+   "status": "COMPLETE \u2014 6 of 6 closed",
+   "evidence_label": "HW-VALIDATED (gated G17P runs + post-registration adversarial sweeps)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "All six ran on the documentation target itself, so they are DIRECT G17P results. SFU-04 was deliberately NOT touched (blocked by clean-room rule 5).",
+    "P2-06 native FP64: NO - absent from the MSL surface AND from the complete single-byte space of the only native 64-bit ALU op. A bounded negative.",
+    "TEX-01 projective divide: NO, and the premise is refuted - tex_addr_setup.form=0x01 is not a projection. A db-defect is recorded.",
+    "TEX-19 bindless texture to 1,000,000: YES, and past it - 1,000,000 is an API limit, not a hardware ceiling. TEX-21 bindless sampler to 499,999: YES, and past it, with resource IDs above 500,000.",
+    "TEX-22: allocation does NOT fail at the 500,001st sampler; exhaustion never reuses a live ID; DESTRUCTION does, and a stale heap entry silently follows it.",
+    "MEM-19 USC preload capacity: 31 slots populatable (a hard API cap), the 7-bit selector is confirmed on G17P, and past-capacity behaviour is silent-zero/mirror, never a fault.",
+    "Run discipline: raw/prefreeze/ retained as NOT evidence; run02's FE family was killed at its baseline and re-captured under gpulease.sh as a separately named run (fe-iso01) rather than topped up; a 20-record cross-run disagreement class and a 5-record contamination class are both disclosed rather than filtered."
+   ],
+   "gap": "This is a COMPLETE six-item G17P closure with no provenance row - the largest un-indexed direct G17P result in the missing set."
+  },
+  {
+   "id": "EXP-0170",
+   "dir": "experiments/EXP-0170-assemble-coverage-audit",
+   "first_commit": "b44ffbc7",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/P0-P1-CLOSURE.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "none (pure analysis on the repo host; audited evidence is mixed M4/A18/G17P)",
+   "status": "COMPLETE \u2014 promotes nothing, only withholds and reports",
+   "evidence_label": "AUDIT (offline re-analysis of committed raw only)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": true,
+   "quarantined": false,
+   "key_claims": [
+    "BOTH pre-registered materiality falsifiers FIRED. 53 db.json fields over 42 instructions overlap their own descriptor's `match` (DEF-0166-1 reproduced exactly, closed form reachable_old = 2^(w-p) reproduces all six of EXP-0166's tabulated numbers); 28 of the 53 are currently emitter-grade; 31 of 53 are PROVEN by raw evidence to have exceeded the old assembler's limit because the harness wrote bytes directly.",
+    "Of 617 emitter-grade fields audited on distinct `bytes`, only 8 are UNDER-COVERED and only ONE (falu2_ext.opsel) is attributable to DEF-0166-1. F3 fired: the defect's evidential cost is small.",
+    "Round-trip blindness DEMONSTRATED, not argued: 28 files / 7 distinct bodies all symmetric; the repo's own suites run under the DEFECTIVE assembler give 173 cases / 0 failures and 37 cases / 0 failures.",
+    "EXP-0164's 266 withheld fields re-scored: 253 AGREE, 11 still-withheld-for-another-reason, 2 WRONGLY WITHDRAWN. F7 fired. 19 of 266 (7.1%) used a run its source experiment disowns; 0 of 266 had a moved span.",
+    "CORRECTS THE DISPATCH THAT COMMISSIONED IT: of four handed figures, two do not reproduce - cvt_f2h.op is not affected by the placeholder defect at all (0 placeholders, agreement unchanged at 91.41%) and cvt_f2i.dst re-scores to 98.14%, BELOW the >=99% bar. One field clears the bar, not two, and that one (pack_convert.b7) clears it only against a capture EXP-0144's own RESULTS.md disowns.",
+    "analysis/wrongly_withdrawn.json is deliberately unmergeable (_meta.mergeable: false, no top-level label) so work/merge_verdicts.py cannot consume it by accident."
+   ],
+   "gap": "EXP-0173 records that EXP-0170 has an EMPTY raw/ tree, which is why closure rule 2 fails for P0.6. That is correct for a pure-analysis experiment with no device work, but the row should say so explicitly rather than leave the empty directory to be read as a missing capture."
+  },
+  {
+   "id": "EXP-0173",
+   "dir": "experiments/EXP-0173-closure-audit",
+   "first_commit": "59105aaf",
+   "cited_in_docs": false,
+   "docs_files": [],
+   "docs_citation_kind": "none",
+   "target": "none (pure analysis, frozen at 2792d7ca)",
+   "status": "COMPLETE \u2014 the acceptance-gate audit",
+   "evidence_label": "AUDIT (mechanical re-derivation over committed artifacts)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "VERDICT: the completion gate is NOT PASSED and is further from passing than the field count suggests. 0 of 16 P0/P1 rows are CLOSED.",
+    "The strongest positive in the corpus (EXP-0167) and the headline metric (35 of 166 emittable) describe ALMOST DISJOINT SETS: their intersection, after removing the two that appear only as copied tokens, is TWO instructions - mov_imm and stop.",
+    "Closure rule 1 (generated, not decoded) NOT MET for 31 of 35 emittable instructions. Rule 2 MET for 10 of 16 rows. Rule 3 MET for 13 of 16 in the FORWARD direction, but the REVERSE chain is broken. Rule 5 MET for 6 of 16. Rule 6 met for the ISA object only, over 6 families.",
+    "REVERSE-CHAIN FINDING (the one this experiment, EXP-0176, extends): 36 committed EXP-NNNN experiments had no PROVENANCE.md row, 11 of them cited in docs/ - CODEX s9 violations. Zero rows cite an ABSENT artifact; 3 cite nothing resolvable; claim_reproduced is not-mechanically-checkable for 162 of 171 rows.",
+    "Rule 4 not mechanically checkable, but one concrete failure found: cvt_bf16.src being fully match-pinned is absent from docs/isa/README.md and lives only in a status-board cell.",
+    "STATED LIMIT: the audit cannot run hardware, so it can never re-observe a HW-VALIDATED claim - only check that the record exists, is internally consistent, and supports what is written on it."
+   ],
+   "gap": "The audit's own reverse-chain scan is restricted to `EXP-[0-9]{4}` directories, so it excludes every EXP-M4-* and EXP-M5-* experiment. Re-derived over ALL experiments/EXP-* the count is 67 missing rows, 43 of them cited in docs/, not 36/11."
+  },
+  {
+   "id": "EXP-M4-01",
+   "dir": "experiments/EXP-M4-01-isa-census",
+   "first_commit": "5324d8f8",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M4.md",
+    "docs/isa/README.md",
+    "docs/isa/agx3.xml",
+    "docs/m4-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER + HW-PROBE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "THE FOUNDATIONAL M4 RESULT: the M4 runs the same AGX Apple9 shader ISA as the A18 Pro. The 57-shader A18 corpus compiles on the M4 with 0 failures; the A18 DB decodes M4 bytes at the SAME coverage (88.6% tokens / 91.5% bytes vs A18's ~88% / ~90.6%).",
+    "Identity holds down to the red-team corrections: get_sr sr_sel=0xa0, device_load with the corrected byte+5 index register, icmp_pred, the scoreboard_fence 0x07/byte+2=0x02 variant, and imad/imul (byte0 0x9f, byte+2=0x56 vs iadd2's 0x54) all decode identically.",
+    "threadExecutionWidth 32, maxThreadsPerThreadgroup 1024, AppleGPU container (cputype 0x1000013) and _agc.main carve are identical.",
+    "Declared M4 config delta at this point: 10 GPU cores vs the A18 Pro's 5.",
+    "HONEST REMAINDER: ~28 undecoded byte0 groups remain, mostly length-mis-count resync cascades in dense kernels (UNDECODED-INVESTIGATION-NOTES.md); driven to ~0 by later waves."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-02",
+   "dir": "experiments/EXP-M4-02-capabilities",
+   "first_commit": "8aaf78b1",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/m4-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE (capability read) + OWN-SHADER (MSL accept/reject probes)",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The M4 and A18 Pro have the SAME Metal/MSL capability envelope: every feature flag, argument-buffer and RW-texture tier, and every MSL accept/reject probe is IDENTICAL.",
+    "The only deltas are capacity/config and the codename string: architecture.name applegpu_g16g (not g17p), 10 GPU cores (vs 5), hw.memsize 16 GiB (vs 8), recommendedMaxWorkingSetSize 11.840 GiB (vs 5.333), and maxBufferLength 8.880 GiB (0x2_3852_0000 = 9,534,832,640) vs the A18's exactly 4.000 GiB - so maxBufferLength MUST be queried, never hard-coded.",
+    "threadExecutionWidth 32, maxThreadsPerThreadgroup (1024,1024,1024), maxThreadgroupMemoryLength 32768, unified memory, argumentBuffersSupport Tier 2 all IDENTICAL.",
+    "NEGATIVE RESOLVED AGAINST OURSELVES: the one apparent capability delta in the first battery run - bfloat simdgroup_matrix REJECTED on M4 - was run down and proven to be a probe-syntax artifact in OUR OWN source, not a hardware difference. bf16 cooperative matrix is fully supported on M4, identical to A18.",
+    "G16G's codename number is LOWER than G17P - the M4 GPU predates the A18 Pro GPU - yet both are Apple9."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-03",
+   "dir": "experiments/EXP-M4-03-cmdstream-pipeline",
+   "first_commit": "e3ba6e52",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/m4-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "DATA-TRACE + HW-PROBE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "iotrace works on the M4 host with SIP disabled: one iohello_compute --dump produced 50 IOKit CALLs, 2 user-client OPENs and 30 BO snapshots with the correct result - DATA-TRACE is fully available, no fallback needed.",
+    "The IOKit user-client class differs (AGXAcceleratorG16G vs AGXAcceleratorG17P) but the submission model, selector set and sel-9 map ABI are identical; the +1/+2 IOKit call-count deltas (50/60 vs 49/58) are macOS-version noise. A driver must match on the class name per part; everything else is byte-identical.",
+    "CDM compute launch IDENTICAL at the same gpu_va 0x100000b0000: config word +0x00 0x00080000 (bit19), shader ptr +0x08 = shaderVA>>6, grid +0x10, tg +0x1c, terminator +0x2c 0x40000000.",
+    "VDM draw IDENTICAL: non-indexed prim@+0x65, opcode 0x61c4@+0x66, vertexCount@+0x68, instanceCount@+0x6c (verified by --prim line -> 0x01 and --inst 5 -> 5); indexed shifts exactly as A18 RT-2a says (opcode 0x61f2@+0x6e, restart 0xffff@+0x68, indexCount@+0x74). The u32-index form 0x61f4 was NOT separately re-run and is INFERRED-identical.",
+    "USC bind grammar and sampler stride IDENTICAL at the same gpu_va 0x10000248000."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-04",
+   "dir": "experiments/EXP-M4-04-descriptors-tiling",
+   "first_commit": "c531d114",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/m4-deltas.md",
+    "docs/tiling/README.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER + DATA-TRACE + HW-PROBE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "Six of seven descriptor/tiling items are IDENTICAL to A18: 32-byte texture descriptor (type/format/swizzle/14-bit W/H/baseVA/sRGB/mip/sample), 8-byte sampler, PBE/storage-image and read_write two-descriptor form (the M4 also VALIDATES the A18-inferred width-high field), the 8-format spot-check, lossless compression (threshold/aux size/placement/disables), and mip packing (consecutive/padDim/0x80 min slot).",
+    "The GPU allocator is deterministic and matches A18 (arg buffer at 0x100000e0000, textures at 0x10000080000), so the A18 harnesses ran unmodified.",
+    "THE ONE DEVIATION IS AGAINST THE DOC, NOT THE SILICON: a bpp8-specific column-padding rule that the A18 doc's flat cols=ceil(W/T) does not capture. Reported as a delta-vs-doc, with the explicit caveat that it is almost certainly a general AGX 16 KiB tile-row alignment rule the A18 also follows but which the A18 tiling experiments never probed (they used bpp4 non-pow2 widths, where the rule is invisible). EXP-M4-05 then confirmed exactly that on the A18."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-05",
+   "dir": "experiments/EXP-M4-05-a18-bpp8-confirm",
+   "first_commit": "c169672c",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/m4-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "**A18 Pro / G17P** (despite the EXP-M4-* name)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE + DATA-TRACE + OWN-SHADER",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "THE A18 PRO REPRODUCES THE M4 bpp-8 RULE WITH 0 MISMATCH - it is NOT an M4-vs-A18 silicon delta. All 9 dispatches status=4, zero wedges/reboots.",
+    "For bpp-8 optimal-layout 2D textures (tile edge T=32) the tile-column count is padded to an EVEN number of tiles: cols = round_up_even(ceil(W/T)), i.e. padW is a multiple of 64. Unifying cause: a 16 KiB-aligned tile-row stride (0x4000 B), which packs two 0x2000-byte Morton tiles per row granule at bpp8 while bpp4 (64^2*4) and bpp16 (32^2*16) already fill a granule per tile and keep ODD columns.",
+    "Decisive discriminators: 160 -> cols 6 and 288 -> cols 10 are even but NON-power-of-two, so nextpow2 is refuted as well as flat ceil. Even-tile widths 320 (10) and 448 (14) show the rule is a no-op there. 160x256 shows padH is NOT even-rounded - the alignment is a horizontal row-stride rule only. Every BO size equals padW*padH*8 exactly.",
+    "CONSEQUENCE FOR THE DELIVERABLE: the flat cols = ceil(W/T) in docs/tiling/README.md is WRONG for bpp-8 odd-tile widths ON A18 TOO, not just on M4, and must be corrected. The A18 tiling experiments missed it because they only probed non-pow2 widths at bpp4 (T=64), where the 16 KiB alignment is a no-op."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-06",
+   "dir": "experiments/EXP-M4-06-a18-bpp12-granule",
+   "first_commit": "9d0c2c78",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/capability-completeness.md",
+    "docs/m4-deltas.md",
+    "docs/mesa-userspace-requirements.md",
+    "docs/porting-guide.md",
+    "docs/tiling/README.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "**A18 Pro / G17P** (despite the EXP-M4-* name)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE + DATA-TRACE + OWN-SHADER",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "bpp2 (r16) CONFIRMED at 0 mismatch: T=64, granule G=2, cols = round_up(ceil(W/64),2). 320x320 -> cols 6 is decisive - it rules out BOTH ceil (5) and nextpow2 (8). 320x192 shows padH=192=3*64 is NOT granule-rounded, so the alignment is horizontal only. Every BO size = padW*padH*2 exactly, taken from the sel-9 registration header independently of the twiddle solve.",
+    "bpp1 (r8) REFUTED THE PREDICTION - a first-class negative against our own model. The tile edge is 128, NOT 64, so G=1 and cols = ceil(W/128) flat, with odd counts surviving and no mult-of-4 padding: 320x320 -> cols 3 (odd), which also refutes nextpow2 (4 -> 57,281 mismatches). Only T=128 gives 0 mismatch at every non-single-tile width.",
+    "The refutation does NOT break the EXP-M4-05 principle ('tile-row stride = a whole number of 16 KiB pages'); it holds once the correct per-bpp tile size is used, because the bpp1 Morton tile is 128x128 = 16,384 B = exactly one 16 KiB page, so its granule is 1.",
+    "All 22 dispatches (11 WRITE + 11 BIND) status=4; zero wedges/reboots."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-07",
+   "dir": "experiments/EXP-M4-07-tiling-coverage",
+   "first_commit": "328aec22",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/capability-completeness.md",
+    "docs/m4-deltas.md",
+    "docs/mesa-userspace-requirements.md",
+    "docs/porting-guide.md",
+    "docs/tiling/README.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G primary; every CORRECTION cross-confirmed on A18 Pro / G17P",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE + OWN-SHADER + DATA-TRACE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The two parts are tiling-IDENTICAL: every A18 re-run matched the M4 byte-for-byte (raw/til_a18_verify.txt). Zero GPU wedges/reboots.",
+    "TIL-1: each plane of 3D/2DArray/Cube/CubeArray is the standalone-2D twiddle with the bpp-dependent T and G granule, planes LINEAR-STACKED at planeStride = padW*padH*bpp. nextpow2 plane padding is REFUTED (bpp1 320 -> padW 384 not 512; bpp8 160 -> 192 not 256) - this CORRECTS docs/tiling s1.6's 'pow2-padded' wording. Cube = 6-face array; CubeArray = 6*arrayLength stacked planes with no per-cube padding.",
+    "TIL-5 CORRECTS THE COMPRESSION AUX FORMULA (memory safety): aux = 1 byte per 8x4-texel block = numTexels/32 = paddedImageBytes/(32*bpp). The older image_bytes/128 form is REFUTED at bpp8 and bpp16 (it over-counts 2x and 4x); it coincides only at bpp4. Compression engages at bpp8 and bpp16.",
+    "TIL-2: block-compressed grids are tiled-Morton over blocks with T_blk = 32 blocks for EVERY block byte-size; G=2 (even block-cols) for 8-byte blocks, G=1 for 16-byte. 17 formats.",
+    "TIL-3: MSAA is sample-MINOR interleave morton*N+sample and the tile edge follows T(bpp*N) - MSAA SHRINKS the tile. 8x is Metal-rejected; 2x and 4x both engage compression aux.",
+    "TIL-4: per-level padDim(T) twiddle + 0x80 min-slot confirmed at all bpp; the small-mip tail (first level <= 0x8000) starts at an offset aligned up to 0x8000, so non-pow2 bases insert one extra 16 KiB page - this resolves the 384^2 = 0xcd600 vs formula gap in docs/tiling s3.",
+    "TIL-6: the compression eligibility threshold W>=16 and H>=16 (unpadded texels) is bpp-INDEPENDENT and format-family-independent across float/unorm/uint/packed, bpp1..16.",
+    "TOOLING NEGATIVE (clean, not a HW fact): narrow-format (r8/r16) compute image-store to 3D/array either faults or leaves the shared backing CPU-incoherent at snapshot, so all uncompressed probes use replaceRegion CPU-upload, validated against the known 2D r8/r16 twiddles."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-09",
+   "dir": "experiments/EXP-M4-09-cmdstream-coverage",
+   "first_commit": "14b525ea",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/cmdstream/README.md",
+    "docs/isa/README.md",
+    "docs/pipeline/README.md",
+    "docs/porting-guide.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G primary; the one CORRECTION cross-confirmed on A18",
+   "status": "COMPLETE",
+   "evidence_label": "DATA-TRACE + HW-PROBE",
+   "has_results_md": true,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "CMD-1 blend: the 19 factors x 5 ops x dual-source identity lives ENTIRELY in the FS blend microprogram - changing any factor or op rewrites ~5,600-7,800 FS code words and NOTHING in the 0x58000 state pool selects a factor or op. The implementation team writes its own blend-lowering compiler, as Asahi does.",
+    "The state pool carries only orthogonal side-flags a driver must still emit alongside the compiled FS: colour write mask at 0x58000+0x5c bits[3:0] BIT-REVERSED RGBA (R->bit3 ... A->bit0); store-epilog-engaged at +0x50 bit29, set iff blending is on OR the write mask != 0xf; blend-constant-needed at +0x10 bit6, set iff any factor is blendColor/blendAlpha or their complements; a small blend/store program-class enum at +0x08 bits[10:6] (0x4c0 plain-store / 0x500 default-blend / 0x540 extended) that is FS-covariant and NOT a driver-independent field; and an extended-source/saturate class bit at +0x18 bit0.",
+    "The setBlendColor RGBA constant is NOT a fixed-function register - it is a 4x f32 uniform the FS reads out of the uniform/arg BO (observed at +0x620; the exact offset is the driver's own allocation choice).",
+    "Dual-source blending produces NO 0x58000 change at all (only ~27 FS words move) - there is no state flag distinguishing it. All five blend ops are likewise entirely in the FS.",
+    "CMD-2 stencil CONFIRM: all 8 ops on all three fields share one enum at the documented bit positions of 0x58000+0x3c (pass[18:16], zfail[21:19], sfail[24:22], compare[27:25], [31:28] unused), with back-face using the identical encoding at +0x44 independently of front."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-10",
+   "dir": "experiments/EXP-M4-10-isa-coverage",
+   "first_commit": "9f3f5ba0",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/compiler-readiness.md",
+    "docs/isa/README.md",
+    "docs/isa/agx3.xml",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice-and-observe) + OWN-SHADER-DIFF",
+   "has_results_md": true,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Round-trip GREEN and census 97.4% byte coverage on the M4 corpus after the length fix below.",
+    "ISA-1 CONFIRMED: register operand = (reg<<1)|is32, an 8-bit byte with a 7-bit register field (r0=0x01, r15=0x1f, r16=0x21, r63=0x7f, r64=0x81, r95=0xbf); device_load dst = byte+8 (splicing 0x51=r40 -> 0x11=r8 makes the consumer read stale).",
+    "FRESH REFUTATION OF THE OLD EXP-0006 mod-64 CLAIM for the load/store index register at byte+5: splicing it to 0xff (r127) HARD-FAULTS with CMDBUF_ERROR. A 6-bit mod-64 field would alias 0xff to r63 and read fine, so the high bits are real register-select bits.",
+    "CORRECTION FOUND AGAINST OUR OWN DB: device_store's data register is NOT byte+8. Two scalar stores of distinct registers both carried byte+8 = 0x11 and splicing byte+8 was HW-INERT; the stored value tracked byte+2/+3 instead (amode 0x54: byte+3 low bits = data GPR). The exact position is amode-dependent and only PARTIALLY pinned - annotated rather than silently 'fixed' to a wrong value.",
+    "ISA-2 NATIVE: saturate(x) and clamp(x,0,1) compile identically to the extended float-ALU form with a single output-clamp bit at byte+7 bit1 (0x02). HW SPLICE PROOF: sat_f(0.5+1.0) -> 1.0, and splicing 0x82 -> 0x80 gives 1.5 (clamp off). No following min/max op is emitted. General clamp(x,lo,hi) is DIFFERENT - lowered to explicit fmax/fmin.",
+    "DB length fix: the fma path carries the same tail, so the old flat return-8 mis-lengthed saturate-fma (10 B) and abs-fma (12 B); unified to 6 + 2*(byte+4 & 3) for the 0x09 and 0x10 fma branches.",
+    "HONEST LIMIT: ALU-source r64-r95 could not be loaded with a known sentinel without spilling (the pressure kernel spills at ~66 live values), so full-file ALU-source distinctness is INHERITED from EXP-0020 and RT-7, not established here."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M4-11",
+   "dir": "experiments/EXP-M4-11-machine-model",
+   "first_commit": "1af5f255",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M4.md",
+    "docs/m4-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M4/G16G",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice + metadata sweeps) + DATA-TRACE",
+   "has_results_md": true,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "ALL 8 machine-model items IDENTICAL to the A18 baseline - zero machine-model deltas. 0 reboots.",
+    "96 GPRs, hard boundary: metadata field-0 footprint grows then caps at EXACTLY 96 and never exceeds it (K=62->96, every K to 256 stays 96); scratch grows only after overflow (K=104->400 B, 128->576, 192->896, 256->1280) - byte-for-byte the A18/RT-7 numbers.",
+    "DECISIVE NO-MOD-64 PROOF: splicing the device_load index register gives r0..r95 STATUS OK but r96 (0x60) CMDBUF_ERROR. Under mod-64, r96 would alias r32 and read 0 -> OK; instead it hard-faults, so 96 is a hard silicon boundary, not a wrapped 6-bit field.",
+    "IMPORTANT ENCODING CAVEAT KEPT SEPARATE FROM THE MACHINE MODEL: the 6-byte COMPACT falu2 operand high bit (byte+1/byte+3 bit7) is a MODIFIER, not a register bit, so the compact form cannot reach r64+ as a distinct register (r64 aliases r0 IN THAT ENCODING). This is a compaction artifact, not register-file aliasing - the decisive no-alias evidence is the memory-index fault plus a functional 96-register cyclic copy that is exact for K=60..256 including heavy spill.",
+    "16-bit halves, 2 per GPR: 64 halves -> f0=50 and 96 halves -> f0=74, the exact A18/RT-7 numbers and impossible if a half owned a full GPR.",
+    "Uniform register file with BOTH uniform-source encodings, spill-to-scratch with the occupancy 2-tier bit, the full get_sr SR table, in-shader software vertex attribute fetch, HW register interlock (no scoreboard), and the u32 index opcode 0x61f4 plus stage-boundary timestamps - all IDENTICAL, the last two now HW-run on the M4 rather than inferred."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-01",
+   "dir": "experiments/EXP-M5-01-toolchain-bringup",
+   "first_commit": "70befaa9",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Toolchain bring-up: shdump -> agxparse -> agx-isa all build and run on the M5 with its own Command Line Tools; runtime newLibraryWithSource: MSL compilation confirmed working; threadExecutionWidth 32 and maxThreadsPerThreadgroup 1024, same as G17P.",
+    "The unmodified 170-descriptor G17P DB partially decodes M5 machine code and then DESYNCS: on a 50-byte add kernel, get_sr 1c a0 10 06 transfers exactly (position_in_grid -> r1), then byte0=0x18 is not in the G17P DB and 42 of 50 bytes are LEFTOVER.",
+    "Interpretation held deliberately narrow (one kernel): the M5 is a G17P-DERIVED ISA with real deltas, not a clean-sheet ISA."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-02",
+   "dir": "experiments/EXP-M5-02-isa-census",
+   "first_commit": "1adafa1a",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "902 own-MSL sources -> 1085 extracted stage programs (939 compute / 73 render OK; 41+28 fail, all classified). 96,897 instructions over 701 unique streams.",
+    "Unmodified G17P DB on M5 bytes: FULLY-NAMED 76.82%, length-only 3.57%, UNDECODED 19.61%; BYTE COVERAGE 84.13%. 240 distinct byte0 groups, 44 never decoded.",
+    "Confirms M5 (G17g) is a G17-family SIBLING of the A18 (G17P): ~84% of bytes already decode, so the job is the ~16% G17P->G17g variance, not a rebuild.",
+    "First-desync ranking (which deliberately cuts the resync-artifact noise that inflates a raw byte0 histogram): 0x18 breaks 204 kernels first, then 0x41 (60), 0xc1 (51), 0x24 (47), 0x3f (46). Most undecoded regions FOLLOW multi-word ops, signalling different length rules rather than unknown opcodes.",
+    "SUPERSEDED IN PART by EXP-M5-07, which showed 0x41/0xc1 are the TAIL bytes of a 10-byte load and the real store leader is 0x01 - the census guesses were wrong and the later experiment says so."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-03",
+   "dir": "experiments/EXP-M5-03-thirdparty-census",
+   "first_commit": "2636e4d1",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER + PUBLIC (permissively licensed third-party MSL)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Adversarial validation corpus built from committed permissive third-party MSL (SPIRV-Cross Apache-2.0, Dawn/Tint BSD-3, wgpu/naga MIT/Apache, PyTorch BSD-3, llama.cpp MIT, ToyPathTracer Unlicense): 13,039 files compiled standalone -> 3,095 hex programs across 5 of 6 projects, 12 MB on device.",
+    "Failure classes recorded rather than hidden: parse-error 6,933, include-not-found 32, unsupported-feature 24; llama.cpp's single monolith needs local C headers never collected - a legitimate negative result.",
+    "Census with the unmodified G17P DB over 61,766 tokens / 285,972 instruction bytes from 709 unique programs, giving the real-world-program baseline against which the M5 fork is measured."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-04",
+   "dir": "experiments/EXP-M5-04-capabilities",
+   "first_commit": "0a7a77e4",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/pipeline/README-M5-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-PROBE (public Metal capability read) + PUBLIC",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The M5 capability baseline: Metal GPU family Apple10 (1010), Metal 4, highest accepted MSL 4.1, 8 GPU cores, SIMD width 32, maxThreadsPerThreadgroup (1024,1024,1024), 32 KiB threadgroup memory, maxBufferLength ~8.88 GiB, argumentBuffersSupport Tier 2, maxArgumentBufferSamplerCount 500,000.",
+    "164-row capability matrix in which essentially everything starts as NYC (NOT-YET-CHARACTERIZED) - the deliberate honest default on a fresh baseline, so that each row becomes a tracked work item rather than an assumed inheritance."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-05",
+   "dir": "experiments/EXP-M5-05-coverage-restoration",
+   "first_commit": "66d5b3b8",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/porting-guide-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER (compile-only census + round-trip; no GPU dispatch)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "tools/agx-isa-m5 forked from tools/agx-isa (left pristine). Byte coverage restored on BOTH corpora: own 84.23% -> 96.55% (desync 15.77% -> 3.45%), third-party 86.06% -> 97.98% (13.94% -> 2.02%). Round-trip ALL PASS; 0 hangs.",
+    "THE WIN IS LENGTH RULES, NOT NEW OPCODES: ~+1 descriptor and ~+98 lines of instr_length rules, confirming the census diagnosis that the G17P->G17g delta is mostly length-rule divergence in a handful of low-nibble families plus a few relocated match bits.",
+    "BUG FOUND AND FIXED IN OUR OWN TOOL: instr_length infinite recursion - the _r9_succ_safe closure guard re-entered instr_length with the default _closure=True (unlike its siblings), so a long repeated-0x38 run blew up exponentially and hung the census on 1 of 3,095 files. One-line fix; verified the bad file scans fully and round-trip stays green.",
+    "HONEST SCOPE, STATED BY THE EXPERIMENT ITSELF: this restores TOKENIZATION (leader + length) only. It does NOT prove the semantics of the newly-named or relocated ops - new leaders were added with minimal raw/operand_word fields and explicit '# SEMANTICS: splice-TODO' markers.",
+    "The metric cannot be gamed: a wrong length rule INCREASES desync."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-06",
+   "dir": "experiments/EXP-M5-06-cmdstream-descriptors",
+   "first_commit": "dd9a1340",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/cmdstream/README-M5-deltas.md",
+    "docs/descriptors/README-M5-deltas.md",
+    "docs/pipeline/README-M5-deltas.md",
+    "docs/tiling/README-M5-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "DATA-TRACE",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "DYLD injection works under SIP on the M5 for our own freshly-built non-hardened arm64e binary - SIP restricts injection into Apple/platform binaries, not ours - so later phases need no SIP change. Two clients (IOSurfaceRoot + AGXAcceleratorG17G); sel-9/sel-5 parsing byte-identical to A18; IOKit call counts 49 compute / 58 draw, IDENTICAL to A18, so the same shared-memory + doorbell submission model.",
+    "CDM deltas: shader-ptr/grid/tg records SAME; config word +0x00 drops the A18 bit19 base and keeps bit23 occupancy; threadgroup-memory size MOVES +0x40 -> +0x38 with a new segmented encoding 0x0c00000f | (fine<<11) | (coarse<<19), HW-validated over 19 sizes including 2 blind cross-checks. Arg-buffer Tier-2 table at +0x14a0 byte-identical.",
+    "VDM deltas: draw opcodes shift +0x0800 (0x61c4 -> 0x69c4, 0x61f2 -> 0x69f2) with primitive/counts/restart layout unchanged; viewport transform moves +0x910 -> +0x9d0; the FF-state pool 0x58000 keeps its fields at reorganized offsets.",
+    "Descriptors: the 32-byte texture descriptor has exactly ONE delta - the width/height bit split shifts by 1 bit (width-1 = word0[28:31] || word1[0:10], height-1 = word1[11:24]); everything else identical. The 8-byte sampler and the buffer binding are BYTE-IDENTICAL to A18.",
+    "NEGATIVE: no core-mask or core-count field appears in any client BO for 8 cores vs 5, consistent with a firmware/kernel-managed tiler and no userspace delta."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-07",
+   "dir": "experiments/EXP-M5-07-isa-semantics",
+   "first_commit": "f2a4860a",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice-and-observe) + OWN-SHADER-DIFF",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "THE M5 MEMORY MODEL IS SPLIT: A18's single 14-byte device_load (0x67) / device_store (0xe7) becomes THREE ops - a 4-byte address-gen (?f <slot<<2> 03 <idxmode>), a load (0x18/0x38/0x58/0x78 = 1/2/3/4-component, 10 B or 4 B), and a store (0x01/0x21/0x41/0x61 = 1/2/3/4-component, 4 B or 6 B).",
+    "THIS CORRECTS EXP-M5-02'S OWN CENSUS GUESSES: the '0x41/0xc1 store' at census ranks 2-3 are the TAIL bytes of the 10-byte load, not a store; the real store leader is 0x01. The '0x78/0x58/0x50 typed/sample' family at rank 10 are the vec4/vec3/vec2 LOAD leaders (component count in byte0 bits[5:6]), not texture samples. The '0x0f jump' was the load address-gen mis-lengthed.",
+    "PROVEN by splice: address-gen base_slot = byte+1 (slot x4) and idx_mode = byte+3; load elem_size = byte+3 (0xc0->0x80 gives a[4i] 16 B stride, 0xc0->0xa0 gives a[i/4] 1 B stride), reproduced on a second load; store dsrc = byte+1 and st_fmt = byte+3 with an implicit data register; immediate-move 04 <imm> proven (42 -> 55).",
+    "NEGATIVE (the task's own direction question): LOAD vs STORE is NOT a direction bit - they are distinct opcodes. Load byte+5/6/7 are inert.",
+    "OPEN AND RECORDED, NOT GUESSED: the short-ALU 0xNe byte+2 op-select map; 0xb7 could not be provoked (quad_shuffle_xor/quad_max/simd_sum all lower to 0x2f instead); the call 0xef/0xff path (the noinline helper inlined, so 43 00 00 01 is present but inert)."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-08",
+   "dir": "experiments/EXP-M5-08-capability-census",
+   "first_commit": "6bc57712",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER (compile-only acceptance probe) + inheritance with explicit downgrades",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "164-row capability census with an explicitly conservative method: inherit each A18 classification but DOWNGRADE TO NYC wherever a known G17g delta touches the encoding and has not been re-characterized on M5.",
+    "Tallies: native 65, NYC 72 (the OBJ-2 backlog), emulated 15, kernel-managed 5, microarch-only 7.",
+    "The 72 NYC split into ~46 ISA field-semantics splice-TODOs (families whose leaders and lengths are fixed and round-trip-green but whose field maps are not splice-validated on M5) and ~26 open cmdstream/descriptor records - i.e. the backlog is named, not hidden.",
+    "MARQUEE OPEN ITEM RECORDED HONESTLY: whether the M5 keeps A18's all-to-0xcf matrix lowering or adds a dedicated neural/tensor instruction is UNRESOLVED here - <metal_tensor> compiles and newTensorWithDescriptor: returns YES, so the surface is present but the ISA realization is unmapped."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-09",
+   "dir": "experiments/EXP-M5-09-isa-semantics2",
+   "first_commit": "741243f6",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md",
+    "docs/porting-guide-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER-DIFF + HW-VALIDATED (splice-and-observe)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "MARQUEE: the M5 matrix path SPLITS and there is NO new dedicated 'neural' ISA leader. On A18 both simdgroup_matrix MAC and MPP tensor_ops::matmul2d lowered to the identical 0xcf; on M5 simdgroup_matrix MAC emits ZERO 0xcf and instead uses a low-nibble-0xf tile family plus a distinct MAC op (2f 00 05 ..), while tensor_ops::matmul2d KEEPS 0xcf. So the Apple10 'Neural Accelerator per GPU core' is not a new standalone opcode on any MSL-reachable path.",
+    "Proof is a control ladder, not assertion: ls_f32 (load+store) -> 2 tile ops, mul -> 3, mad -> 4, so ?f..07.. is tile load/store and the 2f 00 05 op is the multiply/accumulate; corrupting the MAC leader, MAC byte+2, or a tile byte+2 each drives the output all-zero.",
+    "Ray tracing: rt_intersect (byte0 low-nibble 0x4 + byte+1 0xea) transfers UNCHANGED from A18, twice per kernel, for both intersector and inline intersection_query. rt_as_load (0xdf) and rt_ray_mem (0x5f) do NOT survive as distinct leaders (0-2 per kernel on M5 vs 14-37 on A18) - they migrated into the new split memory family. The exact M5 AS-load encoding is left OPEN.",
+    "Atomics and subgroup/quad unify onto one reduction op-selector at byte+6: a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac FLOAT-ADD; scope at byte+2 (0x04 simd/device, 0x00 quad); reduce vs exclusive-scan at byte+9. Evidence: 22 single-op own-MSL kernels differing only in the operation.",
+    "Full 8x8 operand bit-packing left as splice-TODO - op identity proven, operands not."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-10",
+   "dir": "experiments/EXP-M5-10-cmdstream-tiling",
+   "first_commit": "3210cbe9",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/cmdstream/README-M5-deltas.md",
+    "docs/descriptors/README-M5-deltas.md",
+    "docs/pipeline/README-M5-deltas.md",
+    "docs/tiling/README-M5-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "DATA-TRACE + HW-PROBE",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "The M5 cmdstream / descriptor / TBDR / tiling model is the A18 model with OFFSET-ONLY relocations plus a few regroupings: bit layouts, enums and allocation math transfer; only byte offsets move. NO MISSING HARDWARE FUNCTIONALITY FOUND. ~90 GPU submits all STATUS=4, zero faults.",
+    "Depth compare/write/ref relocate to 0x58000+0x170/+0x174 (all 8 compares HW-validated); stencil op/func/mask relocate to +0x178/+0x17c BIT-IDENTICAL (all 8 ops x 3 fields plus independent back-face); rasterizer cull/winding/fill/clamp at +0x1a8; bias-enable +0x16c bit17.",
+    "Blend CONFIRMED PROGRAMMABLE on M5 too: a factor change rewrites 49 FS words and produces ZERO pool diffs; only side-flags remain (constant at +0x130 bit6, store-class at +0x188).",
+    "Tile size 32x32 CONFIRMED on the 8-core M5 (unchanged from the 5-core A18): 0x68000+0x9c4 = 0x80000000|(ceil(W/32)-1), +0x9c8 = ceil(H/32)-1, moved +0xC0 from A18; 1920x1080 -> 59/33 is decisive. Programmable sample positions remain userspace-emittable.",
+    "Tessellation is NATIVE and the same as A18: drawPatches -> a VDM patch-dispatch at 0x18000+0x80, half-float factors, a single graphics submit, no CDM.",
+    "Indirect draw opcodes take the same +0x0800 shift (0x6c04 / 0x6c32); indirect DISPATCH is unchanged from A18. MSAA 8x is REJECTED, correcting the older 'cap at 8x' wording.",
+    "The A18 twiddle and compression allocation model transfers byte-for-byte, HW-validated over 6 formats x 8 dimensions."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-11",
+   "dir": "experiments/EXP-M5-11-isa-integration",
+   "first_commit": "5cd4a2b6",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice) + OWN-SHADER-DIFF, gated on a non-regressing census",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Integration gate PASSED and independently re-confirmed on device: own corpus named 85.14% -> 93.42% with UNDEC 3.39% -> 2.60% (byte coverage 97.40%); third-party named 91.19% -> 95.48%, UNDEC 1.83% -> 1.61% (98.39%). Named UP and desync DOWN on BOTH corpora, ZERO new desync regressions, ZERO hangs, round-trip ALL PASS. DB 180 descriptors (9 M5-specific).",
+    "m5_reduce (10 B) covers subgroup/quad reduce+scan AND device-atomic-on-uniform pre-combine - byte-identical (a_iadd == s_sum) - and was previously MIS-NAMED fspecial. A18's 0x67 atomic forms are GONE on M5.",
+    "m5_alu (12 B) is the M5 general compute ALU and was the largest lengthed-but-unnamed bucket (~3,350 own / ~970 third-party), giving the +8.28% named win. Added descriptor-only, with NO length change, so it provably cannot introduce desync; operand packing kept raw.",
+    "SPLICE-PROVEN: m5_load byte+5 is the index register (0x20 -> 0x00 forces every lane to a[0]).",
+    "FIRST-CLASS NEGATIVE vs A18: the immediate offset in a[i+k] has NO field on M5 - it is folded into a preceding m5_alu add. Load/store data register is IMPLICIT/positional (st_sum and st_mul7 emit byte-identical stores; byte+1 is a source CLASS, not a register number).",
+    "Census answer to BLOCKER-3: 0x67/0xe7 still occur on M5 (device_load 159/54, device_store 21/22) alongside the dominant split model, so the two coexist rather than one replacing the other outright."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-12",
+   "dir": "experiments/EXP-M5-12-capability-reconcile",
+   "first_commit": "89c575ea",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER (compile-only presence probe) + reconciliation against EXP-M5-10",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "Presence probe on M5, own-MSL compile-only: ACCEPT render_target_array_index (vertex), viewport_array_index, both together, depth(any/greater/less), early_fragment_tests, sample_mask out, sample_mask in, sample_id + mask, barycentric. REJECT: early_fragment_tests combined with depth - documented explicitly as an MSL mutual-exclusion RULE, not an absence.",
+    "Layered rendering, fragment depth output, sample-mask in/out, RT custom-AABB and curve primitives restored to native; simdgroup_matrix<int/char> classified EMULATED (REJECT confirmed) while the int8-via-MTLTensor neural path stays NYC in the same bucket as fp16/bf16.",
+    "13 stale capability rows reconciled NYC -> native/M5-measured against EXP-M5-10 (depth/stencil, depth clamp/clip, line fill, depth bias, write mask, alpha coverage, tessellation, tile size, memoryless, load/store, MSAA, sample positions, occlusion, indirect dispatch+draw). MSAA 8x rejection CORRECTS the older 'cap at 8x' wording.",
+    "Conservative rasterization and pipeline-statistics queries classified EMULATED because Metal does not expose them - an absence recorded as a first-class result."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-13",
+   "dir": "experiments/EXP-M5-13-cmdstream-remaining",
+   "first_commit": "25dd6cef",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/cmdstream/README-M5-deltas.md",
+    "docs/isa/README-M5.md",
+    "docs/porting-guide-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "DATA-TRACE + HW-PROBE",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "USC graphics bind grammar MEASURED (it had previously only been ASSERTED) and found BYTE-IDENTICAL to A18 at a relocated arg buffer: 8-byte-LE header (high32 = 0x00000100), +0x600 texture-array ptr, +0x608 sampler-array ptr, +0x610/+0x618 buffer VAs, 0x20-byte texture descriptors, 0x20-stride samplers, 0x60000000 terminator, with num_tex = (samp_ptr - tex_ptr)/0x20 verified HW-clean over tex1/2/3 x samp1/2/3.",
+    "PPP output-select word relocates 0x58000+0x20 -> +0x158 with BIT-IDENTICAL positions to A18: clip mask bits[7:0], point_size bit18, viewport_array_index bit19, and render_target_array_index (layer) bit20 - the layer bit is NEW (A18 never measured it). Layered-rendering enable is VDM 0x18000+0x20 bit6.",
+    "MAJOR-6 was OUR BUG, not the hardware's: the EXP-M5-10 mesh abort came from calling newRenderPipelineStateWithDescriptor: on a mesh descriptor. Fixed -> mesh renders (STATUS=4). The mesh grid-dispatch opcode 0x70000600 is UNSHIFTED, unlike the +0x0800 draw opcodes.",
+    "CDM +0x04 / +0x0c / +0x28 are INVARIANT across grid/tg/tgmem/occupancy sweeps - structural template constants, not parametric fields - and this CORRECTS the doc's +0x04=0x1 to the measured little-endian 0x01000000.",
+    "FF +0x194 write-mask packing is bits[3:0] in STRAIGHT R=bit0 order - the REVERSE of A18's bit-reversed +0x5c - HW-validated over all 16 subsets."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-15",
+   "dir": "experiments/EXP-M5-15-obj2-reconcile2",
+   "first_commit": "65bd7d3f",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "MINIMAL \u2014 one capability probe, no report",
+   "evidence_label": "HW-PROBE (public Metal capability read)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "A single committed probe source plus its verbatim output (raw/rrm_probe.txt): supportsRasterizationRateMapWithLayerCount: YES for 1 and 2, NO for 3 and 4; supportsVertexAmplificationCount:2 YES.",
+    "This is the whole of the experiment: variable rasterization rate map / foveated rendering is PRESENT on the M5 but capped at 2 layers, and vertex amplification is present at count 2."
+   ],
+   "gap": "There is no README.md, RESULTS.md or report.md - only raw/rrm_probe.txt. The row must be scoped to exactly the five printed lines; docs/capability-matrix-m5.md cites it for a capability-matrix cell, which the raw does support."
+  },
+  {
+   "id": "EXP-M5-16",
+   "dir": "experiments/EXP-M5-16-texture-atomics-matrix",
+   "first_commit": "a47a49eb",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md",
+    "docs/porting-guide-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice) + OWN-SHADER-DIFF, census-gated",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Census strictly non-regressing (own named 93.42 -> 93.43, UNDEC 2.60 -> 2.59; third-party 95.48 -> 95.51, 1.61 -> 1.59), round-trip ALL PASS, DB 180 -> 188 descriptors.",
+    "ROOT CAUSE OF THE PRIOR REVERTED ATTEMPT, stated plainly: texture-op length is GENUINELY VARIABLE - the same 0f 06 12 gather is 14 B with inline const coords and 22 B with register coords - and byte+2 in {0x12,0x1a} also fires on operand-word landings, causing over-reads and regressions. Fixed by gating on the sampler-descriptor marker (byte+4 hi-nibble 0x4 plus byte+5 == 0x80, ~24 bits, disjoint from landings) and taking the length as the 6-byte emittable LEADER, letting coord/LOD operands fall through as raw words.",
+    "Divergent-address atomics: A18's per-lane 0x67 is GONE; M5 reuses the addr-gen leader with a memory-descriptor gate at byte+7 == 0xc0, giving m5_atomic_div (12 B) and m5_atomic_xchg (10 B). SPLICE-CONFIRMED on da_add: the leader and byte+7 are each load-bearing (zeroing either zeroes the output) and byte+4 is the op-selector (0x00 -> 0x20 turns add into AND).",
+    "HONEST NEGATIVE inside a positive result: byte+8 is INERT for integer add.",
+    "tex_write 0xd7 image-write SURVIVES on M5 (19 third-party instances, correctly lengthed); the extra M5 24 80 03 image-store form is documented OPEN rather than guessed."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-17",
+   "dir": "experiments/EXP-M5-17-texture-operands",
+   "first_commit": "21281f6e",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/capability-matrix-m5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md",
+    "docs/porting-guide-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (fragment splice with pixel readback)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Texture SAMPLE and READ are EMITTABLE on M5: every operand a driver must place is proven by an observed PIXEL delta, not inference.",
+    "Canonical 22-byte fragment sample map: off1 op (04 explicit-LOD / 05 bias|compare / 06 implicit|gather / 07 register-LOD), off2 class (12 compute-sample / 16 fragment sample / 1a image-read), off3 COORDINATE REGISTER (reg32<<1; float2 -> +0x04; splice RED->BLUE), off5[6:0] SAMPLER SLOT with bit7 = last/scoreboard (splice BLUE->RED), off6 TEXTURE SLOT (slot0 = 0x60, +0x08 per slot; splice RED->GREEN), off12 LOD/BIAS immediate = round(level * 0x40) (splice RED->BLUE via mip). Image read is 8 B; gather is 14 B.",
+    "NEGATIVE, splice-proven: off7 (the coordinate scoreboard token) is INERT - splicing it is a no-op. off4's descriptor-bank nibble for dense slot >= 2 stays raw rather than guessed."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-18",
+   "dir": "experiments/EXP-M5-18-call-abi",
+   "first_commit": "c9edc861",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice + end-to-end execution from the linked archive)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "THE BLOCKER WAS OUR TOOLING, NOT THE HARDWARE: shdump's single-symbol extraction of a visible_function_table caller returns a 4-byte STUB because the real call resolves at PIPELINE-LINK time. New reusable tools shdumplink.m (serializes a linked pipeline whose nested Mach-O carries the real 64-byte call site plus each callee as its own __text symbol) and agxrunlink.m (rebuilds the pipeline from the spliced linked archive, fills and binds an MTLVisibleFunctionTable, dispatches) round-trip EXACTLY for direct and indirect calls.",
+    "Encoding, HW-validated and byte-identical across argument count and callee body (so it is a genuine ABI, not one program's layout): 43 00 00 01 frame_marker (4 B, inherited from A18, and splice-proven RUNTIME-INERT); 9e 60 <type> 0e call-setup with byte+2 type = 0x00 direct / 0x01 indirect as the only differing byte; ff c7 ff 7f be 03 40 0e branch-and-link (8 B) as the actual CALL, whose byte0/+1/+2/+3/+4/+7 each redirect the branch to CMDBUF_ERROR while +5/+6 are inert; and a callee epilogue ret 27 00 04 00 20 00 a5 02 invariant across callees."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-19",
+   "dir": "experiments/EXP-M5-19-rt-as-load",
+   "first_commit": "0105c5a6",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (splice against a real acceleration structure)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "The A18-migration hypothesis is CONFIRMED and RT loads are NOT a dedicated M5 opcode. ~180 splice dispatches, 0 GPU faults / 0 reboots (RT faults fully contained).",
+    "rt_intersect (?4 ea) SURVIVES and is now SPLICE-CONFIRMED on M5 rather than A18-provenance-inherited: against a real single-triangle AS, rays 0-4 give t=3.0 and ray 5 misses; byte+1 ea->00 breaks traversal, byte+2 90->00 makes the miss-ray HIT, byte+4 is the per-lane ray/AS operand.",
+    "AS handle = an INDEX-FIXED argument/uniform load: as_slot1.hex and as_slot3.hex are BYTE-FOR-BYTE identical (AS at buffer 1 vs 3), unlike plain device buffers whose addr-gen slot is keyed by binding index. Ray origin/direction ride the general 0x?f split-memory family, separated by ray0-survival splices.",
+    "DRIVER TAKEAWAY: a driver emits M5 RT via the general argument load (AS handle) plus split-memory loads (ray data); there is NO dedicated 0xdf AS-load op on M5, so RT lowering reuses memory paths already specified.",
+    "DELIVERABLE RESTRAINT: the DB change is SEMANTICS-ONLY - no new descriptor, because the AS-load is the general argument/uniform load - which is zero census risk."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-20",
+   "dir": "experiments/EXP-M5-20-coopmatrix-operands",
+   "first_commit": "d9cb3135",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/hypotheses.md",
+    "docs/isa/README-M5.md",
+    "docs/isa/encoding-tables-m5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (~1900 splice dispatches with numeric matrix readback)",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Cooperative matrix is EMITTABLE on M5: every field is a numeric matrix result read back from real hardware (A = 2I, B = 3I, C = 5I -> R = A*B + C on the diagonal). 0 hangs / 0 reboots.",
+    "Tile LOAD/STORE placement FULLY PROVEN: tile register = byte0 hi-nibble; memory-address GPR = byte+1 (= gpr<<1, walked 04->08->0c reading gpr2->4->6 with R going 11->14->20); direction = byte+6 (0xb8/0xa1) plus byte+8 (0x10/0x18); datapath byte+9 (0xc0 fp32 / 0x80 fp16). The emit recipe is stated explicitly.",
+    "Tile 12-vs-16 length DETERMINED: 16 if (byte+10 & 0x40) else 12, consistent 6/6, replacing the conservative always-12 rule. The 16-byte form's trailing inline 80 00 00 00 is HW-INERT - splicing it left the matrix unchanged - a recorded negative.",
+    "MAC operands located: A and B registers at byte+3 (A->r4/r6 gave R=14/20, B->r2/r6 gave 9/15, both->r6 gave 30); C register at byte+13[4:3] (00 none R=6, 01 r2 -> 8/10, 10 r4 -> 9, 11 r6 -> 11, C_tile = 2x field); accumulate at byte+9; datapath byte+6; input dtype byte+1.",
+    "LATENT CAPABILITY FOUND AND LOGGED TO hypotheses.md: byte+13 bit6 NEGATES the A*B product.",
+    "DB DEFECT FIXED: the old byte+1 == 0x00 gate MISSED the bf16 MAC (2f 02 05); dropping it makes the new DB name the bf16 MAC and length 16-byte tiles correctly. Census FLAT, round-trip ALL PASS."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-21",
+   "dir": "experiments/EXP-M5-21-gpr-machine-model",
+   "first_commit": "887e86e8",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/capability-completeness-m5.md",
+    "docs/isa/README-M5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "OWN-SHADER (own __GPU_METADATA + own compiled bytes) + DATA-TRACE (own-process iotrace)",
+   "has_results_md": false,
+   "has_raw_dir": true,
+   "raw_is_empty": false,
+   "quarantined": false,
+   "key_claims": [
+    "HEADLINE DELTA: the M5 GPR file is LARGER than the A18's - 126 vs 96 (+30). The compiler's register footprint grows with the IDENTICAL A18 slope (round(1.25*K)+3, byte-identical at every K) but caps at 126; spilling begins correspondingly later (scratch first appears at f0 = 126, K = 98, vs f0 = 96 on A18).",
+    "Max live 32-bit registers with no spill, HW-proven: 123 on M5 vs 93 on A18 (K=96 integer copy PASS with scratch=0 and exact readback).",
+    "Everything else in the machine model transfers unchanged: 2 halves per GPR (64 halves -> 50 GPRs), uniform file at metadata field 31 (~8 B per uniform), spill-to-scratch mechanism.",
+    "Occupancy tier config +0x00 bit23 MEASURED on M5 at the 19|20 boundary (set for f0 >= 20, clear at <= 19) versus the A18's interpolated '>= ~12'; the base config +0x00 is 0x0 on M5 (A18's bit19 dropped), agreeing with EXP-M5-06 independently.",
+    "HONEST OPEN, stated by the experiment: physical 126 vs 128 is NOT disambiguated, because the A18 r96 memory-index hard-fault probe does not transfer - M5's memory is split, so the m5_load index-register byte is inert and the index is carried by m5_addr_gen instead."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-22",
+   "dir": "experiments/EXP-M5-22-texture-binding",
+   "first_commit": "c7e277bd",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/isa/README-M5.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE",
+   "evidence_label": "HW-VALIDATED (argument-buffer render testbed, pixel readback) + OWN-SHADER-DIFF",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "THE byte+4 HYPOTHESIS IS HW-DISPROVEN AND THE REAL MECHANISM IS CLEANER. For a Tier-2 argument buffer, tt.tex[k].sample() for k = 0..7 produces BYTE-IDENTICAL _agc.main - the sample op encodes nothing about the index. The whole text differs at EXACTLY ONE preamble byte, = 0xa0 + index (linear a0..a7), inside the descriptor-address op.",
+    "HW PIXEL PROOF with four distinct-coloured textures behind a real Tier-2 argument buffer: splicing that one preamble byte gives idx0 RED, idx1 GREEN, idx2 BLUE, idx3 YELLOW from the same machine code. The image-store argument-buffer form behaves identically.",
+    "DRIVER RULE: select a slot by the preamble descriptor-address immediate (0xa0 + index) or load from arg_base + index*stride; the texture op itself is slot-agnostic. For direct bindings with a small table, byte+6 tex_slot = 0x60 + 0x08*slot.",
+    "CORRECTION TO AN EARLIER READING: 24 80 03 is NOT an image store - it is a 10-byte constant-materialisation move (m5_const_move). Proof: a texture2d.write of a BUFFER-sourced colour stores a texture with ZERO ?4 80 ops.",
+    "DOCUMENTED TRADE-OFF rather than a silent choice: the m5_tex leader was extended 6 -> 8 bytes (8 is the minimum texture-op length, the image read, so it never over-reads), typing samp_slot/samp_last/tex_slot/coord_ctl; the LOD field at +12 is kept in prose because typing it would need length >= 13 and would over-read the 8-byte image read."
+   ],
+   "gap": null
+  },
+  {
+   "id": "EXP-M5-23",
+   "dir": "experiments/EXP-M5-23-cmdstream-opens",
+   "first_commit": "4d90f629",
+   "cited_in_docs": true,
+   "docs_files": [
+    "docs/ROADMAP-M5.md",
+    "docs/cmdstream/README-M5-deltas.md",
+    "docs/isa/README-M5.md",
+    "docs/tiling/README-M5-deltas.md"
+   ],
+   "docs_citation_kind": "fact",
+   "target": "M5 / G17g / Apple10 / T8142 (a DEFERRED, separate workstream \u2014 NOT A18/M4 evidence)",
+   "status": "COMPLETE \u2014 3 of 4 resolved, 1 characterised-blocked",
+   "evidence_label": "DATA-TRACE + HW-PROBE",
+   "has_results_md": false,
+   "has_raw_dir": false,
+   "raw_is_empty": null,
+   "quarantined": false,
+   "key_claims": [
+    "Rasterization rate map (foveated rendering) RESOLVED: a 256x256 screen maps to a physicalSizeForLayer of 224x224, and the DECISIVE observation is that the tile count follows the PHYSICAL size - 0x68000+0x9c4 reads 0x80000006 with the rate map vs 0x80000007 without. So with a rate map the tiler rasterises at physical resolution and the M5 tile-count words carry the physical dims. Bound-rate-map fields: tiler 0x18000+0x38 0x40 -> 0xc180 and +0x24 0x5800 -> 0x5e00; parameter data is 0xc030 B of per-axis fixed-point rate-factor zone pairs plus a scale header.",
+    "Vertex amplification RESOLVED: count 1 -> 2 sets 0x18000+0x30 and 0x58000+0x160 (mirrored), adds PPP bits[27:24] = 0xd at 0x58000+0x158, and moves store-class +0x128 0x4c0 -> 0x7c0. Per-view routing reuses the documented layer machinery. M5 caps at count 2.",
+    "CHARACTERISED-BLOCKED, not silently dropped: intra-tile Morton byte-order is NOT CPU-observable on M5; the root cause is pinned and the allocation model is already confirmed byte-for-byte, so the block is understood rather than open-ended.",
+    "No new missing hardware functionality; the one transient GPU fault was contained with no reboot."
+   ],
+   "gap": null
+  }
+ ]
+}

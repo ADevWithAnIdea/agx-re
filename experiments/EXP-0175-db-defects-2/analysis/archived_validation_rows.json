@@ -1,0 +1,384 @@
+{
+ "coord_madf.op": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 35,
+  "row": {
+   "evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "label": "tokenization-only",
+   "note": "Body kept raw.",
+   "range": "framing only (round-trips; no value semantics established)",
+   "target": "M4+A18"
+  }
+ },
+ "cvt_bf16.fmt": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 1,
+  "row": {
+   "evidence": [
+    "EXP-0162"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 202, 'ok': 52, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "range": "byte+4 dense 0..255 (256 values actually dispatched)",
+   "target": "G17P"
+  }
+ },
+ "cvt_bf16.src": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 129,
+  "row": {
+   "evidence": [
+    "EXP-0162"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'ok': 91, 'fault': 39, 'wrong_value': 124, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+   "target": "G17P"
+  }
+ },
+ "falu2_uni.uni_mode": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 1,
+  "row": {
+   "distinct_bytes": 2,
+   "encodable_range": 2,
+   "evidence": [
+    "EXP-0169"
+   ],
+   "label": "hardware-run",
+   "note": "moved on 1 of 1 ladder-passing carriers",
+   "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "start": 39,
+   "target": "G17P",
+   "values_dispatched": 2,
+   "width": 1
+  }
+ },
+ "frame_marker.srcA_uni": {
+  "defect_class": "DEF-0174-1",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": null,
+  "row": {
+   "evidence": [
+    "EXP-M4-13"
+   ],
+   "label": "corpus-correlation",
+   "range": "byte+1 bit7 uniform-file/high-half flag",
+   "target": "M4"
+  }
+ },
+ "funary.op": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 14,
+  "row": {
+   "evidence": [],
+   "label": "untested",
+   "range": "none",
+   "target": "M4"
+  }
+ },
+ "funary_imm.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 15,
+  "row": {
+   "evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "label": "tokenization-only",
+   "range": "framing only (round-trips; no value semantics established)",
+   "target": "M4+A18"
+  }
+ },
+ "irotate.b1": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 1,
+  "row": {
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label": "hardware-run",
+   "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}; ok at {32 values}",
+   "range": "256 values tested (dense over 8-bit domain)",
+   "target": "G17P"
+  }
+ },
+ "iter.c7": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 2,
+  "row": {
+   "evidence": [
+    "EXP-0155"
+   ],
+   "label": "hardware-run",
+   "note": "[orchestrator: representative arm re-pointed from iter@frag1 to iter@cent1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "target": "G17P"
+  }
+ },
+ "link_save_restore.b1": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 0,
+  "row": {
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label": "hardware-run",
+   "range": "0x00, 0x01 inert; only 0xff perturbs the result",
+   "target": "A18"
+  }
+ },
+ "link_save_restore.marker": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 84,
+  "row": {
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label": "hardware-run",
+   "range": "0x00, 0x04, 0x54, 0x55, 0xff all reproduce the baseline - RESERVED/inert",
+   "target": "A18"
+  }
+ },
+ "link_save_restore.scope": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 129,
+  "row": {
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label": "hardware-run",
+   "range": "0x00, 0x01, 0x80, 0x81, 0x83, 0xff swept: 0x81/0x83 pass (bit7 AND bit0 both set), 0x00/0x80/0x01 corrupt the SAVE and HANG the RESTORE, 0xff -> GPU page-fault",
+   "target": "A18"
+  }
+ },
+ "n3_mov.srcA_uni": {
+  "defect_class": "DEF-0174-1",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": null,
+  "row": {
+   "evidence": [
+    "EXP-M4-13"
+   ],
+   "label": "corpus-correlation",
+   "range": "byte+1 bit7 uniform-file / high-half flag",
+   "target": "M4"
+  }
+ },
+ "pack_convert.fmt_class": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 86,
+  "row": {
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label": "hardware-run",
+   "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
+   "range": "byte+2: 256 of 256 values (dense 0..255)",
+   "target": "M4"
+  }
+ },
+ "packed_half2_hi.opsel": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 36,
+  "row": {
+   "evidence": [
+    "EXP-0162"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'fault': 144, 'wrong_value': 96, 'invalid_run': 1, 'silent_zero': 15}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero.",
+   "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+   "target": "G17P"
+  }
+ },
+ "ray_move.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 129,
+  "row": {
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes fault=32, ok=223 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+2: 223 of 256 values run; 32 FAULT. Load-bearing.",
+   "range": "255 values executed (boundaries + samples)",
+   "target": "G17P"
+  }
+ },
+ "ray_move_copy6.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 65,
+  "row": {
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+   "range": "255 values executed (boundaries + samples)",
+   "target": "G17P"
+  }
+ },
+ "ray_move_zero6.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 64,
+  "row": {
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH)",
+   "range": "255 values executed (boundaries + samples)",
+   "target": "G17P"
+  }
+ },
+ "ray_move_zinit.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 128,
+  "row": {
+   "evidence": [
+    "EXP-M4-13"
+   ],
+   "label": "corpus-correlation",
+   "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
+   "target": "M4"
+  }
+ },
+ "rt_intersect.subop": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 234,
+  "row": {
+   "evidence": [
+    "RT-5-isa-tex-simd-mat-rt-frag-falsify"
+   ],
+   "label": "isolated-byte-diff",
+   "range": "0xea vs 0x00 - the op itself is load-bearing",
+   "target": "A18"
+  }
+ },
+ "rt_transform_test.cmpmode": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 34,
+  "row": {
+   "evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "label": "tokenization-only",
+   "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed.",
+   "range": "framing only (round-trips; no value semantics established)",
+   "target": "M4+A18"
+  }
+ },
+ "rt_transform_test.marker": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 39,
+  "row": {
+   "evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "label": "tokenization-only",
+   "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed.",
+   "range": "framing only (round-trips; no value semantics established)",
+   "target": "M4+A18"
+  }
+ },
+ "rt_transform_test.subop": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 129,
+  "row": {
+   "evidence": [
+    "EXP-0036",
+    "EXP-M4-12",
+    "EXP-M4-13"
+   ],
+   "label": "tokenization-only",
+   "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed.",
+   "range": "framing only (round-trips; no value semantics established)",
+   "target": "M4+A18"
+  }
+ },
+ "rtq_state_move.b3": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 0,
+  "row": {
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes ok=207, wrong_value=48 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=255 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+   "range": "255 values executed (boundaries + samples)",
+   "target": "G17P"
+  }
+ },
+ "rtq_state_move.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 9,
+  "row": {
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label": "hardware-run",
+   "note": "outcomes ok=175, silent_zero=64, wrong_value=16 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=32, ok=191, silent_zero=32 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=62, ok=191, silent_zero=1 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.",
+   "range": "255 values executed (boundaries + samples)",
+   "target": "G17P"
+  }
+ },
+ "tex_coord_setup.subop": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 47,
+  "row": {
+   "evidence": [
+    "EXP-0155"
+   ],
+   "label": "untested",
+   "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 10 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run.",
+   "range": "0..255 dense (all 256 values)",
+   "target": "G17P"
+  }
+ },
+ "tg_atomic_prep10.form": {
+  "defect_class": "fold",
+  "folded_into_match_by": "EXP-0175",
+  "pinned_value": 6,
+  "row": {
+   "evidence": [
+    "EXP-0148"
+   ],
+   "label": "corpus-correlation",
+   "note": "Not swept. Do not emit.",
+   "range": "observed across corpus firings only; no value was chosen and executed",
+   "target": "M4"
+  }
+ }
+}

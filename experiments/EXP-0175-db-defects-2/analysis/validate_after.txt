@@ -1,0 +1,79 @@
+WARN: db_sha256 in validation.json (322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5) does not match the current db.json (a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22) -- labels may be stale
+FAIL: instructions[falu2_uni].uni_mode: not a field of this db.json descriptor
+FAIL: instructions[funary].op: not a field of this db.json descriptor
+FAIL: instructions[ilogic].dst: MISSING label for a db.json field
+FAIL: instructions[rt_intersect].subop: not a field of this db.json descriptor
+FAIL: instructions[rt_transform_test].cmpmode: not a field of this db.json descriptor
+FAIL: instructions[rt_transform_test].marker: not a field of this db.json descriptor
+FAIL: instructions[rt_transform_test].subop: not a field of this db.json descriptor
+FAIL: instructions[ray_move].form: not a field of this db.json descriptor
+FAIL: instructions[iter].c7: not a field of this db.json descriptor
+FAIL: instructions[frame_marker].srcA_uni: not a field of this db.json descriptor
+FAIL: instructions[irotate].b1: not a field of this db.json descriptor
+FAIL: instructions[pack_convert].fmt_class: not a field of this db.json descriptor
+FAIL: instructions[tex_coord_setup].subop: not a field of this db.json descriptor
+FAIL: instructions[coord_madf].op: not a field of this db.json descriptor
+FAIL: instructions[link_save_restore].b1: not a field of this db.json descriptor
+FAIL: instructions[link_save_restore].marker: not a field of this db.json descriptor
+FAIL: instructions[link_save_restore].scope: not a field of this db.json descriptor
+FAIL: instructions[n3_mov].srcA_uni: not a field of this db.json descriptor
+FAIL: instructions[cvt_bf16].fmt: not a field of this db.json descriptor
+FAIL: instructions[cvt_bf16].src: not a field of this db.json descriptor
+FAIL: instructions[packed_half2_hi].opsel: not a field of this db.json descriptor
+FAIL: instructions[ray_move_copy6].form: not a field of this db.json descriptor
+FAIL: instructions[ray_move_zero6].form: not a field of this db.json descriptor
+FAIL: instructions[ray_move_zinit].form: not a field of this db.json descriptor
+FAIL: instructions[rtq_state_move].b3: not a field of this db.json descriptor
+FAIL: instructions[rtq_state_move].form: not a field of this db.json descriptor
+FAIL: instructions[funary_imm].form: not a field of this db.json descriptor
+FAIL: instructions[tg_atomic_prep10].form: not a field of this db.json descriptor
+FAIL: coverage.total_fields=1062 but 1035 field entries were checked
+FAIL: coverage.by_label[hardware-run]=541 but 526 entries carry that label
+FAIL: coverage.by_label[isolated-byte-diff]=86 but 85 entries carry that label
+FAIL: coverage.by_label[corpus-correlation]=80 but 76 entries carry that label
+FAIL: coverage.by_label[tokenization-only]=143 but 138 entries carry that label
+FAIL: coverage.by_label[untested]=185 but 183 entries carry that label
+
+34 violation(s).
+
+  INSTRUCTION-LABEL CONSISTENCY (reported, not gated -- DEF-0173-1)
+    emittable by field labels:                     50
+    ... whose _instruction label is ALSO emitter-grade:  20
+    the gap (30) -- refresh these from field/generation evidence:
+      bf_add_dst                 _instruction.label = corpus-correlation
+      bf_fma_dst                 _instruction.label = corpus-correlation
+      cvt_bf16                   _instruction.label = corpus-correlation
+      cvt_f2h                    _instruction.label = corpus-correlation
+      cvt_f2h_dst                _instruction.label = corpus-correlation
+      cvt_i2f                    _instruction.label = corpus-correlation
+      falu3                      _instruction.label = corpus-correlation
+      falu3_ext                  _instruction.label = corpus-correlation
+      frag_depth_store           _instruction.label = corpus-correlation
+      frame_marker_compact       _instruction.label = tokenization-only
+      h_coord_hi                 _instruction.label = corpus-correlation
+      h_coord_hi_ext             _instruction.label = corpus-correlation
+      hminmax                    _instruction.label = corpus-correlation
+      ibfe                       _instruction.label = corpus-correlation
+      irotate                    _instruction.label = corpus-correlation
+      iter_flat                  _instruction.label = corpus-correlation
+      mov_imm                    _instruction.label = corpus-correlation
+      mov_zext16                 _instruction.label = corpus-correlation
+      n2_op6                     _instruction.label = corpus-correlation
+      pack_convert               _instruction.label = corpus-correlation
+      psel                       _instruction.label = corpus-correlation
+      ret_luse                   _instruction.label = corpus-correlation
+      rtq_state_move             _instruction.label = corpus-correlation
+      sel                        _instruction.label = corpus-correlation
+      sfu_marker                 _instruction.label = tokenization-only
+      shift_amt_move             _instruction.label = corpus-correlation
+      sr_read_wide               _instruction.label = corpus-correlation
+      uniform_mov                _instruction.label = corpus-correlation
+      vary_slot                  _instruction.label = corpus-correlation
+      vtx_coord_xform            _instruction.label = corpus-correlation
+
+  COVERAGE (only verdicts that recorded machine-readable counts)
+    rows with counts: 88 of 611 emitter-grade
+    WIDE (>16-bit; protocol 3.3 sampled set + dense per-byte sweep, not exhaustive):
+      bf_alu.tail  sampled 42 of 2^24
+      bf_fma_dst.tail  sampled 50 of 2^32
+    no under-covered or thin rows among those that reported counts

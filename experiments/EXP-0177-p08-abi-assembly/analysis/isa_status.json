@@ -1,0 +1,916 @@
+{
+ "_source": "tools/agx-isa/validation.json",
+ "_validation_generated": "2026-08-28",
+ "_db_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+ "_warning": "validation.json and db.json are owned by another live experiment (EXP-0175). These numbers are a snapshot, not a stable figure.",
+ "_emitter_grade_labels": [
+  "hardware-run",
+  "isolated-byte-diff"
+ ],
+ "coverage_headline": {
+  "total_instructions": 172,
+  "total_fields": 1062,
+  "emittable_instructions": 50,
+  "emitter_relevant_instructions": 166,
+  "emittable_of_emitter_relevant": 50
+ },
+ "subareas": {
+  "interpolation": [
+   {
+    "mnemonic": "iter",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0029",
+     "EXP-0031"
+    ],
+    "n_fields": 9,
+    "field_targets": [
+     "A18",
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "b9",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 6 arms"
+     }
+    ]
+   },
+   {
+    "mnemonic": "iter_at",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0029"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "grp",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0155"
+      ],
+      "range": "0..255 dense (all 256 values)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "iter_flat",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0029"
+    ],
+    "n_fields": 4,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   }
+  ],
+  "outputs_fs": [
+   {
+    "mnemonic": "frag_color_store",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "M4+A18",
+    "instruction_evidence": [
+     "EXP-0029",
+     "EXP-0111"
+    ],
+    "n_fields": 7,
+    "field_targets": [
+     "A18",
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "store_mode",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 8 arms"
+     }
+    ]
+   },
+   {
+    "mnemonic": "frag_color_pack",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-M4-14"
+    ],
+    "n_fields": 9,
+    "field_targets": [
+     "A18",
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "dst",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0155"
+      ],
+      "range": "0..255 dense (all 256 values)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "frag_tile_setup",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13",
+     "EXP-O2D"
+    ],
+    "n_fields": 4,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 3,
+    "blocking_fields": [
+     {
+      "field": "sel",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 8 arms"
+     },
+     {
+      "field": "access",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 8 arms"
+     },
+     {
+      "field": "b5",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 8 arms"
+     }
+    ]
+   },
+   {
+    "mnemonic": "frag_depth_store",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0029"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "imageblock_store",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-O2D"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "A18",
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "b4",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 3 arms"
+     }
+    ]
+   }
+  ],
+  "outputs_vs": [
+   {
+    "mnemonic": "vary_store",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0037",
+     "EXP-0029"
+    ],
+    "n_fields": 8,
+    "field_targets": [
+     "A18",
+     "G17P"
+    ],
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     {
+      "field": "hint1",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0155"
+      ],
+      "range": "0..255 dense (all 256 values)"
+     },
+     {
+      "field": "hint2",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 9 arms"
+     },
+     {
+      "field": "b5_tag",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0155"
+      ],
+      "range": "0..127 dense (all 128 values)"
+     },
+     {
+      "field": "b7",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0163"
+      ],
+      "range": "0..255 dense (all 256 values) x 9 arms"
+     }
+    ]
+   },
+   {
+    "mnemonic": "vary_slot",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 2,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "vtx_out_pos",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 2,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 2,
+    "blocking_fields": [
+     {
+      "field": "dst",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 4-bit range, dense (16 cases) x2 runs"
+     },
+     {
+      "field": "slot",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     }
+    ]
+   },
+   {
+    "mnemonic": "vtx_coord_xform",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "mesh_out_src",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13",
+     "EXP-0030"
+    ],
+    "n_fields": 1,
+    "field_targets": [
+     "M4+A18"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "sel",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     }
+    ]
+   }
+  ],
+  "tilebuffer": [
+   {
+    "mnemonic": "tile_read",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0019",
+     "EXP-0029"
+    ],
+    "n_fields": 8,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 5,
+    "blocking_fields": [
+     {
+      "field": "b2",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     },
+     {
+      "field": "b4",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     },
+     {
+      "field": "b7",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     },
+     {
+      "field": "tail",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 32-bit range, dense (1075 cases) x2 runs"
+     },
+     {
+      "field": "b6_hi",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "tile_read_mrt",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 7,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 3,
+    "blocking_fields": [
+     {
+      "field": "b4",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     },
+     {
+      "field": "tail",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 32-bit range, dense (1075 cases) x2 runs"
+     },
+     {
+      "field": "b6_hi",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "imageblock_load",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-O2D"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "A18",
+     "M4",
+     "M4+A18"
+    ],
+    "n_blocking_fields": 5,
+    "blocking_fields": [
+     {
+      "field": "dst",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [],
+      "range": "none"
+     },
+     {
+      "field": "b4",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     },
+     {
+      "field": "b6",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     },
+     {
+      "field": "fmt",
+      "label": "corpus-correlation",
+      "target": "A18",
+      "evidence": [
+       "EXP-O2D"
+      ],
+      "range": "0x0e half4, 0x22 float (2 observed values)"
+     },
+     {
+      "field": "tail",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "n3_sample_read",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 2,
+    "blocking_fields": [
+     {
+      "field": "b1",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     },
+     {
+      "field": "b3",
+      "label": "untested",
+      "target": "M4",
+      "evidence": [
+       "EXP-0147"
+      ],
+      "range": "full 8-bit range, dense (256 cases) x2 runs"
+     }
+    ]
+   },
+   {
+    "mnemonic": "pixel_order",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-0093",
+     "EXP-0029"
+    ],
+    "n_fields": 4,
+    "field_targets": [
+     "M4"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   }
+  ],
+  "sysvals": [
+   {
+    "mnemonic": "get_sr",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "M4+A18",
+    "instruction_evidence": [
+     "EXP-0031",
+     "EXP-0092",
+     "EXP-M4-14"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     {
+      "field": "form",
+      "label": "single-template-inference",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0172"
+      ],
+      "range": "0..1 -- BOTH values, i.e. the full encodable range; 8 arms x 2 gated runs, spanning both of the field's own baseline values AND both SR width classes"
+     },
+     {
+      "field": "sr_sel",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0169"
+      ],
+      "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers"
+     },
+     {
+      "field": "dp_width",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0169"
+      ],
+      "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers"
+     },
+     {
+      "field": "dp_marker",
+      "label": "untested",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0169"
+      ],
+      "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers"
+     }
+    ]
+   },
+   {
+    "mnemonic": "sr_read_wide",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   }
+  ],
+  "calls_linking": [
+   {
+    "mnemonic": "call",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0035"
+    ],
+    "n_fields": 5,
+    "field_targets": [
+     "A18",
+     "M4+A18"
+    ],
+    "n_blocking_fields": 4,
+    "blocking_fields": [
+     {
+      "field": "b3",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     },
+     {
+      "field": "b5",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     },
+     {
+      "field": "b6",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     },
+     {
+      "field": "tail",
+      "label": "tokenization-only",
+      "target": "M4+A18",
+      "evidence": [
+       "EXP-0036",
+       "EXP-M4-12",
+       "EXP-M4-13"
+      ],
+      "range": "framing only (round-trips; no value semantics established)"
+     }
+    ]
+   },
+   {
+    "mnemonic": "ret",
+    "present_in_db": true,
+    "emittable": false,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-0035",
+     "EXP-0038"
+    ],
+    "n_fields": 2,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 1,
+    "blocking_fields": [
+     {
+      "field": "scoreboard",
+      "label": "corpus-correlation",
+      "target": "G17P",
+      "evidence": [
+       "EXP-0172"
+      ],
+      "range": "41 of 256 values on 1 arm in 1 run; promotion was declined in advance"
+     }
+    ]
+   },
+   {
+    "mnemonic": "ret_luse",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "corpus-correlation",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4",
+    "instruction_evidence": [
+     "EXP-M4-13"
+    ],
+    "n_fields": 2,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "link_save_restore",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-M4-14",
+     "EXP-0035",
+     "EXP-0038"
+    ],
+    "n_fields": 6,
+    "field_targets": [
+     "A18"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "frame_prologue",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-M4-14",
+     "EXP-0038",
+     "EXP-0035"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "A18"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "frame_marker_compact",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "tokenization-only",
+    "instruction_label_is_emitter_grade": false,
+    "instruction_target": "M4+A18",
+    "instruction_evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ],
+    "n_fields": 1,
+    "field_targets": [
+     "G17P"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "spill_frame_marker",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "hardware-run",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "A18",
+    "instruction_evidence": [
+     "EXP-M4-14",
+     "EXP-0041"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "A18"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   },
+   {
+    "mnemonic": "pop_reconverge",
+    "present_in_db": true,
+    "emittable": true,
+    "instruction_label": "isolated-byte-diff",
+    "instruction_label_is_emitter_grade": true,
+    "instruction_target": "M4+A18",
+    "instruction_evidence": [
+     "RT-ISA-FIX",
+     "EXP-0104",
+     "EXP-0115"
+    ],
+    "n_fields": 3,
+    "field_targets": [
+     "G17P",
+     "M4"
+    ],
+    "n_blocking_fields": 0,
+    "blocking_fields": []
+   }
+  ]
+ }
+}

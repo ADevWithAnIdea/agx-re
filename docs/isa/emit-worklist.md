@@ -16,15 +16,14 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 0 | 4 |
 | 1 | 22 |
-| 2 | 22 |
-| 3 | 18 |
-| 4 | 14 |
-| 5 | 15 |
+| 2 | 23 |
+| 3 | 20 |
+| 4 | 13 |
+| 5 | 14 |
 | 6 | 7 |
 | 7 | 4 |
 | 8 | 2 |
 | 9 | 2 |
-| 10 | 1 |
 | 11 | 2 |
 | 12 | 1 |
 | 13 | 2 |
@@ -35,7 +34,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 40 |
+| `dst` | 39 |
 | `tail` | 12 |
 | `srcA` | 11 |
 | `b5` | 10 |
@@ -44,12 +43,12 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `b4` | 7 |
 | `opsel` | 7 |
 | `srcB` | 7 |
-| `form` | 7 |
 | `flags` | 7 |
 | `src_reg` | 7 |
 | `cache` | 6 |
 | `src_flag` | 6 |
 | `body` | 5 |
+| `b1` | 5 |
 
 ## ONE field away (22 instructions)
 
@@ -78,7 +77,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `simd_ballot` | `cache` | single-template-inference |
 | `simd_shuffle` | `cache` | single-template-inference |
 
-## TWO fields away (22 instructions)
+## TWO fields away (23 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -89,6 +88,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `h_alu_hi` | `ctrl`, `mods` | untested, untested |
 | `half_alu_ext8` | `b7_lo`, `b7_mid` | untested, untested |
 | `half_pack` | `dstlo`, `b3` | untested, untested |
+| `ibfe` | `b2_bit0`, `sign_ext` | single-template-inference, single-template-inference |
 | `ibitcount` | `cache`, `dst` | untested, untested |
 | `if_push_pred` | `scope`, `level` | untested, tokenization-only |
 | `isel8` | `cmpA`, `cmpB` | untested, untested |
@@ -118,7 +118,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 185 |
-| `tokenization-only` | 133 |
-| `corpus-correlation` | 80 |
-| `single-template-inference` | 27 |
+| `untested` | 183 |
+| `tokenization-only` | 128 |
+| `corpus-correlation` | 74 |
+| `single-template-inference` | 29 |

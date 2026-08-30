@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+ "db_sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -14,26 +14,26 @@
  },
  "coverage": {
   "total_instructions": 172,
-  "total_fields": 1062,
+  "total_fields": 1036,
   "by_label": {
-   "hardware-run": 541,
-   "isolated-byte-diff": 86,
-   "corpus-correlation": 80,
-   "tokenization-only": 143,
-   "single-template-inference": 27,
+   "hardware-run": 529,
+   "isolated-byte-diff": 83,
+   "corpus-correlation": 74,
+   "tokenization-only": 138,
+   "single-template-inference": 29,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 185
+   "untested": 183
   },
   "by_label_pct": {
-   "hardware-run": 50.9,
-   "isolated-byte-diff": 8.1,
-   "corpus-correlation": 7.5,
-   "tokenization-only": 13.5,
-   "single-template-inference": 2.5,
+   "hardware-run": 51.1,
+   "isolated-byte-diff": 8.0,
+   "corpus-correlation": 7.1,
+   "tokenization-only": 13.3,
+   "single-template-inference": 2.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 17.4
+   "untested": 17.7
   },
   "emittable_instructions": 50,
   "emittable_mnemonics": [
@@ -58,7 +58,6 @@
    "h_coord_hi",
    "h_coord_hi_ext",
    "hminmax",
-   "ibfe",
    "iminmax",
    "irotate",
    "isel10",
@@ -68,6 +67,7 @@
    "mov_imm",
    "mov_zext16",
    "n2_op6",
+   "n3_mov",
    "pack_convert",
    "pixel_order",
    "pop_reconverge",
@@ -614,20 +614,6 @@
     "start": 32,
     "width": 7
    },
-   "uni_mode": {
-    "label": "hardware-run",
-    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0169"
-    ],
-    "note": "moved on 1 of 1 ladder-passing carriers",
-    "values_dispatched": 2,
-    "distinct_bytes": 2,
-    "encodable_range": 2,
-    "start": 39,
-    "width": 1
-   },
    "mods": {
     "label": "hardware-run",
     "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
@@ -946,12 +932,6 @@
      "EXP-M4-12",
      "EXP-M4-13"
     ]
-   },
-   "op": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
    },
    "srcA": {
     "label": "untested",
@@ -1846,13 +1826,13 @@
     "note": "1/128 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 32 values return a silent zero; second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..127 dense (all 128 values))"
    },
    "b2_bit0": {
-    "label": "isolated-byte-diff",
+    "label": "single-template-inference",
     "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as b2_fmt.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (as b2_fmt.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything. EXP-0175 review, accepted by orchestrator 2026-08-30: NOT emitter-grade. `sign_ext` clears the mechanical bar but its ROLE IS UNKNOWN -- EXP-0171 disproved the named one -- and emitter-grade asserts an implementer may CHOOSE the value. `b2_bit0` is weaker than EXP-0171 stated: on byte+2 the SYNTH carrier moves 0 of 256, so it has no detection power there; discounting it leaves ONE carrier style, below EXP-0171's own >=2-styles criterion. ibfe therefore does NOT close.",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -1914,13 +1894,13 @@
     "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x00 (1 of 2 values) | C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)"
    },
    "sign_ext": {
-    "label": "isolated-byte-diff",
+    "label": "single-template-inference",
     "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
     "target": "G17P",
     "evidence": [
      "EXP-0171"
     ],
-    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (signed vs unsigned extract. k_bfe (unsigned) and k_bfe_s (signed) are compiler-chosen anchors on either side of exactly this bit.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything.",
+    "note": "DENSE-INERT: 0 of 2 sub-values moved, on 3 admitted carriers [NAT,SYNTH | k_bfe,k_bfe_s], every one with its byte0 falsifier PROVEN non-ok and its liveness ladder PROVEN live ({\"3\": 4, \"10\": 78}). 2 distinct encodings, cross-run agreement 1.0. The carriers DO differ in the dimension this field would control (signed vs unsigned extract. k_bfe (unsigned) and k_bfe_s (signed) are compiler-chosen anchors on either side of exactly this bit.), across 2 INDEPENDENT compiler-emitted anchors of this instruction (not one template), so an emitter may choose ANY value of this field. Labelled isolated-byte-diff, not hardware-run: the field was proven ACCEPTED at every encoding, never proven to SELECT anything. EXP-0175 review, accepted by orchestrator 2026-08-30: NOT emitter-grade. `sign_ext` clears the mechanical bar but its ROLE IS UNKNOWN -- EXP-0171 disproved the named one -- and emitter-grade asserts an implementer may CHOOSE the value. `b2_bit0` is weaker than EXP-0171 stated: on byte+2 the SYNTH carrier moves 0 of 256, so it has no detection power there; discounting it leaves ONE carrier style, below EXP-0171's own >=2-styles criterion. ibfe therefore does NOT close.",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -2587,6 +2567,15 @@
     "encodable_range": 8,
     "start": 37,
     "width": 3
+   },
+   "dst": {
+    "label": "hardware-run",
+    "range": "0..14 dense (15 of 16 destination nibbles; 0x?b byte0)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0171",
+     "EXP-0175"
+    ]
    }
   },
   "fspecial": {
@@ -4692,14 +4681,6 @@
     ],
     "note": "RETRACTION: rt_intersect operand SUB-FIELDS are byte-diff correlations, NOT splice-validated. RT-5/RT-10 found every documented sub-field splice-INERT on the single-primitive intersection_query path. The earlier 'EXP-O2C 0x8b->0x1b HW-validated end-to-end' note is retracted; primitive-vs-instance dispatch is STRUCTURAL (kernel shape), not a spliceable field."
    },
-   "subop": {
-    "label": "isolated-byte-diff",
-    "range": "0xea vs 0x00 - the op itself is load-bearing",
-    "target": "A18",
-    "evidence": [
-     "RT-5-isa-tex-simd-mat-rt-frag-falsify"
-    ]
-   },
    "mode": {
     "label": "corpus-correlation",
     "range": "0x90 const origin, 0x10 dynamic-origin or motion, 0xd0 const-origin + function-table, 0x11 result-read - byte-diff only, splice-INERT",
@@ -5172,39 +5153,6 @@
     ],
     "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed."
    },
-   "marker": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed."
-   },
-   "subop": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed."
-   },
-   "cmpmode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "Length anchored over the own-MSL corpus; operand roles located by byte-diff only. Per clean-room rule 5 the traversal arithmetic is not reconstructed."
-   },
    "opA": {
     "label": "tokenization-only",
     "range": "framing only (round-trips; no value semantics established)",
@@ -5282,15 +5230,6 @@
     "range": "none",
     "target": "M4",
     "evidence": []
-   },
-   "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=32, ok=223 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+2: 223 of 256 values run; 32 FAULT. Load-bearing."
    },
    "b3": {
     "label": "isolated-byte-diff",
@@ -5550,15 +5489,6 @@
      "EXP-0029"
     ],
     "note": "Perspective-correct interpolation is a MULTI-INSTRUCTION lowering, not a mode bit."
-   },
-   "c7": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0155"
-    ],
-    "note": "[orchestrator: representative arm re-pointed from iter@frag1 to iter@cent1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "loc": {
     "label": "hardware-run",
@@ -6214,14 +6144,6 @@
      "EXP-M4-13"
     ]
    },
-   "srcA_uni": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bit7 uniform-file/high-half flag",
-    "target": "M4",
-    "evidence": [
-     "EXP-M4-13"
-    ]
-   },
    "subform": {
     "label": "corpus-correlation",
     "range": "source-class/size sub-form",
@@ -6608,15 +6530,6 @@
      "EXP-0033"
     ]
    },
-   "b1": {
-    "label": "hardware-run",
-    "range": "256 values tested (dense over 8-bit domain)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0154"
-    ],
-    "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}; ok at {32 values}"
-   },
    "b2": {
     "label": "hardware-run",
     "range": "TWO of 256 dispatched values are legal (byte+2 in {0x54, 0x56}; the descriptor's own match pins the other 7 bits -- DEF-0172-1). BOTH legal values executed on all 5 arms x 2 gated runs, i.e. the full encodable range",
@@ -6664,15 +6577,6 @@
    "src_desc": {
     "label": "hardware-run",
     "range": "byte+1: 256 of 256 values (dense 0..255)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0144"
-    ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
-   },
-   "fmt_class": {
-    "label": "hardware-run",
-    "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
@@ -6944,15 +6848,6 @@
     "target": "M4",
     "evidence": []
    },
-   "subop": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0155"
-    ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 10 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
-   },
    "srcA": {
     "label": "corpus-correlation",
     "range": "byte+3 = srcA in the float-classify role",
@@ -7026,17 +6921,6 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "Body kept raw."
-   },
-   "op": {
     "label": "tokenization-only",
     "range": "framing only (round-trips; no value semantics established)",
     "target": "M4+A18",
@@ -7305,33 +7189,9 @@
      "EXP-0038"
     ]
    },
-   "b1": {
-    "label": "hardware-run",
-    "range": "0x00, 0x01 inert; only 0xff perturbs the result",
-    "target": "A18",
-    "evidence": [
-     "EXP-M4-14"
-    ]
-   },
-   "marker": {
-    "label": "hardware-run",
-    "range": "0x00, 0x04, 0x54, 0x55, 0xff all reproduce the baseline - RESERVED/inert",
-    "target": "A18",
-    "evidence": [
-     "EXP-M4-14"
-    ]
-   },
    "b3": {
     "label": "hardware-run",
     "range": "0x00, 0x01, 0xff all reproduce the baseline - RESERVED/inert",
-    "target": "A18",
-    "evidence": [
-     "EXP-M4-14"
-    ]
-   },
-   "scope": {
-    "label": "hardware-run",
-    "range": "0x00, 0x01, 0x80, 0x81, 0x83, 0xff swept: 0x81/0x83 pass (bit7 AND bit0 both set), 0x00/0x80/0x01 corrupt the SAVE and HANG the RESTORE, 0xff -> GPU page-fault",
     "target": "A18",
     "evidence": [
      "EXP-M4-14"
@@ -7458,46 +7318,60 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble proven a destination register by parallel-extend diffs / an own-MSL reg sweep (compile-only)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values), both register plans, at the move form; additionally exercised as the destination of all 240 generated 32-bit copies, which is what covers dst == 5 (undecidable in A/dstmap because that arm's source IS r5)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0174"
+    ],
+    "note": "CORRECTS EXP-0168, which reported 'a write whose 4-bit destination nibble is 15 is discarded, and the slot reads 0'. That experiment's read-back path used r15 as its device_store index register and emitted mov_imm(15, 0) immediately before EVERY store, including the one whose data_reg was 15, so r15 was zeroed one instruction before it was read and could not read anything else. Here, in the register plan whose index register is r7, r15 both holds its mov_imm seed (121) and is written correctly by dst = 15. The blind slot of each plan is excluded explicitly and is covered by the other plan.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "srcA_reg": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bits0-6 source register",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+1 dense 0..255 (all 256 values) x 2 register plans; covers source registers 0..127 and both source halves, and spans two aliasing bands",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
-   },
-   "srcA_uni": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bit7 uniform-file / high-half flag",
-    "target": "M4",
-    "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0174"
+    ],
+    "note": "DB DEFECT DEF-0174-1. db.json declares srcA_reg = bits 0..6 of byte+1 (instruction bits 8..14) and srcA_uni = bit 7. Measured, the register field is byte+1 bits 1..7 and bit 0 is the source-half select -- the modelled field is shifted by one bit, so an emitter following db.json writes the register number into the wrong bits and gets r[S/2] with a half-select it did not intend. Source registers 16..63 read as 0 in this carrier (192 of 192 cases, both plans, both runs); that is a property of a carrier that allocates 16 GPRs, not a property of the field.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "subform": {
     "label": "hardware-run",
-    "range": "249 values executed (boundaries + samples)",
+    "range": "0..255 dense x byte+3 in {0x00, 0x01} x 2 register plans in the gated sweep, PLUS the complete 256 x 256 byte+2 x byte+3 cross-product (65536 encodings) run three times",
     "target": "G17P",
     "evidence": [
-     "EXP-0157"
+     "EXP-0174"
     ],
-    "note": "outcomes fault=32, not_written=26, ok=89, silent_zero=86, wrong_value=16 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
+    "note": "PARTIAL REFUTATION OF THIS EXPERIMENT'S OWN FROZEN MODEL, recorded rather than smoothed: PRE_REGISTRATION.md H3 froze the move mask as (b2 & 0x03) == 1 and (b2 & 0xE0) == 0, i.e. 8 values. The 65536-case cross-product shows bit 5 is FREE, so the mask is (b2 & 0xC0) == 0 and there are 16 move values. The X/b2hi falsifier caught it independently: byte+2 = 0x21 moves, and it was pre-registered as a value that must not. Bits 2 and 4 are don't-care for the move. The generation arms used byte+2 = 0x01, which is inside both the frozen and the corrected mask, so no generated result depends on this correction.",
+    "values_dispatched": 256,
+    "distinct_bytes": 536,
+    "encodable_range": null,
+    "start": null,
+    "width": null
    },
    "companion": {
     "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
+    "range": "0..255 dense x byte+2 in {0x01, 0x09} x 2 register plans, PLUS the complete 256 x 256 cross-product run three times",
     "target": "G17P",
     "evidence": [
-     "EXP-0157"
+     "EXP-0174"
     ],
-    "note": "outcomes ok=223, silent_zero=32 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
+    "note": "db.json calls this a 'companion / second-operand descriptor' whose value 0x01 with subform 0x00 is 'the ZERO-EXTEND high-half-zero companion'. That reading is superseded for the MOVE sub-form: 0x01 does not zero anything, it selects the high half as the destination. PARTIAL REFUTATION of this experiment's frozen H4, recorded: H4 said byte+3 >= 2 must not write; measured, 0x20/0x40/0x80 write exactly like 0x00 and 0x08/0x10 write zero. The X/b3hi falsifier caught it.",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "n3_addr_prep": {
@@ -7687,24 +7561,6 @@
      "EXP-0162"
     ],
     "note": "outcomes {'wrong_value': 132, 'ok': 40, 'silent_zero': 52, 'fault': 32}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
-   },
-   "src": {
-    "label": "hardware-run",
-    "range": "byte+3 dense 0..255 (256 values actually dispatched)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0162"
-    ],
-    "note": "outcomes {'ok': 91, 'fault': 39, 'wrong_value': 124, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
-   },
-   "fmt": {
-    "label": "hardware-run",
-    "range": "byte+4 dense 0..255 (256 values actually dispatched)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0162"
-    ],
-    "note": "outcomes {'wrong_value': 202, 'ok': 52, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "b5": {
     "label": "hardware-run",
@@ -8764,15 +8620,6 @@
     ],
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
-   "opsel": {
-    "label": "hardware-run",
-    "range": "byte+2 dense 0..255 (256 values actually dispatched)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0162"
-    ],
-    "note": "outcomes {'fault': 144, 'wrong_value': 96, 'invalid_run': 1, 'silent_zero': 15}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
-   },
    "srcB": {
     "label": "untested",
     "range": "byte+3 dense 0..255 (256 values actually dispatched)",
@@ -8859,15 +8706,6 @@
     "target": "M4",
     "evidence": []
    },
-   "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
-   },
    "optype": {
     "label": "hardware-run",
     "range": "255 values executed (boundaries + samples)",
@@ -8899,15 +8737,6 @@
     "target": "M4",
     "evidence": []
    },
-   "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH)"
-   },
    "b3": {
     "label": "untested",
     "range": "none",
@@ -8935,14 +8764,6 @@
     "range": "none",
     "target": "M4",
     "evidence": []
-   },
-   "form": {
-    "label": "corpus-correlation",
-    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
-    "target": "M4",
-    "evidence": [
-     "EXP-M4-13"
-    ]
    },
    "b3": {
     "label": "untested",
@@ -8977,24 +8798,6 @@
      "EXP-0157"
     ],
     "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped."
-   },
-   "form": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=175, silent_zero=64, wrong_value=16 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=32, ok=191, silent_zero=32 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=62, ok=191, silent_zero=1 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier."
-   },
-   "b3": {
-    "label": "hardware-run",
-    "range": "255 values executed (boundaries + samples)",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0157"
-    ],
-    "note": "outcomes ok=207, wrong_value=48 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=255 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general."
    }
   },
   "funary_imm": {
@@ -9017,16 +8820,6 @@
     "range": "byte+1 low bit = size (b32=1) in 760/763 corpus instances - the (reg<<1)|size convention, so byte+1 is the source operand, not byte+3",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
-   },
-   "form": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
      "EXP-M4-13"
     ]
    },
@@ -12218,15 +12011,6 @@
     "note": "Descriptor ADDED by EXP-0148 from corpus A/B evidence (STRUCTURAL). No hardware sweep was run for this instruction -- EXP-0148 was a modelling dispatch and says so explicitly. Every field here is corpus-derived and must be swept before anything is emitted. corrected 10-byte replacement for the deleted 8-byte tg_atomic_prep (L4)"
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "form": {
     "label": "corpus-correlation",
     "range": "observed across corpus firings only; no value was chosen and executed",
     "target": "M4",

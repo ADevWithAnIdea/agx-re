@@ -1,0 +1,105 @@
+{
+ "authored_blobs": {
+  "harness/calib.py": "e8a951985b3c9f5bf713d7b71ce2f6cd0e0003ac3bcaefcdb9be1b3048ac6180",
+  "harness/cases.py": "7b6ac9f77cb8aed09c58c38a9dfaf73a0f8adb3ba4e019011d218e2dabf15a11",
+  "harness/grid.py": "d6a7a885a72d3c716b50637414d7f72cd0b7526494fc662e9d68a465aeed4609",
+  "harness/isa_helpers.py": "2461d449e1f0737b144066ed077f1bbe440484bfb76966e02dab1f8dc55c93e3",
+  "harness/probe.py": "3897dd2d133df9b4ba4df0e8edbaee9bb9120f08a26bbe38c5e838fb11d46f52",
+  "harness/run.py": "94e705d8a51c7cdd9a2436cc9ed7d1ba4652e50f8be0d7cc39d761d4c2502667",
+  "harness/sweeprun.py": "a9991f833b7beb36437b25dce06733ad91431c461cf73ad60ac8d19c55197a14",
+  "harness/sync.sh": "c05bd6570d3786836fa5513905df05773e0f0913e0e2187cebe13f6d49efa62c",
+  "kernels/carrier_n3.metal": "0bdbf8d24674be6a22fa159da2c1483995545fd5cb4cef571f2ef566e42aa3d3",
+  "kernels/probes.metal": "7c31846f1c1b5f6f68a337ace471fbfb982fa14e0f9189dae54f36d61d5491c1",
+  "work/frozen/db.json": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+  "work/frozen/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+ },
+ "case_matrix": {
+  "arms": {
+   "A/dstmap": 32,
+   "B/srcmap": 512,
+   "C/half": 16,
+   "D/subform": 1024,
+   "E/companion": 1024,
+   "F/gen32": 960,
+   "G/genhalf": 2048,
+   "H/release": 60,
+   "X/alternate": 80,
+   "X/b2hi": 12,
+   "X/b3hi": 14,
+   "X/lownib": 30,
+   "X/narrow": 4,
+   "X/selfmove": 6
+  },
+  "generator": "harness/cases.py build_cases()",
+  "n_cases": 5822,
+  "sha256": "f6d2a2199c33f84e1ef6568eeb4edbb9e803b62a0dab945fbdcb53308bf9bc87"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "instruction_under_test": "GENERATED from db.json's declared bit geometry by isa_helpers.n3_bytes(); ZERO bytes copied from any compiled shader",
+  "provenance": "OWN-SHADER + HW-PROBE"
+ },
+ "environment": {
+  "fast_math": false,
+  "grid": 1,
+  "poison": "0xDEADBEEF over all 104 output words before every dispatch",
+  "seed_method": "mov_imm / falu2i immediates ONLY -- device_load is FORBIDDEN in this experiment (DEF-0169-1: device_load is ASYNCHRONOUS on G17P and fabricates movement)",
+  "threadgroup": 1
+ },
+ "experiment": "EXP-0174-g17p-n3mov",
+ "frozen_utc": "2026-08-30",
+ "gate": {
+  "carriers_for_hardware_run": 2,
+  "cases_counted": "validity == 'valid' only",
+  "cross_run_agreement_min": 0.99,
+  "falsifiers_must_fire_every_run": true,
+  "movement_over_disagreement_min": 2.0,
+  "rt_ok": "RECORDED AND USED FOR NOTHING (FIELD-SWEEP-PROTOCOL 3b)",
+  "runs": [
+   "run01 forward",
+   "run02 reverse"
+  ]
+ },
+ "grid_arm": {
+  "n_cases": 65536,
+  "record": "delta-encoded vs the host-known reference dump in 04_grid_meta.json",
+  "script": "harness/grid.py"
+ },
+ "pinned_toolchain": {
+  "db.json": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+  "isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "path": "work/frozen/",
+  "resolution": "isa_helpers._find_isadb() has EXACTLY ONE candidate and NO path-search fallback; it raises if the pin is absent. The neo's shared ~/agxre/tools/agx-isa/db.json is STALE (1036 fields vs 1062) and must never be silently resolved."
+ },
+ "question": "Can this ISA move one GPR to a DIFFERENT GPR, and can we GENERATE that encoding without a captured template?",
+ "raw_schema": {
+  "raw/<run>/00_env.json": "device identity, region geometry, every authored blob hash, the plans, the seed table",
+  "raw/<run>/01_gpuwatch_start.json": "concurrent GPU/compiler process sample at run start",
+  "raw/<run>/02_gpuwatch_end.json": "the same at run end",
+  "raw/<run>/03_summary.json": "case count, hangs, stopped arms, dispatch count, elapsed",
+  "raw/<run>/04_grid_meta.json": "grid arm reference dump + plan",
+  "raw/<run>/baseline.jsonl": "unmutated-program dumps: initial, every 400 cases, final",
+  "raw/<run>/grid.jsonl": "the 256x256 byte+2 x byte+3 cross-product, delta-encoded",
+  "raw/<run>/sweep.jsonl": "one FIELD-SWEEP-PROTOCOL section-4 record per case, append-only, flushed+fsynced",
+  "raw/prefreeze/**": "PRE-FREEZE CALIBRATION. NEVER EVIDENCE for any verdict."
+ },
+ "repo_revision_at_freeze": {
+  "dirty": true,
+  "head": "f3c91a01c9fdfabb7f16051259c04390084556fb",
+  "note": "A capture is valid if the AUTHORED BLOB HASHES below match. HEAD moving because a sibling experiment landed is NOT contamination (SUBAGENT_BRIEF)."
+ },
+ "target": {
+  "arch": "applegpu_g17p",
+  "gpu": "G17P / AGXAcceleratorG17P",
+  "name": "users-MacBook-Neo.local",
+  "note": "device identity is READ FROM THE LIVE DEVICE into 00_env.json on every run and is never taken from this literal",
+  "soc": "T8140"
+ },
+ "timeouts": {
+  "hang_cooldown_s": 2.0,
+  "max_hangs_per_arm": 2,
+  "per_request_s": 8.0,
+  "retries_majority_of": 3,
+  "shdump_s": 300
+ }
+}
