@@ -1,0 +1,30 @@
+{
+  "matrix_mac.b11hi": {
+    "measured": "correct a*b+c iff bits 0 and 1 of the field (byte+11 bits 1 and 2) are both 0 -- 32/128 values, exactly those with (v & 3) == 0. Either bit alone inverts the sign of the C addend (a*b-c); both set cancel back to a*b+c. Bits 2-6 are don't-care.",
+    "severity": "typed `raw`, but two of its bits are semantic",
+    "suggested": "split into two accumulator-sign bits plus 5 don't-care bits."
+  },
+  "matrix_mac.dst_desc": {
+    "measured": "correct result iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO, 0xc0-0xff give a wrong value.",
+    "severity": "typed `raw`, but the hardware rule is simple and now known",
+    "suggested": "split into a 2-bit control (bits 6-7) plus 6 don't-care bits."
+  },
+  "pixel_order.flags": {
+    "consequence": "as modelled, every legal encoding with byte+4 != 0x06 fails to match `pixel_order` at all, so it is neither decodable nor emittable; and `flags` can never be given a value by an emitter.",
+    "db_says": "field `flags` at bits[32:40] (byte+4), while match constant [32,8,6] pins those SAME bits to 0x06",
+    "measured": "with the acquire member spliced, the program stays byte-exactly correct (texel = 8*src, pixel = clear + 36*src) for 112 of the 256 values of byte+4, and for 224 of 256 on the release member. byte+4 is therefore a REAL field with a large legal set, not a constant.",
+    "severity": "descriptor is self-contradictory AND over-constrains the hardware",
+    "suggested": "drop the [32,8,6] match constant, keep `flags` as a field, and record the measured legal sets (see fields.pixel_order.flags)."
+  },
+  "scoreboard_fence.kind": {
+    "db_says": "kind in {0x00, 0x02, 0x22, 0xc0, 0xc2}",
+    "measured": "our own MSL (kernels/pipe_compute.metal :: k_atomic, a device atomic RMW plus a device+texture fence) compiles to `07 42 02 00`, i.e. kind = 0x42, which the enum does not list.",
+    "severity": "enum incomplete",
+    "suggested": "add 0x42; its role is not established here."
+  },
+  "tile_read.b6 / tile_read_mrt.b6": {
+    "measured": "all 128 ODD values give the correct read; all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle). Bits 1-7 are don't-care. Identical on both instructions.",
+    "severity": "typed `raw` with no semantics; bit0 is an enable",
+    "suggested": "model byte+6 bit0 as a read-enable."
+  }
+}

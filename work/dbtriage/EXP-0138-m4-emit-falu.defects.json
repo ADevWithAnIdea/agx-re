@@ -1,0 +1,32 @@
+{
+  "falu2.mod_lo": {
+    "db_model": "a 3-bit modifier named `mod_lo` with no semantics",
+    "hardware_model": "an OPERAND-SOURCE-CLASS field, split. bit0 selects srcA's source class; bits[2:1] select srcB's source class: 0=GPR (srcB_reg), 1=the non-GPR operand file addressed by srcB_reg, 2 and 3 both read as 0.0. bit2 DOMINATES bit1 (mod_lo=6 reads 0.0, not the uniform value that mod_lo=2 reads at the same index).",
+    "evidence": "EXP-0138 falu2.mod_lo, 98 cases, run01/run05/run06",
+    "impact": "the field is emitter-relevant, not a spare modifier"
+  },
+  "falu2.srcB_reg_bit6_in_uniform_mode": {
+    "db_model": "srcB_reg is a 7-bit register index; EXP-0099/EXP-0112 established bit6 as effectively inert in GPR mode (r(R mod 64) aliasing)",
+    "hardware_model": "with mod_lo bits[2:1]==1 the SAME field is NOT a register index and bit6 is LIVE: srcB_reg in 0..63 indexes the uniform register file, srcB_reg in 64..127 supplies an INLINE 8-bit MINIFLOAT IMMEDIATE with k = srcB_reg-64, e = k>>3, m = k&7, value = m*2^-5 for e==0 else (8+m)*2^(e-6). HW-confirmed at k = 0,2,3,31,32,48,56,61,62,63 -> 0, 0.0625, 0.09375, 1.875, 2.0, 8.0, 16.0, 26.0, 28.0, 30.0. Indices 126/127 do NOT fault in this mode (they are immediates 28.0/30.0), unlike the GPR mode where EXP-0112 recorded a fault.",
+    "evidence": "EXP-0138 falu2.mod_lo uniform-index map, 33 cases",
+    "impact": "falu2 can take a float immediate operand directly; an emitter that treats srcB_reg as a plain register in this mode emits the wrong operand"
+  },
+  "sentinel_release": {
+    "db_model": "n/a -- a property of this experiment's MODE-A measurement",
+    "hardware_model": "reading a GPR as a 32-bit source operand through falu3/falu3_ext byte+1 or byte+5, or through falu_acc byte+1/byte+3, ZEROES that register afterwards (release-on-read). Directly observed: falu3.dst=23 -> w0=85.0=26*3+7 (the operand read r11=26.0 CORRECTLY) while w4, the later read-back of r11, returned 0.0, with the poison still intact in every untouched word. The case is a valid measurement whose sentinel was destroyed BY the field working, exactly like the `sentinel_by_design` carve-out verdicts.py already declares for `dst` fields.",
+    "evidence": "EXP-0138 falu3.dst v=23/151, falu3.srcC v=22/23, falu_acc.srcA/srcB",
+    "impact": "falu3 / falu3_ext / falu_acc source descriptors are held at `untested` by the frozen rule for 2-4 cases each that are explained, not broken. Reported, NOT promoted -- the orchestrator decides."
+  },
+  "falu3_family_field_names": {
+    "db_model": "byte+1 = `dst`, byte+3 = `srcA`, byte+4 = `srcB`, byte+5 = `srcC`",
+    "hardware_model": "H-FALU3-LAYOUT CONFIRMED: byte0's high nibble is the DESTINATION (dst_lo sweep, 14/16 exact, the 2 misses being r11/r15 which are this experiment's own sentinel/index registers); byte+1 is the FIRST SOURCE descriptor (228/256 exact, every miss explained below); byte+3 is the SECOND SOURCE (228/256, same pattern); byte+5 is the THIRD SOURCE (252/256); byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector (192/256 re-length the instruction). The 28 `dst`/`srcA` misses are exactly the descriptor values with bit0 CLEAR over the seeded registers: bit0 is the operand SIZE bit (1 = 32-bit, 0 = 16-bit), and a 16-bit read of an f32-seeded register returns 0.0. That CONFIRMS (reg<<1)|is32 rather than refuting it. byte+5's bit0 does NOT behave as a size bit (srcC v=22 and v=23 both read r11=26.0).",
+    "evidence": "EXP-0138 G_falu3 / G_falu3_ext, 1809 + 2321 cases",
+    "impact": "db.json's field NAMES for falu3/falu3_ext are misleading; an emitter following them would put the destination in a source slot"
+  },
+  "fspecial.src_bit7": {
+    "db_model": "byte+3 `src`, an ordinary operand byte",
+    "hardware_model": "values 192..255 (bit7 set) FAULT the command buffer or HANG the GPU. run01 (contended host): 60 reproducible `fault`s across 192..255. run05 (isolated host): values 192, 193, 194 each HUNG the GPU three times in a row under a 12 s watchdog, which is why the fspecial arm was stopped per FIELD-SWEEP-PROTOCOL section 8. Only values 2 and 3 produce the correct rsqrt(4)=0.5; 188 other values silently return 0.0; values 6 and 7 leave the poison intact (the store never ran).",
+    "evidence": "EXP-0138 fspecial.src, run01 256/256 + run05 195/256",
+    "impact": "SAFETY: an emitter must never set byte+3 bit7 of fspecial. The whole fspecial family stays PARTIAL / untested -- one gated run only."
+  }
+}

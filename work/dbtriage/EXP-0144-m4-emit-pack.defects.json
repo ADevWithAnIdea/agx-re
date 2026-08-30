@@ -1,0 +1,50 @@
+{
+  "_note": "Recorded, NOT patched: db.json is owned by the orchestrator and several experiments were sweeping concurrently.",
+  "cvt_bf16_match_overfits_byte4": {
+    "db_says": "match pins byte+4 == 0x01",
+    "evidence": "work/pilot/anchors2.log (anchor 0101148105024000)",
+    "impact": "decode gap on compiler-emitted code",
+    "measured": "our own compiler emits byte+4 == 0x05 for float->bfloat in the sweep carrier, so the descriptor fails to decode its own compiler's output."
+  },
+  "cvt_f2h_and_cvt_f2h_dst_are_one_instruction": {
+    "db_says": "two separate descriptors (byte0==0x11 vs byte0 low nibble 1 + byte+3 hi nibble 8)",
+    "evidence": "analysis/byte_scans.json cvt_f2h.* vs cvt_f2h_dst.*",
+    "impact": "duplicate descriptors; the dst nibble is the only real difference",
+    "measured": "identical bit rules on every byte (+1 0x7f==0x01, +2 0xc7==0x04, +3 no bitmask, +4 0xf7==0x04, +5 0x10==0x00); they differ only in byte0's dst nibble."
+  },
+  "length_rule_gaps_observed": {
+    "evidence": "work/pilot/carriers.log",
+    "impact": "whole classes of two documented instructions do not disassemble",
+    "measured": "isadb.instr_length() cannot length byte0==0x01 (cvt_f2h_dst with dst nibble 0, emitted by our own compiler) nor byte0==0x18 (the packed_half2_hi family), so both fail to tokenize even though db.json has field tables for them."
+  },
+  "pack_convert.fmt_word_is_not_one_field": {
+    "db_says": "bytes +5..+9 are one 40-bit raw field `fmt_word`",
+    "evidence": "analysis/byte_scans.json pack_convert.byte5/6/8/9; analysis/format_maps.json",
+    "impact": "an emitter following db.json cannot choose the pack format or either source register",
+    "measured": "byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't care, bit0=0); byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (0x4x snorm2x16 / 0x8x unorm2x16 / 0xcx unorm8x2, bits 2-3 don't care). byte+7 not established (2 genuine hangs stopped it at 8 values)."
+  },
+  "pack_convert.src_is_actually_dst": {
+    "db_says": "byte+3 = `src`, the source GPR",
+    "evidence": "analysis/byte_scans.json pack_convert.byte3 dst_redirect_slots",
+    "impact": "an emitter would write the result to the wrong register",
+    "measured": "byte+3 is the DESTINATION register (reg<<1, bit0 don't care): sweeping it redirects the result into 6 distinct observed registers, an identical map to cvt_i2f/cvt_f2i `dst`. The real sources are bytes +5/+6."
+  },
+  "unpack_convert.byte2_enable_rule": {
+    "db_says": "match relaxed at commit 2b1cbc50 so only bit1 is pinned; field `cache`",
+    "evidence": "analysis/predicates.json unpack_convert.byte2",
+    "impact": "db.json's match is still not the hardware rule",
+    "measured": "the instruction reproduces its result IFF (byte+2 & 0x03) != 0 -- a TWO-bit OR enable. Bits 2-7 are inert. Exact over all 256 values. This reconciles EXP-0089 (0x56->0x54 breaks it: 0x54&3==0) with EXP-0119 (single-bit flips of 0x56 all inert: each leaves byte&3 != 0)."
+  },
+  "unpack_convert.convert_desc_is_not_one_field": {
+    "db_says": "bytes +3..+6 are one 32-bit raw field `convert_desc`",
+    "evidence": "analysis/byte_scans.json unpack_convert.byte3/4/5/6",
+    "impact": "same as above: neither operand register is reachable from db.json",
+    "measured": "byte+3 = DESTINATION register (3 distinct registers observed); byte+4 is COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly)."
+  },
+  "unpack_convert.reg_sel_is_a_format_selector": {
+    "db_says": "byte+7 high nibble `reg_sel`, 'most likely the unpack RESULT destination (role INFERRED, not splice-confirmed)'",
+    "evidence": "analysis/byte_scans.json unpack_convert.byte7 operand map; the compiler's own unorm(...1cca) vs snorm(...1caa) pair",
+    "impact": "the role inference is wrong; it also mis-explains our own compiler's output",
+    "measured": "bits 6:5 select the FORMAT -- 0x0a/0x8a unorm8, 0x2a/0xaa snorm16, 0x4a/0xca unorm16, 0x6a/0xea unorm8; bit7 don't care; bit3 changes which SOURCE register is read. Not a destination."
+  }
+}

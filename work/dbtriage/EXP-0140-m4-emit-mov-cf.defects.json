@@ -1,0 +1,122 @@
+{
+  "mov_imm.imm7==12": {
+    "claim": "the 2-byte encoding of `mov_imm` with imm7 == 12 does not tokenize under the current length rule (byte+1 = 0x0C makes the pair look like the 4-byte 0x?c preamble/get_sr group); it is the ONLY immediate in 0..127 with this property, checked exhaustively over all 16 dst values",
+    "evidence": "static check, tools/agx-isa/isadb.instr_length",
+    "implication": "decoder defect, not necessarily a hardware one; every immediate this experiment emits avoids 12"
+  },
+  "mov_imm.imm_top": {
+    "claim": "`mov_imm` with imm_top=1 (immediate 128..255) does NOT write the destination register at all, and unpadded it consumes the FOLLOWING 2-byte instruction. EXP-0128 read it as a 'silent zero' because its read-back buffer was zero-initialised; against a POISONED buffer the register is seen to keep its previous value.",
+    "evidence": {
+      "padded_control": [
+        "wrong_value",
+        {
+          "0": 7,
+          "1": 7
+        }
+      ],
+      "poison_word0": -559038737,
+      "seed_value": 7,
+      "unpadded": [
+        "wrong_value",
+        {
+          "0": -559038737,
+          "1": 7
+        }
+      ]
+    },
+    "implication": "an emitter must treat mov_imm's immediate as 7 bits; bit 7 selects a different (longer) instruction, it does not extend the immediate"
+  },
+  "reg_move_family": {
+    "claim": "reg_move_c0 / reg_move_c1 / reg_move_c2var / reg_move_c9 / reg_move_cb / uniform_mov are NOT six instructions. They are one 4-byte instruction whose byte+2 is a form selector; db.json's five descriptors are five values of that one field. Confirmed by sweeping byte+2 over all 256 values in a single carrier and observing which move a value.",
+    "descriptor_probe": {
+      "reg_move_c0": {
+        "moved": false,
+        "outcome": "silent_zero"
+      },
+      "reg_move_c1": {
+        "moved": true,
+        "outcome": "ok"
+      },
+      "reg_move_c2var": {
+        "moved": false,
+        "outcome": "silent_zero"
+      },
+      "reg_move_c9": {
+        "moved": false,
+        "outcome": "wrong_value"
+      },
+      "reg_move_cb": {
+        "moved": false,
+        "outcome": "wrong_value"
+      }
+    },
+    "implication": "an emitter needs ONE descriptor with four byte fields, not five descriptors; and the byte+1 split into src_reg + src_flag does not match hardware -- bit7 selects immediate-vs-uniform-file",
+    "moving_byte2_values": [
+      1,
+      5,
+      17,
+      21,
+      33,
+      37,
+      49,
+      53
+    ],
+    "moving_byte3_values": [
+      8,
+      9,
+      24,
+      25,
+      40,
+      41,
+      56,
+      57,
+      72,
+      73,
+      88,
+      89,
+      104,
+      105,
+      120,
+      121,
+      136,
+      137,
+      152,
+      153,
+      168,
+      169,
+      184,
+      185,
+      200,
+      201,
+      216,
+      217,
+      232,
+      233,
+      248,
+      249
+    ]
+  },
+  "sel.body": {
+    "byte3_immediate_matches": 255,
+    "byte3_register_region_matches": 1,
+    "claim": "`sel.body` is not an opaque 24-bit field: byte+3 is the predicate-FALSE operand (bit7 = immediate flag, value = the byte itself), byte+2 and byte+1 are operand/predicate source selectors with distinct outcome classes across their full 256-value range.",
+    "per_byte_outcomes": {
+      "b1": {
+        "ok": 8,
+        "silent_zero": 248,
+        "wrong_value": 256
+      },
+      "b2": {
+        "fault": 127,
+        "invalid_run": 1,
+        "ok": 128,
+        "silent_zero": 128,
+        "wrong_value": 128
+      },
+      "b3": {
+        "fault": 2,
+        "ok": 510
+      }
+    }
+  }
+}

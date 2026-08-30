@@ -326,22 +326,22 @@ SYNTH = [
     #   dst reg0, srcA=reg0/32b, srcB=reg2/32b -> 09051c0100c0 (== fast-math fadd)
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcB_imm": 0, "srcA_class": 0, "srcB_class": 0, "srcB_neg": 0, "mod_hi": 0xc,
                 "srcA_reg_top": 0, "srcB_reg_top": 0}),
     # fmul, same operands:
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b101,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcB_imm": 0, "srcA_class": 0, "srcB_class": 0, "srcB_neg": 0, "mod_hi": 0xc,
                 "srcA_reg_top": 0, "srcB_reg_top": 0}),
     # fsub d = srcA + (-srcB): srcB_neg=1 (HW-validated a+b -> a-b):
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 0, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 2, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 1, "mod_hi": 0xc,
+                "srcB_imm": 0, "srcA_class": 0, "srcB_class": 0, "srcB_neg": 1, "mod_hi": 0xc,
                 "srcA_reg_top": 0, "srcB_reg_top": 0}),  # -> 09011c0500c8
     # dst = reg5 exercises the b0[4:8] dst field (HW-validated):
     ("falu2",  {"dst": 5, "srcA_size": 1, "srcA_reg": 4, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 5, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcB_imm": 0, "srcA_class": 0, "srcB_class": 0, "srcB_neg": 0, "mod_hi": 0xc,
                 "srcA_reg_top": 0, "srcB_reg_top": 0}),  # -> 59091c0b00c0
     # falu2i packed immediate: a + 1.0 (exp=0xb bias11, mant=0, sign=0) HW-validated:
     ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xb, "opsel": 0b100,
@@ -353,9 +353,10 @@ SYNTH = [
                 "ctrl_lo": 0, "mods": 0xc0, "srcA_reg_top": 0}),             # -> 09c11c0180c0
     # EXP-M4-13 R10 (falu_int_frag retype): the old raw 16-bit 'ext' field split into
     # ctrl (byte+6) + srcmods (byte+7); same bytes (ext=0xc002 -> ctrl=0x02, srcmods=0xc0).
-    ("falu3",   {"dst_lo": 0x0, "dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ctrl": 0x02, "srcmods": 0xc0}),
-    # dst_lo=r3 exercises the byte0 high-nibble dst field added in EXP-M4-13 R2 (fix_falu3_ishift):
-    ("falu3",   {"dst_lo": 0x3, "dst": 0x07, "op": 0x1e, "srcA": 0x0b, "srcB": 0x81, "srcC": 0x0e, "ctrl": 0x02, "srcmods": 0x60}),
+    ("falu3",   {"dst": 0x0, "srcA": 0x01, "op": 0x1e, "srcB": 0x05, "ctrl_len": 0x81, "srcC": 0x08, "ctrl": 0x02, "srcmods": 0xc0}),
+    # dst=r3 exercises the byte0 high-nibble destination field (EXP-M4-13 R2 fix_falu3_ishift;
+    # renamed dst_lo -> dst by EXP-0138, which proved byte+1 is the FIRST SOURCE, not the dst high bits):
+    ("falu3",   {"dst": 0x3, "srcA": 0x07, "op": 0x1e, "srcB": 0x0b, "ctrl_len": 0x81, "srcC": 0x0e, "ctrl": 0x02, "srcmods": 0x60}),
     # EXP-M4-13 R2 (n2_intalu): float min/max UNIFIED into low-nibble-2 iminmax.
     # fmin at dst r1 (byte0 0x12) -> reproduces the old fminmax bytes 12031e0501c0:
     ("iminmax", {"dst": 0x1, "dst_full": 0x03, "fmt": 0x3, "srcA": 0x05, "sel": 0x1, "selhi": 0, "srcB": 0xc0}),
@@ -404,10 +405,10 @@ SYNTH = [
     ("fspecial_est", {"dst": 0x2, "srcA": 0x81, "subop": 0x0b, "b4": 0x00, "b5": 0xc2}),
     # ilogic AND (op_base=1 and/or, no invert): 0b 05 1f 01 00 00 00 80 00 00
     # (EXP-M4-13 R6 refined schema: srcA=byte1, outmod=byte7 store bit.)
-    ("ilogic", {"srcA": 0x5, "op_base": 0x1, "srcB": 0x1, "lut_a": 0x0, "lut_b": 0x0,
+    ("ilogic", {"srcA": 0x5, "op_base": 0x1, "srcB": 0x1, "lut_a_sel": 0x0, "lut_a_free": 0x0, "lut_a_z": 0x0, "lut_b": 0x0,
                 "z6": 0x0, "outmod": 0x80, "z8": 0x0, "z9": 0x0}),
     # ilogic XOR (op_base=0 xor, invert bits): 0b 05 1e 01 02 08 00 80 00 00
-    ("ilogic", {"srcA": 0x5, "op_base": 0x0, "srcB": 0x1, "lut_a": 0x2, "lut_b": 0x8,
+    ("ilogic", {"srcA": 0x5, "op_base": 0x0, "srcB": 0x1, "lut_a_sel": 0x2, "lut_a_free": 0x0, "lut_a_z": 0x0, "lut_b": 0x8,
                 "z6": 0x0, "outmod": 0x80, "z8": 0x0, "z9": 0x0}),
     # ---- subgroup / quad / atomics (EXP-0018) ----
     # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03, cache=1(0x56) -> bf 01 56 00 02 00 14 03
@@ -425,9 +426,11 @@ SYNTH = [
     ("simd_shuffle", {"dir": 0x0, "mode": 0x4, "cache": 0x1, "dst": 0x0, "src": 0x2, "srctype": 0x0, "lane": 0xa, "rtype": 0x2c, "dsthi": 0x4, "rsv9": 0x0}),
     # atomic_rmw add (op=16 'add' at byte+12 bits[1:6]) -> 6711540000800100004200002000
     # EXP-M4-13 R10 (atomics_tex retype): the old raw b2/b3/mid/b13 fields were split
-    # into the typed amode/index_reg/addr_desc/idx_off/op(5b)/per_lane layout; same bytes.
-    ("atomic_rmw", {"amode": 0x54, "rsv3": 0x00, "base_slot": 0x00, "index_reg": 0x80,
-                    "addr_desc": 0x01, "ret_flag": 0x00, "ret_desc": 0x00, "idx_off": 0x42,
+    # into the typed amode/index_reg/oper_reg_*/idx_off/op(5b)/per_lane layout; same bytes.
+    # (EXP-0141 split byte+5/+6: index_reg=0x80 -> index_reg=0 + oper_reg_lo=1;
+    #  addr_desc=0x01 -> oper_reg_hi=1 + addr_desc_hi=0. Byte image unchanged.)
+    ("atomic_rmw", {"amode": 0x54, "rsv3": 0x00, "base_slot": 0x00, "index_reg": 0x00, "oper_reg_lo": 0x1,
+                    "oper_reg_hi": 0x01, "addr_desc_hi": 0x0, "ret_flag": 0x00, "ret_desc": 0x00, "idx_off": 0x42,
                     "rsv10": 0x00, "rsv11": 0x00, "op_lsb": 0x00, "op": 0x10,
                     "per_lane": 0x00, "op_msb": 0x00, "amode_hi": 0x00}),
     # ---- ray tracing (EXP-0023) ----

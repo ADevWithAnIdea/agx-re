@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "eaca7256f0f2dcd79ec01aac9dd825f888ceb23f3b720b755ab384ad686e90af",
+ "db_sha256": "418d780ca2920a7235deb55878b4e5e82563f2370c6ce6f9fea7d05643e7c91f",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -14,11 +14,11 @@
  },
  "coverage": {
   "total_instructions": 171,
-  "total_fields": 1036,
+  "total_fields": 1057,
   "by_label": {
-   "hardware-run": 349,
+   "hardware-run": 368,
    "isolated-byte-diff": 94,
-   "corpus-correlation": 182,
+   "corpus-correlation": 184,
    "tokenization-only": 203,
    "single-template-inference": 13,
    "api-accept-reject": 0,
@@ -26,14 +26,14 @@
    "untested": 195
   },
   "by_label_pct": {
-   "hardware-run": 33.7,
-   "isolated-byte-diff": 9.1,
-   "corpus-correlation": 17.6,
-   "tokenization-only": 19.6,
-   "single-template-inference": 1.3,
+   "hardware-run": 34.8,
+   "isolated-byte-diff": 8.9,
+   "corpus-correlation": 17.4,
+   "tokenization-only": 19.2,
+   "single-template-inference": 1.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 18.8
+   "untested": 18.4
   },
   "emittable_instructions": 38,
   "emittable_mnemonics": [
@@ -76,7 +76,18 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 133
+  "decodable_not_yet_emittable": 133,
+  "data_word_descriptors": 6,
+  "data_word_mnemonics": [
+   "operand_word",
+   "operand_word_a2_01",
+   "operand_word_x2_h5",
+   "operand_word_x2_h6",
+   "operand_word_x2_h7",
+   "pad_operand"
+  ],
+  "emitter_relevant_instructions": 165,
+  "emittable_of_emitter_relevant": 38
  },
  "instructions": {
   "falu2": {
@@ -185,15 +196,6 @@
     ],
     "note": "bit39=1 switches srcB to the minifloat immediate (falu2i) or, when bit15=0, to a uniform-register source (falu2_uni)."
    },
-   "mod_lo": {
-    "label": "hardware-run",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
    "srcB_neg": {
     "label": "isolated-byte-diff",
     "range": "0,1 (byte+5 0xc0 -> 0xc8 on a real add: 5+3 becomes 5-3)",
@@ -233,6 +235,24 @@
      "EXP-0119"
     ],
     "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
+   },
+   "srcA_class": {
+    "label": "hardware-run",
+    "range": "byte+5 bit0, within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD-MODEL CORRECTION (EXP-0138, HW): the former 3-bit `mod_lo` is an operand-source-class field -- bit0 selects srcA's source class, bits[2:1] select srcB's. Bit2 DOMINATES bit1 (mod_lo=6 reads 0.0, not the uniform value mod_lo=2 reads at the same index). Same bits, same sweep; only the field boundary changed."
+   },
+   "srcB_class": {
+    "label": "hardware-run",
+    "range": "byte+5 bits[2:1], within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD-MODEL CORRECTION (EXP-0138, HW): the former 3-bit `mod_lo` is an operand-source-class field -- bit0 selects srcA's source class, bits[2:1] select srcB's. Bit2 DOMINATES bit1 (mod_lo=6 reads 0.0, not the uniform value mod_lo=2 reads at the same index). Same bits, same sweep; only the field boundary changed."
    }
   },
   "falu2i": {
@@ -469,24 +489,6 @@
      "EXP-M4-13"
     ]
    },
-   "dst_lo": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "dst": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
    "op": {
     "label": "untested",
     "range": "0..255 dense (all 256 values)",
@@ -495,33 +497,6 @@
      "EXP-0138"
     ],
     "note": "64 cases failed the integrity sentinel without a structural explanation"
-   },
-   "srcA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "srcC": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ctrl": {
     "label": "hardware-run",
@@ -540,6 +515,51 @@
      "EXP-0138"
     ],
     "note": ""
+   },
+   "ctrl_len": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcB": {
+    "label": "untested",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcA": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "dst": {
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcC": {
+    "label": "untested",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only. FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    }
   },
   "falu2_ext": {
@@ -680,24 +700,6 @@
      "EXP-M4-10"
     ]
    },
-   "dst_lo": {
-    "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "dst": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
    "op": {
     "label": "untested",
     "range": "0..255 dense (all 256 values)",
@@ -707,33 +709,6 @@
     ],
     "note": "64 cases failed the integrity sentinel without a structural explanation"
    },
-   "srcA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
-   "srcC": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0138"
-    ],
-    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
-   },
    "ext": {
     "label": "isolated-byte-diff",
     "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
@@ -742,6 +717,51 @@
      "EXP-0138"
     ],
     "note": "sweep not dense over the encodable range"
+   },
+   "ctrl_len": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcB": {
+    "label": "untested",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcA": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "dst": {
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+   },
+   "srcC": {
+    "label": "untested",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only. FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    }
   },
   "funary": {
@@ -2185,14 +2205,6 @@
      "EXP-M4-13"
     ]
    },
-   "lut_a": {
-    "label": "corpus-correlation",
-    "range": "per-source inverts; the 16 LUT2 functions were reached via MSL source, not by synthesizing the field",
-    "target": "A18",
-    "evidence": [
-     "EXP-0013"
-    ]
-   },
    "lut_b": {
     "label": "corpus-correlation",
     "range": "output invert bit (byte+5 bit3)",
@@ -2238,6 +2250,36 @@
      "EXP-M4-12",
      "EXP-M4-13"
     ]
+   },
+   "lut_a_sel": {
+    "label": "corpus-correlation",
+    "range": "byte+4 bits 0-1, the only selecting bits (EXP-0146, dense 0..255 on the byte)",
+    "target": "A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0146"
+    ],
+    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
+   },
+   "lut_a_free": {
+    "label": "corpus-correlation",
+    "range": "byte+4 bits 2-4, DON'T-CARE (free mask 0x1c; EXP-0146, dense 0..255 on the byte)",
+    "target": "A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0146"
+    ],
+    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
+   },
+   "lut_a_z": {
+    "label": "corpus-correlation",
+    "range": "byte+4 bits 5-7, must be clear (EXP-0146, dense 0..255 on the byte)",
+    "target": "A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0146"
+    ],
+    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
    }
   },
   "fspecial": {
@@ -2503,14 +2545,32 @@
      "EXP-0010"
     ]
    },
-   "body": {
+   "b1": {
     "label": "hardware-run",
-    "range": "each of the three body bytes swept 0..255 dense (x2 input vectors), plus whole-field boundaries, all 24 powers of two and 16 interior samples",
+    "range": "byte+1 swept 0..255 dense x2 input vectors (8 ok / 248 silent_zero / 256 wrong_value across the two vectors)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly."
+    "note": "db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (bit7 = immediate flag, value = the byte itself; 255 immediate matches vs 1 in the register region); byte+1 and byte+2 are operand/predicate source selectors with distinct outcome classes over their full 256-value range. Same bits, same sweep; only the field boundary changed."
+   },
+   "b2": {
+    "label": "hardware-run",
+    "range": "byte+2 swept 0..255 dense x2 input vectors (128 ok / 128 silent_zero / 128 wrong_value / 127 fault)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (bit7 = immediate flag, value = the byte itself; 255 immediate matches vs 1 in the register region); byte+1 and byte+2 are operand/predicate source selectors with distinct outcome classes over their full 256-value range. Same bits, same sweep; only the field boundary changed."
+   },
+   "selFalse": {
+    "label": "hardware-run",
+    "range": "byte+3 swept 0..255 dense x2 input vectors (510 ok / 2 fault)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (bit7 = immediate flag, value = the byte itself; 255 immediate matches vs 1 in the register region); byte+1 and byte+2 are operand/predicate source selectors with distinct outcome classes over their full 256-value range. Same bits, same sweep; only the field boundary changed."
    }
   },
   "psel": {
@@ -3733,24 +3793,6 @@
     ],
     "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
-   "index_reg": {
-    "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0141"
-    ],
-    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
-   },
-   "addr_desc": {
-    "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0141"
-    ],
-    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
-   },
    "ret_flag": {
     "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
@@ -3842,6 +3884,42 @@
      "EXP-0141"
     ],
     "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
+   },
+   "index_reg": {
+    "label": "hardware-run",
+    "range": "byte+5 bits 0..6, within the dense 0..255 sweep of the whole byte",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects."
+   },
+   "oper_reg_lo": {
+    "label": "hardware-run",
+    "range": "byte+5 bit7 = bit 0 of the RMW operand-register index; observed at both values",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects."
+   },
+   "oper_reg_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 0..5 = bits 1..6 of the RMW operand-register index; indices 0..3 each constructed and read back",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
+   },
+   "addr_desc_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    }
   },
   "atomic_mem": {
@@ -3880,24 +3958,6 @@
      "EXP-0141"
     ],
     "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only."
-   },
-   "index_reg": {
-    "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0141"
-    ],
-    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register."
-   },
-   "addr_desc": {
-    "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0141"
-    ],
-    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'."
    },
    "ret_flag": {
     "label": "hardware-run",
@@ -3990,6 +4050,42 @@
      "EXP-0141"
     ],
     "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused."
+   },
+   "index_reg": {
+    "label": "hardware-run",
+    "range": "byte+5 bits 0..6, within the dense 0..255 sweep of the whole byte",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects."
+   },
+   "oper_reg_lo": {
+    "label": "hardware-run",
+    "range": "byte+5 bit7 = bit 0 of the RMW operand-register index; observed at both values",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects."
+   },
+   "oper_reg_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 0..5 = bits 1..6 of the RMW operand-register index; indices 0..3 each constructed and read back",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
+   },
+   "addr_desc_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    }
   },
   "matrix_mac": {
@@ -4069,15 +4165,6 @@
      "EXP-O2C"
     ]
    },
-   "dst_desc": {
-    "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
-    "evidence": [
-     "EXP-0147"
-    ],
-    "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs."
-   },
    "op_enable": {
     "label": "isolated-byte-diff",
     "range": "0x24 enables the multiply; corrupting it drops the multiply and passes C through",
@@ -4097,14 +4184,50 @@
     ],
     "note": "FP32 datapath only; the half-datapath accumulate byte is uncharacterized (RT-10)."
    },
-   "b11hi": {
+   "dst_desc_lo": {
     "label": "hardware-run",
-    "range": "full 7-bit range, dense (128 cases) x2 runs",
+    "range": "byte+9 bits 0-5, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits."
+    "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): the hardware rule is simple -- correct A*B+C iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-care; 0x00-0x3f and 0x80-0xbf give a SILENT ZERO and 0xc0-0xff a wrong value. The field was typed `raw` with no semantics."
+   },
+   "dst_en": {
+    "label": "hardware-run",
+    "range": "byte+9 bits 6-7 (within the dense 256-value x2-run sweep of the byte)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): the hardware rule is simple -- correct A*B+C iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-care; 0x00-0x3f and 0x80-0xbf give a SILENT ZERO and 0xc0-0xff a wrong value. The field was typed `raw` with no semantics."
+   },
+   "c_neg_half": {
+    "label": "hardware-run",
+    "range": "byte+11 bit1 (within the dense 128-value x2-run sweep of the field)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 128 x2 runs): two of the seven bits are SEMANTIC accumulator-sign controls, not padding -- bit0 of the old field (byte+11 bit1) makes rows 0-3 use -C, bit1 (byte+11 bit2) makes ALL rows use -C, and both set cancel back to +C. Correct a*b+c requires both clear (32 of 128 values). The matrix unit therefore computes A*B - C, a mode Metal's simdgroup_multiply_accumulate never emits."
+   },
+   "c_neg_all": {
+    "label": "hardware-run",
+    "range": "byte+11 bit2 (within the dense 128-value x2-run sweep of the field)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 128 x2 runs): two of the seven bits are SEMANTIC accumulator-sign controls, not padding -- bit0 of the old field (byte+11 bit1) makes rows 0-3 use -C, bit1 (byte+11 bit2) makes ALL rows use -C, and both set cancel back to +C. Correct a*b+c requires both clear (32 of 128 values). The matrix unit therefore computes A*B - C, a mode Metal's simdgroup_multiply_accumulate never emits."
+   },
+   "b11_rsv": {
+    "label": "hardware-run",
+    "range": "byte+11 bits 3-7, DON'T-CARE (within the dense 128-value x2-run sweep of the field)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 128 x2 runs): two of the seven bits are SEMANTIC accumulator-sign controls, not padding -- bit0 of the old field (byte+11 bit1) makes rows 0-3 use -C, bit1 (byte+11 bit2) makes ALL rows use -C, and both set cancel back to +C. Correct a*b+c requires both clear (32 of 128 values). The matrix unit therefore computes A*B - C, a mode Metal's simdgroup_multiply_accumulate never emits."
    }
   },
   "rt_intersect": {
@@ -5201,15 +5324,6 @@
     ],
     "note": "With one attachment bound, correct only at 0x00,0x01,0x80,0x81 (baseline 0x00): bit0 and bit7 don't-care. Every other index SILENTLY RETURNS ZERO rather than faulting."
    },
-   "b6": {
-    "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
-    "evidence": [
-     "EXP-0147"
-    ],
-    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6."
-   },
    "b7": {
     "label": "isolated-byte-diff",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
@@ -5227,6 +5341,24 @@
      "EXP-0147"
     ],
     "note": "Swept per constituent byte (4x256) plus structured whole-field values. Bytes 1 and 3 are almost entirely SILENT ZERO off their baseline; byte 0 is nondeterminism-heavy (95 unstable). Promoted only at the reproducing points."
+   },
+   "read_en": {
+    "label": "hardware-run",
+    "range": "byte+6 bit0 (within the dense 256-value x2-run sweep of the byte)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
+   },
+   "b6_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    }
   },
   "imageblock_store": {
@@ -5963,15 +6095,6 @@
     ],
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
-   "src": {
-    "label": "hardware-run",
-    "range": "byte+3: 250 of 256 values (dense 0..255)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0144"
-    ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 500 measurements: 5 overturned by the majority vote (1.00%); where they disagree the revalidation wins."
-   },
    "mode": {
     "label": "hardware-run",
     "range": "byte+4: 256 of 256 values (dense 0..255)",
@@ -5981,14 +6104,59 @@
     ],
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
-   "fmt_word": {
+   "dst": {
     "label": "hardware-run",
-    "range": "byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255); byte+7: 256 of 256 values (dense 0..255); byte+8: 256 of 256 values (dense 0..255); byte+9: 256 of 256 values (dense 0..255)",
+    "range": "byte+3: 250 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 500 measurements: 5 overturned by the majority vote (1.00%); where they disagree the revalidation wins. OPERAND-ROLE CORRECTION (EXP-0144, HW): byte+3 is the DESTINATION register (reg<<1, bit0 don't-care) -- sweeping it redirects the result into 6 distinct observed registers, an identical map to cvt_i2f/cvt_f2i `dst`. Same bits, same sweep; the NAME was wrong."
+   },
+   "src_lane0": {
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
+   },
+   "src_lane1": {
+    "label": "hardware-run",
+    "range": "byte+6: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
+   },
+   "b7": {
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255), rule (v & 0xfb) == 0x50",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
+   },
+   "cvt_enable": {
+    "label": "hardware-run",
+    "range": "byte+8: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
+   },
+   "fmt_sel": {
+    "label": "hardware-run",
+    "range": "byte+9: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
    }
   },
   "unpack_convert": {
@@ -6019,15 +6187,6 @@
     ],
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
-   "convert_desc": {
-    "label": "hardware-run",
-    "range": "byte+3: 256 of 256 values (dense 0..255); byte+4: 256 of 256 values (dense 0..255); byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255)",
-    "target": "M4",
-    "evidence": [
-     "EXP-0144"
-    ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins."
-   },
    "size": {
     "label": "hardware-run",
     "range": "byte+7: 256 of 256 values (dense 0..255)",
@@ -6037,14 +6196,50 @@
     ],
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
-   "reg_sel": {
+   "dst": {
+    "label": "hardware-run",
+    "range": "byte+3: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
+   },
+   "inert4": {
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255) -- COMPLETELY INERT",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
+   },
+   "src": {
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
+   },
+   "opdesc": {
+    "label": "hardware-run",
+    "range": "byte+6: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 32-bit raw `convert_desc` is four located bytes -- byte+3 = DESTINATION register (3 distinct registers observed); byte+4 COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't-care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly). Neither operand register was reachable from db.json before this split."
+   },
+   "fmt_sel": {
     "label": "hardware-run",
     "range": "byte+7: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
      "EXP-0144"
     ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. ROLE CORRECTION (EXP-0144, HW): byte+7's high nibble is a FORMAT selector, not a register and not the result destination. bits 6:5 select the format -- 0x0a/0x8a unorm8, 0x2a/0xaa snorm16, 0x4a/0xca unorm16, 0x6a/0xea unorm8 -- and bit7 is don't-care. The old inference also mis-explained our own compiler's unorm(...1cca) vs snorm(...1caa) pair."
    }
   },
   "vary_store": {
@@ -6277,20 +6472,6 @@
     "target": "M4",
     "evidence": []
    },
-   "subop": {
-    "label": "corpus-correlation",
-    "range": "byte+2==0x35 carry-generate marker",
-    "target": "A18",
-    "evidence": [
-     "EXP-0038"
-    ]
-   },
-   "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
-   },
    "cmpmode": {
     "label": "corpus-correlation",
     "range": "byte+4==0x22 ordered-compare mode",
@@ -6308,6 +6489,22 @@
      "EXP-M4-12",
      "EXP-M4-13"
     ]
+   },
+   "srcB": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": [],
+    "note": "OPERAND-SLOT RENAME (EXP-0146, HW): carry_gen is a TWO-operand compare, p[dst] = (r[byte+1] <u r[byte+3]); byte+3 is the SECOND source, not the only one."
+   },
+   "srcA": {
+    "label": "corpus-correlation",
+    "range": "byte+2==0x35 carry-generate marker",
+    "target": "A18",
+    "evidence": [
+     "EXP-0038"
+    ],
+    "note": "OPERAND-ROLE CORRECTION (EXP-0146, HW, dense 0..255): byte+1 is the FIRST source-operand descriptor, not a sub-opcode or a marker. Exactly {0x01, 0x81} work -- the project-standard (reg<<1)|is32 packing with an INERT bit7 -- and every other value changes the carry. Identical in shape to byte+3."
    }
   },
   "frame_prologue": {
@@ -7448,15 +7645,6 @@
     ],
     "note": "Correct only at 0x08,0x09,0x88,0x89 (baseline 0x08); bit0 and bit7 don't-care. Other indices silently return zero on attachment 1."
    },
-   "b6": {
-    "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
-    "evidence": [
-     "EXP-0147"
-    ],
-    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero)."
-   },
    "fmt": {
     "label": "hardware-run",
     "range": "full 8-bit range, dense (256 cases) x2 runs",
@@ -7474,6 +7662,24 @@
      "EXP-0147"
     ],
     "note": "Per-byte dense plus structured whole-field. Byte 1 and byte 2 almost entirely silent zero off baseline; 30 unstable cases not promoted."
+   },
+   "read_en": {
+    "label": "hardware-run",
+    "range": "byte+6 bit0 (within the dense 256-value x2-run sweep of the byte)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero). FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
+   },
+   "b6_hi": {
+    "label": "hardware-run",
+    "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero). FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
    }
   },
   "tex_addr_setup": {

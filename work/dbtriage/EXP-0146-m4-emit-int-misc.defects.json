@@ -1,0 +1,88 @@
+{
+  "_what_this_is": "FIELD-SWEEP-PROTOCOL \u00a76: modelled boundaries that the hardware contradicts. tools/agx-isa/db.json was NOT edited by this experiment; the orchestrator owns it.",
+  "carry_gen.byte2_match_is_over_constrained": {
+    "corrected_model": "match should be the 5 bits {0,2,3,6,7} == 0b00000101, not a full byte.",
+    "db_claim": "carry_gen match bits [16,8,53] -- byte+2 fixed at 0x35.",
+    "evidence": [
+      "EXP-0146 arm A_carry_gen byte+2 probe"
+    ],
+    "observed": "Only (v & 0xCD) == 0x05 is required; bits 1, 4 and 5 are don't-care (8/256 ok)."
+  },
+  "carry_gen.subop_is_an_operand_not_a_subopcode": {
+    "corrected_model": "byte+1 is the FIRST source-operand descriptor. carry_gen is `p[dst] = (r[b1] <u r[b3])`, a two-operand compare, not a one-operand marker+source.",
+    "db_claim": "carry_gen byte+1 typed 'subop', width 8, type raw; corpus note calls it a marker.",
+    "evidence": [
+      "EXP-0146 arm A_carry_gen"
+    ],
+    "observed": "Exactly {0x01, 0x81} work -- the (reg<<1)|is32 operand packing with an inert bit7 -- identical in shape to byte+3 ('srcA'). Every other value changes the carry."
+  },
+  "iadd2.64bit_form_has_a_native_add": {
+    "corrected_model": "A native 64-bit register-pair ADD exists and is emittable; the Apple compiler simply does not use it.",
+    "db_claim": "iadd2 semantics: '64-bit SUB uses the single native 0x1f op' and the compiler emits an explicit iadd2->carry_gen->psel->high-add chain for 64-bit ADD.",
+    "evidence": [
+      "EXP-0146 arm C_iadd2_64",
+      "EXP-0146 run05 P1"
+    ],
+    "observed": "Flipping only the addsub bit of the 64-bit subtract (byte0 0x1f -> 0x9f) yields an EXACT single-instruction 64-bit ADD, verified on two independent 8-row boundary input sets (including 2^64-1 + 1 = 0 and 2^63 + 2^63 = 0), in both gated runs and 5/5 repetitions of run05/P1."
+  },
+  "iadd2.dst_faults_above_register_94": {
+    "corrected_model": "The destination register index is bounded at <= 94 for this form; r95..r127 are not addressable. Independently corroborates the ~96-entry GPR file of EXP-0020 from a different family and method.",
+    "db_claim": "iadd2 dst = (reg<<1)|size, 'a full 8-bit byte -> 7-bit reg (r0..r127)'.",
+    "evidence": [
+      "EXP-0146 arm C_iadd2_64 dst sweep (adjudicated 66/66 fault cases)"
+    ],
+    "observed": "dst byte 0xBE..0xFF (register index >= 95) raises a contained GPU ADDRESS FAULT."
+  },
+  "ilogic.reaches_all_16_boolean_functions": {
+    "corrected_model": "lut_a is 2 selector bits (bits 0-1) inside an 8-bit byte with bits 2-4 don't-care; lut_b's live bits are 0,1,2 and 4. EXP-0102's '10 of 16' was a statement about what MSL SOURCE reaches, not about the encoding.",
+    "db_claim": "EXP-0102 INT-12 recorded ilogic as realizing '10 of the 16' two-input functions, with the raw lut_a/lut_b field width NOT established.",
+    "evidence": [
+      "EXP-0146 arm B_ilogic",
+      "EXP-0146 arm B2_ilogic_lut2d"
+    ],
+    "observed": "All 16 functions were produced by the ilogic instruction alone, with a collision-free selector (op_base, lut_a & 3, lut_b & 0x0f). See analysis/ilogic_lut_table.md for one HW-validated encoding per function."
+  },
+  "int_alu_ehi.no_own_msl_carrier_second_attempt": {
+    "corrected_model": "EXP-M4-13's negative reproduction result REPRODUCED by a second, independent attempt. All 7 int_alu_ehi fields remain `untested`.",
+    "db_claim": "int_alu_ehi (0xef) located only in committed permissive Dawn/Tint std140 shaders.",
+    "evidence": [
+      "EXP-0146 run05 P4"
+    ],
+    "observed": "An independently authored own-MSL std140-shaped uniform->storage matrix copy (kernels/k_std140_matcopy.metal) compiled to imad/device_store and emitted no 0xef at all."
+  },
+  "mov_zext16.src_reg_is_inert_here": {
+    "corrected_model": "UNRESOLVED. Either byte+1 is not a source-register selector, or the operand is ALU-forwarded from the immediately preceding device_load making it a don't-care in this INSTANCE. run05/P3 attempted a carrier whose zext source is several instructions away; that MSL compiled to iadd2/funary and emitted no mov_zext16, so the question is OPEN. CONTRAST: shift_amt_move's byte+1, modelled the same way, IS load-bearing here (exactly 1 of 128 values works).",
+    "db_claim": "mov_zext16 byte+1 bits0-6 = 'source register descriptor', bit7 = 'uniform/special-file flag' (corpus-correlation, EXP-M4-13 R8, n=596).",
+    "evidence": [
+      "EXP-0146 arm E_mov_zext16",
+      "EXP-0146 arm F_shift_amt_move",
+      "EXP-0146 run05 P3"
+    ],
+    "observed": "ALL 128 values of bits0-6 and BOTH values of bit7 reproduce the exact zero-extend in the k_zext16 carrier, while the same instruction's subform byte faults on 26 values and silently zeros on 39 -- so the instruction is live and the field is inert."
+  },
+  "n3_mov.srcA_reg_is_inert_here": {
+    "corrected_model": "Same open question as mov_zext16: inert in this instance. A carrier whose n3_mov result is observable at register granularity is needed.",
+    "db_claim": "n3_mov byte+1 bits0-6 = source register, bit7 = uniform/high-half flag.",
+    "evidence": [
+      "EXP-0146 arm G_n3_mov"
+    ],
+    "observed": "All 128 values of srcA_reg, both values of srcA_uni and all 16 values of dst reproduce the result in the k_u64eq carrier, while subform faults on 32 values."
+  },
+  "sfu_marker.is_not_byte_invariant": {
+    "corrected_model": "A 2-byte control word with 6 don't-care bits and at least one live quadrant/sign control bit -- not an invariant token. It should carry fields, and the instruction descriptor should not be field-less.",
+    "db_claim": "sfu_marker: 'Byte-INVARIANT 2-byte token (06 02) ... Fixed control token with no operand bits' (provenance: byte-diff EXP-M4-13 R2, compile-only, 59 corpus occurrences).",
+    "evidence": [
+      "EXP-0146 run01/run03 arm K_sfu_marker (512 cases, 0 unresolved after run04)"
+    ],
+    "observed": "Both bytes are load-bearing on hardware. byte+0: only (v & 0xF7) == 0x06 works (2 of 256); 62 values return a WRONG value and 192 silently zero. byte+1: only (v & 0x13) == 0x02 works (32 of 256). Setting byte+0 to 0x00 FLIPS THE SIGN of fast::sin on exactly the rows whose argument requires range reduction (|x| > pi/2), leaving the small-argument rows correct."
+  },
+  "sr_read_wide.carrier_found_but_not_executable": {
+    "corrected_model": "Not a db defect: a TESTBED gap. All 6 sr_read_wide fields remain `untested`. Concrete next step: extend tools/agxtest/agxrun_persist.m with setAccelerationStructure: binding.",
+    "db_claim": "sr_read_wide located over an own-MSL + thirdparty corpus (EXP-M4-13, n=996).",
+    "evidence": [
+      "EXP-0146 run05 P4",
+      "EXP-0146 run06"
+    ],
+    "observed": "Our own intersection_query kernel (kernels/k_rayquery.metal) DOES emit three sr_read_wide instances (offsets 856, 864, 1494). It executes (STATUS OK) but returns all zeros, because agxrun_persist binds MTLBuffers only and cannot bind an MTLAccelerationStructure, so q.next() never enters the loop and the getters never reach the output."
+  }
+}

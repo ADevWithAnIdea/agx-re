@@ -1,0 +1,50 @@
+[
+  {
+    "claim": "`operand` is modelled as ONE 40-bit `raw` field (byte+3..+7) described as a MIXED popcount-source / SFU-interp / format-conversion coefficient word.",
+    "evidence": "raw/m4_20260828_run0{1,2}/sweep.jsonl arm=IUNARY; analysis/field_stats.json",
+    "finding": "In the 8-byte byte0==0x27 space it is NOT one field. It is five one-byte sub-fields with EXACTLY `ibitcount`'s meanings: byte+3 dst (reg<<1), byte+4 op_enable (bit 1), byte+5 src (reg<<2), byte+6 srcdesc, byte+7 tail (bit 2). Established on programs that tokenize as `iunary`, NOT as `ibitcount` (byte+1 = 0x2d, so the tighter match loses), with the src and dst models matching 16/16 and 15/16 over mov_imm-seeded registers and both remaining bytes swept densely 0..255.",
+    "id": "DEF-0139-1",
+    "recommendation": "split `iunary.operand` into the five named sub-fields for the byte0==0x27 / length-8 space. The RT (opsel 0x22 with byte+1==0x81) and interp/convert siblings are a DIFFERENT length class and are not covered by this finding.",
+    "where": "tools/agx-isa/db.json :: iunary.operand"
+  },
+  {
+    "claim": "`width = 1,4,8,12,16 -> 0x10/0x40/0x80/0xc0/0x100; width=0 means extract-to-MSB`.",
+    "evidence": "raw/m4_20260828_run0{1,2}/sweep.jsonl arm=IBFE field=width/offset",
+    "finding": "Correct as far as it goes but incomplete in the way that matters to an emitter: `width` is taken MOD 32. Dense 0..63 -- the mod-32 model fits 64/64 stable values, a literal/clamp-at-32 model fits only 37/64. width \u2261 0 (mod 32) is the no-mask (extract-to-MSB) case, so width=32 behaves exactly like width=0. `offset` on the SAME instruction is the opposite: literal, with 32..63 shifting the field out entirely (0). ",
+    "id": "DEF-0139-2",
+    "recommendation": "state both rules explicitly, and note the asymmetry; it is the bare-instruction answer to EXP-0102's own recommended follow-up.",
+    "where": "tools/agx-isa/db.json :: ibfe semantics note"
+  },
+  {
+    "claim": "`single-template-inference`, `0x04 marker in every observed instance`.",
+    "evidence": "raw/m4_20260828_run0{1,2}/sweep.jsonl arm=IBITCOUNT field=tail",
+    "finding": "Only BIT 2 is load-bearing. All 128 values with bit2 set compute the correct popcount; all 128 with bit2 clear return a wrong constant. Dense 0..255 on a fully synthesized program, deterministic across two gated launches.",
+    "id": "DEF-0139-3",
+    "recommendation": "promote to hardware-run with the bit-2 rule; this was the ONLY field blocking `ibitcount`.",
+    "where": "tools/agx-isa/validation.json :: ibitcount.tail"
+  },
+  {
+    "claim": "registers alias r(R mod 64) for R in [64,112] and fault at 126/127.",
+    "evidence": "raw/m4_20260828_run0{1,2}/sweep.jsonl arm=IADD2 field=dst; raw/m4_20260828_reval01/revalidate.jsonl",
+    "finding": "Does NOT transfer to `iadd2.dst`. At dst=140/141 (reg 70, which would alias r6) the sum did not appear in r6. And the fault boundary is much lower here: reg >= 96 (dst >= 192) faults REPRODUCIBLY over 60 dense values (5/5 attempts each, healthy baselines), consistent with EXP-0020's `up to 96 regs`.",
+    "id": "DEF-0139-4",
+    "recommendation": "scope EXP-0112's aliasing claim to the families it was measured on; do not generalize it to iadd2's destination field.",
+    "where": "cross-experiment: EXP-0112 register-aliasing rule"
+  },
+  {
+    "claim": "`adopts the isel8 field layout` -- inferred, never observed.",
+    "evidence": "raw/m4_20260828_run0{1,2}/sweep.jsonl arm=ISEL_REG8",
+    "finding": "EXTRAPOLATE-AND-TEST: constructing it by rewriting the `isel8` anchor's byte+2 from 0x0f to 0x25 produces an instruction the hardware ACCEPTS and executes deterministically (it changes the result rather than faulting), and all seven of its fields respond to a dense 0..255 sweep. The layout claim survives; the instruction is real and reachable even though our own compiler never emits it.",
+    "id": "DEF-0139-5",
+    "recommendation": "keep the descriptor; record that it is hardware-reachable by construction, not merely inferred.",
+    "where": "tools/agx-isa/db.json :: isel_reg8 (no corpus instance)"
+  },
+  {
+    "claim": "n/a",
+    "evidence": "raw/m4_20260828_run02/03_baseline.jsonl; analysis/verdicts.py header",
+    "finding": "The ICMPSEL arm was fed the INTEGER input vector while its host oracle was computed from the float vector (mode == 'float_in' never equalled the 'float' the input selector tested for). Found by the newly mandated periodic baseline re-validation, not by inspection. The captured bytes are exactly what `(a<b)?1:0` produces for A_IN/B_IN reinterpreted as float32 with denormals flushed to zero, so the arm's observations are sound and are scored against its own gated baseline instead.",
+    "id": "DEF-0139-6",
+    "recommendation": "none for db.json; recorded so a reader can see why ICMPSEL's reference is its observed baseline rather than a host formula.",
+    "where": "this experiment's own harness (self-reported)"
+  }
+]

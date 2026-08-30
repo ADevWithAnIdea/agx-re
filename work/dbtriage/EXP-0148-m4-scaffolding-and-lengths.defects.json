@@ -1,0 +1,73 @@
+{
+  "falu2_ext8b": {
+    "defect": "DESCRIPTOR MODELS NOTHING \u2014 100% length-rule artifact",
+    "detail": "Its match is exactly byte0 low-nibble 9 AND op-select bits1,2 == 0, i.e. precisely the op-select {0,1} space, while declaring length 8. Correcting the low-nibble-9 length rule so op-select {0,1} selects the 4-byte compact form drops it from 45 firings (strict) / 146 (resync) to ZERO in both. The 193/250 'embedded op leaders' DOC-02 recorded were the following instructions' leader bytes.",
+    "corrected_model": "delete; the bytes are falu_compact4 (4 bytes) + a following real instruction",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "corpus-correlation",
+    "target": "M4"
+  },
+  "tg_atomic_prep": {
+    "defect": "WRONG LENGTH \u2014 8 should be 10",
+    "detail": "34/34 corpus firings are immediately followed by a 2-byte word, on a PERFECT partition of byte+4 bit5: `0b 00 06 00 20 00 00 14` (18x) is always followed by `00 00`, and `0b 00 06 00 00 00 00 00` (16x) always by `60 00`. The parent is never observed without its trailing parcel. Independently, the 0x?b 10-byte class rule (byte+2 & 0x06)==0x06 assigns it length 10 on op-select grounds alone.",
+    "corrected_model": "tg_atomic_prep10, length 10; absorbs 16 frame_marker_compact + 18 pad_operand phantom tokens with zero change to any tokenization metric",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "corpus-correlation",
+    "target": "M4"
+  },
+  "half_alu_fma12": {
+    "defect": "MATCH TOO BROAD (length 12 claimed for all byte0==0x10)",
+    "detail": "The 12-byte length is CORRECT for arithmetic op-selects \u2014 the HW-VALIDATED own-MSL k_hfma_abs `10 02 1e 03 83 04 00 00 00 80 01 00` is a genuine 12-byte fp16 fma. The over-consumption comes from applying 6+2*(byte+4&3) to the COMPACT form, where byte+4 is the next instruction's leader. Worked proof: sp_isum_f16 is exactly 4+14+8+4+14+4 = 48 bytes with `10 02 18 03` at 4 bytes and a canonical 14-byte device_store after it; the fixed 12 swallowed that store's leader.",
+    "corrected_model": "add the compact fp16 4-byte form (half_compact4) for byte+2 in {0x18,0x19,0x21,0x30,0x31,0x38,0x39}; keep 12 for arithmetic op-selects; keep emit_unsafe",
+    "caveat": "byte0 0x10 is OVERLOADED \u2014 it is also a legal low-nibble-0 two-byte operand/pad word. The broad op-select-{0,1} generalisation that is correct for the 0x09 group was TESTED AND REFUTED here (7 files broken).",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "corpus-correlation",
+    "target": "M4"
+  },
+  "op04_len8": {
+    "defect": "OVER-CONSUMES, discriminator NOT FOUND",
+    "detail": "Over-consumption directly demonstrated: `04 00 d9 a1 2c 83 80 00 | c9 a1 2c a1 80 00` is a 2-byte word plus TWO clean 6-byte falu2i, and `04 00 e1 19 1c 81 06 02` is a 2-byte word plus a clean 6-byte cvt_f2h. But six candidate rules (flat 2, flat 4, and four byte+1-conditional forms) ALL measured worse than leaving it at 8. byte+1 is not the discriminator.",
+    "corrected_model": "UNKNOWN \u2014 keep length 8 and emit_unsafe; needs a splice",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "untested",
+    "target": "M4"
+  },
+  "cubearray_coord_const": {
+    "defect": "UNREACHABLE / over-fitted match",
+    "detail": "0 firings in 1080 files in both walks. In k_tex_array_cube.hex, the kernel it is named after, its `f0 c0 04` signature is at byte offset 48 \u2014 interior to the 12-byte tex_addr_setup token spanning 40..52 \u2014 so it cannot fire. Its only exercise is the literal 4-byte string in roundtrip_test.py, whose length resolution depends on the _r9_succ_safe lookahead guard seeing the FOLLOWING bytes fail to decode; two unrelated op04 length experiments in this run therefore broke it silently.",
+    "corrected_model": "UNKNOWN \u2014 flag; do not delete without a texture-stage splice",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "untested",
+    "target": "M4"
+  },
+  "_roundtrip_guard_fragility": {
+    "defect": "_r9_succ_safe makes some lengths depend on the NEXT instruction failing to decode",
+    "detail": "cubearray_coord_const's 4-byte resolution flips to 2 as soon as an UNRELATED length rule (op04_len8 -> 2) makes the following bytes decodable. A length that depends on a successor's undecodability is not a length rule; it is a resync heuristic, and it makes round-trip a non-local test. Recorded as a tooling defect, not an ISA fact.",
+    "corrected_model": "UNKNOWN",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "untested",
+    "target": "M4"
+  },
+  "operand_word_x2_h5_h6_h7": {
+    "defect": "three descriptors encode ONE inexpressible constraint",
+    "detail": "They exist only because b_alu14_prep2's match cannot express its own invariant byte+1 == (dst<<1)|1: the match language is (start,width,value) triples with no cross-field form. LOAD-BEARING \u2014 deleting them without extending the language would let genuine data words decode as b_alu14_prep2.",
+    "corrected_model": "extend the match language with a cross-field predicate, then collapse all three into operand_word",
+    "evidence": [
+      "EXP-0148"
+    ],
+    "label": "tokenization-only",
+    "target": "M4"
+  }
+}

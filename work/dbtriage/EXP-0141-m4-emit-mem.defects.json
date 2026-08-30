@@ -1,0 +1,25 @@
+{
+  "atomic_operand_register": {
+    "claim": "The RMW operand register of atomic_mem / atomic_rmw IS encoded in the instruction, in byte+5 bit 7 and byte+6 bits 0..5, as an index into the operand register window. db.json states it 'is implicit (supplied by the preceding op / amode)' and DOC-02 section 3 row 9 ranks it a MISSING field -- 'the worst kind of gap for an emitter'.",
+    "conflicts_with": "db.json/validation.json call byte+5 `index_reg` ('per-lane index GPR, zeroed for a uniform address') and byte+6 `addr_desc` ('framing only'). Our atdevimm carrier uses a UNIFORM address yet the compiler emits byte+5/+6 = 0x80/0x02, which the per-lane reading does not explain. The address role is not excluded for the per-lane form; the DATA role is now proven for the uniform form.",
+    "corollary": "The redirected register is CONSUMED -- its later reader gets 0 -- which is the same register-release contract EXP-0086/0089/0099 document for the ALU families.",
+    "evidence": "Carrier kernels/atomic_dev.metal keeps a[0..3] = 7/1007/2007/3007 live across atomic_fetch_add(o, a[0]). Baseline byte+5/+6 = 0x00/0x00 -> the counter is 7. byte+5 = 0x80 -> the counter is 1007 AND the later store of a[1]'s register reads 0. byte+6 = 0x01 (also 0x41/0x81/0xC1, so bits 6-7 are don't-care) -> the counter is 2007 AND a[2]'s later reader reads 0. Identical in both gated runs.",
+    "model": "operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects. PROVEN AT ALL FOUR CONSTRUCTIBLE INDICES: 0 -> a[0] = 7, 1 -> a[1] = 1007, 2 -> a[2] = 2007, and -- built for the first time by addendum arm `atdev_operand_pair` (byte+5 pinned 0x80, byte+6 swept densely) -- 3 -> a[3] = 3007, each with the redirected register's later reader zeroed. byte+6 bits 6 and 7 are DON'T CARE (0x01/0x41/0x81/0xC1 all give index 3). The `<< 1` multiplier is no longer interpolated.",
+    "residual_unknown": "With byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two cases in the addendum whose acceptance disagreed between run21 and run22. Unexplained; recorded."
+  },
+  "device_load_addr_mode_not_an_enum": {
+    "caveat": "Only the terminal scalar 32-bit shape was tested. The enum may still select behaviour for the base-sharing / CF / RT forms it names.",
+    "claim": "device_load byte+2 (`addr_mode`) is INERT for a terminal scalar 32-bit indexed load: all 256 values load correctly, including every code in db.json's enum."
+  },
+  "device_load_dst_fields": {
+    "claim": "device_load.dst_lo and dst_ext9 carry NO register information. dst_lo must be exactly 1; only bit 0 of dst_ext9 is live and must be 1. Three constrained bits out of the nine the two fields span; the other six are don't-care.",
+    "evidence": "4/4 dst_lo values and 128/128 dst_ext9 values swept at four independent target registers (3, 7, 20, 33), plus the full 512-value 2-D product at r7. The accepted set is identical at every target register.",
+    "supersedes": "EXP-M4-13's dst = dst_lo | (dst_ext9 << 2) (already retracted by EXP-0101) and EXP-0101's own operational advice to copy the pair verbatim per addr_mode/ld_format shape. The pair is a fixed 3-bit enable pattern, not a per-shape token."
+  },
+  "device_store_addr_mode_bit1_is_context_dependent": {
+    "claim": "device_store byte+2 bit 1 selects the DATA SOURCE: clear = ALU-computed, set = direct live load-result. It is inert when the data is ALU-computed (256/256 pass), which is the configuration EXP-0119 measured and reported as 'INERT here'; with a load-forwarded source only the 128 bit1-set values work and the other 128 store 0."
+  },
+  "reserved_fields_that_are_not_reserved": {
+    "claim": "atomic_mem.rsv10 (4 of 256 values work), atomic_mem.rsv11 (1 of 256), atomic_tg.rsv4 (4 of 256), atomic_tg.rsv6 (2 of 256) and atomic_tg.rsv9 (1 of 256) are LIVE, heavily constrained bytes, not reserved padding. device_load.reserved7/reserved13 and device_store.reserved7/reserved13 ARE genuinely inert (256/256 each)."
+  }
+}

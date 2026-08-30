@@ -41,6 +41,13 @@
     <value value="1">immediate</value>
   </enum>
 
+  <enum kind="falu2_srcB_class" name="falu2 srcB_class">
+    <value value="0" label="GPR (srcB_reg)">GPR</value>
+    <value value="1" label="non-GPR file / inline immediate (srcB_reg)">non_GPR_file_inline_immediate</value>
+    <value value="2" label="reads 0.0">reads_0_0</value>
+    <value value="3" label="reads 0.0">reads_0_0</value>
+  </enum>
+
   <enum kind="funary_mod" name="funary mod">
     <value value="0">mov</value>
     <value value="2">abs</value>
@@ -368,6 +375,13 @@
     <value value="86">standalone</value>
   </enum>
 
+  <enum kind="matrix_mac_dst_en" name="matrix_mac dst_en">
+    <value value="0" label="silent zero (bit6 clear)">silent_zero</value>
+    <value value="1" label="correct result (bit6 set, bit7 clear)">correct_result</value>
+    <value value="2" label="silent zero">silent_zero</value>
+    <value value="3" label="wrong value (bit7 set)">wrong_value</value>
+  </enum>
+
   <enum kind="matrix_mac_acc_en" name="matrix_mac acc_en">
     <value value="0">multiply</value>
     <value value="1">multiply_accumulate</value>
@@ -443,6 +457,7 @@
     <value value="0" label="CF-edge fence (break/continue)">CF_edge_fence</value>
     <value value="2" label="CF-edge fence (variant)">CF_edge_fence</value>
     <value value="34" label="pre-call / pre-atomic register+scoreboard fence">pre_call_pre_atomic_register_scoreboard_fence</value>
+    <value value="66" label="device+texture fence (0x42; own-MSL k_atomic, role not established)">device_texture_fence</value>
     <value value="192" label="wide/device-order fence (inferred)">wide_device_order_fence</value>
     <value value="194" label="wide/device-order fence (inferred)">wide_device_order_fence</value>
   </enum>
@@ -477,6 +492,11 @@
   <enum kind="iter_at_loc" name="iter_at loc">
     <value value="1">centroid</value>
     <value value="3">sample</value>
+  </enum>
+
+  <enum kind="tile_read_read_en" name="tile_read read_en">
+    <value value="0" label="SILENT ZERO (even values)">SILENT_ZERO</value>
+    <value value="1" label="read enabled (odd values)">read_enabled</value>
   </enum>
 
   <enum kind="imageblock_store_fmt" name="imageblock_store fmt">
@@ -540,9 +560,26 @@
     <value value="3" label="op computes (bit1 set)">op_computes</value>
   </enum>
 
+  <enum kind="pack_convert_fmt_sel" name="pack_convert fmt_sel">
+    <value value="64" label="snorm2x16 (0x4x)">snorm2x16</value>
+    <value value="128" label="unorm2x16 (0x8x)">unorm2x16</value>
+    <value value="192" label="unorm 8-bit lanes (0xcx)">unorm_8_bit_lanes</value>
+  </enum>
+
   <enum kind="unpack_convert_cache" name="unpack_convert cache">
     <value value="84" label="cache/last-use">cache_last_use</value>
     <value value="86">fresh</value>
+  </enum>
+
+  <enum kind="unpack_convert_fmt_sel" name="unpack_convert fmt_sel">
+    <value value="0" label="unorm8 (0x0a)">unorm8</value>
+    <value value="2" label="snorm16 (0x2a)">snorm16</value>
+    <value value="4" label="unorm16 (0x4a)">unorm16</value>
+    <value value="6" label="unorm8 (0x6a)">unorm8</value>
+    <value value="8" label="unorm8 (0x8a)">unorm8</value>
+    <value value="10" label="snorm16 (0xaa)">snorm16</value>
+    <value value="12" label="unorm16 (0xca)">unorm16</value>
+    <value value="14" label="unorm8 (0xea)">unorm8</value>
   </enum>
 
   <enum kind="tex_coord_setup_form" name="tex_coord_setup form">
@@ -714,7 +751,8 @@
     <src name="srcB_reg" bit="25:30"/>
     <modifier name="ctrl" bit="32:38"/>
     <modifier name="srcB_imm" bit="39" kind="immsel"/>
-    <modifier name="mod_lo" bit="40:42"/>
+    <modifier name="srcA_class" bit="40"/>
+    <modifier name="srcB_class" bit="41:42" kind="falu2_srcB_class"/>
     <modifier name="srcB_neg" bit="43"/>
     <modifier name="mod_hi" bit="44:47"/>
     <modifier name="srcA_reg_top" bit="15"/>
@@ -777,10 +815,10 @@
   <group name="falu3" length="8" label="d = +/-(a*b) + c">
     <exact bit="0:3">1001</exact>
     <exact bit="16:23">op</exact>
-    <dest name="dst_lo" bit="4:7"/>
-    <dest name="dst" bit="8:15"/>
-    <src name="srcA" bit="24:31"/>
-    <src name="srcB" bit="32:39"/>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ctrl_len" bit="32:39"/>
     <src name="srcC" bit="40:47"/>
     <modifier name="ctrl" bit="48:55"/>
     <modifier name="srcmods" bit="56:63"/>
@@ -828,10 +866,10 @@
   <group name="falu3_ext" length="10" label="d = saturate?( a*b + c )">
     <exact bit="0:3">1001</exact>
     <exact bit="16:23">op</exact>
-    <dest name="dst_lo" bit="4:7"/>
-    <dest name="dst" bit="8:15"/>
-    <src name="srcA" bit="24:31"/>
-    <src name="srcB" bit="32:39"/>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ctrl_len" bit="32:39"/>
     <src name="srcC" bit="40:47"/>
     <!-- ext [48:79]: inferred / not yet bit-decoded -->
     <zero bit="48:79"/>
@@ -1141,7 +1179,9 @@
     <src name="srcA" bit="8:15"/>
     <modifier name="op_base" bit="16" kind="ilogic_op_base"/>
     <src name="srcB" bit="24:31"/>
-    <modifier name="lut_a" bit="32:39"/>
+    <modifier name="lut_a_sel" bit="32:33"/>
+    <modifier name="lut_a_free" bit="34:36"/>
+    <modifier name="lut_a_z" bit="37:39"/>
     <modifier name="lut_b" bit="40:47"/>
     <!-- z6 [48:55]: inferred / not yet bit-decoded -->
     <zero bit="48:55"/>
@@ -1206,8 +1246,9 @@
   <!-- provenance: HW-VALIDATED behaviour (EXP-0010 E3 dsel: compare-imm splice flips the chosen value, no jump). clean tokenization; fields byte-diff. -->
   <ins name="sel" length="4" label="d = pred ? A : B">
     <exact bit="0:7">00010110</exact>
-    <!-- body [8:31]: inferred / not yet bit-decoded -->
-    <zero bit="8:31"/>
+    <modifier name="b1" bit="8:15"/>
+    <modifier name="b2" bit="16:23"/>
+    <immediate name="selFalse" bit="24:31"/>
   </ins>
 
   <!-- psel: d = pred ? A : B -->
@@ -1279,8 +1320,8 @@
     <modifier name="access_desc" bit="48:55" kind="device_load_access_desc"/>
     <modifier name="reserved7" bit="56:63"/>
     <modifier name="ld_format" bit="64:69" kind="device_load_ld_format"/>
-    <dest name="dst_lo" bit="70:71"/>
-    <dest name="dst_ext9" bit="72:78"/>
+    <modifier name="dst_lo" bit="70:71"/>
+    <modifier name="dst_ext9" bit="72:78"/>
     <immediate name="idx_off" bit="79:89"/>
     <modifier name="ldform_hi11" bit="90:95"/>
     <immediate name="elem_size" bit="96:103"/>
@@ -1496,8 +1537,10 @@
     <modifier name="amode" bit="16:23"/>
     <modifier name="rsv3" bit="24:31"/>
     <immediate name="base_slot" bit="32:39"/>
-    <src name="index_reg" bit="40:47"/>
-    <modifier name="addr_desc" bit="48:55"/>
+    <src name="index_reg" bit="40:46"/>
+    <src name="oper_reg_lo" bit="47"/>
+    <src name="oper_reg_hi" bit="48:53"/>
+    <modifier name="addr_desc_hi" bit="54:55"/>
     <modifier name="ret_flag" bit="56:63"/>
     <modifier name="ret_desc" bit="64:71"/>
     <modifier name="idx_off" bit="72:79"/>
@@ -1531,8 +1574,10 @@
     <modifier name="amode" bit="16:23"/>
     <modifier name="rsv3" bit="24:31"/>
     <immediate name="base_slot" bit="32:39"/>
-    <src name="index_reg" bit="40:47"/>
-    <modifier name="addr_desc" bit="48:55"/>
+    <src name="index_reg" bit="40:46"/>
+    <src name="oper_reg_lo" bit="47"/>
+    <src name="oper_reg_hi" bit="48:53"/>
+    <modifier name="addr_desc_hi" bit="54:55"/>
     <modifier name="ret_flag" bit="56:63"/>
     <modifier name="ret_desc" bit="64:71"/>
     <modifier name="idx_off" bit="72:79"/>
@@ -1571,13 +1616,14 @@
     <src name="b_reg" bit="48:55"/>
     <src name="c_src" bit="56:63"/>
     <dest name="dst" bit="64:71"/>
-    <!-- dst_desc [72:79]: inferred / not yet bit-decoded -->
-    <zero bit="72:79"/>
+    <modifier name="dst_desc_lo" bit="72:77"/>
+    <modifier name="dst_en" bit="78:79" kind="matrix_mac_dst_en"/>
     <!-- opcode-select op_enable [80:87]: inferred / not yet bit-decoded -->
     <zero bit="80:87"/>
     <modifier name="acc_en" bit="88" kind="matrix_mac_acc_en"/>
-    <!-- b11hi [89:95]: inferred / not yet bit-decoded -->
-    <zero bit="89:95"/>
+    <modifier name="c_neg_half" bit="89"/>
+    <modifier name="c_neg_all" bit="90"/>
+    <modifier name="b11_rsv" bit="91:95"/>
   </ins>
 
   <!-- rt_intersect: DEDICATED ray-intersection instruction (the raytracing:: intersect primitive) -->
@@ -1816,8 +1862,8 @@
     <!-- b4 [32:39]: inferred / not yet bit-decoded -->
     <zero bit="32:39"/>
     <immediate name="rt_index" bit="40:47"/>
-    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
-    <zero bit="48:55"/>
+    <modifier name="read_en" bit="48" kind="tile_read_read_en"/>
+    <modifier name="b6_hi" bit="49:55"/>
     <!-- b7 [56:63]: inferred / not yet bit-decoded -->
     <zero bit="56:63"/>
     <!-- tail [64:95]: inferred / not yet bit-decoded -->
@@ -2018,10 +2064,13 @@
     <exact bit="16:23">01010110</exact>
     <modifier name="src_desc" bit="8:15"/>
     <!-- fmt_class [16:23]: constant, pinned by match/opcode -->
-    <src name="src" bit="24:31"/>
+    <dest name="dst" bit="24:31"/>
     <modifier name="mode" bit="32:39"/>
-    <!-- fmt_word [40:79]: inferred / not yet bit-decoded -->
-    <zero bit="40:79"/>
+    <src name="src_lane0" bit="40:47"/>
+    <src name="src_lane1" bit="48:55"/>
+    <modifier name="b7" bit="56:63"/>
+    <modifier name="cvt_enable" bit="64:71"/>
+    <modifier name="fmt_sel" bit="72:79" kind="pack_convert_fmt_sel"/>
   </ins>
 
   <!-- unpack_convert: packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2 -->
@@ -2032,10 +2081,12 @@
     <!-- src_class [12:15]: inferred / not yet bit-decoded -->
     <zero bit="12:15"/>
     <modifier name="cache" bit="16:23" kind="unpack_convert_cache"/>
-    <!-- convert_desc [24:55]: inferred / not yet bit-decoded -->
-    <zero bit="24:55"/>
+    <dest name="dst" bit="24:31"/>
+    <modifier name="inert4" bit="32:39"/>
+    <src name="src" bit="40:47"/>
+    <modifier name="opdesc" bit="48:55"/>
     <modifier name="size" bit="56:59"/>
-    <src name="reg_sel" bit="60:63"/>
+    <modifier name="fmt_sel" bit="60:63" kind="unpack_convert_fmt_sel"/>
   </ins>
 
   <!-- vary_store: uvs_buffer[slot] = reg[src] -->
@@ -2090,9 +2141,8 @@
     <exact bit="0:3">0010</exact>
     <exact bit="16:23">00110101</exact>
     <dest name="dst" bit="4:7"/>
-    <!-- subop [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
-    <src name="srcA" bit="24:31"/>
+    <src name="srcA" bit="8:15"/>
+    <src name="srcB" bit="24:31"/>
     <modifier name="cmpmode" bit="32:39"/>
     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
     <zero bit="40:47"/>
@@ -2429,8 +2479,8 @@
     <!-- b4 [32:39]: inferred / not yet bit-decoded -->
     <zero bit="32:39"/>
     <immediate name="rt_index" bit="40:47"/>
-    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
-    <zero bit="48:55"/>
+    <modifier name="read_en" bit="48" kind="tile_read_read_en"/>
+    <modifier name="b6_hi" bit="49:55"/>
     <!-- fmt [56:63]: inferred / not yet bit-decoded -->
     <zero bit="56:63"/>
     <!-- tail [64:95]: inferred / not yet bit-decoded -->
