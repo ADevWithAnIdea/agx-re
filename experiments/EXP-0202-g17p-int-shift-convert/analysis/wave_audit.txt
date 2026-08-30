@@ -1,0 +1,67 @@
+
+=== experiments/EXP-0202-g17p-int-shift-convert
+  b_alu10_lo7.src_flag               untested
+       records=21     via field-keyed            runs=4
+       V(distinct VALID payloads)=14    L(legal values)=2      
+       distinct oracles=6     
+       distinct encodings dispatched=6     
+       hard outcomes (NOT movement): none
+       cross-run agreement: 0.00% (2/2 disagree)
+  cvt_f2i._instruction               hardware-run
+       NO RAW RECORDS under either keying  <-- claim unsupported by this raw
+  cvt_f2i.b9                         single-template-inference
+       records=4656   via field-keyed            runs=4
+       V(distinct VALID payloads)=124   L(legal values)=256    
+       distinct oracles=12    
+       distinct encodings dispatched=1536  
+       hard outcomes (NOT movement): none
+       cross-run agreement: 16.80% (213/256 disagree)
+  cvt_f2i.signflag                   untested
+       records=776    via field-keyed            runs=4
+       V(distinct VALID payloads)=144   L(legal values)=256    
+       distinct oracles=4     
+       distinct encodings dispatched=256   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 18.75% (208/256 disagree)
+  ibitcount.cache                    isolated-byte-diff
+       records=67     via field-keyed            runs=4
+       V(distinct VALID payloads)=61    L(legal values)=2      
+       distinct oracles=19    
+       distinct encodings dispatched=16    
+       hard outcomes (NOT movement): none
+       cross-run agreement: 0.00% (2/2 disagree)
+  ibitcount.dst                      isolated-byte-diff
+       records=3616   via field-keyed            runs=4
+       V(distinct VALID payloads)=141   L(legal values)=256    
+       distinct oracles=12    
+       distinct encodings dispatched=1280  
+       hard outcomes (NOT movement): {'fault': 904}
+       cross-run agreement: 17.71% (158/192 disagree)
+  irotate.operands                   isolated-byte-diff
+       records=9738   via field-keyed            runs=4
+       V(distinct VALID payloads)=1603  L(legal values)=320    
+       distinct oracles=138   
+       distinct encodings dispatched=2441  
+       hard outcomes (NOT movement): {'fault': 468}
+       cross-run agreement: 24.92% (232/309 disagree)
+  iunary.b1                          untested
+       records=1552   via field-keyed            runs=4
+       V(distinct VALID payloads)=65    L(legal values)=256    
+       distinct oracles=6     
+       distinct encodings dispatched=512   
+       hard outcomes (NOT movement): {'fault': 584}
+       cross-run agreement: 21.88% (200/256 disagree)
+  iunary.opsel                       untested
+       records=1552   via field-keyed            runs=4
+       V(distinct VALID payloads)=56    L(legal values)=256    
+       distinct oracles=6     
+       distinct encodings dispatched=512   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 14.45% (219/256 disagree)
+  shift_amt_move.src_flag            untested
+       records=332    via field-keyed            runs=4
+       V(distinct VALID payloads)=102   L(legal values)=2      
+       distinct oracles=14    
+       distinct encodings dispatched=36    
+       hard outcomes (NOT movement): none
+       cross-run agreement: 0.00% (2/2 disagree)

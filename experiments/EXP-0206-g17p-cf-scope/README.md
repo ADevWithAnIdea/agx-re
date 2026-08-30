@@ -84,8 +84,12 @@ python3 analysis/freeze_contract.py
 bash harness/sync.sh push ; python3 harness/verify_remote.py
 bash harness/sync.sh shell 'cd ~/agxre/EXP-0206 && python3 -B run.py --run-id g17p_20260830_run03 --order forward'
 bash harness/sync.sh shell 'cd ~/agxre/EXP-0206 && python3 -B run.py --run-id g17p_20260830_run04 --order reversed'
+# run04 was stopped partway; the arms it never reached were captured under NEW ids:
+bash harness/sync.sh shell 'cd ~/agxre/EXP-0206 && python3 -B run.py --run-id g17p_20260830_run05 --order shuffled:206 --carriers cf_nl3,cf_ifnl,cl_pure,cl_ldret,cl_stacross'
+bash harness/sync.sh shell 'cd ~/agxre/EXP-0206 && python3 -B run.py --run-id g17p_20260830_run06 --order shuffled:307 --carriers cf_nl2'
 bash harness/sync.sh pull
-python3 analysis/verdicts206.py raw/g17p_20260830_run03 raw/g17p_20260830_run04
+python3 analysis/verdicts206.py raw/g17p_20260830_run03 raw/g17p_20260830_run04 \
+                                raw/g17p_20260830_run05 raw/g17p_20260830_run06
 python3 ../../tools/agx-isa/wave_audit.py .
 ```
 
@@ -98,6 +102,12 @@ python3 ../../tools/agx-isa/wave_audit.py .
   up, and its id is never reused. Why it was killed, and the arm reduction it forced, are
   contract amendment 5 in `CAPTURE_CONTRACT.json` and §A2.1 of `PRE_REGISTRATION_A2.md`.
 * `raw/smoke_20260830_s01/` — a 36-case smoke test of the amended harness (calibration).
+* `raw/g17p_20260830_run04/` — the reversed-order gated run, **stopped at 3,824 of 5,231 cases**
+  while grinding the genuinely hang-heavy `if_push.scope@cf_nl2+106` arm. Retained exactly as it
+  is, never topped up, id never reused. The six arms it never reached were captured under **new**
+  ids: `g17p_20260830_run05` (shuffled, seed 206, the five carriers holding those arms) and
+  `g17p_20260830_run06` (shuffled, seed 307, `cf_nl2`, completing the second pass on the arm run04
+  was stopped inside).
 
 ## Clean-room attestation
 

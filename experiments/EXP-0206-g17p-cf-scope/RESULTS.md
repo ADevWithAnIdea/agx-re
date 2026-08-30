@@ -80,13 +80,25 @@ A symmetric assemble/disassemble round trip is not used anywhere in this experim
 Throughout both gated runs the neo carried **8–21 other GPU processes** from sibling experiments
 (EXP-0200, EXP-0201, EXP-0202, EXP-0207). Consequences, stated rather than hidden:
 
-* **No verdict here claims `independently-confirmed`.** The reproducibility axis is capped at
-  `auditable`.
+* **No verdict here claims `independently-confirmed`.** Per the orchestrator's ruling of
+  2026-08-30, **Gate E is currently unmeetable for the whole wave** — EXP-0204's dedicated
+  quiet-window helper sampled 86 times and never once found a quiet machine, with up to 17
+  concurrent foreign GPU processes. Every reproducibility axis here therefore reads
+  **`INCOMPLETE - Gate E not met`**, even on the rows where the two runs agree perfectly. A
+  serialized quiet confirmation is owed and is listed in §6.
 * Contamination is concentrated in the **fault** cases, where a device reset produces
   `InnocentVictim` on the retries. It is nearly absent from the **valid** cases that carry all the
   semantic content — e.g. 8 of 174 valid cases on the decisive `if_push` arm, 4 of 119 on the
   decisive `ret_luse` arm, 0 of 146 on the `stop@synth_mid` arms. This is EXP-0160's filter:
   contamination can destroy an observation but never fabricate a coherent one.
+* **EXP-0204 declared ~18 genuine device hangs from a budgeted `tex_deriv` mapping pass between
+  20:00 and 20:25 UTC.** Because this family faults and hangs *legitimately*, a foreign cascade in
+  that window would be easy to misattribute to `stop.reserved` or `pop_reconverge`. So it is
+  checked as a **computation over raw**, not asserted in prose: `verdicts206.py` re-scores any hard
+  outcome timestamped inside the window as `measurement_failure` and reports the count.
+  **Zero of this experiment's cases fall in it** — run03 spans 19:27:16–19:45:43Z, run04
+  19:31:00–19:50:28Z and run05 19:50–19:5xZ, all before the window opens. The `if_push` faults and
+  hangs reported in §2.1 are ours.
 * It is also why `g17p_20260830_run01` was killed at 152 cases: it measured **1.756 s/case**
   against the pilot's **0.234 s/case**. It is retained exactly as it is, never topped up, its id
   never reused, and no verdict cites it.
@@ -312,13 +324,13 @@ hit/checked tallies, and the `db_defects` block. Summary:
 
 | field | geometry | liveness | semantics | recipe | target | reproducibility | proposed legacy label |
 |---|---|---|---|---|---|---|---|
-| `if_push.scope` | geometry-mapped | **live** (1 of 4 occ) / accepted-inert (3 of 4) | hypothesis — both models refuted | not-generated | G17P-direct | auditable | `untested` |
-| `pop_reconverge.scope` | geometry-mapped | accepted-inert | bounded-map (`M3_inert`) | not-generated | G17P-direct | auditable | `untested` |
-| `pop_reconverge.reserved` | geometry-mapped | **live** (1 of 3) / carrier-undecidable (2 of 3) | hypothesis — both models refuted | not-generated | G17P-direct | auditable | `untested` |
-| `call.tail` | geometry-mapped | accepted-inert | bounded-map (`M1_inert`) | not-generated | G17P-direct | auditable | `untested` |
-| `ret.scoreboard` | geometry-mapped | accepted-inert | bounded-map (`M2_inert`) | not-generated | G17P-direct | auditable | `untested` |
-| `ret_luse.linkmode` | geometry-mapped | **live**, 2 distinct valid payloads | hypothesis — both models refuted | not-generated | G17P-direct | auditable | `untested` |
-| `stop.reserved` | geometry-mapped | accepted-inert, control firing | bounded-map (`M1_inert`) | not-generated | G17P-direct | auditable | `untested` |
+| `if_push.scope` | geometry-mapped | **live** (1 of 4 occ) / accepted-inert (3 of 4) | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `pop_reconverge.scope` | geometry-mapped | accepted-inert | bounded-map (`M3_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `pop_reconverge.reserved` | geometry-mapped | **live** (1 of 3) / carrier-undecidable (2 of 3) | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `call.tail` | geometry-mapped | accepted-inert | bounded-map (`M1_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `ret.scoreboard` | geometry-mapped | accepted-inert | bounded-map (`M2_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `ret_luse.linkmode` | geometry-mapped | **live**, 2 distinct valid payloads | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| `stop.reserved` | geometry-mapped | accepted-inert, control firing | bounded-map (`M1_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
 
 **Why every legacy label is `untested` rather than rounded up.** `PRE_REGISTRATION_A2.md` §A2.6
 caps the legacy label by the semantics axis, per Gate C: *`sem_checked == 0` or no surviving
@@ -326,18 +338,25 @@ pre-registered model can never produce `hardware-run`*. Three fields have live b
 explanatory model is post-hoc, and four read inert with a surviving *inertness* model — which is
 liveness plus a null, not a semantic map. The orchestrator may reasonably promote the four inert
 rows to `hardware-run` **within their exact stated envelopes**; this experiment does not do it on
-its own authority, because the reproducibility axis is `auditable` (busy machine) rather than
-`independently-confirmed`.
+its own authority, because **Gate E is unmet wave-wide** and the reproducibility axis is
+`INCOMPLETE` on every row.
 
 ---
 
 ## 4. Limitations, and how this method could have failed to say "no"
 
-1. **The machine was never quiet.** 8–21 sibling GPU processes throughout. Gate E's "two clean
-   runs" was met in *form* (two runs, reversed order, ledgers identical) but not in *quiet*. The
-   defence is the poisoned buffer, the sentinel, majority-of-3, `InnocentVictim` retries, and the
-   offline adjudication that contamination lands overwhelmingly on the fault cases. Any verdict
-   resting on a fault boundary is `auditable`, not `independently-confirmed`.
+1. **The machine was never quiet, and Gate E is unmeetable wave-wide.** 8–21 sibling GPU
+   processes throughout. Gate E's "two clean runs" was met in *form* (two runs in different case
+   orders, ledgers identical, agreement computed only over values valid in both) but not in
+   *quiet*. The defence is the poisoned buffer, the sentinel, majority-of-3, `InnocentVictim`
+   retries, and the offline adjudication that contamination lands overwhelmingly on the fault
+   cases. **Every row reads `reproducibility: INCOMPLETE - Gate E not met`.** A serialized quiet
+   confirmation is owed.
+   Relatedly, and worth carrying forward: EXP-0201 found that across 40,156 cases *every*
+   cross-run disagreement was a `fault` ⟷ `wrote-nothing` flip inside one pre-registered fault
+   class, and adjudicated agreement was 100.00%. Much of this family lives on a fault boundary, so
+   hard outcomes are partitioned out of the payload set before anything is called unstable — which
+   is why no arm here is reported as unstable.
 2. **A shared observation path.** Every arm reads back 32 per-lane words at fixed addresses plus a
    sentinel and a poison tail. That satisfies Gate B (the observable cannot co-vary with the swept
    field) but means a hidden effect invisible to *that* plan is invisible to *every* arm here. It is
@@ -381,7 +400,9 @@ its own authority, because the reproducibility axis is `auditable` (busy machine
    pop, to test whether the constraint is "push bank must match pop bank".
 4. **A multi-invocation ordering litmus for `ret.scoreboard`** — two threadgroups, cross-lane
    dependencies, and a real happens-before check.
-5. **A descriptor for `ef 02 54 00 00 50`**, the non-leaf epilogue. Until it exists, every
+5. **A serialized quiet-window confirmation** of all seven fields once the fan-out drains — the
+   only thing standing between the four inert rows and a promotable label.
+6. **A descriptor for `ef 02 54 00 00 50`**, the non-leaf epilogue. Until it exists, every
    experiment that locates instructions by a linear walk silently loses every non-leaf frame.
 
 ## 7. Clean-room attestation

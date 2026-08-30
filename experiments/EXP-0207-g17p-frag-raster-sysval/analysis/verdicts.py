@@ -289,10 +289,19 @@ def axes(ev, fired, verdict, h8=None):
     return dict(encoding_geometry=geom, liveness=live, semantics=sem,
                 compiler_recipe="not-generated",
                 target="G17P-direct",
-                reproducibility=("independently-confirmed"
-                                 if ev["agreement"] >= AGREE_MIN and len(ev["runs"]) >= 2
-                                 and ev["ledger_mismatch_across_runs"] == 0
-                                 else "auditable"))
+                # GATE E has TWO clauses and only one of them was met.  Two gated
+                # runs in OPPOSITE case order with identical per-value actual-byte
+                # ledgers: met.  A genuinely quiet machine: NOT met -- the whole
+                # experiment ran alongside a multi-agent fan-out, and a sibling
+                # experiment's quiet-window helper sampled 86 times without ever
+                # finding the machine idle.  So the honest status is INCOMPLETE,
+                # and it is written that way rather than rounded to `confirmed`.
+                reproducibility=(
+                    "auditable; Gate E INCOMPLETE (two runs in reversed order with "
+                    "identical ledgers, but no quiet-machine confirmation)"
+                    if ev["agreement"] >= AGREE_MIN and len(ev["runs"]) >= 2
+                    and ev["ledger_mismatch_across_runs"] == 0
+                    else "incomplete"))
 
 
 def gate(ev, fired, destroyed=()):

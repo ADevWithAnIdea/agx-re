@@ -46,6 +46,25 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import models206 as MD          # noqa: E402
 
 VALID = {"ok", "silent_zero", "wrong_value", "not_written"}
+
+# GATE E, foreign-cascade adjudication. EXP-0204 declared ~18 GENUINE device hangs
+# from a budgeted `tex_deriv` mapping pass between 20:00 and 20:25 UTC on
+# 2026-08-30. A device hang resets the GPU for every context, so a hard outcome
+# recorded inside that window is very likely someone else's cascade -- and this
+# family faults and hangs legitimately, which makes the misattribution easy. Any
+# hard-outcome case with a timestamp inside the window is re-scored
+# `measurement_failure` (a MEASUREMENT failure, never a hardware outcome) and the
+# count is reported. MEASURED RESULT FOR THIS EXPERIMENT: ZERO cases fall in the
+# window -- run03 spans 19:27:16-19:45:43Z, run04 19:31:00-19:50:28Z and run05
+# 19:50-19:5x Z, all of them BEFORE it. The filter is kept and reported anyway, so
+# the claim "we were not in that window" is a computation over raw rather than a
+# sentence in prose.
+FOREIGN_CASCADE = (1788120000, 1788121500)   # 2026-08-30 20:00:00Z .. 20:25:00Z
+
+
+def in_foreign_window(r):
+    t = r.get("ts") or 0
+    return FOREIGN_CASCADE[0] <= t <= FOREIGN_CASCADE[1]
 HARD = {"fault", "hang", "invalid_run", "measurement_failure",
         "nondeterministic", "undecodable", "carrier_start_failed"}
 AGREE_MIN = 0.99
@@ -82,9 +101,11 @@ def arm_stats(recs, runs):
     for r in recs:
         if r.get("field") == "_baseline" and str(r.get("note", "")).endswith(":open"):
             base.setdefault(r["_run"], payload(r))
+    foreign = [r for r in tgt if r.get("outcome") in HARD and in_foreign_window(r)]
+    fset = {id(r) for r in foreign}
     valid = [r for r in tgt if r.get("outcome") in VALID]
     hard = collections.Counter(r.get("outcome") for r in tgt
-                               if r.get("outcome") in HARD)
+                               if r.get("outcome") in HARD and id(r) not in fset)
     other = collections.Counter(r.get("outcome") for r in tgt
                                 if r.get("outcome") not in VALID
                                 and r.get("outcome") not in HARD)
@@ -98,8 +119,22 @@ def arm_stats(recs, runs):
             moved.add(r.get("value"))
     rk = sorted(per_run)
     disagree, comparable = set(), set()
+    pair = None
     if len(rk) >= 2:
-        a, b = per_run[rk[0]], per_run[rk[1]]
+        # More than two run ids can hold the same arm: run04 was stopped partway and
+        # RETAINED, and the arms it never reached were captured under NEW ids (run05,
+        # run06) rather than topped up. Comparing whichever two sort first would then
+        # compare a full run against a stub. The pair used for agreement is the one
+        # with the LARGEST set of values valid in BOTH -- a mechanical choice, stated
+        # here and recorded per arm in `agreement_pair`.
+        best = (-1, None)
+        for i in range(len(rk)):
+            for j in range(i + 1, len(rk)):
+                n = len(set(per_run[rk[i]]) & set(per_run[rk[j]]))
+                if n > best[0]:
+                    best = (n, (rk[i], rk[j]))
+        pair = best[1]
+        a, b = per_run[pair[0]], per_run[pair[1]]
         comparable = set(a) & set(b)
         disagree = {v for v in comparable if a[v] != b[v]}
     agreement = (1 - len(disagree) / len(comparable)) if comparable else None
@@ -143,6 +178,7 @@ def arm_stats(recs, runs):
         "sem_surviving_models": sorted(survivors),
         "buckets": dict(buckets),
         "contaminated_cases": contaminated,
+        "foreign_cascade_window_cases": len(foreign),
         "V": len({payload(r) for r in valid}),
         "L": len({r.get("value") for r in valid}),
         "values_dispatched": len({r.get("value") for r in tgt}),
@@ -152,6 +188,7 @@ def arm_stats(recs, runs):
         "disagree": len(disagree),
         "comparable": len(comparable),
         "agreement": agreement,
+        "agreement_pair": pair,
         "hard": dict(hard),
         "unclassified": dict(other),
         "n_valid": len(valid),
@@ -374,9 +411,19 @@ def axes(st, ctl, promoted, inerted, n_other_agents):
         # every case mutates ONE field of our own compiled carrier.
         "compiler_recipe": "generated-point" if promoted else "not-generated",
         "target": "G17P-direct",
-        "reproducibility": ("auditable" if n_other_agents else
-                            ("independently-confirmed" if len(st["runs"]) >= 2
-                             else "incomplete")),
+        # GATE E RULING (orchestrator, 2026-08-30): Gate E is currently UNMEETABLE
+        # for every experiment in this wave -- a dedicated quiet-window helper in
+        # EXP-0204 sampled 86 times and never once found a quiet machine, with up to
+        # 17 concurrent foreign GPU processes. Serialized quiet confirmations will be
+        # scheduled after the wave drains. So the honest value is INCOMPLETE, and
+        # `independently-confirmed` is not claimed by any row here even where the two
+        # runs agree perfectly.
+        "reproducibility": (
+            "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; "
+            "max %d other GPU processes sampled). Two gated runs in different case "
+            "orders DID agree; a quiet confirmation is still owed." % n_other_agents
+            if len(st["runs"]) >= 2 else
+            "INCOMPLETE - fewer than two gated runs for this arm"),
     }
 
 

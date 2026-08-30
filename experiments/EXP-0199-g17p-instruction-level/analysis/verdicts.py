@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
-"""verdicts.py -- EXP-0199 analysis.  Reads the two gated runs' raw sweep.jsonl
-and produces analysis/field_verdicts.json plus a human summary.
+"""verdicts.py -- EXP-0199 analysis. **SUPERSEDED by analysis/gates.py**, which scores the
+AMENDMENT-01 gated confirmation captures against the five gates of
+RE_EXPERIMENT_PROCESS_CORRECTIONS.md. Retained because it is the analysis the ORIGINAL
+frozen contract specified, and the original contract and its captures are retained too.
+It reads the two DISCOVERY runs (g17p_run01* / g17p_run02*) and writes
+analysis/gate_report_original_contract.json -- a DIFFERENT file from gates.py's
+analysis/gate_report.json, so running it can never overwrite the amended analysis.
 
 The gate, verbatim from CAPTURE_CONTRACT.json:
   * two runs;
@@ -136,5 +141,5 @@ if __name__ == "__main__":
             print("      accepted(ok) = %s  -> rule (v & %s) == %s  exact=%s" %
                   (acc if len(acc) <= 40 else "%d values" % len(acc),
                    m["mask"], m["value"], m["exact"]))
-    json.dump(report, open(os.path.join(HERE, "gate_report.json"), "w"), indent=1)
-    print("\nwrote analysis/gate_report.json")
+    json.dump(report, open(os.path.join(HERE, "gate_report_original_contract.json"), "w"), indent=1)
+    print("\nwrote analysis/gate_report_original_contract.json")

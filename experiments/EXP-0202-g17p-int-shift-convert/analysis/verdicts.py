@@ -188,7 +188,8 @@ def INSTRUCTION_ROW(per_arm, quiet_note):
               "semantics": "bounded-map", "compiler_recipe": "generated-point",
               "target": "G17P-direct",
               "reproducibility": ("independently-confirmed" if quiet_note else
-                                  "auditable (confirmation window NOT quiet -- see _quiet_window)")},
+                                  "INCOMPLETE -- Gate E not met: the window was "
+                                  "measured and was NOT quiet")},
      "range": "seven authored carriers, host-computed oracles; byte+7 swept dense 0..255",
      "target": "G17P", "evidence": ["EXP-0202"],
      "note":
@@ -540,8 +541,15 @@ def main():
         # ---- axis 5: target
         tgt = "G17P-direct"
         # ---- axis 6: reproducibility
+        # Gate E is currently unmeetable on this device: the quiet window was
+        # MEASURED in both runs and was never quiet (the concurrent fan-out).
+        # That is reported as an incomplete axis, not smoothed away -- and it is
+        # the only axis this experiment leaves open.
         repro = ("independently-confirmed" if clean_window else
-                 "auditable (confirmation window NOT quiet -- see _quiet_window)")
+                 "INCOMPLETE -- Gate E not met: the confirmation window was "
+                 "measured and was NOT quiet (see _quiet_window). Cross-run "
+                 "agreement is nevertheless 10156/10156 across the pair, in "
+                 "opposite case order.")
 
         # Did the PRE-REGISTERED predictor hold, completely, on some arm in BOTH
         # runs? That is `isolated-byte-diff`'s literal definition -- "the
@@ -668,6 +676,71 @@ def main():
                      "hard_outcomes": sorted(HARD),
                      "invalid_outcomes": sorted(INVALID),
                      "normative": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md"},
+           "_cross_run": {
+              "shared_cases": None,
+              "note": "computed by analysis/report.py; run03 vs run04, opposite "
+                      "case order: 10156 of 10156 shared cases agree, ZERO "
+                      "disagreements -- and zero even WITHOUT collapsing "
+                      "ok/unexpected_ok. EXP-0189's `UNSTABLE` refusal of "
+                      "irotate.operands does not reproduce."},
+           "_contamination": {
+              "runs_utc": "run02 19:18-19:30, run03 19:31-19:38, run04 19:39-19:46",
+              "exp0204_hang_window_utc": "20:00-20:25 -- ENTIRELY AFTER all three "
+                      "runs, so EXP-0204's ~18 declared device hangs are not in "
+                      "this raw",
+              "innocent_victim_cases": "run03 167, run04 160 -- every one RETRIED "
+                      "up to 3x before being scored",
+              "watchdog_timeouts": 0, "malformed_responses": 0, "hangs": 0,
+              "note": "The `ErrorHang` fault-classification STRING appears on 514 "
+                      "contained command-buffer faults, all of them on the two "
+                      "mapped hazard walls (ibitcount.dst and irotate byte+3, "
+                      "192-255, 64 values x 5 and x 2 arms). They are CONTAINED: "
+                      "outcome `fault`, no watchdog timeout, no child restart, no "
+                      "device wedge, and the next case runs clean. "
+                      "`ErrorPageFault` appears 192 times, all on IU/pc_alu#0/b1 "
+                      "-- the same 192 b1 values merely fail to write on the "
+                      "store carrier, so the hardness is carrier-dependent."},
+           "db_defects": [
+             {"id": "DEF-0202-1", "descriptor": "irotate", "field": "operands",
+              "claim": "the 40-bit `operands` raw field is NOT one field; it is five "
+                       "one-byte sub-fields with the SAME meanings EXP-0139 established "
+                       "for the identical blob in `iunary` (DEF-0139-1), plus one that "
+                       "descriptor does not have",
+              "evidence": "byte-wise dense 0..255 on two carriers + the first joint "
+                          "40-bit arm, two gated runs in opposite case order, 0 "
+                          "disagreements: byte+3 = dst (reproduces at {0,1}, faults "
+                          "192-255), byte+4 = op-enable gate (128 of 256 reproduce), "
+                          "byte+5 = src (reproduces at 0..3), byte+6 = THE IMMEDIATE "
+                          "ROTATE AMOUNT with byte+6 = 4*(32-K) confirmed at 33 of 33 "
+                          "modelled values on 4 carriers, byte+7 = tail (reproduces at "
+                          "the 8 even values 0..14)",
+              "action": "orchestrator's call; db.json NOT edited by this experiment"},
+             {"id": "DEF-0202-2", "descriptor": "ibitcount", "field": "dst",
+              "claim": "`dst = reg << 1` is incomplete in two ways: bit 0 is NOT part "
+                       "of the register index (the program reproduces at EXACTLY "
+                       "{compiled, compiled+1} on all five occurrences), and "
+                       "dst[7:6] == 0b11 is ILLEGAL -- 192..255 fault contiguously, all "
+                       "64 values, on all five occurrences, in both runs",
+              "evidence": "PC/{pc_store,pc_alu,pc_two,iu_ctz,pc_dump}#0/dst, 2560 "
+                          "ledger-verified cases",
+              "action": "orchestrator's call"},
+             {"id": "DEF-0202-3", "descriptor": "shift_amt_move / b_alu10_lo7 / the "
+                                                "whole reg_move_cX family", "field": "src_flag",
+              "claim": "the enum {0: gpr, 1: uniform/class} is UNSUPPORTED on G17P by "
+                       "any observation we can make. Across 56 authored carriers the "
+                       "compiler emits src_flag = 0 in all 11 `shift_amt_move` "
+                       "occurrences; on `b_alu10_lo7`, where it emits BOTH values, "
+                       "splicing either leaves the output byte-identical",
+              "action": "NOT a request to remove the enum -- the honest status is "
+                        "`carrier-undecidable`; recorded so a successor knows the enum "
+                        "is inherited, not observed"},
+             {"id": "DEF-0202-4", "descriptor": "ibitcount", "field": "form",
+              "claim": "the enum {4: reverse, 5: count/scan} is incomplete: our own "
+                       "`k_pc_two` compiles to form = 21 (0x15) at its second "
+                       "occurrence, a value the enum does not name",
+              "evidence": "raw/prefreeze/census_b.json, pc_two occ1 `2715540003005c04`",
+              "action": "orchestrator's call"},
+           ],
            "_probe_arms": probes,
            "_controls": {"%s#%s/%s" % k: v for k, v in control.items()},
            "_arms": per_arm}

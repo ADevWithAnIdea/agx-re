@@ -1613,7 +1613,18 @@
      "EXP-0146",
      "EXP-0157"
     ],
-    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS. This descriptor is not one instruction: db.json's own committed text calls it 'a genuine catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select)' whose 'per-sub-op value maps are mixed and needs-splice'. EXP-0157 measured a DIFFERENT accepted mask for `opsel` in each carrier instance and EXP-0146/0157 recorded `dst` as PINNED ('no value other than the compiler's own reproduces the oracle'). A bucket has no semantics to confirm, so no execution can raise its instruction-level label; the fields being hardware-run says the BYTES are live in each sub-family, not that the descriptor names an operation."
+    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS. This descriptor is not one instruction: db.json's own committed text calls it 'a genuine catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select)' whose 'per-sub-op value maps are mixed and needs-splice'. EXP-0157 measured a DIFFERENT accepted mask for `opsel` in each carrier instance and EXP-0146/0157 recorded `dst` as PINNED ('no value other than the compiler's own reproduces the oracle'). A bucket has no semantics to confirm, so no execution can raise its instruction-level label; the fields being hardware-run says the BYTES are live in each sub-family, not that the descriptor names an operation.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A PASS: 12,932 ledger checks, 0 failures. Both runners print ACTUAL <off> <hex> from the spliced file RE-READ OFF DISK; the driver decodes the swept byte independently and asserts equality before scoring. No assembler in the path; round trip not used. exact accepted sets: byte0 (v&0xcb)==0x02; opsel (v&0x1e)==0; imm_sel (v&0x0f)==0x04",
+     "liveness": "live on a 4th carrier: all three swept bytes live; removal discards the tile",
+     "semantics": "unknown \u2014 DECLARED `semantics: unknown` in Amendment 01 BEFORE the run, because it is a catch-all bucket for which no predictor is writable. sem_checked == 0.",
+     "carrier_dimension": "4th carrier",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET, measured not asserted: median 9 / peak 17 foreign GPU processes. Both captures ran 19:29-19:42 UTC, ENTIRELY BEFORE EXP-0204's 20:00-20:25 hang window, so none of the disagreements are attributable to it. Raw cross-run agreement 6475/6511 = 99.45%; ADJUDICATED 6501/6511 = 99.85% under EXP-0201's fault-class lens (26 of 36 disagreements are fault<->clean flips, 11 carrying InnocentVictim; 3 more are baseline records).",
+     "proposed_label_pending_gate_E": "corpus-correlation (UNCHANGED)",
+     "frozen_gate": "Original contract and its four captures RETAINED UNCHANGED and reclassified as DISCOVERY; AMENDMENT-01 frozen before the confirmation captures. Nothing discarded, nothing re-run because the bar moved."
+    }
    },
    "dst": {
     "label": "hardware-run",
@@ -6460,7 +6471,18 @@
      "EXP-0029",
      "EXP-0155"
     ],
-    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS, and this is the clearest example of why field labels must not gate the instruction. All three of its declared fields are `hardware-run` and its baselines are ok 11/11 -- yet the one thing the descriptor claims, 'write the shader [[depth]] output to the tile depth buffer', HAS NEVER BEEN OBSERVED. db.json says so itself: 'Not individually splice-validated (agxrender has no depth attachment to read back)'. The sweeps were scored against a COLOUR probe. Fields live proves the bytes were exercised; it does not prove this is the depth store."
+    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS, and this is the clearest example of why field labels must not gate the instruction. All three of its declared fields are `hardware-run` and its baselines are ok 11/11 -- yet the one thing the descriptor claims, 'write the shader [[depth]] output to the tile depth buffer', HAS NEVER BEEN OBSERVED. db.json says so itself: 'Not individually splice-validated (agxrender has no depth attachment to read back)'. The sweeps were scored against a COLOUR probe. Fields live proves the bytes were exercised; it does not prove this is the depth store.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A PASS: 12,932 ledger checks, 0 failures. Both runners print ACTUAL <off> <hex> from the spliced file RE-READ OFF DISK; the driver decodes the swept byte independently and asserts equality before scoring. No assembler in the path; round trip not used. exact accepted sets: b3 (v&0xfc)==0 -> 4/256; b4 (v&0x1f)==0 -> 8/256; b5 (v&0x02)==2 -> 128/256; byte+1 (v&0x06)==4 -> 64/256",
+     "liveness": "live: clearing byte+5 bit 1 puts 0.0 in the DEPTH attachment while every covered colour pixel is unchanged \u2014 128/256 values, BOTH carriers, BOTH captures. **0 of 2304 mutations ever moved colour alone.**",
+     "semantics": "bounded-map: M_A1 selected, M_A2/M_A3/M_A4 REFUTED. Unmutated depth equals the host oracle exactly at 3 probe pixels with 3 distinct values on two carriers, including an adversarial second carrier with a DECREASING depth of a different varying.",
+     "carrier_dimension": "THE OBSERVABLE NOBODY HAD READ: the Depth32Float attachment. db.json itself admits \"agxrender has no depth attachment to read back\", and EXP-0181 notes the old sweeps were scored on COLOUR. Depth and colour are different per-pixel functions, so depth carries information colour does not, and colour serves as the paired control.",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET, measured not asserted: median 9 / peak 17 foreign GPU processes. Both captures ran 19:29-19:42 UTC, ENTIRELY BEFORE EXP-0204's 20:00-20:25 hang window, so none of the disagreements are attributable to it. Raw cross-run agreement 6475/6511 = 99.45%; ADJUDICATED 6501/6511 = 99.85% under EXP-0201's fault-class lens (26 of 36 disagreements are fault<->clean flips, 11 carrying InnocentVictim; 3 more are baseline records).",
+     "proposed_label_pending_gate_E": "isolated-byte-diff",
+     "frozen_gate": "Original contract and its four captures RETAINED UNCHANGED and reclassified as DISCOVERY; AMENDMENT-01 frozen before the confirmation captures. Nothing discarded, nothing re-run because the bar moved."
+    }
    },
    "b3": {
     "label": "hardware-run",
@@ -7581,7 +7603,19 @@
      "EXP-M4-13",
      "EXP-0172"
     ],
-    "note": "EXP-0181 refresh from tokenization-only: KEEP AS IS. EXP-0148 records this descriptor as one of three UNRESOLVED CONTINUATION-WORD CANDIDATES -- it may not be a standalone instruction at all -- and validate_labels.py already reports it in that informational set. EXP-0172 showed byte+1 is live (152 of 256 values move, identically in run01 and run03) and that b1 = 3 and b1 = 7 HANG the device on four of five carriers. Live bytes in an unresolved continuation word are not an instruction; its semantics remain unknown and `tokenization-only` states that correctly."
+    "note": "EXP-0181 refresh from tokenization-only: KEEP AS IS. EXP-0148 records this descriptor as one of three UNRESOLVED CONTINUATION-WORD CANDIDATES -- it may not be a standalone instruction at all -- and validate_labels.py already reports it in that informational set. EXP-0172 showed byte+1 is live (152 of 256 values move, identically in run01 and run03) and that b1 = 3 and b1 = 7 HANG the device on four of five carriers. Live bytes in an unresolved continuation word are not an instruction; its semantics remain unknown and `tokenization-only` states that correctly.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A PASS: 12,932 ledger checks, 0 failures. Both runners print ACTUAL <off> <hex> from the spliced file RE-READ OFF DISK; the driver decodes the swept byte independently and asserts equality before scoring. No assembler in the path; round trip not used. in the 4-byte form byte+3 is inert 256/256 and byte+2 accepts exactly 40/256",
+     "liveness": "DECLARED LENGTH REFUTED in the tested envelope: `60 XX` as TWO bytes is correct at 0/7 boundaries and 0/254 byte+1 values; `60 XX 00 00` as FOUR bytes is correct at 7/7 and 253/254 & 254/254. Control `00 00 00 00` is correct at only 2/7, so 4-byte insertion is NOT automatically benign.",
+     "semantics": "supports EXP-0148's continuation-word hypothesis",
+     "carrier_dimension": "insertion at 7 boundaries",
+     "recipe": "not-generated",
+     "scope": "SCOPE STATED: insertion into STRAIGHT-LINE COMPUTE carriers only. The corpus's threadgroup-atomic and divergent-control-flow contexts were NOT re-tested.",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET, measured not asserted: median 9 / peak 17 foreign GPU processes. Both captures ran 19:29-19:42 UTC, ENTIRELY BEFORE EXP-0204's 20:00-20:25 hang window, so none of the disagreements are attributable to it. Raw cross-run agreement 6475/6511 = 99.45%; ADJUDICATED 6501/6511 = 99.85% under EXP-0201's fault-class lens (26 of 36 disagreements are fault<->clean flips, 11 carrying InnocentVictim; 3 more are baseline records).",
+     "proposed_label_pending_gate_E": "tokenization-only (UNCHANGED \u2014 DECLARED LENGTH REFUTED)",
+     "frozen_gate": "Original contract and its four captures RETAINED UNCHANGED and reclassified as DISCOVERY; AMENDMENT-01 frozen before the confirmation captures. Nothing discarded, nothing re-run because the bar moved."
+    }
    },
    "b1": {
     "label": "hardware-run",
@@ -9277,7 +9311,18 @@
      "EXP-0146",
      "EXP-0157"
     ],
-    "note": "EXP-0181 refresh from tokenization-only: KEEP AS IS -- and note that its two fields are `hardware-run` on BOTH targets, which is exactly the trap. EXP-0146 REFUTED the descriptor's old byte-invariance claim and EXP-0157 reproduced the mapping in three independent carriers; setting byte+0 to 0x00 flips the SIGN of fast::sin on exactly the rows needing range reduction, so at least one bit is a quadrant/sign control. But db.json states the conclusion itself: 'the exact micro-op is NOT-YET-CHARACTERIZED' (clean-room rule 5 keeps the adjacent coefficient words raw). Framing right, semantics unknown -- the definition of tokenization-only."
+    "note": "EXP-0181 refresh from tokenization-only: KEEP AS IS -- and note that its two fields are `hardware-run` on BOTH targets, which is exactly the trap. EXP-0146 REFUTED the descriptor's old byte-invariance claim and EXP-0157 reproduced the mapping in three independent carriers; setting byte+0 to 0x00 flips the SIGN of fast::sin on exactly the rows needing range reduction, so at least one bit is a quadrant/sign control. But db.json states the conclusion itself: 'the exact micro-op is NOT-YET-CHARACTERIZED' (clean-room rule 5 keeps the adjacent coefficient words raw). Framing right, semantics unknown -- the definition of tokenization-only.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A PASS: 12,932 ledger checks, 0 failures. Both runners print ACTUAL <off> <hex> from the spliced file RE-READ OFF DISK; the driver decodes the swept byte independently and asserts equality before scoring. No assembler in the path; round trip not used. MATCH-BIT CORRECTION: of db.json's declared 32 values (b0&0x07)==6, exactly EIGHT are accepted \u2014 exactly (b0&0x1f)==0x06. 0x0e satisfies the declared match but is `stop`. byte+1 is UNCONSTRAINED for framing (256/256 at one site, 255/256 at the other), which does NOT contradict EXP-0146/0157 whose constraint is semantic, not framing.",
+     "liveness": "live: `06 02` leaves the 32-lane oracle EXACTLY correct at 7/7 boundaries in both captures, while `00 00`, `ff ff` and a 2-byte deletion are correct at 0/7. That contrast is BOTH the length proof AND the detection-power control.",
+     "semantics": "bounded-map",
+     "carrier_dimension": "insertion at compiler-unchosen boundaries",
+     "recipe": "generated-point \u2014 INDEPENDENT EMISSION BY INSERTION at boundaries the compiler did not choose",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET, measured not asserted: median 9 / peak 17 foreign GPU processes. Both captures ran 19:29-19:42 UTC, ENTIRELY BEFORE EXP-0204's 20:00-20:25 hang window, so none of the disagreements are attributable to it. Raw cross-run agreement 6475/6511 = 99.45%; ADJUDICATED 6501/6511 = 99.85% under EXP-0201's fault-class lens (26 of 36 disagreements are fault<->clean flips, 11 carrying InnocentVictim; 3 more are baseline records).",
+     "proposed_label_pending_gate_E": "isolated-byte-diff",
+     "frozen_gate": "Original contract and its four captures RETAINED UNCHANGED and reclassified as DISCOVERY; AMENDMENT-01 frozen before the confirmation captures. Nothing discarded, nothing re-run because the bar moved."
+    }
    },
    "b0_hi": {
     "label": "hardware-run",
@@ -10561,7 +10606,18 @@
      "EXP-0155",
      "EXP-0172"
     ],
-    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS, because the descriptor's documented semantics has been REFUTED on hardware. db.json says byte+3 is 'the varying slot (monotone, tracks the store slot)'. EXP-0172 (DEF-0172-3) measured it: `slot` is live 'only bit 2 and only on one of four carriers -- all 128 values with bit 2 set move the observation, all 128 with it clear do not, and the other seven bits, INCLUDING BITS 5-6 WHERE THE COMPILER ENCODES THE VARYING INDEX, did nothing on any carrier'. Both fields are `hardware-run` and the instruction's role is nonetheless unestablished. Promoting it would certify a slot selector that does not select."
+    "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS, because the descriptor's documented semantics has been REFUTED on hardware. db.json says byte+3 is 'the varying slot (monotone, tracks the store slot)'. EXP-0172 (DEF-0172-3) measured it: `slot` is live 'only bit 2 and only on one of four carriers -- all 128 values with bit 2 set move the observation, all 128 with it clear do not, and the other seven bits, INCLUDING BITS 5-6 WHERE THE COMPILER ENCODES THE VARYING INDEX, did nothing on any carrier'. Both fields are `hardware-run` and the instruction's role is nonetheless unestablished. Promoting it would certify a slot selector that does not select.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A PASS: 12,932 ledger checks, 0 failures. Both runners print ACTUAL <off> <hex> from the spliced file RE-READ OFF DISK; the driver decodes the swept byte independently and asserts equality before scoring. No assembler in the path; round trip not used. byte0 accepts 60 values (NOT a fixed 0x00 match); byte+2 accepts exactly (v&0x7e)==0x40; `sel` accepts exactly (v&0x0f)==0x0c (0x04 and 0x0a rejected)",
+     "liveness": "NO RELOCATIONS: `vary_slot.slot` produced ZERO relocations across 256 values x 2 captures; it splits 128 ok / 128 draw_gone on bit 2.",
+     "semantics": "db.json semantics REFUTED. M_B2 selected at 255/256 exact per-case; M_B1/M_B3 refuted. Reproduces EXP-0172 DEF-0172-3 on a NEW carrier and strengthens it.",
+     "carrier_dimension": "POSITIVE CONTROL PROVES THE CARRIER SEES RELOCATION: `vary_store.out_slot` matched the host model `index<<5` on 26/32 exactly, 32/32 cross-run, with SIX exact predicted relocations (e.g. store 7 + out_slot=0x80 -> 4000.0 in channel 0). So the negative is a real negative, not a blind carrier.",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET, measured not asserted: median 9 / peak 17 foreign GPU processes. Both captures ran 19:29-19:42 UTC, ENTIRELY BEFORE EXP-0204's 20:00-20:25 hang window, so none of the disagreements are attributable to it. Raw cross-run agreement 6475/6511 = 99.45%; ADJUDICATED 6501/6511 = 99.85% under EXP-0201's fault-class lens (26 of 36 disagreements are fault<->clean flips, 11 carrying InnocentVictim; 3 more are baseline records).",
+     "proposed_label_pending_gate_E": "corpus-correlation (UNCHANGED \u2014 db.json semantics REFUTED)",
+     "frozen_gate": "Original contract and its four captures RETAINED UNCHANGED and reclassified as DISCOVERY; AMENDMENT-01 frozen before the confirmation captures. Nothing discarded, nothing re-run because the bar moved."
+    }
    },
    "sel": {
     "label": "hardware-run",

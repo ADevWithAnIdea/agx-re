@@ -108,3 +108,24 @@
   `if_push.scope@cf_nl2+106` arm is producing genuine `hang` outcomes (8 s watchdog
   + child restart) as well as faults on bit-1-clear values. Device resets on
   192.168.170.254 originate here.
+- 2026-08-30 19:50Z (neo UTC) — **run04 STOPPED at 3,824 of 5,231 cases and
+  RETAINED as a partial.** It was grinding the genuinely hang-heavy
+  `if_push.scope@cf_nl2+106` arm (bit-1-clear values produce real `hang` outcomes:
+  8 s watchdog + child restart + majority-of-3). Retained exactly as it is, never
+  topped up, id never reused. **CORRECTION to my own earlier note:** the "~5 min per
+  case" figure was my own polling latency, not device time — on the neo's clock the
+  whole gated pair occupies 19:27–19:51 UTC.
+- 2026-08-30 19:50Z — `g17p_20260830_run05` launched (shuffled order, seed 206) over
+  the FIVE carriers holding the six arms run04 never reached: cf_nl3, cf_ifnl,
+  cl_pure, cl_ldret, cl_stacross. A NEW id, not a top-up.
+- 2026-08-30 19:52Z — **Gate E ruling adopted** (orchestrator): Gate E is currently
+  unmeetable for the whole wave — EXP-0204's dedicated quiet-window helper sampled
+  86 times and never found a quiet machine. Every reproducibility axis in this
+  experiment now reads `INCOMPLETE - Gate E not met`, and no row claims
+  `independently-confirmed`, even where the two runs agree perfectly.
+- 2026-08-30 19:52Z — **EXP-0204 foreign-cascade window checked as a COMPUTATION,
+  not a claim.** `verdicts206.py` re-scores any hard outcome timestamped inside
+  2026-08-30 20:00–20:25 UTC as `measurement_failure`. **Zero of this experiment's
+  cases fall in it**: run03 spans 19:27:16–19:45:43Z, run04 19:31:00–19:50:28Z,
+  run05 19:50–19:5xZ — all before the window opens. The filter is retained and its
+  count (0) is reported per field.

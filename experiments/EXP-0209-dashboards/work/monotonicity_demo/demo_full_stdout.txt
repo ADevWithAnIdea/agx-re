@@ -1,0 +1,59 @@
+run DEMO-total-evidence-loss-2   ledger experiments/EXP-0209-dashboards/work/monotonicity_demo/ledger.jsonl (26100 lines)
+
+  dashboard (top rung)                         attn   curr  denom   downgr
+  Encoding geometry coverage / geometry-mappe    502      0   1040      620
+  Field/bit liveness coverag / decided-multi-     99      0   1040      620
+  Semantic-map coverage / semantically-m          5      0   1040       67
+  Canonical generated-recipe / canonical-reci      2      2    166        0
+  Direct G17P revalidation c / G17P-direct-re    432      0   1040      612
+  Reproducible evidence-chai / independently-    264      0   1212      597
+  Finite-resource limit and  / limit-mapped     133      0    987      594
+
+  1. Encoding geometry coverage
+      no-data                    attained   420 / 1040   current  1040 / 1040
+      bytes-seen                 attained    63 / 1040   current     0 / 1040
+      ledger-verified            attained    55 / 1040   current     0 / 1040
+      geometry-mapped            attained   502 / 1040   current     0 / 1040
+  2. Field/bit liveness coverage
+      no-data                    attained   420 / 1040   current  1040 / 1040
+      records-no-control         attained   466 / 1040   current     0 / 1040
+      decided-one-carrier        attained    55 / 1040   current     0 / 1040
+      decided-multi-carrier      attained    99 / 1040   current     0 / 1040
+  3. Semantic-map coverage
+      no-semantic-check          attained   973 / 1040   current  1040 / 1040
+      checks-present             attained    57 / 1040   current     0 / 1040
+      bounded-map                attained     5 / 1040   current     0 / 1040
+      semantically-mapped        attained     5 / 1040   current     0 / 1040
+  4. Canonical generated-recipe coverage
+      not-generated              attained   148 / 166   current   148 / 166
+      generated-point            attained    14 / 166   current    14 / 166
+      generated-no-donor         attained     2 / 166   current     2 / 166
+      canonical-recipe-proven    attained     2 / 166   current     2 / 166
+  5. Direct G17P revalidation coverage
+      no-direct-target-evidence  attained   428 / 1040   current  1040 / 1040
+      G16G-direct-only           attained   177 / 1040   current     0 / 1040
+      G17P-direct                attained     3 / 1040   current     0 / 1040
+      G17P-direct-repeated       attained   432 / 1040   current     0 / 1040
+  6. Reproducible evidence-chain coverage
+      incomplete                 attained    40 / 1212   current    40 / 1212
+      citation-resolves          attained   575 / 1212   current  1172 / 1212
+      auditable                  attained   333 / 1212   current     0 / 1212
+      independently-confirmed    attained   264 / 1212   current     0 / 1212
+  7. Finite-resource limit and overflow coverage
+      no-data                    attained   393 / 987   current   987 / 987
+      partial-sweep              attained    79 / 987   current     0 / 987
+      full-domain-swept          attained   382 / 987   current     0 / 987
+      limit-mapped               attained   133 / 987   current     0 / 987
+
+  section-2 `axes` sidecar census (absence is reported as absence)
+      validation.json (inline)                             23
+      EXP-0208-axis-reclassification/analysis/axes.json    496
+      db.json fields with NO axes object                   544 of 1040
+      cross-check disagreements                            257
+        geometry:agree                                     250
+        geometry:disagree                                  231
+        geometry:not-comparable                            15
+        liveness:declared-with-control-or-no-records       274
+        semantics:agree                                    455
+        semantics:disagree                                 31
+        semantics:not-comparable                           10
