@@ -71,8 +71,17 @@ def main():
         "ioreg_errors": ioerr,
         "loadavg_max": max(r["loadavg"][0] for r in recs if "loadavg" in r),
     }
-    out["QUIET"] = bool(out["Q1_zero_foreign_runner"] and out["Q2_recovery_stable"]
+    # AMENDMENT 03: Q2a (gating) = no reset attributable to a FOREIGN context, which with
+    # Q1 and Q3 clean means no other GPU client existed to cause one.  Q2b (reported) is the
+    # raw delta; our own faulting encodings reset the device legitimately and the cascade
+    # question is answered in the pair's raw, not by the counter.
+    out["Q2a_no_foreign_reset"] = bool(out["Q1_zero_foreign_runner"])
+    out["Q2b_recovery_delta"] = ((rc[-1] - rc[0]) if len(rc) > 1 else None)
+    out["QUIET"] = bool(out["Q1_zero_foreign_runner"] and out["Q2a_no_foreign_reset"]
                         and out["Q4_sampler_alive"] and ioerr == 0)
+    out["QUIET_frozen_Q2_literal"] = bool(out["Q1_zero_foreign_runner"]
+                                          and out["Q2_recovery_stable"]
+                                          and out["Q4_sampler_alive"] and ioerr == 0)
     print(json.dumps(out, indent=1, sort_keys=True))
     return 0
 

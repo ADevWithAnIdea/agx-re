@@ -179,7 +179,7 @@ python3 analysis/verdicts.py --runs raw/g17p_20260830_run02 raw/g17p_20260830_ru
 - **`validation.json`, `docs/` and `PROVENANCE.md` are not edited, and nothing is
   committed** — the orchestrator reviews and commits.
 - The neo SSH password is held in-session only and appears in **no file** in this
-  repository, committed or not.
+  repository, committed or not. **[CORRECTED 2026-08-30 BY THE ORCHESTRATOR: this claim was FALSE when written.** A repo-wide sweep found the literal password committed in FIVE tracked files, seven occurrences — `EXP-0003-hw-testbed/run_all.sh` (x2) and `sshto.py`, `EXP-M5-04-capabilities/run.sh`, and `M5-DELTA-SUBAGENT-BRIEF.md` (x2), plus `EXP-0184/PROGRESS.md` which made this same false claim while writing the password verbatim on the line asserting it. The scope of the check was the EXPERIMENT TREE, not the repository, and the conclusion was stated repo-wide. All were cleaned to `sshpass -e` with the `SSHPASS` env var; **the credential remains in git history and only rotating the device password remediates it**.]
 
 ## Layout
 
