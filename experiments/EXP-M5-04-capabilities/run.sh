@@ -7,7 +7,9 @@
 # Usage: ./run.sh   (from the host; edit HOST if the target IP changes)
 set -euo pipefail
 HOST=user@192.168.170.253
-PW=Password_1
+# PW removed 2026-08-30: pass the password via the SSHPASS env var and `sshpass -e`.
+# It must NEVER be written into a repo file.
+PW="${SSHPASS:?set SSHPASS in the environment; do not hardcode}"
 SSH="sshpass -p $PW ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
  -o ConnectTimeout=25 -o PreferredAuthentications=password -o PubkeyAuthentication=no \
  -o IdentitiesOnly=yes -o NumberOfPasswordPrompts=1 $HOST"

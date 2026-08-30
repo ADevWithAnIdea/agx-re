@@ -6,7 +6,7 @@ import subprocess, sys, signal, os
 
 timeout = float(sys.argv[1])
 remote_cmd = sys.argv[2]
-ssh = ["sshpass", "-p", "Password_1", "ssh",
+ssh = ["sshpass", "-e", "ssh",
        "-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=15",
        "user@192.168.170.254", remote_cmd]
 p = subprocess.Popen(ssh, start_new_session=True)

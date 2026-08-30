@@ -12,14 +12,14 @@ census (EXP-M5-02/03). One family per agent (e.g. "memory load/store byte0=0x18"
 - Do NOT run git (main agent commits). Write artifacts to experiments/EXP-M5-1x-<family>/ and report.
 
 ## Device / tools (already deployed + built)
-- SSH: `sshpass -p 'Password_1' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 user@192.168.170.253`
+- SSH: `sshpass -e ssh  # password via the SSHPASS env var ONLY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 user@192.168.170.253`
 - Apple M5 / T8142 / macOS 27.0, passwordless sudo, CLT. Tools at `~/cleanroom_work/tools/{shdump,agxtest,agx-isa}` (all built).
 - Compile: `./tools/shdump/shdump -o out.bin -f <fn> src.metal` (or `--render --vertex V --fragment F`). Extract: `python3 tools/shdump/agxparse.py out.bin --extract-hex`. Decode: `python3 tools/agx-isa/agxisa.py tokenize "<hex>"`.
 - Splice-and-observe (VALIDATED on M5): `python3 tools/agxtest/agxtest.py --source k.metal --function k --grid N --tg T --buf i=... --out i=N --splice _agc.main@0xOFF=HEX [--expect i=...]` with `--shdump tools/shdump/shdump --agxrun tools/agxtest/agxrun --agxparse tools/shdump/agxparse.py`. Fast field sweeps: `agxrun_persist` + `persistrun.py`. Fragment→pixel: `agxrender`.
 - Use your OWN device workdir `~/cleanroom_work/EXP-M5-1x-<family>/` to avoid collisions.
 - **HARD-TIMEOUT EVERY device probe** (they hang occasionally). Correct idiom (note `alarm(shift)`, NOT
   `alarm(N)` — the latter makes perl try to exec a program named after the number and silently fails):
-  `perl -e 'alarm(shift); exec @ARGV' 20 sshpass -p 'Password_1' ssh <opts> user@192.168.170.253 'bash -s' < script`.
+  `perl -e 'alarm(shift); exec @ARGV' 20 sshpass -e ssh  # password via the SSHPASS env var ONLY <opts> user@192.168.170.253 'bash -s' < script`.
   Also use `agxtest.py --run-timeout 12` for dispatch, and give any census/loop an internal wall-clock budget.
 - **Fault protocol:** M5 GPU-fault containment is being characterized; assume a bad encoding *may*
   hang. If a dispatch wedges, from the HOST run `/Users/user/.local/bin/macvdmtool reboot`, wait ~25s

@@ -89,7 +89,7 @@ BEFORE any build or device run.
   analysis chain re-run from `raw/` after the last code edit, so nothing is carried over.
 - Removed the regenerable compiled carrier archives that `sync.sh pullwork` had dragged back
   (`work/census/*.bin`): no binary archive belongs in this tree. Nothing else in `work/` is binary.
-- Password scan: **`Password_1` appears in no file**; the four hits are the literal string
+- Password scan: **CORRECTED 2026-08-30 — this line was BOTH WRONG AND ITSELF A LEAK.** It asserted the credential "appears in no file" while writing the credential verbatim. The literal password was in fact committed in 5 tracked files; all were cleaned on 2026-08-30 to use `sshpass -e` with the `SSHPASS` env var. **It remains in git history — rotating the device password is the only real remediation.**
   `SSHPASS=` in usage text.
 - **A defect in my own artifact, found at the last check and fixed:** `analysis/contract.py` read
   live `git HEAD` on every re-freeze, so `CAPTURE_CONTRACT.v7` recorded

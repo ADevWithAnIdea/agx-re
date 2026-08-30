@@ -11,8 +11,8 @@ set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 DEV="user@192.168.170.254"
-SSH="sshpass -p Password_1 ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15"
-SCP="sshpass -p Password_1 scp -o StrictHostKeyChecking=no -o ConnectTimeout=15"
+SSH="sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15"
+SCP="sshpass -e scp -o StrictHostKeyChecking=no -o ConnectTimeout=15"
 WORK="~/cleanroom_work/exp0003"
 
 # Host-side hard timeout wrapper: kills the remote command if the GPU wedges SSH.
