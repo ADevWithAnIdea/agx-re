@@ -1,0 +1,187 @@
+{
+ "run_id": "EXP-0211-m1",
+ "dashboards": {
+  "geometry": {
+   "population": "every field of every db.json descriptor",
+   "ladder": [
+    "no-data",
+    "bytes-seen",
+    "ledger-verified",
+    "geometry-mapped"
+   ],
+   "notes": [
+    "43 of 1040 fields are wider than 16 bits. For those, `geometry-mapped` (every encodable value dispatched) is unreachable by construction -- 2^24 is 16.7M dispatches -- so FIELD-SWEEP-PROTOCOL 3.3 prescribes a sampled set plus a dense per-byte sweep instead. They can reach `ledger-verified` and no further on this dashboard; that is a property of the ladder, not a gap in the evidence."
+   ],
+   "denominator": 1040,
+   "current": {
+    "no-data": 417,
+    "bytes-seen": 62,
+    "ledger-verified": 54,
+    "geometry-mapped": 507
+   },
+   "attained": {
+    "no-data": 417,
+    "bytes-seen": 62,
+    "ledger-verified": 54,
+    "geometry-mapped": 507
+   },
+   "downgraded": []
+  },
+  "liveness": {
+   "population": "every field of every db.json descriptor",
+   "ladder": [
+    "no-data",
+    "records-no-control",
+    "decided-one-carrier",
+    "decided-multi-carrier"
+   ],
+   "notes": [
+    "`records-no-control` is NOT a negative result about the hardware. Gate B: zero movement without a firing detection-power control is `carrier-undecidable`. These rows need a control arm, not a re-sweep."
+   ],
+   "denominator": 1040,
+   "current": {
+    "no-data": 416,
+    "records-no-control": 465,
+    "decided-one-carrier": 52,
+    "decided-multi-carrier": 107
+   },
+   "attained": {
+    "no-data": 416,
+    "records-no-control": 465,
+    "decided-one-carrier": 52,
+    "decided-multi-carrier": 107
+   },
+   "downgraded": []
+  },
+  "semantics": {
+   "population": "every field of every db.json descriptor",
+   "ladder": [
+    "no-semantic-check",
+    "checks-present",
+    "bounded-map",
+    "semantically-mapped"
+   ],
+   "notes": [
+    "A semantic check here is an explicit host prediction compared against the observation (`sem_match`/`oracle_match`, or a `predict` naming a known outcome). A liveness ladder prediction, free prose, and an oracle equal to the run's baseline are counted separately and are NOT semantic checks -- Gate C: \"A difference from baseline is not a semantic oracle.\""
+   ],
+   "denominator": 1040,
+   "current": {
+    "no-semantic-check": 962,
+    "checks-present": 58,
+    "bounded-map": 5,
+    "semantically-mapped": 15
+   },
+   "attained": {
+    "no-semantic-check": 962,
+    "checks-present": 58,
+    "bounded-map": 5,
+    "semantically-mapped": 15
+   },
+   "downgraded": []
+  },
+  "recipe": {
+   "population": "every emitter-relevant instruction (db.json descriptors whose `emitter_role` is not `data-word`)",
+   "ladder": [
+    "not-generated",
+    "generated-point",
+    "generated-no-donor",
+    "canonical-recipe-proven"
+   ],
+   "notes": [
+    "The registry is whatever the corpus commits as `analysis/template_dependency.json` or `analysis/generated_recipe.json`. Today that is one file (EXP-0173), covering 49 mnemonic(s). Every instruction absent from it scores `not-generated` because NO generated program containing it has been recorded -- which is a statement about the registry's coverage as much as about the hardware."
+   ],
+   "denominator": 166,
+   "current": {
+    "not-generated": 148,
+    "generated-point": 14,
+    "generated-no-donor": 2,
+    "canonical-recipe-proven": 2
+   },
+   "attained": {
+    "not-generated": 148,
+    "generated-point": 14,
+    "generated-no-donor": 2,
+    "canonical-recipe-proven": 2
+   },
+   "downgraded": []
+  },
+  "target": {
+   "population": "every field of every db.json descriptor",
+   "ladder": [
+    "no-direct-target-evidence",
+    "G16G-direct-only",
+    "G17P-direct",
+    "G17P-direct-repeated"
+   ],
+   "notes": [
+    "`G16G-direct-only` is not a failure. Committed M4/G16G evidence stays valid on its own target and is not retracted; it simply does not close a row whose claimed target is G17P."
+   ],
+   "denominator": 1040,
+   "current": {
+    "no-direct-target-evidence": 425,
+    "G16G-direct-only": 177,
+    "G17P-direct": 3,
+    "G17P-direct-repeated": 435
+   },
+   "attained": {
+    "no-direct-target-evidence": 425,
+    "G16G-direct-only": 177,
+    "G17P-direct": 3,
+    "G17P-direct-repeated": 435
+   },
+   "downgraded": []
+  },
+  "audit": {
+   "population": "every claim row in validation.json (fields plus `_instruction` rows)",
+   "ladder": [
+    "incomplete",
+    "citation-resolves",
+    "auditable",
+    "independently-confirmed"
+   ],
+   "notes": [
+    "`citation-resolves` means the directory, its raw/ and its authored probe all exist but no record for this row was found inside raw/ under any of the four keyings. For pre-EXP-0138 experiments that is usually FORMAT-UNREADABLE (.txt/.log/.hex), not absence -- the per-key reason string in dashboard_detail.json says which."
+   ],
+   "denominator": 1212,
+   "current": {
+    "incomplete": 365,
+    "citation-resolves": 246,
+    "auditable": 329,
+    "independently-confirmed": 272
+   },
+   "attained": {
+    "incomplete": 365,
+    "citation-resolves": 246,
+    "auditable": 329,
+    "independently-confirmed": 272
+   },
+   "downgraded": []
+  },
+  "limits": {
+   "population": "every db.json field whose width is at most 8 bits, i.e. every finite selector Phase 2 says to dispatch exhaustively",
+   "ladder": [
+    "no-data",
+    "partial-sweep",
+    "full-domain-swept",
+    "limit-mapped"
+   ],
+   "notes": [
+    "Population is db.json fields of width <= 8. Section 6 also requires limits for finite RESOURCES -- base slots, texture selectors, register banks, scoreboards, queues, nesting stacks, descriptor tables. This corpus commits no machine-readable registry of those, so they are 0 of 0 here: NOT scored zero, NOT counted as covered. Building that registry is the prerequisite for scoring them."
+   ],
+   "denominator": 987,
+   "current": {
+    "no-data": 391,
+    "partial-sweep": 76,
+    "full-domain-swept": 386,
+    "limit-mapped": 134
+   },
+   "attained": {
+    "no-data": 391,
+    "partial-sweep": 76,
+    "full-domain-swept": 386,
+    "limit-mapped": 134
+   },
+   "downgraded": []
+  }
+ }
+}

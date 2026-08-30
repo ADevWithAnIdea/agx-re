@@ -1,0 +1,95 @@
+{
+ "records": 33760,
+ "compile_only": 9807,
+ "candidates": 6359,
+ "unparsed": 852,
+ "per_parser": {
+  "P2": {
+   "candidates": 194,
+   "unparsed": 153,
+   "why_splice_line_shape_not_modelled": 126,
+   "records": 51,
+   "conf_prose": 51,
+   "why_no_db_field_covers_that_byte": 2,
+   "why_named_target_is_not_a_db_field": 2,
+   "why_no_live_anchor": 21,
+   "why_ambiguous_anchor": 2
+  },
+  "P5": {
+   "candidates": 6,
+   "unparsed": 4,
+   "why_splice_changes_descriptor_identity": 3,
+   "records": 4,
+   "conf_table": 4,
+   "why_no_byte_changed": 1
+  },
+  "P1": {
+   "candidates": 5464,
+   "unparsed": 344,
+   "why_no_anchor_bytes_in_header": 344,
+   "records": 7936,
+   "conf_table": 7936
+  },
+  "P3": {
+   "candidates": 88,
+   "records": 176,
+   "conf_table": 176
+  },
+  "P4": {
+   "candidates": 607,
+   "records": 25593,
+   "conf_structured": 25593,
+   "unparsed": 351,
+   "why_program_bytes_with_no_execution_outcome": 351
+  },
+  "C0": {
+   "compile_only": 9807
+  }
+ },
+ "unparsed_samples": {
+  "P2/splice_line_shape_not_modelled": [
+   "experiments/EXP-0003-hw-testbed/raw/fault1_stop_zeroed.log:3: SPLICE _agc.main@0x34: 0e000000 -> 00000000 (abs file offset 7572)",
+   "experiments/EXP-0003-hw-testbed/raw/fault1_stop_zeroed.log:4: MAIN_SPLICED 1ca010066710540000012000510100404600670044040101200051010040460009051c0100c0e700540002012100110000901100000",
+   "experiments/EXP-0003-hw-testbed/raw/fault2_stop_ff.log:3: SPLICE _agc.main@0x34: 0e000000 -> ffffffff (abs file offset 7572)",
+   "experiments/EXP-0003-hw-testbed/raw/fault2_stop_ff.log:4: MAIN_SPLICED 1ca010066710540000012000510100404600670044040101200051010040460009051c0100c0e700540002012100110000901100fff"
+  ],
+  "P5/splice_changes_descriptor_identity": [
+   "experiments/EXP-0003-hw-testbed/raw/fault1_stop_zeroed.log:0: experiments/EXP-0003-hw-testbed/raw/fault1_stop_zeroed.log",
+   "experiments/EXP-0003-hw-testbed/raw/fault2_stop_ff.log:0: experiments/EXP-0003-hw-testbed/raw/fault2_stop_ff.log",
+   "experiments/EXP-0003-hw-testbed/raw/fault4_all_ff.log:0: experiments/EXP-0003-hw-testbed/raw/fault4_all_ff.log"
+  ],
+  "P5/no_byte_changed": [
+   "experiments/EXP-0003-hw-testbed/raw/stage1b_noop_splice.log:0: experiments/EXP-0003-hw-testbed/raw/stage1b_noop_splice.log"
+  ],
+  "P1/no_anchor_bytes_in_header": [
+   "experiments/EXP-0005-float-alu-isa/raw/opmap.txt:5: 0x00  OK    ACCEPTED-UNKNOWN  [0 0 0 0]",
+   "experiments/EXP-0005-float-alu-isa/raw/opmap.txt:6: 0x01  OK    ACCEPTED-UNKNOWN  [0 0 0 0]",
+   "experiments/EXP-0005-float-alu-isa/raw/opmap.txt:7: 0x02  OK    ACCEPTED-UNKNOWN  [0 0 0 0]",
+   "experiments/EXP-0005-float-alu-isa/raw/opmap.txt:8: 0x03  OK    ACCEPTED-UNKNOWN  [0 0 0 0]"
+  ],
+  "P2/no_db_field_covers_that_byte": [
+   "experiments/EXP-0010-control-flow/raw/run_experiments.log:62:   splice stop b0 0x0e->0x00         -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]",
+   "experiments/EXP-0010-control-flow/raw/run_experiments.log:63:   splice stop b0 0x0e->0xff         -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]"
+  ],
+  "P2/named_target_is_not_a_db_field": [
+   "experiments/EXP-0010-control-flow/raw/run_experiments.log:64:   splice stop b0->0x67(load-op)     -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]",
+   "experiments/EXP-0010-control-flow/raw/run_experiments.log:65:   splice stop payload->ff           -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]"
+  ],
+  "P2/no_live_anchor": [
+   "experiments/EXP-0012-memory/raw/mem_probe.log:39:   splice load +5 0x04->0x01 (count1) -> [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3",
+   "experiments/EXP-0012-memory/raw/mem_probe.log:40:   splice store +5 0x04->0x01 (count1) -> [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 6, ",
+   "experiments/EXP-0012-memory/raw/mem_probe.log:41:   splice load +5 0x04->0x02 (count2) -> [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3",
+   "experiments/EXP-0012-memory/raw/mem_probe.log:54:      splice TG-store +1 0x02->0x00 (make device) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]"
+  ],
+  "P2/ambiguous_anchor": [
+   "experiments/EXP-0013-scalar-alu/raw/val_conv_fma.log:8:     splice b7 0x48->0x08 (sign bit): out(u)=[3, 5, 10, 255] (f2u expects [3,5,10,255]) st=OK",
+   "experiments/EXP-0013-scalar-alu/raw/val_conv_fma.log:10:     splice b7 0x60->0x20 (sign bit): -1 as u32=4294967295 -> out=[4294967296.0, 4294967296.0, 7.0, 10.0] st=OK"
+  ],
+  "P4/program_bytes_with_no_execution_outcome": [
+   "experiments/EXP-0077-m4-mem-offset-semantics/raw/m4-20260827-run01/02_build.json:0: None",
+   "experiments/EXP-0077-m4-mem-offset-semantics/raw/m4-20260827-run01/02_build.json:0: None",
+   "experiments/EXP-0078-m4-base-slot-census/raw/m4-20260827-run01/02_build.json:0: None",
+   "experiments/EXP-0078-m4-base-slot-census/raw/m4-20260827-run01/02_build.json:0: None"
+  ]
+ }
+}

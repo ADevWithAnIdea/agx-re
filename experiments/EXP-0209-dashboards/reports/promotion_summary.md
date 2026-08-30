@@ -8,62 +8,67 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 |---|---:|---:|---:|---:|---:|
 | audit | 461 | 562 | 149 | 40 | 1212 |
 | geometry | 530 | 68 | 442 | 172 | 1212 |
-| liveness | 112 | 179 | 580 | 341 | 1212 |
+| liveness | 148 | 192 | 785 | 87 | 1212 |
 | recipe | 41 | 55 | 535 | 581 | 1212 |
 | semantics | 5 | 42 | 584 | 581 | 1212 |
 | target | 610 | 2 | 600 | 0 | 1212 |
 
 ## Rows that clear EVERY rule that applies to them
 
-48 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
+53 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
 
 | row | label | target | rules that returned PASS |
 |---|---|---|---|
 | `copysign.operands` | untested | G17P | R1, R2, R3, R4 |
-| `cvt_f2i.b9` | single-template-inference | G17P | R1, R2, R3, R4 |
+| `cvt_f2i.b9` | single-template-inference | G17P | R1, R2, R3, R4, R9 |
+| `cvt_i2f_src.dst_desc` | untested | M4 | R1, R2, R3, R4, R9 |
 | `dev_scoreboard_fence.scope_flag` | corpus-correlation | M4 | R1, R2, R3, R4, R9 |
-| `falu2_srcmod10.ctrl` | untested | G17P | R1, R2, R3, R4 |
-| `falu2i.ctrl_lo` | untested | G17P | R1, R2, R3, R4 |
-| `falu2i.mods` | untested | G17P | R1, R2, R3, R4 |
-| `falu2i.opflags` | untested | G17P | R1, R2, R3, R4 |
-| `falu2i.srcA_reg_top` | untested | G17P | R1, R2, R3, R4, R6 |
+| `falu2_srcmod10.ctrl` | untested | G17P | R1, R2, R3, R4, R9 |
+| `falu2i.ctrl_lo` | untested | G17P | R1, R2, R3, R4, R9 |
+| `falu2i.mods` | untested | G17P | R1, R2, R3, R4, R9 |
+| `falu2i.opflags` | untested | G17P | R1, R2, R3, R4, R9 |
+| `falu2i.srcA_reg_top` | untested | G17P | R1, R2, R3, R4, R6, R9 |
 | `falu3_srcmod12.ctrl` | untested | G17P | R1, R2, R3, R4 |
 | `frag_color_pack.fmt_class` | untested | G17P | R1, R2, R3, R4, R9 |
 | `get_sr.dst_hi` | untested | G17P | R1, R2, R3, R4, R6 |
 | `get_sr.form` | untested | G17P | R1, R2, R3, R4 |
-| `h_coord_hi_ext.tail` | untested | G17P | R1, R2, R3, R4 |
-| `half_alu_fma12.ext` | untested | G17P | R1, R2, R3, R4 |
-| `iadd2.b2_fmt` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
-| `ibfe.b2_bit0` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
-| `ibfe.sign_ext` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
-| `ibfins.b10` | untested | G17P | R1, R2, R3, R4 |
-| `ibfins.b6hi` | untested | G17P | R1, R2, R3, R4 |
-| `ibitcount.cache` | untested | G17P | R1, R2, R3, R4, R6 |
-| `icmp_pred.srcA` | untested | M4 | R1, R2, R3, R4 |
-| `icmpsel.dst_full` | untested | M4 | R1, R2, R3, R4 |
+| `h_coord_hi_ext.ext` | untested | G17P | R1, R2, R3, R4, R9 |
+| `h_coord_hi_ext.srcB` | untested | G17P | R1, R2, R3, R4, R9 |
+| `h_coord_hi_ext.tail` | untested | G17P | R1, R2, R3, R4, R9 |
+| `half_alu_fma12.ext` | untested | G17P | R1, R2, R3, R4, R9 |
+| `iadd2.b2_fmt` | single-template-inference | G17P | R1, R2, R3, R4, R6, R9 |
+| `ibfe.b2_bit0` | single-template-inference | G17P | R1, R2, R3, R4, R6, R9 |
+| `ibfe.sign_ext` | single-template-inference | G17P | R1, R2, R3, R4, R6, R9 |
+| `ibfins.b6hi` | untested | G17P | R1, R2, R3, R4, R9 |
+| `ibitcount.cache` | untested | G17P | R1, R2, R3, R4, R6, R9 |
+| `icmp_pred.srcA` | untested | M4 | R1, R2, R3, R4, R9 |
+| `icmpsel.dst_full` | untested | M4 | R1, R2, R3, R4, R9 |
 | `if_push.scope` | single-template-inference | G17P | R1, R2, R3, R4, R9 |
-| `ilogic.z6` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
-| `ilogic.z8` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
-| `ilogic.z9` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
+| `ilogic.z6` | single-template-inference | G17P | R1, R2, R3, R4, R6, R9 |
+| `ilogic.z9` | single-template-inference | G17P | R1, R2, R3, R4, R6, R9 |
 | `imageblock_store.src` | untested | G17P | R1, R2, R3, R4, R9 |
-| `isel_reg8.cmp_mode` | untested | M4 | R1, R2, R3, R4 |
-| `mem_fence.b5` | corpus-correlation | M4 | R1, R2, R3, R4 |
-| `mem_fence.memclass` | corpus-correlation | M4 | R1, R2, R3, R4 |
-| `mem_fence.sub` | corpus-correlation | M4 | R1, R2, R3, R4 |
+| `isel10_c.cmpB` | untested | M4 | R1, R2, R3, R4, R9 |
+| `isel10_c.selFalse` | untested | M4 | R1, R2, R3, R4, R9 |
+| `isel10_c.selFalse_file` | untested | M4 | R1, R2, R3, R4, R9 |
+| `isel_reg8.cmpB` | untested | M4 | R1, R2, R3, R4, R9 |
+| `isel_reg8.cmp_mode` | untested | M4 | R1, R2, R3, R4, R9 |
+| `ishift.src_cache` | untested | M4 | R1, R2, R3, R4, R9 |
+| `mem_fence.b5` | corpus-correlation | M4 | R1, R2, R3, R4, R9 |
+| `mem_fence.memclass` | corpus-correlation | M4 | R1, R2, R3, R4, R9 |
+| `mem_fence.sub` | corpus-correlation | M4 | R1, R2, R3, R4, R9 |
 | `n4_rt_word.dst` | tokenization-only | G17P | R1, R2, R3, R4, R9 |
 | `pop_reconverge.scope` | untested | M4 | R1, R2, R3, R4, R9 |
 | `ray_move_copy6.optype` | untested | G17P | R1, R2, R3, R4, R9 |
-| `reg_move_c0.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c1.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c2var.dst` | untested | G17P | R1, R2, R3, R4 |
-| `reg_move_c9.dst` | untested | G17P | R1, R2, R3, R4 |
-| `rt_query_traverse.dst` | untested | G17P | R1, R2, R3, R4 |
-| `shift_amt_move.src_flag` | untested | G17P | R1, R2, R3, R4, R6 |
-| `threadgroup_barrier.mem_scope` | untested | M4 | R1, R2, R3, R4 |
-| `tile_read.b2` | untested | G17P | R1, R2, R3, R4 |
-| `tile_read.b4` | untested | G17P | R1, R2, R3, R4 |
-| `tile_read.b6_hi` | untested | G17P | R1, R2, R3, R4 |
-| `tile_read_mrt.b4` | untested | G17P | R1, R2, R3, R4 |
-| `tile_read_mrt.b6_hi` | untested | G17P | R1, R2, R3, R4 |
-| `vtx_out_pos.dst` | untested | G17P | R1, R2, R3, R4 |
-| `vtx_out_pos.slot` | single-template-inference | G17P | R1, R2, R3, R4 |
+| `rt_query_traverse.dst` | untested | G17P | R1, R2, R3, R4, R9 |
+| `shift_amt_move.src_flag` | untested | G17P | R1, R2, R3, R4, R6, R9 |
+| `threadgroup_barrier.mem_scope` | untested | M4 | R1, R2, R3, R4, R9 |
+| `tile_read.b2` | untested | G17P | R1, R2, R3, R4, R9 |
+| `tile_read.b4` | untested | G17P | R1, R2, R3, R4, R9 |
+| `tile_read.b6_hi` | untested | G17P | R1, R2, R3, R4, R9 |
+| `tile_read_mrt.b4` | untested | G17P | R1, R2, R3, R4, R9 |
+| `tile_read_mrt.b6_hi` | untested | G17P | R1, R2, R3, R4, R9 |
+| `unpack_convert.cache` | untested | M4 | R1, R2, R3, R4, R9 |
+| `vary_store.b5_tag` | untested | G17P | R1, R2, R3, R4, R9 |
+| `vary_store.hint1` | untested | G17P | R1, R2, R3, R4, R9 |
+| `vtx_out_pos.dst` | untested | G17P | R1, R2, R3, R4, R9 |
+| `vtx_out_pos.slot` | single-template-inference | G17P | R1, R2, R3, R4, R9 |

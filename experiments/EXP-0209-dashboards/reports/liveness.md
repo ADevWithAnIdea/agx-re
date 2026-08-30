@@ -165,21 +165,24 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
-| `PASS` | 64 | 1212 | the raw meets the rule |
-| `REJECT` | 71 | 1212 | the raw CONTRADICTS the rule |
-| `INSUFFICIENT` | 174 | 1212 | the raw lacks what the rule needs |
-| `N/A` | 903 | 1212 | the rule does not apply to this claim |
+| `PASS` | 168 | 1212 | the raw meets the rule |
+| `REJECT` | 85 | 1212 | the raw CONTRADICTS the rule |
+| `INSUFFICIENT` | 428 | 1212 | the raw lacks what the rule needs |
+| `N/A` | 531 | 1212 | the rule does not apply to this claim |
 
-### `REJECT` — 71 row(s), by reason
+### `REJECT` — 85 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
 | 42 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: victim=N |
+| 6 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: foreign=N |
 | 5 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: sentinel_bad=N,victi |
 | 5 | hard outcomes present (invalid_run=N) with cascade/contamination markers in the SAME cited raw: sentinel_bad=N |
+| 5 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=N |
+| 4 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: sentinel_bad=N,victim=N |
 | 3 | hard outcomes present (fault=N,invalid_run=N) with cascade/contamination markers in the SAME cited raw: sentin |
-| 2 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: foreign=N |
 | 2 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: foreign=N,victim=N |
+| 2 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: unstable=N |
 | 2 | hard outcomes present (fault=N,invalid_run=N) with cascade/contamination markers in the SAME cited raw: restar |
 | 2 | hard outcomes present (no_draw=N) with cascade/contamination markers in the SAME cited raw: sentinel_bad=N |
 | 1 | hard outcomes present (fault=N,undecodable=N) with cascade/contamination markers in the SAME cited raw: sentin |
@@ -189,7 +192,6 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | 1 | hard outcomes present (fault=N) with cascade/contamination markers in the SAME cited raw: foreign=N |
 | 1 | hard outcomes present (fault=N,undecodable=N) with cascade/contamination markers in the SAME cited raw: victim |
 | 1 | hard outcomes present (hang=N,invalid_run=N) with cascade/contamination markers in the SAME cited raw: restart |
-| 1 | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=N |
 
 <details><summary>first 60 rows</summary>
 
@@ -225,12 +227,15 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `half_alu_ext8.opflags` | hardware-run | G17P | hard outcomes present (fault=448) with cascade/contamination markers in the SAME cited raw: foreign=4608,victim=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `half_alu_ext8.opsel` | isolated-byte-diff | G17P | hard outcomes present (fault=384) with cascade/contamination markers in the SAME cited raw: foreign=4608. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `half_alu_ext8.srcA` | hardware-run | G17P | hard outcomes present (fault=480) with cascade/contamination markers in the SAME cited raw: victim=40. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `half_pack.b3` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: sentinel_bad=3,victim=12. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `half_pack.dstlo` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: sentinel_bad=4,victim=13. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `iadd2.lenbit` | hardware-run | M4 | hard outcomes present (fault=3) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `iadd2.srcA` | hardware-run | G17P | hard outcomes present (fault=923) with cascade/contamination markers in the SAME cited raw: sentinel_bad=1,victim=259. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfe.b7` | hardware-run | M4 | hard outcomes present (fault=200) with cascade/contamination markers in the SAME cited raw: victim=43. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfe.dst` | hardware-run | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: victim=70. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfe.lenhi` | isolated-byte-diff | M4 | hard outcomes present (fault=2) with cascade/contamination markers in the SAME cited raw: victim=2. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfe.srcA` | hardware-run | G17P | hard outcomes present (fault=11) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `ibfins.b10` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: sentinel_bad=6,victim=13. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfins.b7` | untested | G17P | hard outcomes present (fault=132,undecodable=239) with cascade/contamination markers in the SAME cited raw: victim=188. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibfins.dst` | hardware-run | G17P | hard outcomes present (fault=192) with cascade/contamination markers in the SAME cited raw: victim=152. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ibitcount.dst` | untested | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: foreign=512,victim=27. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
@@ -242,30 +247,27 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `ilogic.lut_a_z` | hardware-run | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: victim=34. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ilogic.lut_b` | hardware-run | G17P | hard outcomes present (fault=1) with cascade/contamination markers in the SAME cited raw: victim=6. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `ilogic.outmod` | hardware-run | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=5. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `ilogic.z8` | single-template-inference | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `imad.dst` | hardware-run | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: victim=102. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `isel10.selFalse_file` | isolated-byte-diff | M4 | hard outcomes present (fault=189) with cascade/contamination markers in the SAME cited raw: victim=3. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `isel10_c.cmpA` | untested | M4 | hard outcomes present (fault=13) with cascade/contamination markers in the SAME cited raw: victim=16. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `isel10_c.cmp_mode` | untested | M4 | hard outcomes present (fault=20) with cascade/contamination markers in the SAME cited raw: victim=25. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `isel10_c.flags` | untested | M4 | hard outcomes present (fault=14) with cascade/contamination markers in the SAME cited raw: victim=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 | `isel10_c.selTrue` | untested | M4 | hard outcomes present (fault=6) with cascade/contamination markers in the SAME cited raw: victim=2. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `isel_reg8.cmpA` | untested | M4 | hard outcomes present (fault=5) with cascade/contamination markers in the SAME cited raw: victim=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `isel_reg8.flags` | untested | M4 | hard outcomes present (fault=26) with cascade/contamination markers in the SAME cited raw: victim=16. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `isel_reg8.selTrue` | untested | M4 | hard outcomes present (fault=5) with cascade/contamination markers in the SAME cited raw: victim=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `ishift.opB` | hardware-run | G17P | hard outcomes present (fault=1) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `ishift.srcA` | hardware-run | G17P | hard outcomes present (fault=128) with cascade/contamination markers in the SAME cited raw: victim=78. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `jump_cond.cf_scope` | untested | G17P | hard outcomes present (invalid_run=1024) with cascade/contamination markers in the SAME cited raw: sentinel_bad=1024,unstable=8. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
-| `jump_cond.offset` | untested | G17P | hard outcomes present (fault=53,invalid_run=61) with cascade/contamination markers in the SAME cited raw: sentinel_bad=61,unstable=2. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `isel8.cmpA` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: sentinel_bad=1,victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `isel8.cmpB` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=3. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
+| `isel_reg.cmpB` | untested | G17P | hard outcomes present (none) with cascade/contamination markers in the SAME cited raw: victim=1. Gate E: a malformed runner response is `measurement_failure`, never a hardware outcome |
 
 </details>
 
-### `INSUFFICIENT` — 174 row(s), by reason
+### `INSUFFICIENT` — 428 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
-| 114 | a fault/hang/limit claim confirmed in N run(s) |
-| 27 | N hard outcome(s) in the raw (fault=N) that the claim does not mention |
-| 20 | N hard outcome(s) in the raw (hang=N) that the claim does not mention |
-| 5 | N hard outcome(s) in the raw (fault=N,hang=N) that the claim does not mention |
+| 383 | a fault/hang/limit claim confirmed in N run(s) |
+| 17 | N hard outcome(s) in the raw (hang=N) that the claim does not mention |
+| 16 | N hard outcome(s) in the raw (fault=N) that the claim does not mention |
+| 4 | N hard outcome(s) in the raw (fault=N,hang=N) that the claim does not mention |
 | 2 | N hard outcome(s) in the raw (invalid_run=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (cmdbuf_error=N,fault=N,hang=N) that the claim does not mention |
 | 1 | N hard outcome(s) in the raw (fault=N,hang=N,invalid_run=N,undecodable=N) that the claim does not mention |
@@ -279,7 +281,12 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | row | label | target | why |
 |---|---|---|---|
 | `atomic_mem.ret_flag` | hardware-run | M4 | 4 hard outcome(s) in the raw (invalid_run=4) that the claim does not mention -- unclassified, so not confirmed free of cascade contamination |
+| `atomic_rmw.addr_desc_hi` | untested | M4 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `atomic_rmw.op_msb` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `atomic_rmw.per_lane` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `atomic_rmw.ret_flag` | hardware-run | M4 | 2 hard outcome(s) in the raw (invalid_run=2) that the claim does not mention -- unclassified, so not confirmed free of cascade contamination |
+| `atomic_tg.op_desc` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `atomic_tg.rsv10lo` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `b_alu10_lo6.dst` | corpus-correlation | M4 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `b_alu10_lo6.ext8` | corpus-correlation | M4 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `b_alu10_lo6.ext9` | corpus-correlation | M4 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
@@ -324,20 +331,15 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 | `b_alu10_lof.src_flag` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `b_alu10_lof.src_reg` | untested | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 | `b_alu10_lof.z6` | single-template-inference | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `call.b3` | hardware-run | G17P | 64 hard outcome(s) in the raw (fault=64) that the claim does not mention -- unclassified, so not confirmed free of cascade contamination |
-| `call.b5` | hardware-run | G17P | 1120 hard outcome(s) in the raw (fault=1120) that the claim does not mention -- unclassified, so not confirmed free of cascade contamination |
-| `cvt_bf16.b5` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.b7` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.dir` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.dst` | hardware-run | G17P | a fault/hang/limit claim confirmed in 1 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.fmt` | isolated-byte-diff | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.opsel` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_bf16.srcw` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_f2h_dst._instruction` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_f2h_dst.dhalf` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_f2h_dst.dst` | hardware-run | G17P | a fault/hang/limit claim confirmed in 1 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_f2h_dst.opsel` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
-| `cvt_f2h_dst.src` | hardware-run | G17P | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.fmt10` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.fmt4` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.fmt6` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.form` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.reg_a` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.reg_b` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.rsv11` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.rsv8` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
+| `b_alu14_c83.rsv9` | tokenization-only | M4+A18 | a fault/hang/limit claim confirmed in 0 run(s). Gate E requires such claims to be repeated in isolation |
 
 </details>
 

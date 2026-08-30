@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 482,
-   "isolated-byte-diff": 62,
+   "hardware-run": 485,
+   "isolated-byte-diff": 65,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 259
+   "untested": 253
   },
   "by_label_pct": {
-   "hardware-run": 46.2,
-   "isolated-byte-diff": 6.0,
+   "hardware-run": 46.6,
+   "isolated-byte-diff": 6.2,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 25.0
+   "untested": 24.3
   },
-  "emittable_instructions": 32,
+  "emittable_instructions": 35,
   "emittable_mnemonics": [
    "bf_add_dst",
    "bf_alu",
@@ -53,8 +53,11 @@
    "h_coord_hi",
    "half_alu",
    "half_alu_ext8",
+   "half_pack",
    "hminmax",
+   "ibitcount",
    "iminmax",
+   "irotate",
    "isel10",
    "iter_at",
    "iter_flat",
@@ -70,7 +73,7 @@
    "sr_read_wide",
    "uniform_mov"
   ],
-  "decodable_not_yet_emittable": 140,
+  "decodable_not_yet_emittable": 137,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -81,7 +84,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 32
+  "emittable_of_emitter_relevant": 35
  },
  "instructions": {
   "falu2": {
@@ -3402,131 +3405,31 @@
    },
    "b1": {
     "label": "untested",
-    "range": "(byte0 bit7, byte+1) sub-op pairs: (0x27,0x05)=popcount, (0xa7,0x05)=find_msb, (0xa7,0x04)=reverse_bits",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
+     "EXP-0202"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "NO `iunary` INSTRUCTION EXISTS IN OUR COMPILED CODE. Requiring instruction-BOUNDARY alignment, zero of 56 authored carriers emit one (EXP-0139 found zero in 30 of its own); every byte0 == 0x27 instruction our compute MSL produces is claimed by a tighter descriptor. The apparent hits before the boundary check were INTERIORS of longer instructions. So the field is reached by SYNTHESIS: an 8-byte `ibitcount` occurrence is rewritten in place to `27 2d 22 ..`, which tokenizes as `iunary` and -- confirmed by the arm's own baseline in both runs -- still computes the popcount. Dense 0..255 on two carriers. STRUCTURE, reproduced identically in both runs: the low three bits alone decide. b1 & 7 == 5 delivers the correct count (32 of 256 values); b1 & 7 == 6 delivers a different coherent value (32); the other 192 do not deliver at all, and their hardness is CARRIER-DEPENDENT -- `not_written` on the store carrier, `fault` on the ALU-consumed carrier. That map is post-hoc, so the label stays at liveness.",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 251,
     "start": 8,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 256 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=2, distinct values dispatched=256, records=1040, experiments=EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 27 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
-     "reproducibility": "auditable: 3 committed raw files (repeat runs of ONE harness -- repeatable, not independent) in EXP-0202-g17p-int-shift-convert",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit e6bac78a (2026-08-28, \"docs(DOC-02): per-field labels for all 170 instructions \u2014 16.2% is emitter-grade\"). Current status `untested` was set at 9292800f (\"audit(0189): 55 does not survive \u2014 the defensible number is 38 of 166\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "FAULT MAP on carrier `pc_alu` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 192 of 256 dispatched values fault in EVERY run | CARRIER-DEPENDENT: 2 carrier/arm combinations were swept; the union of fault values across them is 192 and the union of hang values is 0, which is NOT a per-field fault map",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 512,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 1040,
-      "legal_values_ok": 1,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 4,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 392,
-      "fault_values": 192,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 27,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 28,
-      "semantic_checks": 1040,
-      "distinct_oracle_payloads_max_single_carrier": 2,
-      "carriers": 2,
-      "outcomes": {
-       "fault": 392,
-       "unexpected_ok": 124,
-       "wrong_value": 128,
-       "ok": 4,
-       "not_written": 392
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/prefreeze/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "3661 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "599 records under sibling descriptor(s) ibfins at the SAME (start,width). This is CROSS-DESCRIPTOR and therefore INFERRED, never direct evidence for this row.",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [1..1]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
-    }
+    "width": 8
    },
    "opsel": {
     "label": "untested",
-    "range": "byte+2 swept: only 0x54/0x55 break the stored result, every other value computes; 0x56 = the integer-unary/format-convert datapath",
-    "target": "A18",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
+     "EXP-0202"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "Same synthesized carrier as `iunary.b1`. Dense 0..255 on two carriers, identical in both runs: 128 of 256 values deliver the correct count and 128 do not, and the deciding bit is BIT 1 of byte+2 -- the same bit the tight `ibitcount` descriptor models as `cache`. Values 0x54..0x57 re-tokenize as `ibitcount`, so the encodable range under this descriptor is 252 of 256, and those four are excluded from it rather than counted as movement. The map is post-hoc.",
+    "values_dispatched": 256,
+    "distinct_bytes": 512,
+    "encodable_range": 254,
     "start": 16,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 256 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=2, distinct values dispatched=256, records=1040, experiments=EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 22 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
-     "reproducibility": "auditable: 3 committed raw files (repeat runs of ONE harness -- repeatable, not independent) in EXP-0202-g17p-int-shift-convert",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit e6bac78a (2026-08-28, \"docs(DOC-02): per-field labels for all 170 instructions \u2014 16.2% is emitter-grade\"). Current status `untested` was set at 9292800f (\"audit(0189): 55 does not survive \u2014 the defensible number is 38 of 166\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "none recorded: 0 hard outcomes and 0 silent/no-effect outcomes in the tested envelope",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 512,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 1040,
-      "legal_values_ok": 1,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 4,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 0,
-      "fault_values": 0,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 22,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 22,
-      "semantic_checks": 1040,
-      "distinct_oracle_payloads_max_single_carrier": 2,
-      "carriers": 2,
-      "outcomes": {
-       "wrong_value": 528,
-       "unexpected_ok": 508,
-       "ok": 4
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/prefreeze/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "3661 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "5137 records under sibling descriptor(s) cvt_f2i, irotate at the SAME (start,width). This is CROSS-DESCRIPTOR and therefore INFERRED, never direct evidence for this row.",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [2..2]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
-    }
+    "width": 8
    },
    "dst": {
     "label": "hardware-run",
@@ -4732,7 +4635,7 @@
     "evidence": [
      "EXP-0144"
     ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. **DOWNGRADE PROPOSED BY EXP-0202 AND DECLINED (orchestrator, 2026-08-30) \u2014 the proposal carried an EMPTY `note`.** A `hardware-run` -> `untested` retraction is the strongest move available and it arrived with no stated reason: no contradictory observation, no failed gate, no scope. \u00a79 permits retraction only for direct contradictory evidence or a gate that was never met, and an unexplained downgrade is neither. The row's quiet-window confirmation is unaffected \u2014 EXP-0210 scored `cvt_f2i.*` at 100% on the quiet pair. If the experiment meant to refute this row it must say what it observed."
    },
    "dst_class": {
     "label": "hardware-run",
@@ -4748,76 +4651,14 @@
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
-     "EXP-0184"
+     "EXP-0202"
     ],
-    "note": "0 of 5 arms moved, on 5 carriers with 1 distinct baseline field values, every arm's control firing **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "ACCEPTED-INERT over a materially wider envelope than the refusal that preceded it. EXP-0168 refused this field as INERT-SINGLE (256/256 ok, one distinct payload); EXP-0184 then supplied five carriers that all varied DESTINATION WIDTH/SIGN -- the dimension db.json assigns to byte+8 -- so for byte+9 they were one carrier. The six occurrences here span RESULT ROUTING (byte+2 = 0x54 and 0x56), CONVERT OP (0x96 / 0xac / 0xb4), SOURCE CLASS (2 and 3), SOURCE WIDTH (float and half), a VECTOR form and four destination registers; every one has a control (`dst`) that moves and fails the oracle. 256 of 256 values are `ok` on all six, with ONE distinct payload per arm, in two gated runs in opposite case order -- 3072 ledger-verified cases. The pre-registered LIVE model is refuted at 255 of 256 values per arm, which is the result. Safe wording: inert in this envelope; global role unknown. Untested here: the fragment and vertex stages, which need a render harness.",
     "values_dispatched": 256,
-    "distinct_bytes": 1280,
+    "distinct_bytes": 1536,
     "encodable_range": 256,
     "start": 72,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 256 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=10, distinct values dispatched=256, records=7480, experiments=EXP-0144-m4-emit-pack,EXP-0168-g17p-dst-resweep,EXP-0184-g17p-onefield-b,EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 33 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 10",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G16G-direct (M4) + G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed: per-case raw in 4 separate experiments (EXP-0144-m4-emit-pack, EXP-0168-g17p-dst-resweep, EXP-0184-g17p-onefield-b, EXP-0202-g17p-int-shift-convert), 11 raw files",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit ef86175e (2026-08-28, \"exp(0144): revalidation withdraws 44 down to 33 \u2014 and corrects MY 58.2% divergen\"). Current status `single-template-inference` was set at 45d97d62 (\"exp(0184): two operand fields recovered \u2014 and a sixth control that fired for the\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "CARRIER-DEPENDENT: 15 carrier/arm combinations were swept; the union of fault values across them is 0 and the union of hang values is 256, which is NOT a per-field fault map",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 2816,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 7480,
-      "legal_values_ok": 256,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 4122,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 256,
-      "fault_values": 0,
-      "hang_values": 256,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 33,
-      "distinct_ok_only_payloads_max_single_carrier": 10,
-      "distinct_payloads_max_single_carrier": 33,
-      "semantic_checks": 7480,
-      "distinct_oracle_payloads_max_single_carrier": 2,
-      "carriers": 10,
-      "outcomes": {
-       "ok": 4122,
-       "hang": 256,
-       "unexpected_ok": 3102
-      }
-     },
-     "promotion_status_note": "`label: single-template-inference` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl",
-      "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run04/sweep.jsonl",
-      "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_f2i/sweep.jsonl",
-      "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/sweep.jsonl",
-      "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0184-g17p-onefield-b/raw/prefreeze/pilot01/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0144-m4-emit-pack",
-      "EXP-0168-g17p-dst-resweep",
-      "EXP-0184-g17p-onefield-b",
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "7244 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "570 records under sibling descriptor(s) ibfins at the SAME (start,width). This is CROSS-DESCRIPTOR and therefore INFERRED, never direct evidence for this row.",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [9..9]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
-    }
+    "width": 8
    }
   },
   "cvt_i2f": {
@@ -16118,159 +15959,32 @@
     "width": 8
    },
    "cache": {
-    "label": "untested",
-    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "label": "isolated-byte-diff",
+    "range": "0..1 dense (all 2 values)",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0202"
     ],
-    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule) **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "byte+2 bit 1, the only free bit of byte+2 under this descriptor's match (byte+2 in {0x54, 0x56}), so 2 of 2 encodable values is the FULL range. Ten occurrences on nine carriers spanning standalone-store, ALU-consumed, compare-consumed, two-occurrence, find-msb, reverse-bits, threadgroup-memory+barrier (grid 64 / tg 32) and wide-readback carriers. ASYMMETRIC, exactly as `irotate.b2` is: on the SEVEN occurrences the compiler compiled to 1, forcing 0 breaks the result (`wrong_value`) in both runs; on the THREE it compiled to 0, BOTH values reproduce the host vector. So value 1 is universally safe here and value 0 is context-dependent. The pre-registered symmetric writeback-enable model is therefore REFUTED at 3 of 20 checks and refined; the refinement is post-hoc and is offered as a hypothesis for a successor, not as a mapped semantic.",
     "values_dispatched": 2,
-    "distinct_bytes": 2,
+    "distinct_bytes": 20,
     "encodable_range": 2,
     "start": 17,
-    "width": 1,
-    "axes": {
-     "geometry": "geometry-mapped: 2 of 2 encodable values dispatched in one arm, 2 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=12, distinct values dispatched=2, records=59, experiments=EXP-0139-m4-emit-ialu,EXP-0169-g17p-rerecord,EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 2 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1 | EXP-0191 frozen detection gate (carrier form): SURVIVES-FULLY",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G16G-direct (M4) + G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed: per-case raw in 3 separate experiments (EXP-0139-m4-emit-ialu, EXP-0169-g17p-rerecord, EXP-0202-g17p-int-shift-convert), 7 raw files",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit e6bac78a (2026-08-28, \"docs(DOC-02): per-field labels for all 170 instructions \u2014 16.2% is emitter-grade\"). Current status `untested` was set at 2792d7ca (\"exp(0169): 46 fields substantiated, 38 not \u2014 and a diff oracle can FABRICATE mov\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "2 records returned `silent_zero` (a RESULT, not a skipped case)",
-     "counts": {
-      "encodable": 2,
-      "dispatched_distinct_values": 2,
-      "distinct_instruction_byte_strings_all_arms": 18,
-      "distinct_actual_encodings_best_single_arm": 2,
-      "records": 59,
-      "legal_values_ok": 2,
-      "values_producing_a_valid_observation": 2,
-      "ok_records": 31,
-      "silent_or_no_effect_records": 2,
-      "hard_records": 0,
-      "fault_values": 0,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 2,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 2,
-      "semantic_checks": 59,
-      "distinct_oracle_payloads_max_single_carrier": 2,
-      "carriers": 12,
-      "outcomes": {
-       "silent_zero": 2,
-       "ok": 31,
-       "unexpected_ok": 5,
-       "wrong_value": 21
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/sweep.jsonl",
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/prefreeze/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0139-m4-emit-ialu",
-      "EXP-0169-g17p-rerecord",
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "2757 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths, EXP-0171-g17p-ilogic-srca -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [2..2]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged.",
-     "gate_E": "**NOT MET.** 19/20 = 95.0% \u2014 `PC/pc_two#0/cache` v=0 gives a different payload in the REVERSE-ORDER quiet run only, while four other captures including both busy ones agree. Order/state-dependent, NOT contamination."
-    }
+    "width": 1
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0202"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "Dense 0..255 on five occurrences under TWO DISJOINT READBACK PLANS (four single-word carriers and `pc_dump`, which keeps four mutually distinct live values per lane at fixed store indices). Two corrections to db.json's `dst = reg<<1` model, both reproduced in two gated runs in opposite case order: (1) the program reproduces its host vector at EXACTLY TWO values, {compiled, compiled+1}, on every one of the five occurrences -- so bit 0 of `dst` is NOT part of the register index; (2) values 192..255 fault, CONTIGUOUSLY, all 64 of them, on all five occurrences. `dst[7:6] == 0b11` is illegal, exactly the shape already established for `frag_color_pack.dst` (there a hang wall, here a contained fault wall). The whole hazard region was mapped deliberately with NO abort path and the device survived; there were no hangs. CROSS-TARGET: EXP-0139 found the same byte on M4 (`iunary.dst`) faulting at 192-241 and 243-255 -- with 242 NOT faulting. On G17P 242 DOES fault. The pre-registered M4-transferred prediction is refuted at exactly that one value, which is why it was made.",
     "values_dispatched": 256,
-    "distinct_bytes": 256,
+    "distinct_bytes": 1280,
     "encodable_range": 256,
     "start": 24,
-    "width": 8,
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 2044 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=8, distinct values dispatched=256, records=11657, experiments=EXP-0139-m4-emit-ialu,EXP-0169-g17p-rerecord,EXP-0171-g17p-ilogic-srca,EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 32 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 2",
-     "semantics": "unknown: 16 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G16G-direct (M4) + G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit e6bac78a (2026-08-28, \"docs(DOC-02): per-field labels for all 170 instructions \u2014 16.2% is emitter-grade\"). Current status `untested` was set at 2792d7ca (\"exp(0169): 46 fields substantiated, 38 not \u2014 and a diff oracle can FABRICATE mov\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "FAULT MAP on carrier `C1_alu` (EXP-0169-g17p-rerecord, 2 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `FRAME` (EXP-0171-g17p-ilogic-srca, 2 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `NAT` (EXP-0171-g17p-ilogic-srca, 2 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `SYNTH` (EXP-0171-g17p-ilogic-srca, 2 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `iu_ctz` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `pc_alu` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | CARRIER-DEPENDENT: 11 carrier/arm combinations were swept; the union of fault values across them is 64 and the union of hang values is 0, which is NOT a per-field fault map | 2343 records returned `silent_zero` (a RESULT, not a skipped case)",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 1296,
-      "distinct_actual_encodings_best_single_arm": 2044,
-      "records": 11657,
-      "legal_values_ok": 156,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 1319,
-      "silent_or_no_effect_records": 2343,
-      "hard_records": 1352,
-      "fault_values": 64,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 32,
-      "distinct_ok_only_payloads_max_single_carrier": 2,
-      "distinct_payloads_max_single_carrier": 33,
-      "semantic_checks": 11592,
-      "distinct_oracle_payloads_max_single_carrier": 16,
-      "carriers": 8,
-      "outcomes": {
-       "?": 65,
-       "ok": 1319,
-       "silent_zero": 2343,
-       "fault": 1352,
-       "wrong_value": 6565,
-       "unexpected_ok": 9,
-       "invalid_run": 4
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/revalidate.jsonl",
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/revalidate.jsonl",
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
-      "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/sweep.jsonl",
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0171-g17p-ilogic-srca/raw/g17p_20260830_run01/sweep.jsonl",
-      "experiments/EXP-0171-g17p-ilogic-srca/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0139-m4-emit-ialu",
-      "EXP-0169-g17p-rerecord",
-      "EXP-0171-g17p-ilogic-srca",
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "2757 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths, EXP-0171-g17p-ilogic-srca -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [3..3]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged.",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** ledger 10590/10590; 958/958 = 100%"
-    }
+    "width": 8
    },
    "op_enable": {
     "label": "hardware-run",
@@ -16357,81 +16071,18 @@
     "width": 8
    },
    "operands": {
-    "label": "untested",
-    "range": "BYTE-WISE MARGINAL ONLY: 5 constituent bytes x 0..255 dense each (1280 encodings); the 40-bit field was NEVER swept jointly and its max/max-1 were never encoded",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "see per-arm coverage (w > 8)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0146",
-     "EXP-0166"
+     "EXP-0202"
     ],
-    "note": "EXP-0189 withheld (UNSTABLE): 1276 values dispatched over 1 arm(s), 2365 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "THE 40-BIT FIELD IS NOT ONE FIELD, and this is the headline. Byte-wise dense sweeps on two carriers plus the first JOINT 40-bit arm this field has ever had (70 values: {0,1,2,max-1,max}, all 40 powers of two, the compiled value and +/-1, and 24 fixed asymmetric interior samples) give a clean five-way split with EXACTLY the meanings EXP-0139 established for the same blob in `iunary` (DEF-0139-1): byte+3 = dst (reproduces at {0,1}, faults 192-255), byte+4 = an op-enable gate (128 of 256 values reproduce), byte+5 = src (reproduces at 0..3), byte+6 = THE IMMEDIATE ROTATE AMOUNT, byte+7 = tail (reproduces at the 8 even values 0..14). BYTE+6 IS SEMANTICALLY MAPPED. The census byte-diff over compiled amounts {1,5,7,13,19,31} gave byte+6 = 4*(32-K); the sweep then confirmed the EXACT host-computed rotate-left-by-K vector at all 33 modelled values on four carriers in both runs, 264 exact vector matches with zero misses. Independently -- without using the formula at all -- searching all 32 amounts for one that reproduces each observation recovers a single rotate-LEFT amount at exactly those 33 values, 32 DISTINCT amounts, every one agreeing with the formula. The codewords are asymmetric (0x8000000B + t*0x01234567), so direction and amount are both determined by the data. An emitter can therefore synthesise `rotate(x, K)` for any K in 0..31. Values with byte+6 >> 2 > 32 are NOT a rotate by any amount -- bounded negative, role unknown. The FIELD-level label stays `isolated-byte-diff` because only one of its five bytes is mapped; byte+6 bits[6:2] alone meets the `hardware-run` bar and the orchestrator should consider splitting the descriptor.",
+    "values_dispatched": 256,
+    "distinct_bytes": 3212,
+    "encodable_range": 256,
     "start": 24,
-    "width": 40,
-    "axes": {
-     "geometry": "ledger-verified: 256 distinct requested values produced 1276 distinct ACTUAL encodings in one arm; no collapse",
-     "liveness": "live in the tested envelope (carriers=7, distinct values dispatched=320, records=12997, experiments=EXP-0146-m4-emit-int-misc,EXP-0154-g17p-emit-alu,EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 180 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 33",
-     "semantics": "unknown: 33 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G16G-direct (M4) + G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `isolated-byte-diff` at commit 4b16d0b4 (2026-08-30, \"exp(0166): the assembler could not clear a bit \u2014 53 fields were silently under-s\"). Current status `untested` was set at 9292800f (\"audit(0189): 55 does not survive \u2014 the defensible number is 38 of 166\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "FAULT MAP on carrier `SYNTH+LIFTED:k_rot_imm@irotate[18:30]` (EXP-0154-g17p-emit-alu, 2 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `rot_alu` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `rot_k5` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 64 of 256 dispatched values fault in EVERY run -- exactly v >= 0xC0 (a contiguous wall) | FAULT MAP on carrier `cvt_i64` (EXP-0202-g17p-int-shift-convert, 4 run(s)): 15 of 70 dispatched values fault in EVERY run | FAULT MAP on carrier `rot_k5` (EXP-0202-g17p-int-shift-convert, 3 run(s)): 11 of 70 dispatched values fault in EVERY run | CARRIER-DEPENDENT: 16 carrier/arm combinations were swept; the union of fault values across them is 79 and the union of hang values is 0, which is NOT a per-field fault map | 4685 records returned `silent_zero` (a RESULT, not a skipped case)",
-     "counts": {
-      "encodable": "n/a (width=40 bits)",
-      "dispatched_distinct_values": 320,
-      "distinct_instruction_byte_strings_all_arms": 2441,
-      "distinct_actual_encodings_best_single_arm": 1276,
-      "records": 12997,
-      "legal_values_ok": 168,
-      "values_producing_a_valid_observation": 309,
-      "ok_records": 1015,
-      "silent_or_no_effect_records": 4685,
-      "hard_records": 792,
-      "fault_values": 79,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": "n/a",
-      "distinct_valid_payloads_max_single_carrier": 180,
-      "distinct_ok_only_payloads_max_single_carrier": 33,
-      "distinct_payloads_max_single_carrier": 180,
-      "semantic_checks": 12997,
-      "distinct_oracle_payloads_max_single_carrier": 33,
-      "carriers": 7,
-      "outcomes": {
-       "ok": 1015,
-       "wrong_value": 5933,
-       "silent_zero": 4685,
-       "fault": 792,
-       "unexpected_ok": 564,
-       "not_written": 8
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl",
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run03/sweep.jsonl",
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run04/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run04/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/prefreeze/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0146-m4-emit-int-misc",
-      "EXP-0154-g17p-emit-alu",
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "1260 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [3..7]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged.",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** ledger 10590/10590; 3054/3054 = 100%"
-    }
+    "width": 40
    },
    "tail": {
     "label": "isolated-byte-diff",
@@ -18788,72 +18439,18 @@
     ]
    },
    "dstlo": {
-    "label": "untested",
-    "range": "239 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values decidable in >=1 arm, over 4 arms x 2 gated runs. Per arm: 256 dispatched, 256 distinct ACTUAL encodings, 256 decidable. Totals: 1024 dispatched per run, 1016 moved, 0 cross-run disagreements.",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0203"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 88 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 256 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=3, distinct values dispatched=256, records=4384, experiments=EXP-0154-g17p-emit-alu,EXP-0203-g17p-half-oracle): a SINGLE carrier produced 29 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1",
-     "semantics": "unknown: 30 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit 12d9dc9c (2026-08-29, \"exp(0154): first G17P emit wave \u2014 44/165 emittable; ilogic's LUT operands are SW\"). Current status `untested` was set at 459bb8bd (\"audit(0164): the emittability headline was inflated \u2014 withdrawing 79/166 to 41/1\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "none recorded: 0 hard outcomes and 0 silent/no-effect outcomes in the tested envelope",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 768,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 4384,
-      "legal_values_ok": 228,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 712,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 0,
-      "fault_values": 0,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 29,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 29,
-      "semantic_checks": 4384,
-      "distinct_oracle_payloads_max_single_carrier": 30,
-      "carriers": 3,
-      "outcomes": {
-       "wrong_value": 3672,
-       "ok": 712
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run21/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run22/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run23/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run31/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run32/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0154-g17p-emit-alu",
-      "EXP-0203-g17p-half-oracle"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "1090 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [1..1]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged.",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair as half_alu_fma12.dst"
-    }
+    "note": "**MISNAMED IN db.json: this is a SOURCE half-register descriptor, not a destination.** `half_pack` (byte0 = 0x18) is the high-lane sibling of the byte0-low-nibble-0 half-ALU family and shares its operand shape; byte+1 is a source descriptor h = (reg<<1)|is_high with **bit 7 a measured don't-care**. Model, 256/256 in both gated runs on four arms: r[byte0>>4].hi = fp16_rn(h(byte+1) + h(byte+3)), the destination's LOW half preserved, and **both named source half-lanes zeroed** (the byte+2 = 0x18 opflags-3 source release).\nDETECTION POWER: 256 values give 29 distinct payloads per arm. That is the PREDICTED number, not a weakness: 16 GPRs x 2 halves are reachable, bit 7 is ignored, and every descriptor naming an unseeded GPR reads 0. The oracle predicts WHICH of the 29 each value produces and was right on all 256.\nOPERAND ORDER IS NOT ESTABLISHED: the measured operation is commutative, so this sweep cannot separate byte+1 from byte+3 by role. The proposed name follows the family's positional convention, not an observation.",
+    "values_dispatched": 1024,
+    "distinct_bytes": 1024,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "src": {
     "label": "hardware-run",
@@ -18865,72 +18462,18 @@
     "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes(seed set 1) {'ok': 224, 'wrong_value': 8, 'silent_zero': 24}; anchor value 0x18; P1=True P2=True P3=True model=M2 CLASS TABLE"
    },
    "b3": {
-    "label": "untested",
-    "range": "242 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values decidable in >=1 arm, over 4 arms x 2 gated runs. Per arm: 256 dispatched, 256 distinct ACTUAL encodings, 256 decidable. Totals: 1024 dispatched per run, 1016 moved, 0 cross-run disagreements.",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0203"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 86 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
-    "axes": {
-     "geometry": "geometry-mapped: 256 of 256 encodable values dispatched in one arm, 256 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=3, distinct values dispatched=256, records=4384, experiments=EXP-0154-g17p-emit-alu,EXP-0203-g17p-half-oracle): a SINGLE carrier produced 29 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1",
-     "semantics": "unknown: 30 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit 12d9dc9c (2026-08-29, \"exp(0154): first G17P emit wave \u2014 44/165 emittable; ilogic's LUT operands are SW\"). Current status `untested` was set at 459bb8bd (\"audit(0164): the emittability headline was inflated \u2014 withdrawing 79/166 to 41/1\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "none recorded: 0 hard outcomes and 0 silent/no-effect outcomes in the tested envelope",
-     "counts": {
-      "encodable": 256,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 768,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 4384,
-      "legal_values_ok": 228,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 710,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 0,
-      "fault_values": 0,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": 0,
-      "distinct_valid_payloads_max_single_carrier": 29,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 29,
-      "semantic_checks": 4384,
-      "distinct_oracle_payloads_max_single_carrier": 30,
-      "carriers": 3,
-      "outcomes": {
-       "wrong_value": 3674,
-       "ok": 710
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run21/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run22/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run23/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run31/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run32/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0154-g17p-emit-alu",
-      "EXP-0203-g17p-half-oracle"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "1090 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [3..3]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged.",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** same pair as half_alu_fma12.dst"
-    }
+    "note": "**TYPED `raw` IN db.json: it is the second SOURCE half-register descriptor.** Same measured model, coverage, and caveats as half_pack.dstlo (see that note): 256/256 full-post-state oracle match per arm in both gated runs across four arms, 0 identity changes (hw_markers == 4 on every value), cross-run agreement 256/256.",
+    "values_dispatched": 1024,
+    "distinct_bytes": 1024,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    }
   },
   "pad_operand": {
@@ -24662,13 +24205,13 @@
     "evidence": [
      "EXP-M4-13"
     ],
-    "note": "**RANGE IS STALE \u2014 DESCRIPTOR IDENTITY CHANGED (EXP-0198 settled this).** The `note` and the `range` on this row are not one self-contradicting measurement; they are two statements about TWO DIFFERENT DESCRIPTOR IDENTITIES, separated by the `ilogic` re-span in commit `74f6af25` (EXP-0174/0175): `ilogic.match` went from `[[0,8,11],[17,7,15]]` (byte0 pinned to the whole byte `0x0b`) to `[[0,4,11],[17,7,15]]` (low nibble only), while `b_alu10_*` did not move. EXP-0171's anchors `2b 03 1f 01 \u2026` / `2b 03 1e 01 \u2026` tokenize as `b_alu10_lof`/`b_alu10_loe` under the PRE-repair db.json and as `ilogic` under the current one (11 constrained bits beats 8). So the `range` faithfully transcribes a REAL dense sweep \u2014 but that sweep is an **ALIAS of the ilogic sweep at `opsel_hi == 1`**, carried on `\u2026@ilogic+32` carriers. **The `note` is CORRECT under the current descriptor:** 0 raw records anywhere carry `instr: b_alu10_*`, and this descriptor's defining byte+2 high nibbles have NEVER been dispatched. db.json already warns auditors of exactly this. Read the range as history of a superseded identity, not as coverage of this one. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "**RANGE IS STALE \u2014 DESCRIPTOR IDENTITY CHANGED (EXP-0198 settled this).** The `note` and the `range` on this row are not one self-contradicting measurement; they are two statements about TWO DIFFERENT DESCRIPTOR IDENTITIES, separated by the `ilogic` re-span in commit `74f6af25` (EXP-0174/0175): `ilogic.match` went from `[[0,8,11],[17,7,15]]` (byte0 pinned to the whole byte `0x0b`) to `[[0,4,11],[17,7,15]]` (low nibble only), while `b_alu10_*` did not move. EXP-0171's anchors `2b 03 1f 01 \u2026` / `2b 03 1e 01 \u2026` tokenize as `b_alu10_lof`/`b_alu10_loe` under the PRE-repair db.json and as `ilogic` under the current one (11 constrained bits beats 8). So the `range` faithfully transcribes a REAL dense sweep \u2014 but that sweep is an **ALIAS of the ilogic sweep at `opsel_hi == 1`**, carried on `\u2026@ilogic+32` carriers. **The `note` is CORRECT under the current descriptor:** 0 raw records anywhere carry `instr: b_alu10_*`, and this descriptor's defining byte+2 high nibbles have NEVER been dispatched. db.json already warns auditors of exactly this. Read the range as history of a superseded identity, not as coverage of this one. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.** **DOWNGRADE PROPOSED BY EXP-0202 AND DECLINED (orchestrator, 2026-08-30).** Its evidence is real and is recorded on the axes: dispatched as the SAME-DIMENSION positive control for `shift_amt_move.src_flag`, three boundary-aligned occurrences on two carriers, the compiler emitting 1 at `cvt_i64@46`/`@78` and 0 at `pc_tg@12`, and splicing the other value leaves the output BYTE-IDENTICAL at all three in both gated runs \u2014 while its own `src_reg` control DOES move (19 of 20 values). **But \u00a79 forbids retracting on a stricter gate alone: 'Retract a semantic claim only for direct contradictory evidence or because its stated gate was never met.'** An inert reading does not contradict a `corpus-correlation` label, which asserts corpus co-occurrence rather than a semantic. This family is ALSO a known descriptor-identity hazard \u2014 every `b_alu10_*` row is an alias of the `ilogic` sweep at `opsel_hi == 1` under a superseded descriptor \u2014 so a label move here would attach a verdict to an identity that may not be the one measured. Recorded, not retracted.",
     "axes": {
      "geometry": "geometry-mapped: 2 of 2 encodable values dispatched in one arm, 2 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=2, distinct values dispatched=2, records=19, experiments=EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 2 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
+     "liveness": "inert in the exact tested envelope (3 boundary-aligned occurrences, 2 carriers, both gated runs, byte-identical at both values); global role unknown",
+     "semantics": "unknown",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
      "reproducibility": "auditable: 4 committed raw files (repeat runs of ONE harness -- repeatable, not independent) in EXP-0202-g17p-int-shift-convert",
      "frozen_gate": "no emitter promotion was ever claimed: the row has held only corpus-correlation across 1 committed revisions of validation.json. Its citing experiment's frozen gate was a decode / round-trip / corpus gate, which it passed on its own terms.",
      "hazard": "none recorded: 0 hard outcomes and 0 silent/no-effect outcomes in the tested envelope",
@@ -24708,7 +24251,7 @@
      "evidence_experiments": [
       "EXP-0202-g17p-int-shift-convert"
      ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
+     "detection_power": "PRESENT and firing \u2014 its own `src_reg` control moves at 19 of 20 values, so this is not a zero-by-construction inert reading",
      "framing_evidence": "37080 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
      "sibling_descriptor_evidence": "426 records under sibling descriptor(s) reg_move_c0, reg_move_c1, reg_move_c2var, reg_move_c9, shift_amt_move at the SAME (start,width). This is CROSS-DESCRIPTOR and therefore INFERRED, never direct evidence for this row.",
      "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [1..1]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
@@ -32486,27 +32029,18 @@
     "note": "LENGTH-RULE DEFECT FLAGGED: a fixed 'always 12B for byte0==0x10' rule is WRONG. Own-MSL plain half fma is only 8B, and 121/126 corpus instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside `ext`."
    },
    "dst": {
-    "label": "untested",
-    "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
+    "label": "hardware-run",
+    "range": "16 of 16 encodable values decidable in >=1 arm, over 4 arms x 2 gated runs. Per arm: 16 dispatched, 16 distinct ACTUAL encodings, 11 decidable. Totals: 64 dispatched per run, 40 moved, 0 cross-run disagreements.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180",
-     "EXP-0183"
+     "EXP-0203"
     ],
-    "note": "**MY EXP-0196 NOTE MISIDENTIFIED THE SPAN \u2014 corrected by EXP-0203.** I wrote that 768 records over 256 distinct values exist for this field. Those records exist but carry `fstart:8, fwidth:8` \u2014 which is **`srcA`'s span** in the current db.json. `dst` is bits 4..7, a **4-bit field that cannot have 256 values**. The name was REUSED across the EXP-0183 re-span: exactly the DEF-0166-2 hazard `work/merge_verdicts.py` guards against, which did not fire because I hand-wrote the note instead of merging a verdict. **The other two findings in that note were correct and are what EXP-0203 fixed:** `oracle` null on every record, and 0.00% cross-run agreement from an unisolated read-back. **EXP-0203 then swept the 12-byte form properly for the first time: 16/16 dense over 4 arms, 16 distinct ACTUAL encodings per arm, 0 disagreements over 128 case-pairs, oracle 44/44 and 44/44.** PROMOTION HELD pending Gate E \u2014 see `axes`.",
+    "note": "**THE 12-BYTE FORM'S DESTINATION NIBBLE HAD NEVER BEEN SWEPT.** validation.json's previous note (EXP-0196) reported '768 records over 256 distinct values' for this row; those records carry fstart 8 / fwidth 8 -- byte+1 -- and are the field EXP-0183 RENAMED to `srcA`. A 4-bit field cannot have 256 distinct values; that is the tell. EXP-0180's only bits-4..7 arm is `DSTNIB` (32 records) and it runs on `half_alu_ext8`, the EIGHT-byte form. EXP-0196's other two findings were right and are what this experiment fixed: no host oracle existed anywhere in those records, and the read-back was not isolated.\nSEMANTICS (host-oracle verified, every decidable value, both gated runs, four arms): the nibble selects GPR n; the fp16 result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits PRESERVED; no other architectural register changes. Model r[n].lo = fp16_rn(|h(byte+1)| * h(byte+3) - h(byte+5)) at byte+2 = 0x06, byte+4 = 0x13, where h(d) -> (GPR (d & 0x7F) >> 1, half d & 1).\nCOVERAGE, exact: 16 of 16 values dispatched in each of 4 arms = 64 dispatches per run; 11 decidable per arm; 5 per arm are overwritten AFTER the block by that arm's own infrastructure (the dump index register and the four length markers) and are recorded `carrier_undecidable`, never `inert`. The two readback plans are complementary, so all 16 values are decidable in at least one arm and 6 in both.\nROUNDING: the fused (single-rounding) FMA model and the two-rounding model give different predictions in 8 of 4244 fma12 cases; the FUSED model matched in 8 of 8 and the two-rounding model in 0 of 8. No case in this carrier produced a subnormal or overflowing prediction, so flush-to-zero and overflow behaviour are UNTESTED here.",
+    "values_dispatched": 64,
+    "distinct_bytes": 64,
+    "encodable_range": 16,
     "start": 4,
-    "width": 4,
-    "axes": {
-     "geometry": "geometry-mapped: Gate A ledger 16820/16820 bytes_match, 16512/16512 requested == decoded, independently re-verified offline by re-synthesizing each program; 16 distinct ACTUAL encodings per arm, no aliasing",
-     "liveness": "live: 16/16 dense across 4 arms; liveness controls fired 88/88 across 11 arms with 8 distinct payloads each",
-     "semantics": "semantically-mapped (pending clean confirmation): oracle r[byte0>>4].lo = fp16_rn(|h(+1)|*h(+3) - h(+5)), high half preserved, fitted OFFLINE BEFORE contract freeze against 8 competing models; 33 falsifiers scored 0 oracle matches in both runs",
-     "recipe": "not-generated",
-     "target": "G17P-direct",
-     "reproducibility": "independently-confirmed on a measured-quiet machine (Gate E MET)",
-     "precision_bound": "binary64 evaluation with ONE rounding to binary16 RNE (fused). MEASURED, not assumed: fused and two-rounding predictions differ in 8 of 4244 cases; fused matched 8/8, two-rounding 0/8. BOUNDED: 0 subnormal and 0 overflowing predictions occurred, so FTZ/inf/NaN are UNTESTED.",
-     "frozen_gate": "PASSED its own pre-registered gate under frozen Amendment 03",
-     "gate_E": "**MET (EXP-0210 serialized quiet window, zero foreign GPU dispatch runners in every sample, against the fan-out median of 9 / peak 17).** g17p_q43/q44 fwd+rev, both quiet; ledger 8410/8410 identical; agreement 8410/8410 = 100.0000%; 0 faults, 0 hangs, 0 victims"
-    }
+    "width": 4
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -32553,80 +32087,17 @@
    },
    "ext": {
     "label": "untested",
-    "range": "1856 of 18446744073709551616 encodable values after gate_identity (0.0%), 2041 distinct encodings, 2 ladder-passing carriers. NOT A FIELD: 64 bits wide, so no sampled set can establish it.",
+    "range": "1920 of 18446744073709551616 encodable values decidable in >=1 arm, over 3 arms x 2 gated runs. Per arm: 2048 dispatched, 2041 distinct ACTUAL encodings, 1920 decidable. Totals: 6144 dispatched per run, 3650 moved, 1 cross-run disagreements.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180",
-     "EXP-0183"
+     "EXP-0203"
     ],
-    "note": "RANGE TEXT CORRECTED. What its first byte does is MEASURED: byte+4's low two bits are the length selector and this 12-byte form is reachable only at (opsel 6, m 3), re-derived by EXP-0183 over 32 of 32 cells with zero ambiguity. EXP-0180 REFUTED ITS OWN DEF-0180-3: half_alu_fma12 really is 12 bytes there, so the earlier 'this descriptor OVER-CONSUMES the following instruction's leader' claim is WITHDRAWN. The residue is that bits 34..95 are unmodelled, which is why the descriptor keeps `emit_unsafe`. **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
-    "values_dispatched": 2048,
-    "distinct_bytes": 2041,
+    "note": "FORCED to `untested` by PRE_REGISTRATION section 6: `ext` is 64 bits wide, so 2048 sampled values is 2048/2^64 of its encodable range and no sweep can promote it. That is a statement about the DESCRIPTOR, not about the hardware. The sweep did establish the region's internal structure and it is reported under db_defects as a proposed split. Headline: **bits 40..47 (byte+5) are a third fp16 SOURCE half-register descriptor** -- 256/256 full-post-state oracle match on three arms in both gated runs, bit 7 a measured don't-care (128/128 value pairs identical). The low full-vector oracle rate on this row as a whole is expected, not a failure: mutating byte+4 selects arithmetic modifiers that the frozen model deliberately does not predict, and 128 of byte+4's 256 values change the instruction's length.",
+    "values_dispatched": 6144,
+    "distinct_bytes": 6123,
     "encodable_range": 18446744073709551616,
     "start": 32,
-    "width": 64,
-    "axes": {
-     "geometry": "ledger-verified: 256 distinct requested values produced 2041 distinct ACTUAL encodings in one arm; no collapse",
-     "liveness": "live in the tested envelope (carriers=5, distinct values dispatched=256, records=41472, experiments=EXP-0169-g17p-rerecord,EXP-0180-g17p-halfalu-rerecord,EXP-0203-g17p-half-oracle): a SINGLE carrier produced 61 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 49",
-     "semantics": "unknown: 31 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed: per-case raw in 3 separate experiments (EXP-0169-g17p-rerecord, EXP-0180-g17p-halfalu-rerecord, EXP-0203-g17p-half-oracle), 10 raw files",
-     "frozen_gate": "no emitter promotion was ever claimed: the row has held only tokenization-only/untested across 2 committed revisions of validation.json. Its citing experiment's frozen gate was a decode / round-trip / corpus gate, which it passed on its own terms.",
-     "hazard": "CARRIER-DEPENDENT: 7 carrier/arm combinations were swept; the union of fault values across them is 7 and the union of hang values is 0, which is NOT a per-field fault map | 224 records returned `silent_zero` (a RESULT, not a skipped case)",
-     "counts": {
-      "encodable": "n/a (width=64 bits)",
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 3177,
-      "distinct_actual_encodings_best_single_arm": 2041,
-      "records": 41472,
-      "legal_values_ok": 256,
-      "values_producing_a_valid_observation": 256,
-      "ok_records": 17826,
-      "silent_or_no_effect_records": 224,
-      "hard_records": 7,
-      "fault_values": 7,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": "n/a",
-      "distinct_valid_payloads_max_single_carrier": 61,
-      "distinct_ok_only_payloads_max_single_carrier": 49,
-      "distinct_payloads_max_single_carrier": 62,
-      "semantic_checks": 29184,
-      "distinct_oracle_payloads_max_single_carrier": 31,
-      "carriers": 5,
-      "outcomes": {
-       "wrong_value": 23415,
-       "ok": 17826,
-       "silent_zero": 224,
-       "fault": 7
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
-      "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
-      "experiments/EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run21/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run22/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run23/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run31/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/g17p_run32/sweep.jsonl",
-      "experiments/EXP-0203-g17p-half-oracle/raw/pilot01/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0169-g17p-rerecord",
-      "EXP-0180-g17p-halfalu-rerecord",
-      "EXP-0203-g17p-half-oracle"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "2168 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "none",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [4..11]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
-    }
+    "width": 64
    },
    "srcB": {
     "label": "hardware-run",
@@ -33261,76 +32732,17 @@
    },
    "src_flag": {
     "label": "untested",
-    "range": "2 distinct values dispatched on the best arm",
+    "range": "0..1 dense (all 2 values)",
     "target": "G17P",
     "evidence": [
-     "EXP-0168"
+     "EXP-0202"
     ],
-    "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). **CORPUS-WIDE CAVEAT (EXP-0210): EVERY fault/hang label in the 2026-08-30 wave was taken on a BUSY machine, and a quiet GPU FAILS HARDER.** Same encodings, same ok/not-ok partition, escalated severity: EXP-0201 silent-no-write -> fault (18 -> 355, identical in both orders); EXP-0206 `if_push.scope` fault -> HANG at the same values; EXP-0204 deriv 7/11 -> 48/48 hangs. EXP-0202 is the counterexample (hard outcomes byte-identical busy and quiet), so this is not an instrument artefact. **The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.**",
+    "note": "The positive control IN THE DIMENSION THIS BIT IS BELIEVED TO SELECT (b_alu10_lo7.src_flag) did not move either, so the harness has not been shown able to observe that dimension at all. Zero movement is therefore NOT evidence of inertness -- this is `carrier-undecidable`, a recorded result and not a failure. TESTED ENVELOPE: 11 boundary-aligned occurrences on 9 carriers spanning SEVEN operand-producer classes (device memory load, thread-invariant `constant uint&`, ALU chain, thread-position system value, SIMD lane index, overwrite with an intervening independent ALU op, control-flow merge), each swept at BOTH values of the bit and, on six occurrences, jointly with all 128 source indices (the byte+1 composite arm). In every one of 768 index/flag comparisons across two gated runs in opposite case order the two flag values give BYTE-IDENTICAL output. SEPARATELY: across all 56 authored carriers the COMPILER emits src_flag = 0 in every one of the 11 occurrences -- a compiler-differential result in its own right, and a negative one. The verdict is nevertheless `carrier-undecidable`, not inert: the positive control in the dimension this bit is believed to select -- `b_alu10_lo7.src_flag`, the same bit, the same 7+1 byte+1 split, the same enum, the same 0x?b family, and one the compiler DOES emit at both values -- is itself indistinguishable at both values. Nothing here has shown the harness can observe a source-class change at all, so `inert in this envelope; global role unknown` is the strongest safe statement, and even that is bounded by the missing control.",
+    "values_dispatched": 2,
+    "distinct_bytes": 112,
+    "encodable_range": 2,
     "start": 15,
-    "width": 1,
-    "axes": {
-     "geometry": "geometry-mapped: 2 of 2 encodable values dispatched in one arm, 26 distinct ACTUAL encodings, no collapse",
-     "liveness": "live in the tested envelope (carriers=11, distinct values dispatched=256, records=4778, experiments=EXP-0146-m4-emit-int-misc,EXP-0154-g17p-emit-alu,EXP-0168-g17p-dst-resweep,EXP-0202-g17p-int-shift-convert): a SINGLE carrier produced 62 distinct VALID observed payloads across the swept values (EXP-0191 validity rule: `silent_zero` / `wrong_value` / `no_draw` ARE observations; faults, hangs, undecodables and contaminated cases are not). Payloads among strictly-`ok` cases only: 1 | EXP-0191 frozen detection gate (carrier form): SURVIVES-FULLY",
-     "semantics": "unknown: 2 distinct oracle payloads recorded, but no committed independent predictor maps value -> result over the claimed domain for this field",
-     "recipe": "not-generated: no committed record shows a complete instruction for this field being constructed from documented rules and executed (Gate D)",
-     "target": "G16G-direct (M4) + G17P-direct (A18 Pro)",
-     "reproducibility": "independently-confirmed: per-case raw in 4 separate experiments (EXP-0146-m4-emit-int-misc, EXP-0154-g17p-emit-alu, EXP-0168-g17p-dst-resweep, EXP-0202-g17p-int-shift-convert), 11 raw files",
-     "frozen_gate": "PASSED its own pre-registered gate at the time: the row held `hardware-run` at commit 12d9dc9c (2026-08-29, \"exp(0154): first G17P emit wave \u2014 44/165 emittable; ilogic's LUT operands are SW\"). Current status `untested` was set at 9292800f (\"audit(0189): 55 does not survive \u2014 the defensible number is 38 of 166\"). Per section 9 the earlier observation is RETAINED as superseded history; the withdrawal scoped the PROMOTION, not the observation.",
-     "hazard": "none recorded: 0 hard outcomes and 0 silent/no-effect outcomes in the tested envelope",
-     "counts": {
-      "encodable": 2,
-      "dispatched_distinct_values": 256,
-      "distinct_instruction_byte_strings_all_arms": 46,
-      "distinct_actual_encodings_best_single_arm": 256,
-      "records": 4778,
-      "legal_values_ok": 2,
-      "values_producing_a_valid_observation": 2,
-      "ok_records": 72,
-      "silent_or_no_effect_records": 0,
-      "hard_records": 0,
-      "fault_values": 0,
-      "hang_values": 0,
-      "collapsed_encodings": 0,
-      "untested_values": "n/a",
-      "distinct_valid_payloads_max_single_carrier": 62,
-      "distinct_ok_only_payloads_max_single_carrier": 1,
-      "distinct_payloads_max_single_carrier": 62,
-      "semantic_checks": 4778,
-      "distinct_oracle_payloads_max_single_carrier": 2,
-      "carriers": 11,
-      "outcomes": {
-       "ok": 72,
-       "wrong_value": 4662,
-       "unexpected_ok": 44
-      }
-     },
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 9 the observations recorded here are RETAINED as superseded history; nothing here withdraws them and nothing here promotes the label.",
-     "evidence_paths": [
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl",
-      "experiments/EXP-0146-m4-emit-int-misc/raw/run03/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
-      "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl",
-      "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run02/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run03/sweep.jsonl",
-      "experiments/EXP-0202-g17p-int-shift-convert/raw/g17p_20260830_run04/sweep.jsonl"
-     ],
-     "evidence_experiments": [
-      "EXP-0146-m4-emit-int-misc",
-      "EXP-0154-g17p-emit-alu",
-      "EXP-0168-g17p-dst-resweep",
-      "EXP-0202-g17p-int-shift-convert"
-     ],
-     "detection_power": "a control or sibling in the same carrier produced >=2 distinct valid payloads",
-     "framing_evidence": "2311 instruction-only tokenisation records in EXP-0148-m4-scaffolding-and-lengths -- framing/length only, no field value",
-     "sibling_descriptor_evidence": "51 records under sibling descriptor(s) b_alu10_lo7, reg_move_c0, reg_move_c1, reg_move_c2var, reg_move_c9 at the SAME (start,width). This is CROSS-DESCRIPTOR and therefore INFERRED, never direct evidence for this row.",
-     "searched": "K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [1..1]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records.",
-     "derived_by": "EXP-0208 analysis/classify_axes.py over committed raw only; no device contacted",
-     "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
-    }
+    "width": 1
    },
    "kind": {
     "label": "hardware-run",
