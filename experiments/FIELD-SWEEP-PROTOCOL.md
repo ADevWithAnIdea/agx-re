@@ -123,6 +123,28 @@ The orchestrator schedules GPU-contending experiments in small batches for this 
 dispatch says you are in a batch, the other members are named; desk-only work (modelling,
 classification, corpus analysis) is unaffected and can run alongside anything.
 
+## 7A. ⚠ majority-of-3 is NOT sufficient for a `fault` verdict (EXP-0153, 2026-08-29)
+
+EXP-0153 found the limit of §7's scheme, and it matters. Five `F_imm_top` cases were recorded as
+reproducible **faults** in two unlocked gated runs — **each passed majority-of-3, and the two
+independent runs agreed with each other.** Re-run under the GPU lease, 5× each, **four of them are
+not faults at all** (`wrong_value`, 5/5).
+
+**Cross-run agreement did not defeat sustained sibling load. Only isolation did.** Under continuous
+concurrent pressure, contamination can be systematic enough to look reproducible *and* to survive an
+independent second run.
+
+**So the rule is:** run bulk sweeps concurrently and unlocked, but **confirm every `fault`/`hang`
+verdict under `~/agxre/gpulease.sh` before promoting it.** Faults are the one verdict class where
+the cheap mitigations are insufficient.
+
+There is often a cheaper adjudication than re-running. In EXP-0153's case the corrected reading was
+provable **offline from the committed digest**: the read-back buffer was poison everywhere except
+the pre-test sentinel, which proves the program ran and that neither following `device_store`
+executed. **Poison your read-back buffer** (`0xDEADBEEF`) and much of this can be settled from
+already-captured data.
+
+
 ## 8. Safety — this host has no out-of-band recovery
 
 `mov_imm.imm7` values 128..255 silently zero, and combined with `iadd2`'s N=0 self-read this
