@@ -1,0 +1,32 @@
+distinct 12-byte contexts: 223
+byte+5: {'01': 10, '40': 605, '41': 10}
+
+--- contexts whose byte+5 is NOT 0x40/0x41 (candidate 6-byte fragment op) ---
+  571454000001             +6..11=070254010000 n=2    frag_output__discard__fragment
+  571454000001             +6..11=390124050002 n=1    controlflow__frag_discard_loop__fragment
+  572454022001             +6..11=490124070002 n=1    controlflow__frag_discard_loop__fragment
+  574454044001             +6..11=490124090002 n=1    controlflow__frag_discard_loop__fragment
+  578454066001             +6..11=4901240b0002 n=1    controlflow__frag_discard_loop__fragment
+  570455088001             +6..11=49a12c018000 n=1    controlflow__frag_discard_loop__fragment
+  5704560a8001             +6..11=4901240d0002 n=1    controlflow__frag_discard_loop__fragment
+  5704560c8001             +6..11=a901240f0002 n=1    controlflow__frag_discard_loop__fragment
+  5704560e8001             +6..11=92132ba121b0 n=1    controlflow__frag_discard_loop__fragment
+
+--- byte+6/+7 histogram for byte+5==0x40/0x41 (the VS form) ---
+   +6+7 = 4400  n=113
+   +6+7 = 4900  n=105
+   +6+7 = 4800  n=89
+   +6+7 = 4b00  n=86
+   +6+7 = 4a00  n=78
+   +6+7 = 4d00  n=47
+   +6+7 = 4500  n=37
+   +6+7 = 4c00  n=35
+   +6+7 = 4200  n=10
+   +6+7 = 4300  n=8
+   +6+7 = 4000  n=6
+   +6+7 = 4100  n=1
+
+--- byte+1 low nibble vs byte+5 ---
+   b1_lo=4 b5=01 : 10
+   b1_lo=6 b5=40 : 605
+   b1_lo=6 b5=41 : 10

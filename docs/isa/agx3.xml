@@ -1950,10 +1950,11 @@
   <ins name="pixel_order" length="6" label="fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock)">
     <exact bit="0:7">00000111</exact>
     <exact bit="16:23">01010100</exact>
-    <exact bit="32:39">00000110</exact>
+    <exact bit="28">1</exact>
+    <exact bit="30">1</exact>
     <modifier name="kind" bit="8:15" kind="pixel_order_kind"/>
-    <modifier name="scope" bit="24:31"/>
-    <!-- flags [32:39]: constant, pinned by match/opcode -->
+    <modifier name="scope" bit="24:27 29 31"/>
+    <modifier name="flags" bit="32:39"/>
     <modifier name="b5" bit="40:47"/>
   </ins>
 
@@ -2093,7 +2094,8 @@
   <!-- provenance: HW-VALIDATED (EXP-0037): splice-and-render on the A18 Pro via agxrender. byte+4=out-slot proven by redirecting va.z's store slot 0xc0->0x80 (FS RED ... -->
   <ins name="vary_store" length="8" label="uvs_buffer[slot] = reg[src]">
     <exact bit="0:7">01010111</exact>
-    <modifier name="hint1" bit="8:15"/>
+    <exact bit="9">1</exact>
+    <modifier name="hint1" bit="8 10:15"/>
     <modifier name="hint2" bit="16:23"/>
     <src name="src" bit="24:31"/>
     <immediate name="out_slot" bit="32:39"/>
@@ -3357,6 +3359,17 @@
     <!-- form [16:23]: constant, pinned by match/opcode -->
     <modifier name="body" bit="24:63"/>
     <modifier name="tail" bit="64:79"/>
+  </ins>
+
+  <!-- frag_sample_submit: 6-byte FRAGMENT form split out of `vary_store` by EXP-0162 (G17P, HW) -->
+  <!-- provenance: EXP-0162 (G17P): cross-population selector proof + hardware kill/null asymmetry; A/B 833 clean files, -268 leftover bytes. -->
+  <ins name="frag_sample_submit" length="6" label="6-byte FRAGMENT form split out of `vary_store` by EXP-0162 (G17P, HW)">
+    <exact bit="0:7">01010111</exact>
+    <exact bit="9">0</exact>
+    <modifier name="b1" bit="8 10:15"/>
+    <modifier name="b2" bit="16:23"/>
+    <!-- body [24:47]: inferred / not yet bit-decoded -->
+    <zero bit="24:47"/>
   </ins>
 
 </isa>

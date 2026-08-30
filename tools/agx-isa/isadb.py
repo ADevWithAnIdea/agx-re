@@ -2159,7 +2159,11 @@ def instr_length(buf, off=0):
     # iter op interpolates (EXP-0029). Memory-family opcode (low-nibble 7); byte+3 =
     # source GPR, byte+4 = destination output slot. 8 bytes. HW-splice-proven.
     if b0 == 0x57:
-        return 8                       # vary_store (EXP-0037 HW)
+        # EXP-0162 (G17P, HW): byte+1 bit1 selects the form -- 8-byte vertex
+        # vary_store sets it (615/615), the 6-byte fragment frag_sample_submit
+        # clears it (10/10). byte+2 does NOT discriminate and is 256/256 inert.
+        _b1 = buf[off + 1] if off + 1 < len(buf) else 0
+        return 8 if (_b1 & 0x02) else 6                       # vary_store (EXP-0037 HW)
     # ---- NON-LEAF FUNCTION FRAME PROLOGUE (byte0 0x6f, EXP-0038) --------------
     # Establishes the per-thread scratch frame a non-leaf callee uses to save its
     # link register around inner calls. `6f 03 04 00 00 20`. 6 bytes.

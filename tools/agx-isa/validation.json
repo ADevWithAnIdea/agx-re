@@ -13,36 +13,38 @@
   "emittable": "an instruction qualifies only if EVERY field in its db.json descriptor is hardware-run or isolated-byte-diff (docs/evidence-classification.md section 2, the emittable rule). Field-less descriptors qualify only if the instruction itself is hardware-run / isolated-byte-diff."
  },
  "coverage": {
-  "total_instructions": 171,
-  "total_fields": 1057,
+  "total_instructions": 172,
+  "total_fields": 1060,
   "by_label": {
-   "hardware-run": 457,
+   "hardware-run": 474,
    "isolated-byte-diff": 95,
-   "corpus-correlation": 152,
+   "corpus-correlation": 151,
    "tokenization-only": 185,
    "single-template-inference": 13,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 155
+   "untested": 142
   },
   "by_label_pct": {
-   "hardware-run": 43.2,
+   "hardware-run": 44.7,
    "isolated-byte-diff": 9.0,
-   "corpus-correlation": 14.4,
+   "corpus-correlation": 14.2,
    "tokenization-only": 17.5,
    "single-template-inference": 1.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 14.7
+   "untested": 13.4
   },
-  "emittable_instructions": 53,
+  "emittable_instructions": 55,
   "emittable_mnemonics": [
    "atomic_mem",
    "atomic_rmw",
    "atomic_tg",
    "bf_add_dst",
    "copysign",
+   "cvt_bf16",
    "cvt_f2h",
+   "cvt_f2h_dst",
    "cvt_f2i",
    "cvt_i2f",
    "cvt_i2f_src",
@@ -91,7 +93,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 118,
+  "decodable_not_yet_emittable": 117,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -101,8 +103,8 @@
    "operand_word_x2_h7",
    "pad_operand"
   ],
-  "emitter_relevant_instructions": 165,
-  "emittable_of_emitter_relevant": 53
+  "emitter_relevant_instructions": 166,
+  "emittable_of_emitter_relevant": 55
  },
  "instructions": {
   "falu2": {
@@ -6986,57 +6988,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "byte+0: 24 values: 0x00,0x01,0x11,0x21,0x31,0x3e,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc0,0xc1,0xc2,0xc3,0xc5,0xc9,0xd1,0xe1,0xf1,0xff",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte0 high nibble 0..15 DENSE (all 16), low nibble held at the anchor's value so the instruction length cannot change",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 24 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. COVERAGE IS PARTIAL: the smallest covering byte executed only 24 values (see `range`)."
+    "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'wrong_value': 15, 'ok': 1}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    },
    "srcfmt": {
     "label": "hardware-run",
-    "range": "byte+1: 256 of 256 values (dense 0..255)",
-    "target": "M4",
+    "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
+    "note": "outcomes {'wrong_value': 254, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    },
    "opsel": {
-    "label": "corpus-correlation",
-    "range": "0x1c base convert, 0x3c same convert with the source-mode bit set",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0162"
+    ],
+    "note": "outcomes {'wrong_value': 216, 'ok': 8, 'fault': 32}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    },
    "src": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
+    "note": "outcomes {'fault': 53, 'ok': 77, 'wrong_value': 126}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    },
    "dhalf": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+4 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
+    "note": "outcomes {'wrong_value': 140, 'silent_zero': 114, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    },
    "tail": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+5 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
+    "note": "outcomes {'wrong_value': 200, 'ok': 56}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes."
    }
   },
   "cvt_bf16": {
@@ -7050,74 +7053,76 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte0 high nibble 0..15 DENSE (all 16), low nibble held at the anchor's value so the instruction length cannot change",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'ok': 8, 'wrong_value': 8}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "srcw": {
-    "label": "corpus-correlation",
-    "range": "0x03 float32 source, 0x02 float16 source",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0162"
+    ],
+    "note": "outcomes {'silent_zero': 236, 'ok': 2, 'wrong_value': 18}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "outcomes {'wrong_value': 132, 'ok': 40, 'silent_zero': 52, 'fault': 32}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "src": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "outcomes {'ok': 91, 'fault': 39, 'wrong_value': 124, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "fmt": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+4 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "outcomes {'wrong_value': 202, 'ok': 52, 'silent_zero': 2}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "b5": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+5 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "outcomes {'wrong_value': 16, 'ok': 152, 'silent_zero': 88}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "dir": {
-    "label": "corpus-correlation",
-    "range": "0x40 result bfloat, 0x80 result half",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+6 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0162"
+    ],
+    "note": "outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    },
    "b7": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+7 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
+    "note": "outcomes {'ok': 128, 'wrong_value': 128}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
    }
   },
   "bf_add_dst": {
@@ -8099,39 +8104,40 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte0 high nibble 0..15 DENSE (all 16), low nibble held at the anchor's value so the instruction length cannot change",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
+    "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'wrong_value': 15, 'not_written': 1}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
+    "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "opsel": {
-    "label": "corpus-correlation",
-    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+2 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0162"
+    ],
+    "note": "outcomes {'fault': 144, 'wrong_value': 96, 'invalid_run': 1, 'silent_zero': 15}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0162"
     ],
-    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
+    "note": "outcomes {'wrong_value': 256}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero."
    },
    "mods": {
     "label": "untested",
@@ -11341,6 +11347,45 @@
     "target": "M4",
     "evidence": [
      "EXP-0148"
+    ],
+    "note": "Not swept. Do not emit."
+   }
+  },
+  "frag_sample_submit": {
+   "_instruction": {
+    "label": "corpus-correlation",
+    "range": "population split: 10/10 fragment tokens clear byte+1 bit1 vs 615/615 vertex tokens setting it",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162",
+     "EXP-0091"
+    ],
+    "note": "Descriptor split out of `vary_store` by EXP-0162 (G17P, HW). Selected by byte+1 bit1 == 0. Fields provisional beyond the selector; nothing here has been swept, so do not emit."
+   },
+   "b1": {
+    "label": "corpus-correlation",
+    "range": "not swept; identified by the population split only",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162"
+    ],
+    "note": "Not swept. Do not emit."
+   },
+   "b2": {
+    "label": "corpus-correlation",
+    "range": "not swept; identified by the population split only",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162"
+    ],
+    "note": "Not swept. Do not emit."
+   },
+   "body": {
+    "label": "corpus-correlation",
+    "range": "not swept; identified by the population split only",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162"
     ],
     "note": "Not swept. Do not emit."
    }

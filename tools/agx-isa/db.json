@@ -5385,9 +5385,14 @@
           84
         ],
         [
-          32,
-          8,
-          6
+          28,
+          1,
+          1
+        ],
+        [
+          30,
+          1,
+          1
         ]
       ],
       "fields": [
@@ -5420,7 +5425,7 @@
           "type": "mod"
         }
       ],
-      "semantics": "fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock). kind (byte+1): 0x14 acquire/wait, 0x04 release/signal. scope (byte+3): memory scope {0x50,0xd0} (bit7 differs) -- located mod. flags (byte+4): the raster-order/device fence flag (0x06, coincides with the match constant). b5 (byte+5, constant 0x00). Brackets an ordered RMW of a [[raster_order_group]] resource. Raw bytes retyped raw->mod by located role; scope/flags value map needs splice. \u26a0 DESCRIPTOR SELF-CONTRADICTION (EXP-0147): this descriptor declares field `flags` at bits[32:40] AND carries a match constant pinning those same bits to 0x06. Hardware accepts 112 (acquire) / 224 (release) distinct values there with the program byte-exactly correct, so **every legal encoding with byte+4 != 0x06 is currently neither decodable nor emittable**. The match must be relaxed; not done here because it changes how existing programs decode and needs a corpus A/B like EXP-0148's.",
+      "semantics": "fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock). kind (byte+1): 0x14 acquire/wait, 0x04 release/signal. scope (byte+3): memory scope {0x50,0xd0} (bit7 differs) -- located mod. flags (byte+4): the raster-order/device fence flag (0x06, coincides with the match constant). b5 (byte+5, constant 0x00). Brackets an ordered RMW of a [[raster_order_group]] resource. Raw bytes retyped raw->mod by located role; scope/flags value map needs splice. \u26a0 DESCRIPTOR SELF-CONTRADICTION (EXP-0147): this descriptor declares field `flags` at bits[32:40] AND carries a match constant pinning those same bits to 0x06. Hardware accepts 112 (acquire) / 224 (release) distinct values there with the program byte-exactly correct, so **every legal encoding with byte+4 != 0x06 is currently neither decodable nor emittable**. The match must be relaxed; not done here because it changes how existing programs decode and needs a corpus A/B like EXP-0148's. MATCH CORRECTED (EXP-0162, HW-VALIDATED G17P): the descriptor declared field `flags` at bits[32:40] while ALSO pinning those bits to 0x06, so every legal encoding with byte+4 != 0x06 was neither decodable nor emittable. Fixed by dropping the byte+4 pin and requiring **byte+3 bit4 and bit6** instead \u2014 a byte the corpus fitting never reached. Round-trip 302/0, corpus byte-identical, **zero firings move**, and four HW-verified encodings become decodable. Detection power was proved quantitatively first: corrupting byte+4 loses exactly 7 of 8 raster-order updates (texel 8*src -> 1*src; pixel clear+36*src -> clear+8*src). The decisive new evidence is cross-form: `07 14 54 51 0e 00` and `07 04 54 d1 0e 00` \u2014 the `threadgroup_barrier(mem_texture)` pair our own MSL compiles to \u2014 are **byte-for-byte substitutable in both directions with ordering intact**, so they ARE the pixel_order pair. The compute barrier, fragment tile barrier and device fence all lose the same 7 of 8 updates, contradicting the earlier over-claim on hardware rather than by corpus counting.",
       "provenance": "inferred (byte-diff EXP-0029) + EXP-M4-13 R10 census over committed permissive Dawn/Tint textureStore shaders (1734 instances): byte+3 scope {0x50,0xd0}, byte+5 const 0x00. Retyped raw->mod by located role."
     },
     {
@@ -5982,6 +5987,11 @@
           0,
           8,
           87
+        ],
+        [
+          9,
+          1,
+          1
         ]
       ],
       "fields": [
@@ -6034,9 +6044,8 @@
           "type": "mod"
         }
       ],
-      "semantics": "uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.  [MIS-TOKENIZATION FLAGGED 2026-08-28] The fragment kill/target-mask SUBMISSION op (byte0=0x57, byte+2=0x54, 6 bytes; byte+4 bits[4:0] a source-register select where 0x00 reads the real mask and any other tested value kills the fragment on colour+depth+occlusion together) is currently MIS-TOKENIZED BY THIS DESCRIPTOR as an 8-byte vertex-stage vary_store -- an opcode collision of the same shape EXP-0029 fixed elsewhere (EXP-0091). Mask width is exactly rasterSampleCount bits; excess bits are silently inert to 0xFFFFFFFF and never fault. NOTE the correction from EXP-0093: the accompanying `07 02 54 01` / `87 02 54 01` bracket is the ORDINARY UNCONDITIONAL FRAGMENT EPILOG, NOT a kill/mask companion as EXP-0091 first reported. A proper split of this collision is a pending DB change. OPCODE COLLISION, UNRESOLVED SPLIT (EXP-0091; still open as of 2026-08-28): byte0=0x57 with byte+2=0x54 is a SIX-byte fragment kill / target-mask op, not this eight-byte vertex vary_store. The fixed 8-byte length mis-tokenizes it. EXP-0093 separately corrected the companion reading: the `07 02 54 01` bracket is the ordinary fragment epilog, not a kill/mask partner. DO NOT EMIT vary_store for byte+2==0x54; the split needs a discriminating match plus a length rule that is byte+2-aware, which needs new hardware evidence.",
-      "provenance": "HW-VALIDATED (EXP-0037): splice-and-render on the A18 Pro via agxrender. byte+4=out-slot proven by redirecting va.z's store slot 0xc0->0x80 (FS RED shows va.z's gradient) and by moving position out of slots 0-3 (degenerate triangle); byte+3=source proven by zeroing it (RED channel -> 0); byte+6 proven INERT. EXP-M4-13 R8 (byte-diff, own-MSL matrix_mvp/pointsize/flat_float vertex shaders, compile-only): byte+5 split -- bit0 TYPED out_slot_hi (the 9th store in an 8-varying+position shader wraps byte+4 to 0x00 with byte+5=0x41, i.e. slot 8), bits[1:8] const 0x20 tag; byte+7 TYPED mod reserved (const 0x00 across all 447 corpus VS varying stores; the two FS-stage 0x57 ops set +7 to 0x01/0x02 -- a different use of the shared opcode). src(+3) reg<<1 progression reconfirmed. Length 8 unchanged; tokenizes all VS stores byte-exact.",
-      "emit_unsafe": true
+      "semantics": "uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.  [MIS-TOKENIZATION FLAGGED 2026-08-28] The fragment kill/target-mask SUBMISSION op (byte0=0x57, byte+2=0x54, 6 bytes; byte+4 bits[4:0] a source-register select where 0x00 reads the real mask and any other tested value kills the fragment on colour+depth+occlusion together) is currently MIS-TOKENIZED BY THIS DESCRIPTOR as an 8-byte vertex-stage vary_store -- an opcode collision of the same shape EXP-0029 fixed elsewhere (EXP-0091). Mask width is exactly rasterSampleCount bits; excess bits are silently inert to 0xFFFFFFFF and never fault. NOTE the correction from EXP-0093: the accompanying `07 02 54 01` / `87 02 54 01` bracket is the ORDINARY UNCONDITIONAL FRAGMENT EPILOG, NOT a kill/mask companion as EXP-0091 first reported. A proper split of this collision is a pending DB change. OPCODE COLLISION, UNRESOLVED SPLIT (EXP-0091; still open as of 2026-08-28): byte0=0x57 with byte+2=0x54 is a SIX-byte fragment kill / target-mask op, not this eight-byte vertex vary_store. The fixed 8-byte length mis-tokenizes it. EXP-0093 separately corrected the companion reading: the `07 02 54 01` bracket is the ordinary fragment epilog, not a kill/mask partner. DO NOT EMIT vary_store for byte+2==0x54; the split needs a discriminating match plus a length rule that is byte+2-aware, which needs new hardware evidence. COLLISION RESOLVED (EXP-0162, HW-VALIDATED G17P) \u2014 and the long-standing premise was WRONG. **byte+2 does NOT discriminate**: 0x54/0x55/0x56 occur in BOTH populations and byte+2 is 256/256 INERT on hardware in both forms. db.json's own flag text said otherwise and was mistaken. **The real selector is byte+1 bit1**: 615/615 vertex tokens set it, 10/10 fragment tokens clear it. On hardware, setting it on the fragment op kills the fragment while 0x14->0x1c is null (reproducing EXP-0091's M4 result); mirrored on the vertex side, clearing bit1 corrupts the store AND downstream channels. byte+6 is live (so the VS form really is >= 7 bytes) and byte+7 inert. The 6-byte fragment form is now the separate `frag_sample_submit`. Length rule: `8 if (byte+1 & 2) else 6`. A/B: 833 clean files (+1), -268 leftover bytes, round-trip ALL PASS, exact population conservation.",
+      "provenance": "HW-VALIDATED (EXP-0037): splice-and-render on the A18 Pro via agxrender. byte+4=out-slot proven by redirecting va.z's store slot 0xc0->0x80 (FS RED shows va.z's gradient) and by moving position out of slots 0-3 (degenerate triangle); byte+3=source proven by zeroing it (RED channel -> 0); byte+6 proven INERT. EXP-M4-13 R8 (byte-diff, own-MSL matrix_mvp/pointsize/flat_float vertex shaders, compile-only): byte+5 split -- bit0 TYPED out_slot_hi (the 9th store in an 8-varying+position shader wraps byte+4 to 0x00 with byte+5=0x41, i.e. slot 8), bits[1:8] const 0x20 tag; byte+7 TYPED mod reserved (const 0x00 across all 447 corpus VS varying stores; the two FS-stage 0x57 ops set +7 to 0x01/0x02 -- a different use of the shared opcode). src(+3) reg<<1 progression reconfirmed. Length 8 unchanged; tokenizes all VS stores byte-exact."
     },
     {
       "mnemonic": "tex_coord_setup",
@@ -11060,6 +11069,44 @@
       ],
       "semantics": "EXP-0148 PROPOSED, SUPERSEDES the 8-byte tg_atomic_prep. Threadgroup/device atomic RMW descriptor prep, 10 bytes. Two corpus forms, both 34/34 followed by a 2-byte word that the 8-byte length exposed as a separate token: `0b 00 06 00 20 00 00 14 | 00 00` (device atomics, 18x) and `0b 00 06 00 00 00 00 00 | 60 00` (threadgroup atomics, 16x). The 10-byte length also falls straight out of the 0x?b class rule (byte+2 & 0x06)==0x06.",
       "provenance": "EXP-0148 corpus continuation test (own-MSL, n=34, 34/34 trailing word; two independent derivations agree). STRUCTURAL -- not splice-validated."
+    },
+    {
+      "mnemonic": "frag_sample_submit",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          87
+        ],
+        [
+          9,
+          1,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "6-byte FRAGMENT form split out of `vary_store` by EXP-0162 (G17P, HW). Selected by **byte+1 bit1 == 0**, where the 8-byte vertex `vary_store` has it set \u2014 10/10 fragment tokens clear it against 615/615 vertex tokens setting it. Setting bit1 on this op kills the fragment. byte+2 is 256/256 INERT and does NOT select the form, contrary to the long-standing EXP-0091 reading. Fields are provisional beyond the selector.",
+      "provenance": "EXP-0162 (G17P): cross-population selector proof + hardware kill/null asymmetry; A/B 833 clean files, -268 leftover bytes."
     }
   ],
   "length_rule_gaps": {
