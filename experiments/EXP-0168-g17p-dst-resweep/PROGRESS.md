@@ -1297,3 +1297,92 @@ raw/superseded/               4 stopped runs + README explaining each 3.6 MB
 `db.json`, `validation.json`, `docs/` and `PROVENANCE.md` are untouched; nothing
 is committed by me; the SSH password appears in no file (grepped the whole
 experiment tree). All my processes on the neo are stopped.
+
+## 2026-08-30 — M23: QUIET WINDOW GRANTED. Render arm COMPLETE for three of four
+##                  fields, and the r15 "hardware fact" is RETRACTED.
+Coordinator confirmed the machine is mine and quiet (2 GPU processes, was 39).
+
+### Re-pin decision, recorded explicitly as the coordinator allowed
+`db.json` moved to `a77f8cfa…` (172 instr / **1036** fields, was 1062; EXP-0175
+folded 25 zero-free-bit fields into `match`). **I kept the `07ad894d…` pin for
+the render runs**, deliberately:
+- `rclean01` had already run against it, and cross-run agreement is only
+  meaningful between runs keyed to the same descriptor;
+- the new `isadb.assemble()` REFUSES match/field conflicts, which would break the
+  `iter_at.grp` out-of-descriptor sweep — and probing that region is the whole
+  point of that arm;
+- **all 12 render-relevant spans are byte-identical in both snapshots**
+  (`vtx_out_pos.dst/slot`, `pixel_order.kind/flags`, `frag_color_pack.dst/mode/
+  val/src_present_mask`, `iter_at.grp/loc`, `vary_store.hint6/out_slot`), so the
+  results merge against `a77f8cfa…` without a stale-span refusal.
+Also checked: **none of my four reported descriptor defects has been fixed yet** —
+`iter_at.grp`, `pixel_order.scope`, `reg_move_cb.form`, `shift_amt_move.kind` all
+still declare fields over match-pinned bits in `a77f8cfa…`. They remain open.
+
+### DEFECT 10 — MY "r15 IS NOT WRITABLE" HARDWARE FACT WAS MY OWN SCAFFOLDING
+EXP-0174 is right and the mechanism is confirmed in my own source:
+```python
+R_IDX = 15          # device_store index register; re-seeded before EVERY store
+def store_word(word_idx, data_reg, base_slot=0):
+    return (mov_imm(R_IDX, 0) + device_store(R_IDX, ...))
+```
+`R_IDX` **is** r15. Every store — including the store that reads r15 back —
+clobbers it to 0 first. **r15 could never have read anything but 0, whatever the
+hardware did.** EXP-0174 confirms r15 is an ordinary writable GPR on an
+r7-indexed plan (holds its seed in all 64 baselines).
+
+**This is rule R-A — the observable must not co-vary with the field under test —
+violated in my own harness.** I convicted EXP-0140 of exactly this and then
+shipped it myself, dressed as a driver-relevant register-file fact. §3 of
+RESULTS.md is now a retraction that says so plainly; `undecidable_why` on every
+affected verdict row is rewritten from "the hardware discards the write" to
+"CARRIER LIMIT, NOT A HARDWARE PROPERTY". **No verdict label moves** — `dst = 15`
+really is undecidable in this carrier, only the cause changes. The residual
+`regs[0] = 0` anomaly does not reproduce on EXP-0174's plan and is left OPEN, not
+claimed.
+
+### Render arm: 3 gated runs, 2,632 cases each, 16.7-16.8 s each, 4 hangs each
+`rclean07`, `rclean08`, `rclean09` — all `stopped_early: false`, 0 refused.
+157 cases/s on the quiet machine versus 31 under contention and 0.07 at its
+worst: the concurrency cost is now measured across a 2,000x range.
+
+**The legal-values-first ordering fix WORKED.** `iter_at.grp` dispatched
+**0x2f and 0xaf in every run**; `rclean01` had only ever reached 0x00 and 0x01
+before the budget blew.
+
+**Cross-run agreement 100.000% on all four fields, over 3 run pairs. The render
+verdicts are no longer provisional.**
+
+| field | bucket | label | arms | distinct dims | agreement |
+|---|---|---|---|---|---|
+| `pixel_order.kind` | LIVE | **`hardware-run`** | 6 | 3 | 100.000% |
+| `vtx_out_pos.dst` | LIVE | **`hardware-run`** | 3 | live on 1 | 100.000% |
+| `vtx_out_pos.slot` | INERT-ROBUST | **`single-template-inference`** | 3 | **3** | 100.000% |
+| `iter_at.grp` | LADDER-FAILED | `untested` | 0 eligible | — | 100.000% |
+
+### `iter_at.grp`: a reproducible measurement that I am still NOT promoting
+Identical in all three runs, on both carriers:
+```
+r_i8  (samples=1)  grp=0x2f -> wrong_value    grp=0xaf -> ok
+r_i8s (samples=4)  grp=0x2f -> ok             grp=0xaf -> ok
+both carriers      grp=0x00 -> HANG           grp=0x01 -> HANG
+```
+So **bit 7 — the only free bit the descriptor leaves — does change the
+observation on the 1-sample carrier and not on the 4-sample one.** That is a
+real, 3/3-reproducible asymmetry. It is nonetheless reported as **`untested`**,
+because the arm's liveness ladder (`iter_at.loc`) FAILED on both carriers, and R3
+says an arm that cannot demonstrate detection power is DISCARDED — a field that
+"moves" in a carrier which cannot show it could resolve anything is not evidence.
+I am not going to promote it because the number looks good.
+
+### `frag_color_pack`: 2 gated runs, and the band is BIGGER AGAIN
+`rfcp01` / `rfcp02`: 1,801 cases each, **19 hangs each — identical**,
+`stopped_early: false`, device survived. But the sweep now hangs at **198, 199
+and 255**, so it still stops before covering 198..255 (2 of 58).
+**The hazardous band is at least 194..199 plus 255, and my "defer the known
+values" fix only moves the wall.** With a per-field budget of 2, each experiment
+can discover exactly 2 new hazardous values — which is precisely why this gap has
+survived three experiments. A dedicated HANG-TOLERANT MAPPING run
+(`--hang-budget 80`, new flag) is under way to map the band exhaustively. It is
+explicitly **not** a gated verdict run — it changes a frozen safety parameter —
+and its raw is named `MAPPING_fcpdst_hangtolerant` to say so.
