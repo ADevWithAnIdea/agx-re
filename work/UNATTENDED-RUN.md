@@ -205,7 +205,24 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 
 ## The number
 
-**55 of 166 emitter-relevant instructions emittable; 638 of 1040 fields emitter-grade.**
+**37 of 166 emitter-relevant instructions emittable; 554 of 1040 fields emitter-grade.**
+
+> **This figure was 55/638 until the closing audit (EXP-0189) tested it and it did not survive.**
+> That audit reimplemented the *current* rule — including the `_instruction` gate I had added
+> hours earlier — and **reproduced 55 exactly before withholding anything**, so 38 was measured
+> against my own rule rather than a different one. I then withheld one more (`call.tail`) on its
+> eighth finding. The full arc of the day is **79 → 41 → 55 → 38 → 37**, and every fall came from
+> an audit that could reproduce the published number before disputing it.
+>
+> **The shortfall is not the merges made during this run, and that is measured rather than
+> asserted:** the post-withdrawal cohort withholds at **18.31%** against **16.94%** for the corpus
+> it joined. The dominant cause is inherited — **one A18 experiment has no `raw/` directory at all**,
+> only a narrative summary, and is load-bearing for **7 of the 17 instructions that lost status**.
+>
+> **Two of my four personal rulings were wrong.** `get_sr.form` is withdrawn: I promoted it over an
+> eight-arm decline, and two of my three grounds were bad — including a rebuttal that was *factually
+> wrong about the experiment I was overriding*. `iter_at._instruction` was over-labelled. The other
+> two (`call.b6`, and the 30-label refresh) held up.
 `validate_labels.py` rc=0, `roundtrip_test.py` ALL PASS, 56 commits today, 257 provenance rows.
 
 **Of the emitter-grade fields, 412 are measured on G17P** — the actual documentation target —
