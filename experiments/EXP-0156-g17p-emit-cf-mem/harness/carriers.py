@@ -325,6 +325,7 @@ SITES.update({"tgac": ("tg_addr_compute", 46, 6)})
 # Sites our own DECODER mis-tokenizes (a first-class db defect, see RESULTS):
 # asserted by EXACT BYTES at an EXACT offset instead of by mnemonic.
 RAW_SITES = {
+    "tgac141": [("tg_addr_compute", 422, bytes.fromhex("1c0200000000"))],
     "bfadd":   [("bf_add_dst", 32, bytes.fromhex("21001c001100c081"))],
     "bfround": [("bf_add_dst", 32, bytes.fromhex("21001c001100c081"))],
     "bffma":   [("bf_fma_dst", 46, bytes.fromhex("21001e0086041000c081"))],
@@ -332,3 +333,50 @@ RAW_SITES = {
     "h2fma":   [("half_alu_lo", 46, bytes.fromhex("20001e04810800c0")),
                 ("h_alu_hi", 54, bytes.fromhex("28011b09"))],
 }
+
+
+# ---------------------------------------------------------------------------
+# EXP-0156 ADDENDUM (added AFTER the primary tgac arm produced a load-bearing
+# claim; see ADDENDUM-PREREG.md, frozen before this arm ran).
+#
+# The primary arm reproduces EXP-M4-14's A18 record on EXP-M4-14's own kernel.
+# But the M4 record that CONTRADICTS it (EXP-0141 H5) was measured on a
+# DIFFERENT carrier -- EXP-0141's own lane-0-fills-the-tile litmus, with the op
+# at +422 -- so the two disagreeing records differ in BOTH target AND carrier.
+# The comparison as it stands is CONFOUNDED.
+#
+# This addendum removes the confound in the one direction still available (the
+# M4 is retired for GPU work): run EXP-0141's OWN carrier, byte-for-byte, HERE
+# on the G17P. If byte0 is again wide open, the difference is the TARGET; if
+# only 0x1c is accepted, the difference is the CARRIER and the claimed
+# divergence dissolves.
+# ---------------------------------------------------------------------------
+TILE141_A = list(range(256))          # EXP-0141 carriers.py TILE_A, verbatim
+
+
+def tile141_oracle():
+    """EXP-0141's own host oracle, recomputed from the MSL we reuse:
+    tile[i] = a[i] + 1 (written entirely by lane 0), then
+    o[li] = tile[(li+128)&255] + tile[(li+37)&255]."""
+    o = {"0:%d" % i: ((((i + 128) & 255) + 1) + (((i + 37) & 255) + 1))
+         for i in TG_LANES}
+    o["0:256"] = SENT
+    return o
+
+
+INPUT_FILES.update({
+    "tile141_a": lambda: pack_u32(TILE141_A),
+    "poison1032": lambda: poison_buf(258),
+})
+
+CARRIERS.update({
+    "tgac141": {
+        "metal": "tg_tile_141.metal", "grid": 256, "tg": 256, "mode": "int",
+        "ins": {0: "poison1032", 1: "tile141_a"}, "outs": {0: 1028},
+        "sentinel": ("0:256", SENT), "main_len": 494,
+        "doc": "EXP-0141's OWN threadgroup-tile litmus, byte-for-byte, run on "
+               "G17P to remove the carrier confound in the tg_addr_compute "
+               "cross-target comparison. It DOES carry an integrity sentinel "
+               "(o[256]), unlike EXP-M4-14's k_thr.metal.",
+    },
+})

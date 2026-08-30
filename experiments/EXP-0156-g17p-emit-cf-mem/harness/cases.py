@@ -628,6 +628,69 @@ def c06_h_alu_hi(facts):
     return cs
 
 
+def b02_tgac141(facts):
+    """ADDENDUM (ADDENDUM-PREREG.md): EXP-0141's OWN tile carrier, byte-for-byte,
+    run on G17P to decide whether the tg_addr_compute disagreement is driven by
+    the TARGET or by the CARRIER. Pre-registered both ways."""
+    label, off, orig = facts["raw_sites"]["tgac141"][0]
+    orc = C.tile141_oracle()
+    cs = []
+    cs.append(_c("tgac141.baseline", "tgac141.baseline", "tg_addr_compute", "-", 0,
+                 "tgac141", orc, orig.hex(),
+                 "unmutated EXP-0141 tile carrier (has its own o[256] sentinel)",
+                 True, patch=[(off, bytes([orig[0]]))]))
+    cs.append(_c("tgac141.falsifier", "tgac141.baseline", "tg_addr_compute", "-", 0,
+                 "tgac141", _perturb(orc, "tgac141"), orig.hex(),
+                 "FALSIFIER: unmutated carrier, unreachable oracle", False,
+                 patch=[(off, bytes([orig[0]]))]))
+    for v, note in ((0x1c, "the compiler's own byte0 (control)"),
+                    (0xfc, "THE ADJUDICATED VALUE, now on EXP-0141's OWN carrier")):
+        cs.append(_c("tgac141.divergence", "tgac141.divergence", "tg_addr_compute",
+                     "byte+0", v, "tgac141", orc,
+                     bytes([v]).hex() + orig[1:].hex(), note, None,
+                     patch=[(off, bytes([v]))]))
+    for b in (0, 1):
+        for v in range(256):
+            mut = bytearray(orig); mut[b] = v
+            cs.append(_c("tgac141.b%d" % b, "tgac141.b%d" % b, "tg_addr_compute",
+                         "byte+%d" % b, v, "tgac141", orc, bytes(mut).hex(),
+                         "compiler-natural value" if v == orig[b]
+                         else "exploratory (dense byte sweep)",
+                         True if v == orig[b] else None,
+                         patch=[(off + b, bytes([v]))]))
+    return cs
+
+
+def a13_jc_scope_natural(ml):
+    """ADDENDUM 2 (ADDENDUM-PREREG.md §2), appended AFTER every other arm so no
+    frozen case index moves.
+
+    a09 sweeps `jump_cond.cf_scope`/`.reserved` at a POISON offset, where the
+    only observable is taken vs not-taken: for every value the branch is taken
+    and the output store never runs. That bounds those bytes only coarsely.
+    This arm sweeps the same two bytes at the NATURAL offset under `n = 0`,
+    where the branch is taken AND lands where the compiler intended, so the
+    program produces the exact fall-through oracle. Inertness measured here is
+    inertness in a program that still computes the right answer -- the same
+    standard EXP-0140 used to promote `jump.branch_ctrl`.
+
+    Refuter: a value that changes the output, or that makes the store vanish."""
+    cs = []
+    for field in ("cf_scope", "reserved"):
+        nat = CF_NAT[("jump_cond", field)]
+        cs += _cf_field_arm(
+            ml, 5, "jump_cond", field, list(range(256)), carrier="cf0",
+            nvec=C.CF_N_ZERO, extra_over=[(5, "offset", JC_NATURAL)],
+            arm="jump_cond.%s@NAT" % field, group="jump_cond.%s@NAT" % field,
+            expect_for=lambda v, n=nat: True if v == n else None,
+            notefn=lambda v, n=nat: (
+                "compiler-natural value at the natural offset: branch TAKEN and "
+                "landing correctly, so this MUST equal the fall-through oracle"
+                if v == n else
+                "inertness in a program that still computes the right answer"))
+    return cs
+
+
 # ================================================================== assembly
 def build_cases(facts):
     ml = facts["carriers"]["cfN"]["main_len"]
@@ -651,6 +714,8 @@ def build_cases(facts):
     cs += c04_bf_fma_operands(facts)
     cs += c05_hminmax(facts)
     cs += c06_h_alu_hi(facts)
+    cs += b02_tgac141(facts)
+    cs += a13_jc_scope_natural(ml)
     for i, c in enumerate(cs):
         c["i"] = i
         spec = C.CARRIERS[c["carrier"]]

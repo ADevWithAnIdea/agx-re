@@ -16,27 +16,31 @@
   "total_instructions": 171,
   "total_fields": 1057,
   "by_label": {
-   "hardware-run": 418,
+   "hardware-run": 457,
    "isolated-byte-diff": 95,
-   "corpus-correlation": 165,
-   "tokenization-only": 194,
+   "corpus-correlation": 152,
+   "tokenization-only": 185,
    "single-template-inference": 13,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 172
+   "untested": 155
   },
   "by_label_pct": {
-   "hardware-run": 39.5,
+   "hardware-run": 43.2,
    "isolated-byte-diff": 9.0,
-   "corpus-correlation": 15.6,
-   "tokenization-only": 18.4,
+   "corpus-correlation": 14.4,
+   "tokenization-only": 17.5,
    "single-template-inference": 1.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 16.3
+   "untested": 14.7
   },
-  "emittable_instructions": 44,
+  "emittable_instructions": 53,
   "emittable_mnemonics": [
+   "atomic_mem",
+   "atomic_rmw",
+   "atomic_tg",
+   "bf_add_dst",
    "copysign",
    "cvt_f2h",
    "cvt_f2i",
@@ -50,6 +54,7 @@
    "get_sr",
    "half_alu",
    "half_alu_ext8",
+   "hminmax",
    "iadd2",
    "ibfe",
    "ibitcount",
@@ -57,18 +62,22 @@
    "isel10",
    "ishift",
    "iunary",
+   "jump",
+   "jump_cond",
    "link_save_restore",
    "matrix_mac",
    "mov_imm",
    "n3_sample_read",
    "pack_convert",
    "pixel_order",
+   "pop_reconverge",
    "psel",
    "reg_move_c0",
    "reg_move_c1",
    "reg_move_c2var",
    "reg_move_c9",
    "reg_move_cb",
+   "ret_luse",
    "sel",
    "shift_amt_move",
    "spill_frame_marker",
@@ -82,7 +91,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 127,
+  "decodable_not_yet_emittable": 118,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -93,7 +102,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 165,
-  "emittable_of_emitter_relevant": 44
+  "emittable_of_emitter_relevant": 53
  },
  "instructions": {
   "falu2": {
@@ -1197,42 +1206,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "148 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "dst_full": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "sel": {
-    "label": "corpus-correlation",
-    "range": "0=hmax 1=hmin (2 of 8) observed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "selhi": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    }
   },
   "isel_reg": {
@@ -2630,12 +2655,13 @@
     ]
    },
    "branch_ctrl": {
-    "label": "corpus-correlation",
-    "range": "0x54 in 645/646 corpus jumps and every own-MSL loop back-edge; a single corpus jump uses 0x64",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": "2 values skipped as known-hang exclusions"
    },
    "offset": {
     "label": "hardware-run",
@@ -2667,32 +2693,31 @@
     ]
    },
    "cf_scope": {
-    "label": "corpus-correlation",
-    "range": "0x54 / 0x56 mask-bank values observed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": "250 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "offset": {
-    "label": "corpus-correlation",
-    "range": "signed 48-bit LE byte displacement; target = jump_addr + 4 + offset, located over own-MSL if/else/while/for shapes",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "56 values sampled",
+    "target": "G17P",
     "evidence": [
-     "RT-ISA-FIX",
-     "EXP-0010"
+     "EXP-0156"
     ],
-    "note": "EXP-0115 measured the practical reach on the sibling `jump`; see that field. EXP-0115 also flags the '+4' convention against db.json's own wording."
+    "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "reserved": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": "251 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    }
   },
   "if_push": {
@@ -2755,14 +2780,13 @@
     "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "reserved": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "35 values sampled",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    }
   },
   "mask_op": {
@@ -3847,42 +3871,40 @@
     "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "op_lsb": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "op": {
     "label": "hardware-run",
-    "range": "all 13 op codes spliced and observed: add 0x20, and 0x22, cmpxchg 0x24, fadd 0x26, smax 0x28, smin 0x2a, or 0x2c, sub 0x36, umax 0x38, umin 0x3a, xchg 0x3c, xor 0x3e, add_indexed 0x60",
-    "target": "M4+A18",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0018",
-     "EXP-M4-10"
+     "EXP-0156"
     ],
-    "note": "The same 5-bit op enum is shared with atomic_tg (at bits 86-91). 64-bit atomics are ENTIRELY absent from MSL, so there is no width field to find (EXP-O2D)."
+    "note": ""
    },
    "per_lane": {
-    "label": "corpus-correlation",
-    "range": "1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "op_msb": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "amode_hi": {
     "label": "hardware-run",
@@ -4013,42 +4035,40 @@
     "note": "Was `tokenization-only`; the name is wrong."
    },
    "op_lsb": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "op": {
     "label": "hardware-run",
-    "range": "all 13 op codes spliced and observed: add 0x20, and 0x22, cmpxchg 0x24, fadd 0x26, smax 0x28, smin 0x2a, or 0x2c, sub 0x36, umax 0x38, umin 0x3a, xchg 0x3c, xor 0x3e, add_indexed 0x60",
-    "target": "M4+A18",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0018",
-     "EXP-M4-10"
+     "EXP-0156"
     ],
-    "note": "The same 5-bit op enum is shared with atomic_tg (at bits 86-91). 64-bit atomics are ENTIRELY absent from MSL, so there is no width field to find (EXP-O2D)."
+    "note": ""
    },
    "per_lane": {
-    "label": "corpus-correlation",
-    "range": "1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "op_msb": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "amode_hi": {
     "label": "hardware-run",
@@ -5811,13 +5831,13 @@
     ]
    },
    "linkmode": {
-    "label": "corpus-correlation",
-    "range": "0x02 leaf / 0x12 non-leaf / 0x04,0x05 CF merge (4 of 256 observed)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0035",
-     "EXP-0038"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "scoreboard": {
     "label": "corpus-correlation",
@@ -6642,30 +6662,30 @@
    },
    "b3": {
     "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0156"
     ],
-    "note": "M4 confirmation of EXP-M4-14's A18 result (5 values there, 256 here)."
+    "note": ""
    },
    "b4": {
     "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0156"
     ],
-    "note": "M4 confirmation of EXP-M4-14 (A18, 3 values)."
+    "note": ""
    },
    "b5": {
     "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0156"
     ],
-    "note": "M4 confirmation of EXP-M4-14 (A18, 3 values)."
+    "note": ""
    }
   },
   "link_save_restore": {
@@ -7111,36 +7131,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "86 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "fmt": {
-    "label": "corpus-correlation",
-    "range": "0x02 scalar / 0x04 bfloat2-packed lane",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "190 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "tail": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    }
   },
   "bf_mul_dst": {
@@ -7197,36 +7230,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "81 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "fmt": {
-    "label": "corpus-correlation",
-    "range": "0x02 scalar / 0x04 bfloat2-packed lane",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "128 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
    },
    "srcC": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "tail": {
     "label": "untested",
@@ -7546,12 +7592,13 @@
     "note": "Was `tokenization-only`; the name is wrong."
    },
    "op_desc": {
-    "label": "corpus-correlation",
-    "range": "byte+5/+8 operand-register descriptors step together (0x02/0x22 returning, 0x01/0x20 noret, 0x00/0x02 xchg & cmpxchg)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": "2 values skipped as known-hang exclusions"
    },
    "rsv6": {
     "label": "hardware-run",
@@ -7590,33 +7637,31 @@
     "note": "Was `tokenization-only`; the name is wrong."
    },
    "rsv10lo": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "op": {
-    "label": "corpus-correlation",
-    "range": "the SAME 5-bit op enum as the device atomics, relocated to bits 86-91: add 0x20, and 0x22, cmpxchg 0x24, fadd 0x26, smax 0x28, smin 0x2a, or 0x2c, sub 0x36, umax 0x38, umin 0x3a, xchg 0x3c, xor 0x3e, add_indexed 0x60",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
+     "EXP-0156"
     ],
-    "note": "Enum values are HW-validated on the DEVICE atomic (EXP-0018/EXP-M4-10); their reuse at this bit position is a structural/corpus finding, not an independent splice."
+    "note": ""
    },
    "op_hi_rsv": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    }
   },
   "tile_read_mrt": {
@@ -7801,40 +7846,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "102 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK); half classification {'both': 103, 'hi_changed': 92, 'neither': 1, 'no_store': 60} (cross-run agree=False)"
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "half classification {'both': 4, 'hi_changed': 250, 'neither': 2} (cross-run agree=True)"
    },
    "opsel": {
-    "label": "corpus-correlation",
-    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0156"
+    ],
+    "note": "96 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK); half classification {'hi_changed': 240, 'neither': 16} (cross-run agree=True)"
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "96 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK); half classification {'hi_changed': 240, 'neither': 16} (cross-run agree=True)"
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "note": "half classification {'both': 4, 'hi_changed': 250, 'neither': 2} (cross-run agree=True)"
    },
    "ctrl": {
     "label": "untested",
@@ -9843,24 +9897,22 @@
     ]
    },
    "linkmode": {
-    "label": "corpus-correlation",
-    "range": "same leaf/non-leaf/CF-merge map as `ret`",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0035"
-    ]
+     "EXP-0156"
+    ],
+    "note": ""
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0086",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0156"
     ],
-    "note": "byte+2 bit17 is the literal 0x54/0x56 bit - DOWNGRADED to UNKNOWN, never assume inert (EXP-0086)."
+    "note": "2 values skipped as known-hang exclusions"
    }
   },
   "mem_fence8": {

@@ -54,6 +54,22 @@ def main():
                     "fields_total": ft, "blocked": blocked}
     delta = sorted(set(out["after"]["emittable"]) - set(out["before"]["emittable"]))
     out["newly_emittable"] = delta
+    # TARGET MIXING, stated explicitly (CODEX target discipline): validation.json's
+    # existing labels were established on the M4/G16G. This experiment's verdicts are
+    # G17P. An instruction that becomes emittable here may still rest on M4 labels for
+    # the fields this experiment did not sweep, and that is NOT a G17P claim.
+    mix = {}
+    for m in delta:
+        d = ins[m]
+        g17p = [f["name"] for f in d["fields"]
+                if "%s.%s" % (m, f["name"]) in fv]
+        m4 = [f["name"] for f in d["fields"] if f["name"] not in g17p]
+        mix[m] = {"fields_validated_on_G17P_here": sorted(g17p),
+                  "fields_still_resting_on_M4_labels": sorted(m4),
+                  "fully_G17P": not m4}
+    out["target_mixing"] = mix
+    out["newly_emittable_on_G17P_evidence_alone"] = sorted(
+        m for m in delta if not mix[m]["fields_still_resting_on_M4_labels"])
     out["field_delta"] = out["after"]["fields_emitter_grade"] - \
         out["before"]["fields_emitter_grade"]
     out["loop_instructions"] = {

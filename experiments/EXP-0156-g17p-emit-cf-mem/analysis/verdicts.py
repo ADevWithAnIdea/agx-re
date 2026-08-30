@@ -45,12 +45,16 @@ RAW = EXP / "raw"
 PAIRS = [
     ("g17p-20260830-tg01a", "g17p-20260830-tg02a"),
     ("g17p-20260830-tg01b", "g17p-20260830-tg02b"),
-    ("g17p-20260830-cf01a", "g17p-20260830-cf02a"),
-    ("g17p-20260830-cf01b", "g17p-20260830-cf02b"),
-    ("g17p-20260830-cf01c", "g17p-20260830-cf02c"),
-    ("g17p-20260830-mem01", "g17p-20260830-mem02"),
-    ("g17p-20260830-mtg01", "g17p-20260830-mtg02"),
-    ("g17p-20260830-bf01",  "g17p-20260830-bf02"),
+    ("g17p-20260830-t141a", "g17p-20260830-t141b"),
+    # cf01a was killed by a transport failure at record 887 and is RETAINED as a
+    # partial (raw/g17p-20260830-cf01a/PARTIAL.md); its successor is cf01d.
+    ("g17p-20260830-cf01d", "g17p-20260830-cf02d"),
+    ("g17p-20260830-cf01b", "g17p-20260830-cf02e"),
+    ("g17p-20260830-cf01c", "g17p-20260830-cf02f"),
+    ("g17p-20260830-mem03", "g17p-20260830-mem04"),
+    ("g17p-20260830-mtg03", "g17p-20260830-mtg04"),
+    ("g17p-20260830-bf03",  "g17p-20260830-bf04"),
+    ("g17p-20260830-jcn1",  "g17p-20260830-jcn2"),
 ]
 
 # arm -> (instruction, [db.json field names the arm's byte covers], byte)
@@ -68,6 +72,8 @@ ARM_FIELDS = {
     "jump_cond.cf_scope@P2":   ("jump_cond", ["cf_scope"]),
     "jump_cond.reserved@P1":   ("jump_cond", ["reserved"]),
     "jump_cond.reserved@P2":   ("jump_cond", ["reserved"]),
+    "jump_cond.cf_scope@NAT":  ("jump_cond", ["cf_scope"]),
+    "jump_cond.reserved@NAT":  ("jump_cond", ["reserved"]),
     "mask_op.mask_bank":       ("mask_op", ["mask_bank"]),
     "mask_op.scope_kind":      ("mask_op", ["scope_kind"]),
     "atdev_atomic_mem_b12":    ("atomic_mem", ["op_lsb", "op", "per_lane", "op_msb"]),
@@ -126,7 +132,10 @@ def cases(rows):
 
 
 def key(r):
-    return (r["arm"], r["value"])
+    # keyed by the FROZEN case index, not (arm, value): a baseline case and its
+    # falsifier share arm+value, and the case matrix is deterministic, so `i` is
+    # the only collision-free join key across two runs.
+    return r["i"]
 
 
 def all_trials_ok(r):
@@ -213,8 +222,12 @@ def main():
             "hangs_b": sum(1 for r in cb.values() if r["outcome"] == "hang"),
         }
         for k in common:
-            arm_rows[k[0]]["a"][k[1]] = ca[k]
-            arm_rows[k[0]]["b"][k[1]] = cb[k]
+            r = ca[k]
+            if r["group"].endswith(("falsifier", "liveness", "control",
+                                    "semantic", "halfprobe")):
+                continue          # controls are reported separately, not swept
+            arm_rows[r["arm"]]["a"][r["value"]] = r
+            arm_rows[r["arm"]]["b"][r["value"]] = cb[k]
         # pre-registered controls / falsifiers
         for k, r in sorted(ca.items()):
             if r["expect_match"] is not None and (

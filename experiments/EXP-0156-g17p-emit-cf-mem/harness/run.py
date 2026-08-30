@@ -217,6 +217,13 @@ def main():
     ap.add_argument("--exclude", default=None,
                     help="comma-separated arm-name prefixes to DROP")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--cases", default=None,
+                    help="path to a file of frozen case indices, one per line: "
+                         "re-dispatch EXACTLY those cases (FIELD-SWEEP-PROTOCOL "
+                         "§7A fault re-validation)")
+    ap.add_argument("--replicates", type=int, default=0,
+                    help="force this many trials per case (§7A wants 5 for a "
+                         "fault re-validation under the GPU lease)")
     ap.add_argument("--timeout", type=float, default=REQ_TIMEOUT)
     ap.add_argument("--cf-hang-budget", type=int, default=4)
     ap.add_argument("--global-hang-budget", type=int, default=8)
@@ -239,6 +246,9 @@ def main():
     if a.exclude:
         pre = tuple(a.exclude.split(","))
         cs = [c for c in cs if not c["arm"].startswith(pre)]
+    if a.cases:
+        want = {int(x) for x in Path(a.cases).read_text().split()}
+        cs = [c for c in cs if c["i"] in want]
     if a.limit:
         cs = cs[:a.limit]
     paths = make_inputs(work)
@@ -273,7 +283,8 @@ def main():
         else:
             label, off, orig = facts["raw_sites"][car][0]
             orc = {"bfadd": C.bf_add_oracle, "bffma": C.bf_fma_oracle,
-                   "hmax": C.hmax_oracle, "h2fma": C.h2fma_oracle}.get(car)
+                   "hmax": C.hmax_oracle, "h2fma": C.h2fma_oracle,
+                   "tgac141": C.tile141_oracle}.get(car)
             if orc is None:      # bfround: same program, rounding-probe input
                 t = C.pack16([C.bf16_bits(C.BF_RA[i] + C.BF_RB[i])
                               for i in range(8)])
@@ -316,6 +327,8 @@ def main():
         "excluded_known_hangs": {"%s.%s" % k: sorted(v[0])
                                  for k, v in CS.EXCLUDE.items()},
         "timeouts": {"per_request_s": a.timeout},
+        "case_subset_file": a.cases,
+        "forced_replicates": a.replicates,
         "defences": {"unique_archive_path_per_request": True,
                      "poisoned_output_buffer": True,
                      "integrity_sentinel": [k for k, v in C.CARRIERS.items()
@@ -371,11 +384,14 @@ def main():
         grid, tg = case["dispatch"]
         ins = ins_for(case["carrier"])
         trials = []
-        for t in range(3):
+        NTRIAL = a.replicates if a.replicates else 3
+        for t in range(NTRIAL):
             rp, att, errs = bench.attempt(spliced, grid, tg, ins, case["outs"])
             o, m, oc, ok = classify(case, rp["status"], rp["outs"], rp.get("error"))
             trials.append({"resp": rp, "attempts": att, "errors": errs,
                            "observed": o, "match": m, "outcome": oc, "valid": ok})
+            if a.replicates:
+                continue                     # §7A: always run the full N trials
             if t == 0 and oc == "ok":
                 continue
             if t == 1:

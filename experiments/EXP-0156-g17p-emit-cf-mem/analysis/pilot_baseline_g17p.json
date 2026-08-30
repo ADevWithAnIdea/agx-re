@@ -1,0 +1,209 @@
+{
+ "carriers": {
+  "cfN": {
+   "kernel": "carrier_cf.metal",
+   "kernel_sha256": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+   "main_len": 152,
+   "main_sha256": "21a9ef2358ff3d355dccc1229122b711a140fdae9a3002a3604a84834c1d89d6",
+   "region_off": 7616,
+   "archive": "work/pilot_baseline/carrier_cf.metal.bin",
+   "load_slots": [
+    2,
+    1
+   ],
+   "store_slots": [
+    0
+   ]
+  },
+  "cf0": {
+   "kernel": "carrier_cf.metal",
+   "kernel_sha256": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+   "main_len": 152,
+   "main_sha256": "21a9ef2358ff3d355dccc1229122b711a140fdae9a3002a3604a84834c1d89d6",
+   "region_off": 7616,
+   "archive": "work/pilot_baseline/carrier_cf.metal.bin",
+   "load_slots": [
+    2,
+    1
+   ],
+   "store_slots": [
+    0
+   ]
+  },
+  "atdev": {
+   "kernel": "atomic_dev.metal",
+   "kernel_sha256": "a0474dc913cb2feb524ed4e329b1e8997e6776b6b45d9e6edcd2e5f955d414c6",
+   "main_len": 108,
+   "main_sha256": "3b9cbf39f3e216dba68a3c41da56a92d50be4996a60e61d2906f123798c119cf",
+   "region_off": 7968,
+   "archive": "work/pilot_baseline/atomic_dev.metal.bin",
+   "load_slots": [
+    1
+   ],
+   "store_slots": [
+    2,
+    2
+   ]
+  },
+  "atdevimm": {
+   "kernel": "atomic_dev_imm.metal",
+   "kernel_sha256": "e7ba3c9c574a46111f640df01557afc026f15509f93410d478f183597efe420b",
+   "main_len": 108,
+   "main_sha256": "21ce1207bb577785fa0ad61415663008152b200a8c557ecf88cc9bf14c6f475b",
+   "region_off": 8000,
+   "archive": "work/pilot_baseline/atomic_dev_imm.metal.bin",
+   "load_slots": [
+    1
+   ],
+   "store_slots": [
+    2,
+    2
+   ]
+  },
+  "attg": {
+   "kernel": "atomic_tg.metal",
+   "kernel_sha256": "33c7e84e5c92f6ff65b24293c2b1c465b293c08c10edc89b403833cc48999f49",
+   "main_len": 194,
+   "main_sha256": "d961f3b509f8e2652e6271fed88fb3cc756059c3aa24929660d40ed7e464746b",
+   "region_off": 8048,
+   "archive": "work/pilot_baseline/atomic_tg.metal.bin",
+   "load_slots": [
+    1,
+    1,
+    0
+   ],
+   "store_slots": [
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "sites": {
+  "atdev": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000000000004000002000"
+  ],
+  "atdevimm": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000800200004000002000"
+  ],
+  "attg": [
+   "atomic_tg",
+   128,
+   12,
+   "670354000000000020000004"
+  ]
+ },
+ "cf_starts": [
+  [
+   0,
+   "get_sr",
+   4
+  ],
+  [
+   4,
+   "device_load",
+   14
+  ],
+  [
+   18,
+   "device_load",
+   14
+  ],
+  [
+   32,
+   "icmp_pred",
+   6
+  ],
+  [
+   38,
+   "if_push_pred",
+   4
+  ],
+  [
+   42,
+   "jump_cond",
+   10
+  ],
+  [
+   52,
+   "reg_move_c0",
+   4
+  ],
+  [
+   56,
+   "if_push",
+   4
+  ],
+  [
+   60,
+   "iadd2",
+   10
+  ],
+  [
+   70,
+   "icmp_pred",
+   6
+  ],
+  [
+   76,
+   "scoreboard_fence",
+   4
+  ],
+  [
+   80,
+   "falu2i",
+   6
+  ],
+  [
+   86,
+   "ret",
+   4
+  ],
+  [
+   90,
+   "jump",
+   10
+  ],
+  [
+   100,
+   "pop_reconverge",
+   6
+  ],
+  [
+   106,
+   "pop_reconverge",
+   6
+  ],
+  [
+   112,
+   "falu2i",
+   6
+  ],
+  [
+   118,
+   "falu2i",
+   6
+  ],
+  [
+   124,
+   "isel10",
+   10
+  ],
+  [
+   134,
+   "device_store",
+   14
+  ],
+  [
+   148,
+   "stop",
+   4
+  ]
+ ]
+}
