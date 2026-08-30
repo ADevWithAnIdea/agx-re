@@ -4,30 +4,38 @@
     python3 harness/quietsample.py --out <path.jsonl> --seconds <N> [--interval 2.0]
                                    [--label <tag>] [--exclude-pid P,...]
 
-`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` Gate E requires a confirmation run that does NOT
-rely on a busy machine.  `FIELD-SWEEP-PROTOCOL.md` section 7 requires that "the machine was
-quiet" be a MEASUREMENT, not a claim.  This sampler makes it one, on four independent
-signals rather than the one (process names) the fan-out used:
+`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` Gate E requires a confirmation run that does NOT rely
+on a busy machine.  `FIELD-SWEEP-PROTOCOL.md` section 7 requires that "the machine was quiet"
+be a MEASUREMENT, not a claim.  This sampler makes it one, on four independent signals rather
+than the one (process names) the fan-out used:
 
- 1. `n_foreign` -- processes whose comm/args match a GPU-runner pattern and are not in our
-    own process subtree.  This reproduces the fan-out's own metric so the numbers are
-    directly comparable with the busy measurements those experiments recorded.
- 2. `AGCInfo` from the IOKit registry: `fBusyCount`, `fSubmissionsSinceLastCheck`, and
-    `fLastSubmissionPID` -- a HARDWARE-SIDE statement about who is submitting, which does
-    not depend on guessing process names.  A foreign submitter with an unfamiliar name is
-    invisible to (1) and visible here.
+ 1. `n_foreign_runner` -- DISPATCH-RUNNER processes not ours.  A dispatch runner is the class
+    that contends for the GPU, faults, hangs, and manufactures `InnocentVictim` in a
+    neighbour.  `n_compiler_svc` (the shader-compiler XPC service, which does not dispatch)
+    and the legacy combined `n_foreign` are recorded separately so the numbers stay comparable
+    with the fan-out's own busy measurements.   [AMENDMENT 01]
+ 2. `AGCInfo` from the IOKit registry: `fBusyCount`, `fSubmissionsSinceLastCheck` and
+    `fLastSubmissionPID` -- a HARDWARE-SIDE statement about who is submitting, which does not
+    depend on guessing process names.  A foreign submitter with an unfamiliar name is
+    invisible to (1) and visible here.  NOTE `fLastSubmissionPID` is a LAST value: at the
+    start of a capture it can still name our own immediately preceding capture's runner.
  3. `recoveryCount` -- the driver's cumulative device-reset counter.  A device reset is
     exactly the event that manufactures `InnocentVictim` and hang cascades in a neighbour's
     capture.  Its DELTA across a run is a direct victim/cascade detector, and it is the one
-    measurement in this file that can falsify a "quiet" claim after the fact.
+    measurement here that can falsify a "quiet" claim after the fact.
  4. `Renderer/Tiler Utilization %` and loadavg, for context.
 
-Reading IOKit registry PROPERTIES is black-box data observation (CLAUDE.md, allowed
-technique 1).  No Apple binary is disassembled, decompiled, or introspected anywhere here;
-`ioreg` prints driver-published property values, which are data and not code.
+Ownership [AMENDMENT 02]: one `ps` snapshot serves both the ownership walk and the row scan,
+and a row is ours if it is in our ppid subtree OR shares our session id.  Two separate `ps`
+calls race against our own short-lived `shdump` children; a session id survives reparenting
+and zombie reaping.
 
-NOTE on "Device Utilization %": measured constant at 100 on this host with an idle GPU and
-no submitters, so it is recorded but NOT used as a quiet criterion.  Renderer/Tiler read 0.
+Reading IOKit registry PROPERTIES is black-box data observation (CLAUDE.md, allowed technique
+1).  No Apple binary is disassembled, decompiled, or introspected here; `ioreg` prints
+driver-published property values, which are data and not code.
+
+NOTE on "Device Utilization %": measured constant at 100 on this host with an idle GPU and no
+submitters, so it is recorded but NOT used as a quiet criterion.  Renderer/Tiler read 0.
 """
 import argparse
 import json
@@ -37,10 +45,6 @@ import subprocess
 import sys
 import time
 
-# Union of the patterns the seven confirmed experiments used, plus this repo's runners.
-# AMENDMENT 01 (2026-08-30): split into dispatch runners (which contend for the GPU, fault,
-# hang, and manufacture InnocentVictim in a neighbour) and the shader-compiler XPC service
-# (which does not dispatch, and whose parent is launchd so a ppid walk cannot see it as ours).
 RUNNER_PATTERNS = ("agxrun", "agxrun_persist", "agxrender", "renderpersist", "rendersweep",
                    "gfrun", "shdump", "persistrun", "agxtest")
 COMPILER_PATTERNS = ("MTLCompilerService",)
@@ -58,30 +62,59 @@ NUM = {
 }
 
 
-def own_pids():
-    mine = {os.getpid(), os.getppid()}
+def snapshot():
+    """AMENDMENT 02: ONE ps for both the ownership walk and the row scan."""
     try:
-        out = subprocess.check_output(["ps", "-Ao", "pid,ppid"], text=True, timeout=10)
+        out = subprocess.check_output(
+            ["ps", "-Ao", "pid,ppid,pgid,sess,stat,%cpu,comm,args"],
+            text=True, timeout=15)
     except Exception as e:                                          # noqa: BLE001
-        return mine
-    kids = {}
+        return [], str(e)[:120]
+    rows = []
     for ln in out.splitlines()[1:]:
-        p = ln.split()
-        if len(p) == 2 and p[0].isdigit() and p[1].isdigit():
-            kids.setdefault(int(p[1]), []).append(int(p[0]))
-    stack = list(mine)
+        p = ln.split(None, 7)
+        if len(p) < 8 or not p[0].isdigit():
+            continue
+        rows.append({"pid": int(p[0]),
+                     "ppid": int(p[1]) if p[1].isdigit() else -1,
+                     "pgid": p[2], "sess": p[3], "stat": p[4], "cpu": p[5],
+                     "comm": p[6], "args": p[7]})
+    return rows, None
+
+
+def own_set(rows):
+    """Ours = our ppid subtree UNION our session (AMENDMENT 02)."""
+    me, parent = os.getpid(), os.getppid()
+    by_pid = {r["pid"]: r for r in rows}
+    kids = {}
+    for r in rows:
+        kids.setdefault(r["ppid"], []).append(r["pid"])
+    mine = {me, parent}
+    stack = [me, parent]
     while stack:
         p = stack.pop()
         for k in kids.get(p, []):
             if k not in mine:
                 mine.add(k)
                 stack.append(k)
+    sess = {by_pid[p]["sess"] for p in (me, parent) if p in by_pid}
+    sess.discard("")
+    if sess:
+        for r in rows:
+            if r["sess"] in sess:
+                mine.add(r["pid"])
     return mine
+
+
+def all_pids():
+    rows, _ = snapshot()
+    return {r["pid"] for r in rows}
 
 
 def gpu_stats():
     try:
-        out = subprocess.check_output(IOREG, text=True, timeout=20, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(IOREG, text=True, timeout=20,
+                                      stderr=subprocess.DEVNULL)
     except Exception as e:                                          # noqa: BLE001
         return {"ioreg_error": str(e)[:120]}
     d = {}
@@ -91,36 +124,24 @@ def gpu_stats():
     return d
 
 
-def all_pids():
-    try:
-        out = subprocess.check_output(["ps", "-Ao", "pid"], text=True, timeout=10)
-    except Exception:                                               # noqa: BLE001
-        return set()
-    return {int(x) for x in out.split()[1:] if x.isdigit()}
-
-
 def proc_rows(exclude, baseline):
-    try:
-        out = subprocess.check_output(["ps", "-Ao", "pid,ppid,%cpu,comm,args"],
-                                      text=True, timeout=15)
-    except Exception as e:                                          # noqa: BLE001
-        return [], {"ps_error": str(e)[:120]}
-    mine = own_pids()
-    rows = []
-    for ln in out.splitlines()[1:]:
-        p = ln.split(None, 4)
-        if len(p) < 5 or not p[0].isdigit():
-            continue
-        pid = int(p[0])
-        blob = p[3] + " " + p[4]
+    rows, err = snapshot()
+    if err:
+        return [], {"ps_error": err}
+    mine = own_set(rows)
+    out = []
+    for r in rows:
+        blob = r["comm"] + " " + r["args"]
         if any(pat in blob for pat in PATTERNS):
-            rows.append({"pid": pid, "cpu": p[2], "cmd": p[4][-110:],
-                         "ours": pid in mine, "excluded": pid in exclude,
-                         "kind": ("compiler"
-                                  if any(q in blob for q in COMPILER_PATTERNS)
-                                  else "runner"),
-                         "new_since_start": pid not in baseline})
-    return rows, {}
+            out.append({"pid": r["pid"], "cpu": r["cpu"], "cmd": r["args"][-110:],
+                        "ours": r["pid"] in mine, "excluded": r["pid"] in exclude,
+                        "kind": ("compiler"
+                                 if any(q in blob for q in COMPILER_PATTERNS)
+                                 else "runner"),
+                        "stat": r["stat"], "exiting": r["comm"].startswith("("),
+                        "sess": r["sess"], "ppid": r["ppid"],
+                        "new_since_start": r["pid"] not in baseline})
+    return out, {}
 
 
 def main():
