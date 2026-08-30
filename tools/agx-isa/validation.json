@@ -16,35 +16,39 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 507,
+   "hardware-run": 519,
    "isolated-byte-diff": 81,
    "corpus-correlation": 91,
    "tokenization-only": 150,
    "single-template-inference": 19,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 214
+   "untested": 202
   },
   "by_label_pct": {
-   "hardware-run": 47.7,
+   "hardware-run": 48.9,
    "isolated-byte-diff": 7.6,
    "corpus-correlation": 8.6,
    "tokenization-only": 14.1,
    "single-template-inference": 1.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 20.2
+   "untested": 19.0
   },
-  "emittable_instructions": 35,
+  "emittable_instructions": 42,
   "emittable_mnemonics": [
+   "atomic_mem",
    "bf_add_dst",
    "bf_alu",
    "carry_gen",
    "cvt_bf16",
+   "cvt_f2h",
    "cvt_f2h_dst",
    "cvt_i2f",
+   "falu2",
    "falu3",
    "falu3_ext",
+   "falu_acc",
    "frag_depth_store",
    "frame_prologue",
    "fspecial",
@@ -59,6 +63,7 @@
    "mov_imm",
    "mov_zext16",
    "n2_op6",
+   "pack_convert",
    "pixel_order",
    "pop_reconverge",
    "psel",
@@ -66,14 +71,16 @@
    "rtq_state_move",
    "sel",
    "sfu_marker",
+   "shift_amt_move",
    "simd_reduce",
    "spill_frame_marker",
    "sr_read_wide",
    "stop",
    "tex_addr_setup",
+   "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 137,
+  "decodable_not_yet_emittable": 130,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -84,7 +91,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 35
+  "emittable_of_emitter_relevant": 42
  },
  "instructions": {
   "falu2": {
@@ -100,13 +107,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "label": "hardware-run",
+    "range": "16 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0168"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -323,13 +330,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "16 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0168"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -2096,13 +2103,18 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst": {
-    "label": "untested",
-    "range": "byte+3: 244 of 256 values (dense 0..255)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 176 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "100.000% agreement over 256 shared values, 190 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "src_class": {
     "label": "hardware-run",
@@ -2243,13 +2255,18 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "op": {
-    "label": "untested",
-    "range": "byte+2: 254 of 256 values (dense 0..255)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 320 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "99.609% agreement over 256 shared values, 221 moved vs 1 disagreements (221.00x), ladder and falsifier passed in every run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -3314,13 +3331,13 @@
     "width": 1
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "16 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0168"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "100.000% agreement over 16 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -3370,13 +3387,13 @@
     "width": 5
    },
    "dst_hi": {
-    "label": "untested",
-    "range": "0..7 dense (all 8 values), 8 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "8 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0168"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "note": "100.000% agreement over 8 shared values, 8 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
     "values_dispatched": 8,
     "distinct_bytes": 8,
     "encodable_range": 8,
@@ -3414,12 +3431,17 @@
    },
    "imm_top": {
     "label": "hardware-run",
-    "range": "1, at five immediates (128, 129, 140, 200, 255), each in a PAIRED padded/unpadded form",
+    "range": "2 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0153"
+     "EXP-0168"
     ],
-    "note": ""
+    "note": "100.000% agreement over 6 shared values, 5 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 2,
+    "distinct_bytes": 6,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    }
   },
   "uniform_mov": {
@@ -3432,13 +3454,18 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "16 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0140"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 16 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "100.000% agreement over 224 shared values, 214 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 16,
+    "distinct_bytes": 224,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "usrc": {
     "label": "hardware-run",
@@ -4395,13 +4422,18 @@
     "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22."
    },
    "addr_desc_hi": {
-    "label": "untested",
-    "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "4 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 3 carrier(s) tested, 3 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "100.000% agreement over 36 shared values, 15 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 4,
+    "distinct_bytes": 36,
+    "encodable_range": 4,
+    "start": 54,
+    "width": 2
    }
   },
   "matrix_mac": {
@@ -5338,13 +5370,18 @@
     "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "cache": {
-    "label": "untested",
-    "range": "2 values tested (dense over 1-bit domain)",
+    "label": "hardware-run",
+    "range": "2 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "100.000% agreement over 28 shared values, 28 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 2,
+    "distinct_bytes": 28,
+    "encodable_range": 2,
+    "start": 21,
+    "width": 1
    },
    "srcB": {
     "label": "hardware-run",
@@ -6568,13 +6605,18 @@
     "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't-care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't-care, bit0 = 0); byte+7 rule (v & 0xfb) == 0x50, recovered by the rv01 revalidation where run03 lost it to two genuine hangs; byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (bits 2-3 don't-care). Without this split an emitter following db.json cannot choose the pack format or either source register."
    },
    "b7": {
-    "label": "untested",
-    "range": "byte+7: 256 of 256 values (dense 0..255), rule (v & 0xfb) == 0x50",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 273 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "100.000% agreement over 256 shared values, 188 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 56,
+    "width": 8
    },
    "cvt_enable": {
     "label": "hardware-run",
@@ -6633,13 +6675,18 @@
     "note": "EXP-0164 withheld: 16 values dispatched, 2 carrier(s) tested, 192 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
    },
    "dst": {
-    "label": "untested",
-    "range": "byte+3: 256 of 256 values (dense 0..255)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 distinct values dispatched on the best arm",
+    "target": "G17P",
     "evidence": [
-     "EXP-0144"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 2 carrier(s) tested, 210 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "100.000% agreement over 256 shared values, 188 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "inert4": {
     "label": "hardware-run",
@@ -11399,13 +11446,18 @@
     "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2, 'wrong_value': 123}; ok at {0x0-0x1}"
    },
    "src_flag": {
-    "label": "untested",
-    "range": "2 values tested (dense over 1-bit domain)",
+    "label": "hardware-run",
+    "range": "2 distinct values dispatched on the best arm",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0168"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "100.000% agreement over 26 shared values, 22 moved vs 0 disagreements (infx), ladder and falsifier passed in every run",
+    "values_dispatched": 2,
+    "distinct_bytes": 26,
+    "encodable_range": 2,
+    "start": 15,
+    "width": 1
    },
    "kind": {
     "label": "hardware-run",

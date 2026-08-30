@@ -39,7 +39,7 @@ import arms as ARMSPEC              # noqa: E402
 import carriers as CA               # noqa: E402
 import isadb                        # noqa: E402
 
-RUNS = ["g17p_20260830_run01", "g17p_20260830_run02"]
+RUNS = ["g17p_20260830_run01", "g17p_20260830_run02", "g17p_20260830_run03"]
 AGREE_MIN = 0.99
 
 # Outcomes that are NOT a property of the encoding and therefore cannot be
@@ -163,6 +163,145 @@ DIMENSION = {
 }
 
 DECLINE_PROMOTION = {"ret.scoreboard"}
+
+# Value -> behaviour rules read off the two gated runs and re-derived by
+# analysis; each reproduces the observed partition EXACTLY, with no exceptions,
+# in every run in which the arm was swept.
+EXACT_RULES = {
+ "tex_sample.coord":
+   "coord is an OPERAND BYTE of the form (reg << 1) | is32, exactly the src-byte "
+   "convention db.json documents for falu2. On the live arm the moved set is "
+   "reproduced with ZERO exceptions by:  moved  <=>  (v & 1) == 1  AND  "
+   "((v >> 1) mod 16) in {6, 8, 10, 14}  -- 32 of 256 values, identical in both "
+   "gated runs. Reading: bit0 selects the 32-bit operand size, the remaining 7 "
+   "bits are a register index, and on this fragment stage the index ALIASES WITH "
+   "PERIOD 16 (the four live registers recur at reg, reg+16, reg+32 ... reg+112). "
+   "That extends the mod-64 ALU aliasing of EXP-0112 with a distinct, smaller "
+   "period for the texture-coordinate operand. The four live residues are the "
+   "registers this carrier actually keeps live; a coordinate pointed at a dead "
+   "register leaves the sampled result unchanged rather than faulting.",
+ "vary_slot.slot":
+   "exactly ONE bit of the modelled 8-bit field is observable: all 128 values "
+   "with bit 2 set move the observation, all 128 with bit 2 clear do not, in both "
+   "gated runs, with no exceptions. The other 7 bits had no effect on any of the "
+   "4 carriers -- including the bits the COMPILER varies (observed baselines "
+   "0x00/0x20/0x40 = slot index << 5). See db_defects.",
+ "irotate.b2":
+   "TWO legal values only (byte+2 in {0x54, 0x56}); both executed on all 5 arms. "
+   "The effect is ASYMMETRIC and reproduced exactly in both runs: on the three "
+   "arms whose baseline is 0x56, setting 0x54 CHANGES the observation; on the two "
+   "arms whose baseline is 0x54, setting 0x56 changes nothing. Both directions "
+   "were tested because the arm list was built to span the field's own baseline "
+   "values. The remaining 254 dispatched values are not irotate at all.",
+ "imageblock_store.src":
+   "a source-register byte: 244 of the 248 values swept before the hang region "
+   "change the stored value, identically in both runs and on both the 1-sample "
+   "and the 4-sample carrier. src = 246 and 247 HANG the device (reproduced, "
+   "majority-of-3), which is what stopped the sweep at 248/256.",
+ "tex_deriv.dstsrc":
+   "a packed destination+source operand: 37 of the 39 sampled values compared "
+   "across runs change the derivative result on every arm, identically in both "
+   "runs. The two that do not are the all-ones patterns 0x3FFFF and 0x7FFFF, "
+   "which HANG the device (reproduced) and stopped the sweep at 39 of 65 sampled "
+   "values.",
+ "frame_marker_compact.b1":
+   "live on the carrier that does not hang: 152 of 256 values change the "
+   "observation, identically in run01 and run03. b1 = 0x00 is the 4-byte "
+   "spill_frame_marker -- a DIFFERENT instruction -- and b1 = 3 and b1 = 7 hang "
+   "the device on four of the five carriers.",
+}
+
+DB_DEFECTS = {
+ "DEF-0172-1 irotate.b2 is ONE bit, not eight": {
+   "what": "db.json models byte+2 of irotate as an 8-bit field `b2`, but the "
+           "descriptor's OWN match pins bit 16 = 0 and bits 18..23 = 0x15, leaving "
+           "bit 17 free: TWO legal values (byte+2 in {0x54, 0x56}) out of 256.",
+   "evidence": "tools/agx-isa/match_overlap_report.py at pre-registration; and this "
+               "experiment dispatched all 256 values on 5 arms -- 254 of them "
+               "re-decode as a different instruction and are recorded `undecodable`.",
+   "class": "instance of DEF-0170-1 (a field overlapping its own match)",
+   "severity": "MEDIUM -- the encoding is right, the FIELD WIDTH is a fiction. A "
+               "coverage claim of '256 values swept' on this field would be false; "
+               "the honest coverage is 2 of 2 encodable, which this experiment "
+               "reports and which is why the promotion is still sound.",
+   "status": "REPORTED; db.json not edited (the orchestrator owns it)."},
+ "DEF-0172-2 isadb.imm_encode cannot emit falu2i.imm_flag = 0": {
+   "what": "db.json's prose lists `flag(bit8)` inside `imm_decode(b1, sign)`, "
+           "implying the bit is part of the immediate. The IMPLEMENTATION disagrees: "
+           "`imm_decode` computes m = (b1 >> 1) & 0x7 -- a 3-BIT mantissa -- and "
+           "never reads b1 bit 0, while `imm_encode` hard-sets it "
+           "(b1 = (e<<4) | (m<<1) | 1). Our own encoder can therefore only ever "
+           "produce ONE of the field's two legal values.",
+   "evidence": "tools/agx-isa/isadb.py imm_decode/imm_encode, read at "
+               "pre-registration; the hypothesis built on the prose was rewritten "
+               "before any build (PRE_REGISTRATION.md sec.9).",
+   "class": "same class as DEF-0170-1: an encoder that cannot reach a legal encoding "
+            "is not an emitter for that field, whatever a round trip says.",
+   "severity": "LOW for correctness -- this experiment proves the bit is INERT "
+               "across 15 occurrences, so nothing miscompiles -- but HIGH for "
+               "documentation: the prose asserts a role the code does not implement "
+               "and the hardware does not exhibit.",
+   "status": "REPORTED; neither db.json nor isadb.py edited."},
+ "DEF-0172-3 vary_slot.slot is modelled 8 bits wide; ONE bit is observable, and it "
+ "is not the bit the compiler varies": {
+   "what": "All 128 values with bit 2 set move the observation and all 128 with bit "
+           "2 clear do not, with no exceptions in either gated run. The other seven "
+           "bits produced no observable effect on any of the four carriers -- "
+           "including bits 5..6, which are exactly where the COMPILER encodes the "
+           "varying index (observed baselines 0x00 / 0x20 / 0x40 = index << 5).",
+   "evidence": "raw/g17p_20260830_run01 + run02, arm vary_slot@vsrc/vertex#0, "
+               "256 values x 2 runs; the three other carriers swept 256 values each "
+               "with zero movement and no strict detection power.",
+   "severity": "MEDIUM -- an emitter told 'byte+3 is the varying slot' will encode "
+               "the index in the high bits, which is what the compiler does and what "
+               "the hardware appears to ignore here. Either the slot is consumed "
+               "somewhere this harness cannot see (the vary_store it precedes), or "
+               "the field is mis-modelled. EXP-0155 already concluded the "
+               "emitter-relevant lever is `vary_store.out_slot`; this is direct "
+               "hardware evidence for that reading.",
+   "status": "REPORTED, NOT RESOLVED -- a successor should sweep byte+3 of "
+             "vary_slot jointly with vary_store.out_slot."},
+ "DEF-0172-4 n4_cf_word has NO observable effect at all -- not just b3": {
+   "what": "The full detection profile -- every modelled field of the instruction "
+           "complemented AND zeroed -- moved nothing, on three carriers with nested "
+           "data-dependent divergence, reconvergence points and threadgroup "
+           "barriers, in the smoke calibration and in both gated runs. The 4-byte "
+           "word `04 01 00 XX` is observationally inert in its entirety here.",
+   "evidence": "raw/*/sweep.jsonl `_detect` records for n4_cf_word@{cfdiv,sdiv,tgat}; "
+               "768 dense sweep cases of b3 with zero movement.",
+   "reading": "TWO possibilities, and this experiment does not separate them: the "
+              "word is a genuine no-op/alignment marker, OR what it controls "
+              "(reconvergence correctness under divergence) is not visible in a "
+              "per-lane readback taken after command-buffer completion. Reported as "
+              "UNDERPOWERED (`untested`), not as inert.",
+   "severity": "LOW-MEDIUM -- it blocks n4_cf_word from ever being promoted by this "
+               "method. A successor needs a divergence observable, not a bigger sweep.",
+   "status": "REPORTED."},
+ "simd_shuffle.cache still covers ONE BIT OF EIGHT (EXP-0163, reconfirmed)": {
+   "what": "db.json models byte+2 of simd_shuffle as a single `cache` bit at bit 17; "
+           "byte+2 is 0x54 in every occurrence and the other seven bits are "
+           "unmodelled.",
+   "this_experiment_adds": "the null now also holds on `deadsrc`, a carrier in which "
+           "every operand is loaded, used ONCE and dead immediately after -- the "
+           "last-use dimension in which all four of EXP-0163's carriers were "
+           "identical. The negative is stronger; its SCOPE is unchanged.",
+   "severity": "MEDIUM -- 'simd_shuffle byte+2 is inert' remains UNPROVEN; only two "
+               "values of one bit have been tested.",
+   "status": "REPORTED (EXP-0163 db_defects), reconfirmed."},
+ "cubearray_coord_const fires 0 times in 24 fresh carriers (EXP-0148 reconfirmed)": {
+   "what": "The pre-freeze census tokenized all 24 carriers in both stages and found "
+           "ZERO occurrences of cubearray_coord_const, consistent with EXP-0148's "
+           "0 firings in 1080 corpus files.",
+   "severity": "the descriptor cannot be swept by anyone: there is no program in "
+               "which to splice its bytes. Its only exercise is the literal 4-byte "
+               "string in roundtrip_test.py, and a round trip is not an emitter gate.",
+   "recommendation": "this is a descriptor-EXISTENCE question for the orchestrator "
+                     "(delete, or re-anchor it outside the tex_addr_setup token), "
+                     "not a field sweep. While it stands, it inflates the "
+                     "emitter-relevant denominator with an instruction nobody can "
+                     "emit or observe.",
+   "status": "REPORTED."},
+}
 
 
 def load(run):
@@ -357,7 +496,7 @@ def main():
             "foreign_excluded_total": sum(
                 per_arm[a]["foreign_excluded_from_comparison"] for a, _ in arm_keys),
         }
-        gate["exact_rules"] = sorted(
+        gate["single_bit_rules_auto"] = sorted(
             {per_arm[a]["single_bit_rule"] for a in powered
              if per_arm[a]["single_bit_rule"]})
 
@@ -398,6 +537,7 @@ def main():
                       if width and width <= 8 else
                       f"boundaries + powers of two + 16 interior samples of {width} bits"),
             "gate": gate,
+            "exact_rules": EXACT_RULES.get(fkey, ""),
             "rule2_dimension": dim,
             "arms": per_arm,
         }
@@ -431,6 +571,7 @@ def main():
             "arms_missing_from_the_frozen_list": ARMSPEC.MISSING,
         },
     }
+    doc["db_defects"] = DB_DEFECTS
     doc.update(out)
     p = os.path.join(EXP, "analysis", "field_verdicts.json")
     json.dump(doc, open(p, "w"), indent=1, sort_keys=True)

@@ -47,8 +47,8 @@ the same field moves **214** times.
 
 ## 1a. VERDICTS — compute arm, two gated runs (run02 forward, run03 reverse)
 
-**16 `hardware-run` · 6 `proven-dont-care` · 2 `still-underpowered`**, against a
-gate deliberately stricter than the orchestrator's: **≥ 99.5%** cross-run
+**16 `hardware-run` · 6 `proven-dont-care` · 2 `still-underpowered`** across 24
+swept names, against a gate deliberately stricter than the orchestrator's: **≥ 99.5%** cross-run
 agreement (his bar 99%) and **movement ≥ 4× disagreements** (his 2×), plus ladder
 passed in every run, falsifier failed in every run, dense coverage for w ≤ 8, no
 case counted whose `validity != valid`, and the byte-mate control interpreted.
@@ -79,6 +79,32 @@ case counted whose `validity != valid`, and the byte-mate control interpreted.
 | `stop.reserved` | **proven-dont-care** | 66 | 66 | 16777216 | 8 | 24 | 0 | 2 | 100.0 | 66 |
 | `copysign.operands` | **still-underpowered** | 256 | 256 | 256 | 24 | 8 | 0 | 1 | 100.0 | 256 |
 | `get_sr.form` | **still-underpowered** | 2 | 2 | 2 | 3 | 1 | 0 | 1 | 100.0 | 2 |
+
+### What is actually MERGEABLE — 18 of the 24, and the split matters
+Six of the 24 swept names are **not declared `db.json` fields**: `mov_imm.byte1`,
+`stop.b1`, `stop.b2`, `stop.b3`, `uniform_mov.form_b2` and
+`uniform_mov.opdesc_b3` are names **this experiment invented** for whole-BYTE
+companion and attribution sweeps. They carry real measurements — `uniform_mov`'s
+byte+2 form selector is the axis the entire headline result turns on — but
+merging them as field rows would be a silent mis-attribution of exactly the kind
+this experiment exists to prevent. Every row now carries
+`is_declared_db_field` / `synthetic_byte_sweep` / `merge_note`, computed against
+the pinned descriptor rather than asserted, so `merge_verdicts.py` refuses them
+**by intent rather than by accident**.
+
+| | declared db.json fields (mergeable) | synthetic byte sweeps |
+|---|---|---|
+| `hardware-run` | **13** | 3 |
+| `proven-dont-care` | **3** | 3 |
+| `still-underpowered` | **2** | 0 |
+| total | **18** | 6 |
+
+The 13 mergeable `hardware-run` rows: `uniform_mov.dst`, `falu2.dst`,
+`falu2i.dst`, `get_sr.dst`, `get_sr.dst_hi`, `cvt_f2i.dst`,
+`unpack_convert.dst`, `pack_convert.b7`, `cvt_f2h.op`, `falu_acc.cache`,
+`mov_imm.imm_top`, `shift_amt_move.src_flag`, `atomic_mem.addr_desc_hi`.
+The 3 mergeable `proven-dont-care`: `if_push.scope`, `cvt_f2i.b9`,
+`stop.reserved`.
 
 Cross-run agreement is **100.000%** on 23 of 24 fields and **99.609%** on
 `cvt_f2h.op` (1 disagreement in 256, against 221 moved = 221×). No field is below

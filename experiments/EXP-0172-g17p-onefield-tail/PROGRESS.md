@@ -135,3 +135,18 @@ against the spirit of §8 even though the per-arm limit held. **Correction appli
 could not have been promoted at 8/256 coverage, so re-running it would have cost the device ~10 more
 resets for no evidential gain. `ret` is also excluded from `run02`: promotion was declined in
 advance and its arm was drowning in `InnocentVictim` retries.
+
+## 2026-08-30 09:58 UTC — M6: run01 + run02 captured; run03 declared BEFORE looking at its outcome
+- `run01` 7704 cases; `run02` 7425 cases / 603 s / 5 hangs / **0 cascades, 0 runner restarts**.
+  `run01` was stopped by hand on its LAST arm (`ret@cfdiv`, tier 3, promotion already declined),
+  which was drowning in `InnocentVictim` retries while EXP-0171 swept concurrently. Everything
+  before it is complete; the partial `ret` sweep is retained as evidence, not reused.
+- **`run03` is declared here, before its result is known.** My hang-avoidance decision excluded ALL
+  FIVE `frame_marker_compact` arms from `run02`. But only four of them hung: `@rot/compute#0` swept
+  all 256 values with **zero** hangs in `run01`. Excluding it cost a two-run gate for no safety
+  benefit, so `run03` re-runs **that one frozen arm, unchanged**, to complete its pair with `run01`.
+  This is not choosing a pair that passes: there is no prior failing pair for this arm, it was never
+  compared, and the exclusion was recorded (09:40 UTC entry) before any verdict existed.
+  The four arms that DID hang stay excluded and `frame_marker_compact.b1` is reported PARTIAL on
+  them. **Hang courtesy: `b1 = 3` and `b1 = 7` hang on `scache`/`srnarrow`/`vhalf`/`vsrc` but did
+  NOT hang on `rot`; run03 touches only `rot`.**

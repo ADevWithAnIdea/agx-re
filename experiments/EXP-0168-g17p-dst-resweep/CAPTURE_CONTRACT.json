@@ -32,16 +32,16 @@
   "PRE_REGISTRATION.md": "f76f699367a55b1a2517c5640ab219e031855d854ab28f08a8bf43a8122a2ee4",
   "analysis/render_verdicts.py": "1fdfdadabab87af2fa7c1a136b1554c3d963242c0cba120abc1d5c53a733f489",
   "analysis/rescore_0144.py": "e580e73b127a24d5f33140b0b03c14e501b1559c1b84f9d4f2767dd518e9eaf8",
-  "analysis/verdicts.py": "5fcbf401f1108530ece158b65d8b9688e60e46f476fe73d115bfa78cb5a1d657",
+  "analysis/verdicts.py": "2634249ec33cec83ea097871aba33c351f26971bcf3b1072b45b68fe1c33b990",
   "harness/anchors.py": "d68a86a00fe5e7fc80c25e49126bd2557452b2dda6a422182f0aa82800edafec",
   "harness/casematrix.py": "c304c0b1260cd8c50e733c5147d56963a99419f29571fda8244c4a5567b2847f",
   "harness/dryrun.py": "d8f45a43946adedbce29575df7abb6347ab5b52ea2d377841a0f52dc026c9b19",
   "harness/gfrun3.m": "22029a9330b20a57a5c4d77b313b1df8dc1a3d30057646d15f5fd1e1d9ec3897",
   "harness/gpuwatch.py": "fc4f7ff8d61921e60d63e0ebd74c112193badc6f7724d213e61f9677b7762274",
   "harness/isa_helpers.py": "dc4cec563fd766aacb3d6c624a3b30ff8d62acbdbfc39884a5448d4bf0d0acfe",
-  "harness/renderarms.py": "00fd51ae72121011bc4bcfdfc1160818a68e08ed87d4dbdabbaeddcbbe020d68",
-  "harness/rendercarriers.py": "3ecfb8c7b887e763f013b9e66f318c884be98652fd3c525b8324db0ed1774ea7",
-  "harness/renderrun.py": "f7ea202babc8432af4c94b978834c3880b2fc54541a47f91286c6c012640ff99",
+  "harness/renderarms.py": "88a04bbdae2971c412f04558577de9091290124c5288637c36308baf6886729c",
+  "harness/rendercarriers.py": "e0fdc8353c7890c84ec0b5d4d74dddb5631e9102a4ea5e741e399883a07bf23c",
+  "harness/renderrun.py": "fad4d143776fdcce414f59019d43055b2c7d6b056baaad83fcfb05b6323afb75",
   "harness/run.py": "3d5baabc9e7598232be14491f8fd9ca656c75cb3f06792fcef9e939d5d903aea",
   "harness/runner3.py": "e73103238d14bc0c9e0e7017ce96a563d81f5362afb8fee611af1d342abd9cfe",
   "harness/smoke.py": "86df16942c3ab6ce1e6b7b004dae458865a519372f5ea481e459ffd54b16b1d5",
@@ -74,6 +74,38 @@
  },
  "credentials": "the neo SSH password is held in-session only and appears in NO file in this repository, committed or not. harness/sync.sh reads it from an exported SSHPASS and never from a literal or a command line.",
  "experiment": "EXP-0168-g17p-dst-resweep",
+ "final_state": {
+  "blocked": "second gated render run and the frag_color_pack pass -- machine contention from EXP-0169/0171/0172 (23-39 concurrent GPU processes) cut render throughput from 31 cases/s to ~0.07 cases/s",
+  "gated_runs_complete": {
+   "compute": [
+    "g17p_20260830_run02 (forward, 10366 cases, 0 hangs)",
+    "g17p_20260830_run03 (reverse, 10366 cases, 0 hangs)"
+   ],
+   "render": [
+    "g17p_20260830_rclean01 (2632 cases, 4 hangs, stopped_early false) -- ONE run, so render verdicts are PROVISIONAL"
+   ]
+  },
+  "not_committed_by_this_agent": true,
+  "verdicts": {
+   "compute_declared_db_fields": {
+    "hardware-run": 13,
+    "proven-dont-care": 3,
+    "still-underpowered": 2,
+    "total": 18
+   },
+   "compute_synthetic_byte_sweeps": {
+    "hardware-run": 3,
+    "proven-dont-care": 3,
+    "total": 6
+   },
+   "render_provisional": {
+    "iter_at.grp": "LADDER-FAILED/untested",
+    "pixel_order.kind": "LIVE/hardware-run",
+    "vtx_out_pos.dst": "LIVE/hardware-run",
+    "vtx_out_pos.slot": "INERT-ROBUST/single-template-inference"
+   }
+  }
+ },
  "frozen_utc": "2026-08-30T08:28:21Z",
  "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF). The orchestrator commits sibling experiments continuously, so a cross-run gate written as 'HEAD must not move' would abort mid-sequence through no fault of this experiment (that happened to EXP-0082).",
  "gated_runs": [

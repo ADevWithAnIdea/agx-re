@@ -1246,3 +1246,54 @@ Every partial run is preserved under `raw/superseded/` with a name saying what i
 did not know, plus a `README.md` explaining why each is kept:
 `rrun01_partial_192-197_band_unknown`, `rrun02_partial_fcp_first_ordering`,
 `rclean02_partial_order_unfixed`. All pulled back to the repo.
+
+## 2026-08-30 — M22: FINAL — the merge-safety split, and HEAD moved under me
+### Six of my 24 swept names are NOT db.json fields, and now say so
+Re-checking every verdict row against the repo's CURRENT `db.json`
+(`322847609d…`, which moved again under commit `dc367a43`) returned six
+"GONE from current db.json". They are not gone — they were never there:
+`mov_imm.byte1`, `stop.b1`, `stop.b2`, `stop.b3`, `uniform_mov.form_b2` and
+`uniform_mov.opdesc_b3` are names **I invented** for whole-BYTE companion and
+attribution sweeps. They carry real measurements — `uniform_mov` byte+2 is the
+axis the whole headline result turns on — but merging them as *field* rows would
+be a silent mis-attribution.
+`verdicts.py` now computes `is_declared_db_field` / `synthetic_byte_sweep` /
+`merge_note` per row against the pinned descriptor, so `merge_verdicts.py`
+refuses them **by intent rather than by accident**:
+
+| | declared db.json fields (MERGEABLE) | synthetic byte sweeps |
+|---|---|---|
+| `hardware-run` | **13** | 3 |
+| `proven-dont-care` | **3** | 3 |
+| `still-underpowered` | **2** | 0 |
+| total | **18** | 6 |
+
+All 18 declared rows have `start`/`width` identical in my pinned snapshot and in
+the current repo `db.json`, so none will trip the stale-DB refusal.
+
+### HEAD moved during the run, and the freeze was written for that
+`CAPTURE_CONTRACT.json` gates on **authored blob hashes, not on HEAD** —
+deliberately, because "HEAD must not move" would abort mid-sequence through no
+fault of this experiment (that happened to EXP-0082). It moved from `bb0f516a`
+to `c41a16b6` while I ran, and the orchestrator committed several of my
+in-flight harness edits inside his own commits. Nothing was lost and nothing was
+invalidated: the verdicts are keyed to `work/frozen/`, a private pinned snapshot
+that no sibling can move.
+
+Also noted with satisfaction: `dc367a43 tools: assemble() now REFUSES match/field
+conflicts — 25 "fields" have one legal value` is the orchestrator acting on
+exactly the defect class `analysis/bitcheck.py` handed over. My four
+(`iter_at.grp`, `pixel_order.scope`, `reg_move_cb.form`, `shift_amt_move.kind`)
+are in that population.
+
+### Final state, all pulled back to the repo
+```
+raw/g17p_20260830_run02      10,366 cases  gated, forward   0 hangs   17 MB
+raw/g17p_20260830_run03      10,366 cases  gated, reverse   0 hangs   21 MB
+raw/g17p_20260830_rclean01    2,632 cases  gated, render    4 hangs  2.9 MB
+raw/prefreeze/                anchors, matrix, smoke, 3 diagnostics   372 KB
+raw/superseded/               4 stopped runs + README explaining each 3.6 MB
+```
+`db.json`, `validation.json`, `docs/` and `PROVENANCE.md` are untouched; nothing
+is committed by me; the SSH password appears in no file (grepped the whole
+experiment tree). All my processes on the neo are stopped.

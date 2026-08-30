@@ -8,20 +8,20 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 35 | 131 | 166 |
+| 42 | 124 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 32 |
-| 2 | 26 |
+| 1 | 26 |
+| 2 | 25 |
 | 3 | 18 |
-| 4 | 13 |
-| 5 | 13 |
-| 6 | 8 |
-| 7 | 5 |
+| 4 | 14 |
+| 5 | 14 |
+| 6 | 7 |
+| 7 | 4 |
 | 8 | 2 |
 | 9 | 2 |
 | 10 | 1 |
@@ -35,35 +35,32 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 46 |
+| `dst` | 40 |
 | `srcA` | 16 |
 | `tail` | 13 |
 | `src` | 10 |
 | `b5` | 10 |
 | `b3` | 9 |
-| `src_flag` | 9 |
 | `src_reg` | 9 |
-| `cache` | 7 |
+| `src_flag` | 8 |
 | `opsel` | 7 |
 | `b4` | 7 |
 | `srcB` | 7 |
 | `form` | 7 |
 | `flags` | 7 |
 | `b1` | 6 |
+| `cache` | 6 |
 
-## ONE field away (32 instructions)
+## ONE field away (26 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
-| `atomic_mem` | `addr_desc_hi` | untested |
 | `bf_fma_dst` | `tail` | untested |
 | `copysign` | `operands` | untested |
 | `cubearray_coord_const` | `b3` | tokenization-only |
-| `cvt_f2h` | `op` | untested |
+| `cvt_f2i` | `b9` | untested |
 | `dev_scoreboard_fence` | `scope_flag` | corpus-correlation |
-| `falu2` | `dst` | untested |
 | `falu2_uni` | `dst` | untested |
-| `falu_acc` | `cache` | untested |
 | `frag_color_pack` | `dst` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
 | `frame_marker_compact` | `b1` | tokenization-only |
@@ -76,24 +73,20 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mesh_out_src` | `sel` | tokenization-only |
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
-| `pack_convert` | `b7` | untested |
 | `reg_move_cb` | `dst` | untested |
 | `ret` | `scoreboard` | corpus-correlation |
 | `rt_query_traverse` | `dst` | untested |
-| `shift_amt_move` | `src_flag` | untested |
 | `simd_ballot` | `cache` | single-template-inference |
 | `simd_shuffle` | `cache` | single-template-inference |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `coord` | corpus-correlation |
-| `uniform_mov` | `dst` | untested |
 | `vary_slot` | `slot` | corpus-correlation |
 
-## TWO fields away (26 instructions)
+## TWO fields away (25 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
 | `b_alu14_prep2` | `dst`, `sel` | tokenization-only, tokenization-only |
-| `cvt_f2i` | `dst`, `b9` | untested, untested |
 | `cvt_i2f_src` | `src_cache`, `dst_desc` | untested, untested |
 | `falu2_srcmod10` | `opsel`, `ctrl` | corpus-correlation, untested |
 | `falu3_srcmod12` | `opsel`, `ctrl` | untested, untested |
@@ -132,7 +125,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 214 |
+| `untested` | 202 |
 | `tokenization-only` | 140 |
 | `corpus-correlation` | 91 |
 | `single-template-inference` | 19 |

@@ -247,6 +247,20 @@ def key_of(r):
             r.get("bytes"))
 
 
+def _load_db():
+    for c in (HERE.parent / "work" / "frozen" / "db.json",
+              HERE.parents[2] / "tools" / "agx-isa" / "db.json"):
+        if c.exists():
+            try:
+                return json.loads(c.read_text())
+            except Exception:
+                pass
+    return {}
+
+
+DB = _load_db()
+
+
 def analyse(runs):
     per_run = {}
     for rd in runs:
@@ -575,11 +589,32 @@ def analyse(runs):
                 "r14 reads correctly through the same code path), so at any "
                 "form that writes 0 the slot reads 0 whether the instruction "
                 "wrote it or not")
+        # Is this a REAL db.json field, or a name this experiment invented for a
+        # whole-byte sweep? `mov_imm.byte1`, `stop.b1/b2/b3`,
+        # `uniform_mov.form_b2` and `uniform_mov.opdesc_b3` are OURS -- they are
+        # byte-level companion sweeps, not declared fields -- and merging them as
+        # fields would be a silent mis-attribution of exactly the kind this
+        # experiment exists to prevent. Flagged so `merge_verdicts.py` can refuse
+        # them by intent rather than by accident.
+        mn, _, fldname = fk.partition(".")
+        is_real = any(f.get("name") == fldname
+                      for i in DB.get("instructions", [])
+                      if i.get("mnemonic") == mn
+                      for f in i.get("fields", []))
         out[fk] = {
             "label": label,
             "target": "G17P",
             "evidence": ["EXP-0168"],
             "coverage": cov,
+            "is_declared_db_field": is_real,
+            "synthetic_byte_sweep": (not is_real),
+            "merge_note": ("" if is_real else
+                           "NOT a declared db.json field -- this is a "
+                           "whole-BYTE sweep this experiment named itself, run "
+                           "as a companion/attribution control. It carries a "
+                           "real measurement but must NOT be merged as a field "
+                           "row; its value to the orchestrator is the byte-level "
+                           "behaviour it documents, not a validation.json entry."),
             "range": "%d distinct values dispatched on the best arm%s"
                      % (maxcov, "" if dense_ok else " (BELOW dense requirement)"),
             "carriers": sorted(arms),
