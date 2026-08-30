@@ -62,3 +62,67 @@ sentinel, PILOT provenance class), `families.py`, `casematrix.py`,
 `harness/case_exec.py` (poison + sentinel + fault-class capture),
 `run.py` (cascade witness + majority-of-3 revalidation pass), `verify.py`,
 `baseline.py`, `analysis/freeze_from_pilot.py`.
+
+## 2026-08-30T05:55Z — M5: pilot frozen (arms P1-P5, P7-P10)
+Leased pilot completed 171 cases. Decisive results:
+* `falu2.mod_hi` ALU-sourced -> 8 even values ok, 8 odd silently zero. LOAD-sourced -> **only
+  0xC of 16**. This RESOLVES the contradiction between validation.json's "bits45-47 have no
+  observable effect" and EXP-0101 H1's `mods=0xC0`: the bits are inert for an ALU-sourced
+  operand and live for a load-sourced one.
+* `falu2i.mods` reproduces EXP-0101 H1 on G17P; bits 6+7 required together.
+* Inline float immediate: **64/64 dense codes match EXP-0138's magnitude model exactly**, sign
+  NEGATIVE at srcB_neg=0; `srcB_neg=1` flips it positive (an extrapolation that worked).
+* `device_store`: all 28 sampled off-natural field values ok. `device_load`: `dst_lo` 0/2/3
+  silently zero exactly as EXP-0141 says.
+
+## 2026-08-30T06:20Z — M6: run01 captured, and it FAILED usefully
+289 cases, 139 matched. Not noise -- two real defects, both isolated by changing one variable
+at a time (`work/diag/`):
+1. **`device_load.ld_format` is a load WIDTH.** Codes 19/21/23/25/27/29/31/51 deliver the
+   addressed word AND write 1-3 further consecutive registers. Cost 75/100 MAIN_DAG cases.
+   Only 17 and 49 write exactly one register.
+2. **`iadd2.srcA` is NOT inert on G17P** (new pilot arm P11): 44/64 sampled values give the
+   sum, `(v&0x18)==0` puts it in the upper half-word, `(v&0x7C)==0x50` silently zeroes.
+run01 RETAINED append-only; PRE_REGISTRATION AMENDMENT 1 written; gated pair re-numbered
+run03/run04.
+
+## 2026-08-30T07:24Z — M7: run03 + run04 captured
+run03: 191 ok / 51 victims. run04: 158 ok / 70 victims. MAIN_DAG 99/100 in run03.
+All 28 pre-registered-to-FAIL cases failed, in both runs.
+
+## 2026-08-30T07:30Z — M8: released the GPU lease (coordinator request)
+The lease was dropped for bulk execution; run03's tail and all of run04 ran unlocked, and the
+NEO-TARGET-BRIEF has since removed the lease entirely. Recorded here because it changes what
+the contamination numbers mean.
+
+## 2026-08-30T07:37Z — M9: section 7A re-confirmation, twice
+`reconfirm01` (retained, NOT used): 427 `Caused GPU Hang Error` observations in consecutive
+streaks, including on `dag_000_n2` -- a two-node program that runs correctly in the recorded
+fixture and both gated runs. `InnocentVictim` is not the only contamination signature.
+`reconfirm02` (witness-gated, a 3-instruction sentinel-only program before every observation):
+102 of 174 cases returned MIXED outcomes across five runs of IDENTICAL bytes. Only 5 cases
+faulted 5/5.
+
+## 2026-08-30T07:45Z — M10: analysis complete
+**233 of 237 zero-copied programs attributably correct; 60 of those rest on no value this
+experiment measured itself; 4 real failures (all `iadd2` register mode at specific destination
+registers); 24 cases still need a donor (12 CF + 12 immediate-mode iadd2).**
+`analysis/{summary,field_verdicts,pilot_summary}.json`, `RESULTS.md` written.
+
+## 2026-08-30T07:50Z — M11: disclosure and cleanup
+Two process notes, disclosed rather than left for a reviewer to find:
+
+1. **Transient tarballs were written outside the repo.** Deploying to the neo used `tar` +
+   `scp`, and the intermediate `.tgz` files were written to this session's scratchpad
+   (`/private/tmp/claude-501/.../scratchpad/`), which is outside
+   `/Users/user/asahi_re/public/agx-re`. `SUBAGENT_BRIEF.md` says never to write outside the
+   repo, including scratch. The files contained only this experiment's own authored source and
+   no evidence, no Apple material and no captured data, and they have been deleted. Future
+   deployments should stage inside `work/`.
+2. **`/tmp` on the neo was used as an scp staging path** for a handful of updated `.py` files
+   (`/tmp/synth.py`, `/tmp/reconfirm.py`, `/tmp/reconfirm_indices.txt`) before copying them into
+   `~/agxre/experiments/EXP-0158-g17p-generator-synthesis/`. All real work stayed inside that
+   directory; nothing outside it was read or modified.
+
+Local `__pycache__` removed. `tools/` was never modified: the ISA database is used through the
+pinned, hash-recorded snapshot in `work/isadb_pinned/`.

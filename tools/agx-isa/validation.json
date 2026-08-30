@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+ "db_sha256": "30ae6a41a7616f1e06aa47731be08e7a2861df9c474e8deb0d923130d4e1f2db",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1060,
   "by_label": {
-   "hardware-run": 588,
+   "hardware-run": 597,
    "isolated-byte-diff": 111,
-   "corpus-correlation": 106,
-   "tokenization-only": 166,
+   "corpus-correlation": 105,
+   "tokenization-only": 164,
    "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 81
+   "untested": 75
   },
   "by_label_pct": {
-   "hardware-run": 55.5,
+   "hardware-run": 56.3,
    "isolated-byte-diff": 10.5,
-   "corpus-correlation": 10.0,
-   "tokenization-only": 15.7,
+   "corpus-correlation": 9.9,
+   "tokenization-only": 15.5,
    "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 7.6
+   "untested": 7.1
   },
-  "emittable_instructions": 72,
+  "emittable_instructions": 79,
   "emittable_mnemonics": [
    "atomic_mem",
    "atomic_rmw",
@@ -52,6 +52,10 @@
    "device_load",
    "device_store",
    "falu2",
+   "falu2_ext",
+   "falu2i",
+   "falu3",
+   "falu3_ext",
    "falu_acc",
    "frag_color_pack",
    "frag_color_store",
@@ -63,13 +67,16 @@
    "h_coord_hi_ext",
    "half_alu",
    "half_alu_ext8",
+   "half_pack",
    "hminmax",
    "iadd2",
    "ibfe",
    "ibitcount",
    "if_push",
    "imageblock_store",
+   "iminmax",
    "isel10",
+   "isel8",
    "ishift",
    "iter",
    "iter_at",
@@ -110,7 +117,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 100,
+  "decodable_not_yet_emittable": 93,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -121,7 +128,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 72
+  "emittable_of_emitter_relevant": 79
  },
  "instructions": {
   "falu2": {
@@ -389,16 +396,13 @@
     "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
    },
    "ctrl_lo": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+    "target": "G17P",
     "evidence": [
-     "EXP-0119",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0160"
     ],
-    "note": "Low 2 bits are the 0x09-group instruction-length selector (EXP-0119). The remaining 5 bits have no established semantics in this form."
+    "note": "carrier SYNTH+LIFTED:k_addimm@falu2i[18:24]; outcomes(seed set 1) {'ok': 4, 'wrong_value': 76, 'silent_zero': 48}; anchor value 0x00; P1=True P2=True P3=True model=M1 MASK + M2 CLASS TABLE"
    },
    "mods": {
     "label": "hardware-run",
@@ -524,13 +528,13 @@
     ]
    },
    "op": {
-    "label": "untested",
-    "range": "213 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 204, 'ok': 3, 'silent_zero': 6}; ok at {0x16, 0x36, 0x3e}"
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
    },
    "ctrl": {
     "label": "hardware-run",
@@ -560,13 +564,13 @@
     "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcB": {
-    "label": "untested",
-    "range": "29 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 28, 'ok': 1}; ok at {0x81}"
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=True model=M1 MASK"
    },
    "srcA": {
     "label": "hardware-run",
@@ -670,14 +674,13 @@
     "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0160"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes(seed set 1) {'wrong_value': 64, 'ok': 16, 'silent_zero': 48}; anchor value 0x01; P1=True P2=True P3=True model=M2 CLASS TABLE"
    },
    "srcB_imm": {
     "label": "hardware-run",
@@ -735,13 +738,13 @@
     ]
    },
    "op": {
-    "label": "untested",
-    "range": "210 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 201, 'ok': 3, 'silent_zero': 6}; ok at {0x1e, 0x36, 0x3e}"
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK"
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -762,13 +765,13 @@
     "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcB": {
-    "label": "untested",
-    "range": "29 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 29}; ok at {}"
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=False model=M1 MASK"
    },
    "srcA": {
     "label": "hardware-run",
@@ -1206,13 +1209,13 @@
     "note": "12 values return a silent zero"
    },
    "srcB": {
-    "label": "untested",
-    "range": "256 values tested (dense over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'ok': 32, 'silent_zero': 32, 'wrong_value': 192}; ok at {32 values}"
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes(seed set 1) {'ok': 32, 'silent_zero': 32, 'wrong_value': 192}; anchor value 0xc0; P1=True P2=True P3=True model=M2 CLASS TABLE"
    }
   },
   "hminmax": {
@@ -6928,12 +6931,13 @@
     "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 25, 'ok': 214}; ok at {214 values}"
    },
    "src": {
-    "label": "corpus-correlation",
-    "range": "byte+2 = source register",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+    "target": "G17P",
     "evidence": [
-     "EXP-0038"
-    ]
+     "EXP-0160"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes(seed set 1) {'ok': 224, 'wrong_value': 8, 'silent_zero': 24}; anchor value 0x18; P1=True P2=True P3=True model=M2 CLASS TABLE"
    },
    "b3": {
     "label": "hardware-run",
@@ -9600,13 +9604,13 @@
     "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 253}; ok at {253 values}"
    },
    "cmp_mode": {
-    "label": "untested",
-    "range": "255 values tested (sampled over 8-bit domain)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0160"
     ],
-    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 127, 'ok': 128}; ok at {128 values}"
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes(seed set 1) {'wrong_value': 128, 'ok': 128}; anchor value 0x82; P1=True P2=True P3=True model=M2 CLASS TABLE"
    },
    "selTrue": {
     "label": "hardware-run",

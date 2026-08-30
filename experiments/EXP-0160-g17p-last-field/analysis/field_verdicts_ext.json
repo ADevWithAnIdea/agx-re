@@ -1,0 +1,4351 @@
+{
+ "_meta": {
+  "clean_disagreements": 0,
+  "confirm": "raw/g17p_20260830_ext_confirm01",
+  "experiment": "EXP-0160-g17p-last-field",
+  "gate": "amendment 06 evidence-validity filter (see analysis/verdicts.py is_valid)",
+  "gate_decisions": {
+   "clean-agreed": 1028
+  },
+  "gated_cases": 1028,
+  "promotion_rule": "PRE_REGISTRATION.md section 7 (P1..P5)",
+  "runs": [
+   "raw/g17p_20260830_ext_run01",
+   "raw/g17p_20260830_ext_run02"
+  ],
+  "target": "G17P",
+  "unresolved_cases": 0
+ },
+ "arms": {
+  "F3E_SRCB": {
+   "block": [
+    56,
+    66
+   ],
+   "falsifier_fired": true,
+   "falsifier_outcome": {
+    "1": "wrong_value",
+    "2": "wrong_value"
+   },
+   "field": "srcB",
+   "instr": "falu3_ext",
+   "per_seed_set": {
+    "1": {
+     "baseline": [
+      1065353216,
+      1069547520,
+      0,
+      1056964608,
+      0,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "oracle": {
+      "0": 1065353216,
+      "2": 0,
+      "4": 0
+     },
+     "oracle_mismatch": {},
+     "oracle_ok": true
+    },
+    "2": {
+     "baseline": [
+      1058537472,
+      1063256064,
+      0,
+      1071644672,
+      0,
+      1094713344,
+      1096810496,
+      1098907648,
+      1040187392,
+      1101004800,
+      1103101952,
+      1105199104,
+      1086324736,
+      1075838976,
+      0,
+      0
+     ],
+     "oracle": {
+      "0": 1058537472,
+      "2": 0,
+      "4": 0
+     },
+     "oracle_mismatch": {},
+     "oracle_ok": true
+    }
+   },
+   "probe": "k_sat_fma",
+   "seed_kind": "float",
+   "tgt": 0
+  },
+  "F3_SRCB": {
+   "block": [
+    56,
+    64
+   ],
+   "falsifier_fired": true,
+   "falsifier_outcome": {
+    "1": "wrong_value",
+    "2": "wrong_value"
+   },
+   "field": "srcB",
+   "instr": "falu3",
+   "per_seed_set": {
+    "1": {
+     "baseline": [
+      1102053376,
+      1069547520,
+      0,
+      1056964608,
+      0,
+      1091567616,
+      1093664768,
+      1095761920,
+      1048576000,
+      1099956224,
+      1102053376,
+      1104150528,
+      1106247680,
+      1061158912,
+      0,
+      0
+     ],
+     "oracle": {
+      "0": 1102053376,
+      "2": 0,
+      "4": 0
+     },
+     "oracle_mismatch": {},
+     "oracle_ok": true
+    },
+    "2": {
+     "baseline": [
+      1058537472,
+      1063256064,
+      0,
+      1071644672,
+      0,
+      1094713344,
+      1096810496,
+      1098907648,
+      1040187392,
+      1101004800,
+      1103101952,
+      1105199104,
+      1086324736,
+      1075838976,
+      0,
+      0
+     ],
+     "oracle": {
+      "0": 1058537472,
+      "2": 0,
+      "4": 0
+     },
+     "oracle_mismatch": {},
+     "oracle_ok": true
+    }
+   },
+   "probe": "k_fma",
+   "seed_kind": "float",
+   "tgt": 0
+  }
+ },
+ "db_defects": {
+  "DEF-0160-1": {
+   "claim_in_db": "byte+2 modelled as one 8-bit `op` field",
+   "corrected": "byte+2 is TWO fields, at falu2's own absolute bit positions and with falu2's own roles: `opsel` = instruction bits 16..18 (byte value bits 0..2) and `opflags` = bits 19..23 (byte value bits 3..7).",
+   "evidence": "Dense 256-value sweep x 2 seed sets on G17P. The low 3 bits select the OPERATION, identified against a host-computed function library and required to agree in BOTH seed sets: 0 = a+b, 1 = a*b, 2 = a*b+a, 4 = -b, 5 = 0, 6 = a*b+c (the anchor's fma), 7 = reproducible fault. Byte value bit 4 (instruction bit 20) is the srcB RELEASE flag: clearing it leaves srcB's register holding its seed instead of being zeroed by release-on-read. Byte value bits 6,7 (instruction bits 22,23) are the silent corruptors. Bit 5 is the only inert bit. Exact ok-rule (v & 0xd7) == 0x16, 0 exceptions.",
+   "field": "op",
+   "instr": [
+    "falu3",
+    "falu3_ext"
+   ],
+   "why_it_matters": "An emitter treating byte+2 as one opaque opcode cannot set the release/publication flags, which are what make a register reusable."
+  },
+  "DEF-0160-2": {
+   "claim_in_db": "byte+1 = `dst_full`, byte+3 = `srcA`, byte+5 = `srcB`",
+   "corrected": "The 6-byte `iminmax` uses the SAME slot layout as `falu2`: byte+1 = srcA descriptor, byte+3 = srcB descriptor, byte+5 = the source-class / modifier byte (falu2's srcA_class bit0, srcB_class bits1-2, srcB_neg bit3, mod_hi bits4-7). db.json's operand names are shifted by one slot.",
+   "evidence": "byte+5 has FOUR inert bits (3,5,6,7) over a dense 256-value sweep and no value->register model reaches the >=90%/>=6-register bar, so it cannot be a register selector. Its live bits are exactly falu2's byte+5 roles, and its anchor value 0xc0 is falu2's standard `mods` default. Meanwhile min(seed[0], seed[2]) reproduces the measured baseline in BOTH seed sets with byte+1 -> r0 and byte+3 -> r2.",
+   "field": "srcB",
+   "instr": [
+    "iminmax"
+   ],
+   "why_it_matters": "An emitter following db.json would put the second operand's register number in the modifier byte and get a silent zero."
+  },
+  "DEF-0160-3": {
+   "claim_in_db": "(K<<3) = immediate addend, K in b7[3:8] + mulsel[0:3]",
+   "corrected": "byte+7 is a 2-bit MODE (bits 0,1) plus a 5-bit ADDEND-SOURCE SELECT (bits 3..7); bit 2 is inert. The addend is NOT in the instruction: it is read from an external (uniform/constant) source that byte+7[3:8] indexes.",
+   "evidence": "(a) The 12 imad bytes were lifted VERBATIM from a kernel whose MSL adds 12345; run in our carrier the same bytes add 1. An inline immediate cannot change. (b) A dense 256-value sweep x 2 seed sets fits r0 = m(v)*(srcA*srcB) + A(v) with 0 exceptions over all 181 non-fault values, m(v) in {0,1} determined by bits 0,1 and A(v) seed-independent and determined by bits 3..7. (c) The recovered A values are exactly the 16-bit halves of THE CARRIER'S OWN float constants: 0x3F800001 (= 1.0000001f) gives A = 1 at K in {1,12} and A = 16256 (0x3F80) at K = 13; 0xB3D6BF95 (= -1e-7f) gives A = 49045 (0xBF95) at K = 14 and A = 46038 (0xB3D6) at K = 15. K in {3..11, 16..31} read 0. (d) (v & 3) == 3 faults reproducibly (64 values, unanimous across four independent runs).",
+   "field": "srcC_desc",
+   "instr": [
+    "imad"
+   ],
+   "why_it_matters": "EXP-M4-13 saw K co-vary with the source constant because the compiler allocates a slot per constant. Adopted as 'the immediate is K<<3', an emitter would emit an imad that adds whatever happens to occupy slot K -- silently wrong code, far from its cause."
+  },
+  "DEF-0160-4": {
+   "claim_in_db": "byte0 0x18 is a 4-byte half_pack only when byte+1 == 0x05; byte+2 = source register",
+   "corrected": "`half_pack` IS 4 bytes, unconditionally; byte+1 is an operand descriptor and must not gate the length. byte+2 is not a register selector either.",
+   "evidence": "Splice controls in the same block. Replacing bytes +2..+3 with our own 2-byte `mov_imm` leaves the ENTIRE 16-register state identical to the anchor -- the mov_imm never executes, so those bytes are consumed by the instruction at +0. Replacing BOTH 2-byte halves with two `mov_imm`s executes both (r6 = 77 AND r7 = 99): the positive control proving the probe can see a difference in exactly that slot. So DEF-0154-1's A18 `18 05 18 03` vs G17P `18 03 18 05` is an operand swap INSIDE one 4-byte instruction (register allocation), not two 2-byte instructions reordered. Separately, byte+2 has three inert bits (3,4,5) over a dense sweep, so it cannot carry a register index.",
+   "field": "src / length rule",
+   "instr": [
+    "half_pack"
+   ],
+   "why_it_matters": "The over-constrained length rule leaves 22 bytes of our own G17P `half2 add` undecodable (DEF-0154-1); the fix is to drop the byte+1 condition, not to add a special case."
+  },
+  "DEF-0160-5": {
+   "claim_in_db": "n/a",
+   "corrected": "A contaminated dispatch can report command-buffer status OK and write NOTHING. 25 observations here (18 in run01, 7 in run02) returned status OK with all 16 registers AND both integrity sentinels still holding 0xDEADBEEF. No `...ErrorInnocentVictim` string fired. Only a poisoned read-back buffer catches this class, and a zero-initialised buffer would have recorded 25 confident `silent_zero`s.",
+   "evidence": "raw/g17p_20260830_run01,02 -- fields `poison_words`, `sentinel_bad`.",
+   "field": "n/a",
+   "instr": [
+    "(methodological)"
+   ],
+   "why_it_matters": "FIELD-SWEEP-PROTOCOL 7/7A tells agents to segregate victim-class failures by the OS fault string. This class has no fault string at all."
+  },
+  "DEF-0160-6": {
+   "claim_in_db": "byte+6 = `srcC_lo`, the low byte of the immediate addend; the descriptor has NO srcA field at all",
+   "corrected": "byte+6 is the **srcA (first multiplicand) REGISTER SELECTOR**: reg = (byte+6) >> 3, and bit 0 = 1 makes the source read 0. Bits 1 and 2 are inert.",
+   "evidence": "The `__2d_desc_lo` probe (12 srcC_desc points x 11 srcC_lo points x 2 seed sets). Solving obs = m(desc)*(X * srcB) + A(desc>>3) for X gives a SINGLE multiplicand per srcC_lo value, identical across every srcC_desc that keeps the product, and it tracks the register the model names in BOTH seed sets: 0x00/0x02/0x04 -> r0 (10 and 7), 0x08 -> r1 (21 and 13), 0x10 -> r2 (34 and 19), 0x20 -> r4 (58 and 37), 0x40 -> r8 (94 and 73), 0x7f -> r15 (0), 0x01/0x03 -> reads 0.",
+   "field": "srcC_lo (byte+6)",
+   "instr": [
+    "imad"
+   ],
+   "why_it_matters": "This is the larger finding. An emitter using db.json cannot choose the FIRST OPERAND of an integer multiply at all -- the field is not modelled, and the byte that carries it is documented as part of an immediate that does not exist (DEF-0160-3). EXP-0154 labelled this field `hardware-run` from the ok-set alone (`ok at {0x0, 0x2, 0x4, 0x6}`) without identifying its role; those four values are exactly the ones naming r0."
+  },
+  "DEF-0160-7": {
+   "claim_in_db": "K (the immediate addend) spans b7[3:8] PLUS mulsel[0:3]",
+   "corrected": "mulsel does not participate in the addend at all.",
+   "evidence": "The `__2d_desc_mul` probe (12 srcC_desc points x 8 mulsel points x 2 seed sets): the recovered addend is a single value per srcC_desc, unchanged across every mulsel point (0x00, 0x10, 0x40, 0x50, 0x80, 0x90, 0xc0, 0xd0).",
+   "field": "mulsel (byte+8)",
+   "instr": [
+    "imad"
+   ],
+   "why_it_matters": "Half of db.json's stated addend encoding is inert; the other half selects an external source (DEF-0160-3)."
+  }
+ },
+ "extra_probes": {},
+ "falu3.srcB": {
+  "affine_in_product": null,
+  "arith_identified": {
+   "0": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "1": {
+    "2": [
+     "b"
+    ]
+   },
+   "10": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "100": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "101": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "102": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "103": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "104": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "105": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "106": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "107": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "108": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "109": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "11": {
+    "2": [
+     "b"
+    ],
+    "5": [
+     "zero"
+    ]
+   },
+   "110": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "111": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "112": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "113": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "114": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "115": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "116": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "117": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "118": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "119": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "12": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "120": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "121": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "122": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "123": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "124": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "125": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "126": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "127": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "128": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "129": {
+    "2": [
+     "b"
+    ]
+   },
+   "13": {
+    "2": [
+     "b"
+    ],
+    "6": [
+     "zero"
+    ]
+   },
+   "130": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "131": {
+    "1": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "132": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "134": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "135": {
+    "2": [
+     "b"
+    ],
+    "3": [
+     "zero"
+    ]
+   },
+   "136": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "137": {
+    "2": [
+     "b"
+    ]
+   },
+   "138": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "139": {
+    "2": [
+     "b"
+    ],
+    "5": [
+     "zero"
+    ]
+   },
+   "14": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "140": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "141": {
+    "2": [
+     "b"
+    ],
+    "6": [
+     "zero"
+    ]
+   },
+   "142": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "143": {
+    "2": [
+     "b"
+    ],
+    "7": [
+     "zero"
+    ]
+   },
+   "144": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "145": {
+    "2": [
+     "b"
+    ],
+    "8": [
+     "zero"
+    ]
+   },
+   "146": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "147": {
+    "2": [
+     "b"
+    ],
+    "9": [
+     "zero"
+    ]
+   },
+   "148": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "149": {
+    "10": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "15": {
+    "2": [
+     "b"
+    ],
+    "7": [
+     "zero"
+    ]
+   },
+   "150": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "151": {
+    "11": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "152": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "153": {
+    "12": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "154": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "155": {
+    "13": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "156": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "157": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "158": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "159": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "16": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "160": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "161": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "162": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "163": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "164": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "165": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "166": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "167": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "168": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "169": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "17": {
+    "2": [
+     "b"
+    ],
+    "8": [
+     "zero"
+    ]
+   },
+   "170": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "171": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "172": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "173": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "174": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "175": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "176": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "177": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "178": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "179": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "18": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "180": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "181": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "182": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "183": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "184": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "185": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "186": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "187": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "188": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "189": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "19": {
+    "2": [
+     "b"
+    ],
+    "9": [
+     "zero"
+    ]
+   },
+   "190": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "191": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "192": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "193": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "194": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "195": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "196": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "197": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "198": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "199": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "2": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "20": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "200": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "201": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "202": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "203": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "204": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "205": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "206": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "207": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "208": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "209": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "21": {
+    "10": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "210": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "211": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "212": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "213": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "214": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "215": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "216": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "217": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "218": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "219": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "22": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "220": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "221": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "222": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "223": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "224": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "225": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "226": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "227": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "228": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "229": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "23": {
+    "11": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "230": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "231": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "232": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "233": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "234": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "235": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "236": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "237": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "238": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "239": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "24": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "240": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "241": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "242": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "243": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "244": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "245": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "246": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "247": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "248": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "249": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "25": {
+    "12": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "250": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "251": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "252": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "253": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "254": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "255": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "26": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "27": {
+    "13": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "28": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "29": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "3": {
+    "1": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "30": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "31": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "32": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "33": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "34": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "35": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "36": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "37": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "38": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "39": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "4": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "40": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "41": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "42": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "43": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "44": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "45": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "46": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "47": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "48": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "49": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "50": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "51": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "52": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "53": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "54": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "55": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "56": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "57": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "58": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "59": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "6": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "60": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "61": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "62": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "63": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "64": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "65": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "66": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "67": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "68": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "69": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "7": {
+    "2": [
+     "b"
+    ],
+    "3": [
+     "zero"
+    ]
+   },
+   "70": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "71": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "72": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "73": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "74": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "75": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "76": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "77": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "78": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "79": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "8": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "80": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "81": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "82": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "83": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "84": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "85": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "86": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "87": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "88": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "89": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "9": {
+    "2": [
+     "b"
+    ]
+   },
+   "90": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "91": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "92": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "93": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "94": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "95": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "96": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "97": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "98": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "99": {
+    "0": [
+     "c"
+    ],
+    "2": [
+     "b"
+    ]
+   }
+  },
+  "arm": "F3_SRCB",
+  "cases_in_field": 512,
+  "class_min_support": 2,
+  "class_table": {
+   "0": "C.C.............",
+   "1": "C.C.............",
+   "10": "C.C.............",
+   "100": "C.C.............",
+   "101": "C.C.............",
+   "102": "C.C.............",
+   "103": "C.C.............",
+   "104": "C.C.............",
+   "105": "C.C.............",
+   "106": "C.C.............",
+   "107": "C.C.............",
+   "108": "C.C.............",
+   "109": "C.C.............",
+   "11": "C.C..Z..........",
+   "110": "C.C.............",
+   "111": "C.C.............",
+   "112": "C.C.............",
+   "113": "C.C.............",
+   "114": "C.C.............",
+   "115": "C.C.............",
+   "116": "C.C.............",
+   "117": "C.C.............",
+   "118": "C.C.............",
+   "119": "C.C.............",
+   "12": "C.C.............",
+   "120": "C.C.............",
+   "121": "C.C.............",
+   "122": "C.C.............",
+   "123": "C.C.............",
+   "124": "C.C.............",
+   "125": "C.C.............",
+   "126": "C.C.............",
+   "127": "C.C.............",
+   "13": "C.C...Z.........",
+   "14": "C.C.............",
+   "15": "C.C....Z........",
+   "16": "C.C.............",
+   "17": "C.C.....Z.......",
+   "18": "C.C.............",
+   "19": "C.C......Z......",
+   "2": "C.C.............",
+   "20": "C.C.............",
+   "21": "C.C.......Z.....",
+   "22": "C.C.............",
+   "23": "C.C........Z....",
+   "24": "C.C.............",
+   "25": "C.C.........Z...",
+   "26": "C.C.............",
+   "27": "C.C..........Z..",
+   "28": "C.C.............",
+   "29": "C.C.............",
+   "3": "CZC.............",
+   "30": "C.C.............",
+   "31": "C.C.............",
+   "32": "C.C.............",
+   "33": "C.C.............",
+   "34": "C.C.............",
+   "35": "C.C.............",
+   "36": "C.C.............",
+   "37": "C.C.............",
+   "38": "C.C.............",
+   "39": "C.C.............",
+   "4": "C.C.............",
+   "40": "C.C.............",
+   "41": "C.C.............",
+   "42": "C.C.............",
+   "43": "C.C.............",
+   "44": "C.C.............",
+   "45": "C.C.............",
+   "46": "C.C.............",
+   "47": "C.C.............",
+   "48": "C.C.............",
+   "49": "C.C.............",
+   "5": "................",
+   "50": "C.C.............",
+   "51": "C.C.............",
+   "52": "C.C.............",
+   "53": "C.C.............",
+   "54": "C.C.............",
+   "55": "C.C.............",
+   "56": "C.C.............",
+   "57": "C.C.............",
+   "58": "C.C.............",
+   "59": "C.C.............",
+   "6": "C.C.............",
+   "60": "C.C.............",
+   "61": "C.C.............",
+   "62": "C.C.............",
+   "63": "C.C.............",
+   "64": "C.C.............",
+   "65": "C.C.............",
+   "66": "C.C.............",
+   "67": "C.C.............",
+   "68": "C.C.............",
+   "69": "C.C.............",
+   "7": "C.CZ............",
+   "70": "C.C.............",
+   "71": "C.C.............",
+   "72": "C.C.............",
+   "73": "C.C.............",
+   "74": "C.C.............",
+   "75": "C.C.............",
+   "76": "C.C.............",
+   "77": "C.C.............",
+   "78": "C.C.............",
+   "79": "C.C.............",
+   "8": "C.C.............",
+   "80": "C.C.............",
+   "81": "C.C.............",
+   "82": "C.C.............",
+   "83": "C.C.............",
+   "84": "C.C.............",
+   "85": "C.C.............",
+   "86": "C.C.............",
+   "87": "C.C.............",
+   "88": "C.C.............",
+   "89": "C.C.............",
+   "9": "C.C.............",
+   "90": "C.C.............",
+   "91": "C.C.............",
+   "92": "C.C.............",
+   "93": "C.C.............",
+   "94": "C.C.............",
+   "95": "C.C.............",
+   "96": "C.C.............",
+   "97": "C.C.............",
+   "98": "C.C.............",
+   "99": "C.C............."
+  },
+  "clean_disagreements": 0,
+  "evidence": [
+   "EXP-0160"
+  ],
+  "gate_decisions": {
+   "clean-agreed": 512
+  },
+  "inert_bits": [
+   7
+  ],
+  "label": "hardware-run",
+  "m4_full_state_prediction": {
+   "exact": true,
+   "model": "r0 = seed[0]*B + seed[4], B = r[(v>>1)&63] if (v&1) else 0.0 (16-bit read)",
+   "per_seed_set": {
+    "1": {
+     "hit": 256,
+     "miss": 0
+    },
+    "2": {
+     "hit": 256,
+     "miss": 0
+    }
+   }
+  },
+  "mask_rule": {
+   "exceptions": 0,
+   "mask": 127,
+   "value": 5
+  },
+  "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=True model=M1 MASK",
+  "observation_counts": {
+   "10/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "131/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "132/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "173/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "174/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "212/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "218/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "235/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "50/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "51/s1": [
+    20,
+    2,
+    "clean-agreed"
+   ],
+   "93/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ]
+  },
+  "outcomes_seed1": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "outcomes_seed2": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "p1_arm_valid": true,
+  "p2_dense_and_gated": true,
+  "p3_cross_seed_signature_stable": true,
+  "p3_mismatches": [],
+  "p4_model": "M1 MASK",
+  "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+  "regmodel_released": "reg = (v>>1)&63",
+  "regmodel_scores": {
+   "released": {
+    "reg = (v>>1)&63": {
+     "distinct_regs": 11,
+     "hits": 22,
+     "identified": 22,
+     "multi": 0,
+     "rate": 1.0,
+     "silent": 42,
+     "wrong": 0
+    },
+    "reg = v": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 5,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 11,
+     "wrong": 5
+    },
+    "reg = v&127": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 10,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 22,
+     "wrong": 10
+    },
+    "reg = v&15": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 22,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 234,
+     "wrong": 22
+    },
+    "reg = v&63": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 10,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 54,
+     "wrong": 10
+    },
+    "reg = v>>1  ((reg<<1)|size)": {
+     "distinct_regs": 11,
+     "hits": 11,
+     "identified": 11,
+     "multi": 0,
+     "rate": 1.0,
+     "silent": 21,
+     "wrong": 0
+    },
+    "reg = v>>2  (reg<<2)": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 11,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 53,
+     "wrong": 11
+    }
+   },
+   "written": {}
+  },
+  "regmodel_written": null,
+  "relevant_bits": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "semantics": "ok <=> (v & 0x7f) == 0x05, 0 exceptions over the dense 256-value range",
+  "strict_frozen_gate_would_gate": 512,
+  "target": "G17P",
+  "uncovered": {
+   "seed1": [],
+   "seed2": []
+  },
+  "unresolved_cases": 0,
+  "values_clean_agreed_minority": [],
+  "values_fault_prone": [],
+  "values_from_reproducible_failure": [],
+  "values_needing_validity_filter": [],
+  "why": "M1 MASK; destination word predicted from the seeds for ALL 256 values in BOTH seed sets (0 misses)"
+ },
+ "falu3_ext.srcB": {
+  "affine_in_product": null,
+  "arith_identified": {
+   "0": {
+    "2": [
+     "b"
+    ]
+   },
+   "1": {
+    "2": [
+     "b"
+    ]
+   },
+   "10": {
+    "2": [
+     "b"
+    ]
+   },
+   "100": {
+    "2": [
+     "b"
+    ]
+   },
+   "101": {
+    "2": [
+     "b"
+    ]
+   },
+   "102": {
+    "2": [
+     "b"
+    ]
+   },
+   "103": {
+    "2": [
+     "b"
+    ]
+   },
+   "104": {
+    "2": [
+     "b"
+    ]
+   },
+   "105": {
+    "2": [
+     "b"
+    ]
+   },
+   "106": {
+    "2": [
+     "b"
+    ]
+   },
+   "107": {
+    "2": [
+     "b"
+    ]
+   },
+   "108": {
+    "2": [
+     "b"
+    ]
+   },
+   "109": {
+    "2": [
+     "b"
+    ]
+   },
+   "11": {
+    "2": [
+     "b"
+    ],
+    "5": [
+     "zero"
+    ]
+   },
+   "110": {
+    "2": [
+     "b"
+    ]
+   },
+   "111": {
+    "2": [
+     "b"
+    ]
+   },
+   "112": {
+    "2": [
+     "b"
+    ]
+   },
+   "113": {
+    "2": [
+     "b"
+    ]
+   },
+   "114": {
+    "2": [
+     "b"
+    ]
+   },
+   "115": {
+    "2": [
+     "b"
+    ]
+   },
+   "116": {
+    "2": [
+     "b"
+    ]
+   },
+   "117": {
+    "2": [
+     "b"
+    ]
+   },
+   "118": {
+    "2": [
+     "b"
+    ]
+   },
+   "119": {
+    "2": [
+     "b"
+    ]
+   },
+   "12": {
+    "2": [
+     "b"
+    ]
+   },
+   "120": {
+    "2": [
+     "b"
+    ]
+   },
+   "121": {
+    "2": [
+     "b"
+    ]
+   },
+   "122": {
+    "2": [
+     "b"
+    ]
+   },
+   "123": {
+    "2": [
+     "b"
+    ]
+   },
+   "124": {
+    "2": [
+     "b"
+    ]
+   },
+   "125": {
+    "2": [
+     "b"
+    ]
+   },
+   "126": {
+    "2": [
+     "b"
+    ]
+   },
+   "127": {
+    "2": [
+     "b"
+    ]
+   },
+   "128": {
+    "2": [
+     "b"
+    ]
+   },
+   "129": {
+    "2": [
+     "b"
+    ]
+   },
+   "13": {
+    "2": [
+     "b"
+    ],
+    "6": [
+     "zero"
+    ]
+   },
+   "130": {
+    "2": [
+     "b"
+    ]
+   },
+   "131": {
+    "1": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "132": {
+    "2": [
+     "b"
+    ]
+   },
+   "134": {
+    "2": [
+     "b"
+    ]
+   },
+   "135": {
+    "2": [
+     "b"
+    ],
+    "3": [
+     "zero"
+    ]
+   },
+   "136": {
+    "2": [
+     "b"
+    ]
+   },
+   "137": {
+    "2": [
+     "b"
+    ]
+   },
+   "138": {
+    "2": [
+     "b"
+    ]
+   },
+   "139": {
+    "2": [
+     "b"
+    ],
+    "5": [
+     "zero"
+    ]
+   },
+   "14": {
+    "2": [
+     "b"
+    ]
+   },
+   "140": {
+    "2": [
+     "b"
+    ]
+   },
+   "141": {
+    "2": [
+     "b"
+    ],
+    "6": [
+     "zero"
+    ]
+   },
+   "142": {
+    "2": [
+     "b"
+    ]
+   },
+   "143": {
+    "2": [
+     "b"
+    ],
+    "7": [
+     "zero"
+    ]
+   },
+   "144": {
+    "2": [
+     "b"
+    ]
+   },
+   "145": {
+    "2": [
+     "b"
+    ],
+    "8": [
+     "zero"
+    ]
+   },
+   "146": {
+    "2": [
+     "b"
+    ]
+   },
+   "147": {
+    "2": [
+     "b"
+    ],
+    "9": [
+     "zero"
+    ]
+   },
+   "148": {
+    "2": [
+     "b"
+    ]
+   },
+   "149": {
+    "10": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "15": {
+    "2": [
+     "b"
+    ],
+    "7": [
+     "zero"
+    ]
+   },
+   "150": {
+    "2": [
+     "b"
+    ]
+   },
+   "151": {
+    "11": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "152": {
+    "2": [
+     "b"
+    ]
+   },
+   "153": {
+    "12": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "154": {
+    "2": [
+     "b"
+    ]
+   },
+   "155": {
+    "13": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "156": {
+    "2": [
+     "b"
+    ]
+   },
+   "157": {
+    "2": [
+     "b"
+    ]
+   },
+   "158": {
+    "2": [
+     "b"
+    ]
+   },
+   "159": {
+    "2": [
+     "b"
+    ]
+   },
+   "16": {
+    "2": [
+     "b"
+    ]
+   },
+   "160": {
+    "2": [
+     "b"
+    ]
+   },
+   "161": {
+    "2": [
+     "b"
+    ]
+   },
+   "162": {
+    "2": [
+     "b"
+    ]
+   },
+   "163": {
+    "2": [
+     "b"
+    ]
+   },
+   "164": {
+    "2": [
+     "b"
+    ]
+   },
+   "165": {
+    "2": [
+     "b"
+    ]
+   },
+   "166": {
+    "2": [
+     "b"
+    ]
+   },
+   "167": {
+    "2": [
+     "b"
+    ]
+   },
+   "168": {
+    "2": [
+     "b"
+    ]
+   },
+   "169": {
+    "2": [
+     "b"
+    ]
+   },
+   "17": {
+    "2": [
+     "b"
+    ],
+    "8": [
+     "zero"
+    ]
+   },
+   "170": {
+    "2": [
+     "b"
+    ]
+   },
+   "171": {
+    "2": [
+     "b"
+    ]
+   },
+   "172": {
+    "2": [
+     "b"
+    ]
+   },
+   "173": {
+    "2": [
+     "b"
+    ]
+   },
+   "174": {
+    "2": [
+     "b"
+    ]
+   },
+   "175": {
+    "2": [
+     "b"
+    ]
+   },
+   "176": {
+    "2": [
+     "b"
+    ]
+   },
+   "177": {
+    "2": [
+     "b"
+    ]
+   },
+   "178": {
+    "2": [
+     "b"
+    ]
+   },
+   "179": {
+    "2": [
+     "b"
+    ]
+   },
+   "18": {
+    "2": [
+     "b"
+    ]
+   },
+   "180": {
+    "2": [
+     "b"
+    ]
+   },
+   "181": {
+    "2": [
+     "b"
+    ]
+   },
+   "182": {
+    "2": [
+     "b"
+    ]
+   },
+   "183": {
+    "2": [
+     "b"
+    ]
+   },
+   "184": {
+    "2": [
+     "b"
+    ]
+   },
+   "185": {
+    "2": [
+     "b"
+    ]
+   },
+   "186": {
+    "2": [
+     "b"
+    ]
+   },
+   "187": {
+    "2": [
+     "b"
+    ]
+   },
+   "188": {
+    "2": [
+     "b"
+    ]
+   },
+   "189": {
+    "2": [
+     "b"
+    ]
+   },
+   "19": {
+    "2": [
+     "b"
+    ],
+    "9": [
+     "zero"
+    ]
+   },
+   "190": {
+    "2": [
+     "b"
+    ]
+   },
+   "191": {
+    "2": [
+     "b"
+    ]
+   },
+   "192": {
+    "2": [
+     "b"
+    ]
+   },
+   "193": {
+    "2": [
+     "b"
+    ]
+   },
+   "194": {
+    "2": [
+     "b"
+    ]
+   },
+   "195": {
+    "2": [
+     "b"
+    ]
+   },
+   "196": {
+    "2": [
+     "b"
+    ]
+   },
+   "197": {
+    "2": [
+     "b"
+    ]
+   },
+   "198": {
+    "2": [
+     "b"
+    ]
+   },
+   "199": {
+    "2": [
+     "b"
+    ]
+   },
+   "2": {
+    "2": [
+     "b"
+    ]
+   },
+   "20": {
+    "2": [
+     "b"
+    ]
+   },
+   "200": {
+    "2": [
+     "b"
+    ]
+   },
+   "201": {
+    "2": [
+     "b"
+    ]
+   },
+   "202": {
+    "2": [
+     "b"
+    ]
+   },
+   "203": {
+    "2": [
+     "b"
+    ]
+   },
+   "204": {
+    "2": [
+     "b"
+    ]
+   },
+   "205": {
+    "2": [
+     "b"
+    ]
+   },
+   "206": {
+    "2": [
+     "b"
+    ]
+   },
+   "207": {
+    "2": [
+     "b"
+    ]
+   },
+   "208": {
+    "2": [
+     "b"
+    ]
+   },
+   "209": {
+    "2": [
+     "b"
+    ]
+   },
+   "21": {
+    "10": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "210": {
+    "2": [
+     "b"
+    ]
+   },
+   "211": {
+    "2": [
+     "b"
+    ]
+   },
+   "212": {
+    "2": [
+     "b"
+    ]
+   },
+   "213": {
+    "2": [
+     "b"
+    ]
+   },
+   "214": {
+    "2": [
+     "b"
+    ]
+   },
+   "215": {
+    "2": [
+     "b"
+    ]
+   },
+   "216": {
+    "2": [
+     "b"
+    ]
+   },
+   "217": {
+    "2": [
+     "b"
+    ]
+   },
+   "218": {
+    "2": [
+     "b"
+    ]
+   },
+   "219": {
+    "2": [
+     "b"
+    ]
+   },
+   "22": {
+    "2": [
+     "b"
+    ]
+   },
+   "220": {
+    "2": [
+     "b"
+    ]
+   },
+   "221": {
+    "2": [
+     "b"
+    ]
+   },
+   "222": {
+    "2": [
+     "b"
+    ]
+   },
+   "223": {
+    "2": [
+     "b"
+    ]
+   },
+   "224": {
+    "2": [
+     "b"
+    ]
+   },
+   "225": {
+    "2": [
+     "b"
+    ]
+   },
+   "226": {
+    "2": [
+     "b"
+    ]
+   },
+   "227": {
+    "2": [
+     "b"
+    ]
+   },
+   "228": {
+    "2": [
+     "b"
+    ]
+   },
+   "229": {
+    "2": [
+     "b"
+    ]
+   },
+   "23": {
+    "11": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "230": {
+    "2": [
+     "b"
+    ]
+   },
+   "231": {
+    "2": [
+     "b"
+    ]
+   },
+   "232": {
+    "2": [
+     "b"
+    ]
+   },
+   "233": {
+    "2": [
+     "b"
+    ]
+   },
+   "234": {
+    "2": [
+     "b"
+    ]
+   },
+   "235": {
+    "2": [
+     "b"
+    ]
+   },
+   "236": {
+    "2": [
+     "b"
+    ]
+   },
+   "237": {
+    "2": [
+     "b"
+    ]
+   },
+   "238": {
+    "2": [
+     "b"
+    ]
+   },
+   "239": {
+    "2": [
+     "b"
+    ]
+   },
+   "24": {
+    "2": [
+     "b"
+    ]
+   },
+   "240": {
+    "2": [
+     "b"
+    ]
+   },
+   "241": {
+    "2": [
+     "b"
+    ]
+   },
+   "242": {
+    "2": [
+     "b"
+    ]
+   },
+   "243": {
+    "2": [
+     "b"
+    ]
+   },
+   "244": {
+    "2": [
+     "b"
+    ]
+   },
+   "245": {
+    "2": [
+     "b"
+    ]
+   },
+   "246": {
+    "2": [
+     "b"
+    ]
+   },
+   "247": {
+    "2": [
+     "b"
+    ]
+   },
+   "248": {
+    "2": [
+     "b"
+    ]
+   },
+   "249": {
+    "2": [
+     "b"
+    ]
+   },
+   "25": {
+    "12": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "250": {
+    "2": [
+     "b"
+    ]
+   },
+   "251": {
+    "2": [
+     "b"
+    ]
+   },
+   "252": {
+    "2": [
+     "b"
+    ]
+   },
+   "253": {
+    "2": [
+     "b"
+    ]
+   },
+   "254": {
+    "2": [
+     "b"
+    ]
+   },
+   "255": {
+    "2": [
+     "b"
+    ]
+   },
+   "26": {
+    "2": [
+     "b"
+    ]
+   },
+   "27": {
+    "13": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "28": {
+    "2": [
+     "b"
+    ]
+   },
+   "29": {
+    "2": [
+     "b"
+    ]
+   },
+   "3": {
+    "1": [
+     "zero"
+    ],
+    "2": [
+     "b"
+    ]
+   },
+   "30": {
+    "2": [
+     "b"
+    ]
+   },
+   "31": {
+    "2": [
+     "b"
+    ]
+   },
+   "32": {
+    "2": [
+     "b"
+    ]
+   },
+   "33": {
+    "2": [
+     "b"
+    ]
+   },
+   "34": {
+    "2": [
+     "b"
+    ]
+   },
+   "35": {
+    "2": [
+     "b"
+    ]
+   },
+   "36": {
+    "2": [
+     "b"
+    ]
+   },
+   "37": {
+    "2": [
+     "b"
+    ]
+   },
+   "38": {
+    "2": [
+     "b"
+    ]
+   },
+   "39": {
+    "2": [
+     "b"
+    ]
+   },
+   "4": {
+    "2": [
+     "b"
+    ]
+   },
+   "40": {
+    "2": [
+     "b"
+    ]
+   },
+   "41": {
+    "2": [
+     "b"
+    ]
+   },
+   "42": {
+    "2": [
+     "b"
+    ]
+   },
+   "43": {
+    "2": [
+     "b"
+    ]
+   },
+   "44": {
+    "2": [
+     "b"
+    ]
+   },
+   "45": {
+    "2": [
+     "b"
+    ]
+   },
+   "46": {
+    "2": [
+     "b"
+    ]
+   },
+   "47": {
+    "2": [
+     "b"
+    ]
+   },
+   "48": {
+    "2": [
+     "b"
+    ]
+   },
+   "49": {
+    "2": [
+     "b"
+    ]
+   },
+   "50": {
+    "2": [
+     "b"
+    ]
+   },
+   "51": {
+    "2": [
+     "b"
+    ]
+   },
+   "52": {
+    "2": [
+     "b"
+    ]
+   },
+   "53": {
+    "2": [
+     "b"
+    ]
+   },
+   "54": {
+    "2": [
+     "b"
+    ]
+   },
+   "55": {
+    "2": [
+     "b"
+    ]
+   },
+   "56": {
+    "2": [
+     "b"
+    ]
+   },
+   "57": {
+    "2": [
+     "b"
+    ]
+   },
+   "58": {
+    "2": [
+     "b"
+    ]
+   },
+   "59": {
+    "2": [
+     "b"
+    ]
+   },
+   "6": {
+    "2": [
+     "b"
+    ]
+   },
+   "60": {
+    "2": [
+     "b"
+    ]
+   },
+   "61": {
+    "2": [
+     "b"
+    ]
+   },
+   "62": {
+    "2": [
+     "b"
+    ]
+   },
+   "63": {
+    "2": [
+     "b"
+    ]
+   },
+   "64": {
+    "2": [
+     "b"
+    ]
+   },
+   "65": {
+    "2": [
+     "b"
+    ]
+   },
+   "66": {
+    "2": [
+     "b"
+    ]
+   },
+   "67": {
+    "2": [
+     "b"
+    ]
+   },
+   "68": {
+    "2": [
+     "b"
+    ]
+   },
+   "69": {
+    "2": [
+     "b"
+    ]
+   },
+   "7": {
+    "2": [
+     "b"
+    ],
+    "3": [
+     "zero"
+    ]
+   },
+   "70": {
+    "2": [
+     "b"
+    ]
+   },
+   "71": {
+    "2": [
+     "b"
+    ]
+   },
+   "72": {
+    "2": [
+     "b"
+    ]
+   },
+   "73": {
+    "2": [
+     "b"
+    ]
+   },
+   "74": {
+    "2": [
+     "b"
+    ]
+   },
+   "75": {
+    "2": [
+     "b"
+    ]
+   },
+   "76": {
+    "2": [
+     "b"
+    ]
+   },
+   "77": {
+    "2": [
+     "b"
+    ]
+   },
+   "78": {
+    "2": [
+     "b"
+    ]
+   },
+   "79": {
+    "2": [
+     "b"
+    ]
+   },
+   "8": {
+    "2": [
+     "b"
+    ]
+   },
+   "80": {
+    "2": [
+     "b"
+    ]
+   },
+   "81": {
+    "2": [
+     "b"
+    ]
+   },
+   "82": {
+    "2": [
+     "b"
+    ]
+   },
+   "83": {
+    "2": [
+     "b"
+    ]
+   },
+   "84": {
+    "2": [
+     "b"
+    ]
+   },
+   "85": {
+    "2": [
+     "b"
+    ]
+   },
+   "86": {
+    "2": [
+     "b"
+    ]
+   },
+   "87": {
+    "2": [
+     "b"
+    ]
+   },
+   "88": {
+    "2": [
+     "b"
+    ]
+   },
+   "89": {
+    "2": [
+     "b"
+    ]
+   },
+   "9": {
+    "2": [
+     "b"
+    ]
+   },
+   "90": {
+    "2": [
+     "b"
+    ]
+   },
+   "91": {
+    "2": [
+     "b"
+    ]
+   },
+   "92": {
+    "2": [
+     "b"
+    ]
+   },
+   "93": {
+    "2": [
+     "b"
+    ]
+   },
+   "94": {
+    "2": [
+     "b"
+    ]
+   },
+   "95": {
+    "2": [
+     "b"
+    ]
+   },
+   "96": {
+    "2": [
+     "b"
+    ]
+   },
+   "97": {
+    "2": [
+     "b"
+    ]
+   },
+   "98": {
+    "2": [
+     "b"
+    ]
+   },
+   "99": {
+    "2": [
+     "b"
+    ]
+   }
+  },
+  "arm": "F3E_SRCB",
+  "cases_in_field": 512,
+  "class_min_support": 2,
+  "class_table": {
+   "0": "..C.............",
+   "1": "..C.............",
+   "10": "..C.............",
+   "100": "..C.............",
+   "101": "..C.............",
+   "102": "..C.............",
+   "103": "..C.............",
+   "104": "..C.............",
+   "105": "..C.............",
+   "106": "..C.............",
+   "107": "..C.............",
+   "108": "..C.............",
+   "109": "..C.............",
+   "11": "..C..Z..........",
+   "110": "..C.............",
+   "111": "..C.............",
+   "112": "..C.............",
+   "113": "..C.............",
+   "114": "..C.............",
+   "115": "..C.............",
+   "116": "..C.............",
+   "117": "..C.............",
+   "118": "..C.............",
+   "119": "..C.............",
+   "12": "..C.............",
+   "120": "..C.............",
+   "121": "..C.............",
+   "122": "..C.............",
+   "123": "..C.............",
+   "124": "..C.............",
+   "125": "..C.............",
+   "126": "..C.............",
+   "127": "..C.............",
+   "13": "..C...Z.........",
+   "14": "..C.............",
+   "15": "..C....Z........",
+   "16": "..C.............",
+   "17": "..C.....Z.......",
+   "18": "..C.............",
+   "19": "..C......Z......",
+   "2": "..C.............",
+   "20": "..C.............",
+   "21": "..C.......Z.....",
+   "22": "..C.............",
+   "23": "..C........Z....",
+   "24": "..C.............",
+   "25": "..C.........Z...",
+   "26": "..C.............",
+   "27": "..C..........Z..",
+   "28": "..C.............",
+   "29": "..C.............",
+   "3": ".ZC.............",
+   "30": "..C.............",
+   "31": "..C.............",
+   "32": "..C.............",
+   "33": "..C.............",
+   "34": "..C.............",
+   "35": "..C.............",
+   "36": "..C.............",
+   "37": "..C.............",
+   "38": "..C.............",
+   "39": "..C.............",
+   "4": "..C.............",
+   "40": "..C.............",
+   "41": "..C.............",
+   "42": "..C.............",
+   "43": "..C.............",
+   "44": "..C.............",
+   "45": "..C.............",
+   "46": "..C.............",
+   "47": "..C.............",
+   "48": "..C.............",
+   "49": "..C.............",
+   "5": "................",
+   "50": "..C.............",
+   "51": "..C.............",
+   "52": "..C.............",
+   "53": "..C.............",
+   "54": "..C.............",
+   "55": "..C.............",
+   "56": "..C.............",
+   "57": "..C.............",
+   "58": "..C.............",
+   "59": "..C.............",
+   "6": "..C.............",
+   "60": "..C.............",
+   "61": "..C.............",
+   "62": "..C.............",
+   "63": "..C.............",
+   "64": "..C.............",
+   "65": "..C.............",
+   "66": "..C.............",
+   "67": "..C.............",
+   "68": "..C.............",
+   "69": "..C.............",
+   "7": "..CZ............",
+   "70": "..C.............",
+   "71": "..C.............",
+   "72": "..C.............",
+   "73": "..C.............",
+   "74": "..C.............",
+   "75": "..C.............",
+   "76": "..C.............",
+   "77": "..C.............",
+   "78": "..C.............",
+   "79": "..C.............",
+   "8": "..C.............",
+   "80": "..C.............",
+   "81": "..C.............",
+   "82": "..C.............",
+   "83": "..C.............",
+   "84": "..C.............",
+   "85": "..C.............",
+   "86": "..C.............",
+   "87": "..C.............",
+   "88": "..C.............",
+   "89": "..C.............",
+   "9": "..C.............",
+   "90": "..C.............",
+   "91": "..C.............",
+   "92": "..C.............",
+   "93": "..C.............",
+   "94": "..C.............",
+   "95": "..C.............",
+   "96": "..C.............",
+   "97": "..C.............",
+   "98": "..C.............",
+   "99": "..C............."
+  },
+  "clean_disagreements": 0,
+  "evidence": [
+   "EXP-0160"
+  ],
+  "gate_decisions": {
+   "clean-agreed": 512
+  },
+  "inert_bits": [
+   7
+  ],
+  "label": "hardware-run",
+  "m4_full_state_prediction": {
+   "exact": true,
+   "model": "r0 = saturate(seed[0]*B + seed[4]), B = r[(v>>1)&63] if (v&1) else 0.0 (16-bit read)",
+   "per_seed_set": {
+    "1": {
+     "hit": 256,
+     "miss": 0
+    },
+    "2": {
+     "hit": 256,
+     "miss": 0
+    }
+   }
+  },
+  "mask_rule": {
+   "exceptions": 0,
+   "mask": 127,
+   "value": 5
+  },
+  "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=False model=M1 MASK",
+  "observation_counts": {
+   "1/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "134/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "141/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "142/s1": [
+    20,
+    2,
+    "clean-agreed"
+   ],
+   "182/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "225/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "245/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "27/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "45/s2": [
+    21,
+    1,
+    "clean-agreed"
+   ],
+   "69/s1": [
+    21,
+    1,
+    "clean-agreed"
+   ]
+  },
+  "outcomes_seed1": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "outcomes_seed2": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "p1_arm_valid": true,
+  "p2_dense_and_gated": true,
+  "p3_cross_seed_signature_stable": false,
+  "p3_mismatches": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32
+  ],
+  "p4_model": "M1 MASK",
+  "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+  "regmodel_released": "reg = (v>>1)&63",
+  "regmodel_scores": {
+   "released": {
+    "reg = (v>>1)&63": {
+     "distinct_regs": 11,
+     "hits": 22,
+     "identified": 22,
+     "multi": 0,
+     "rate": 1.0,
+     "silent": 42,
+     "wrong": 0
+    },
+    "reg = v": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 5,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 11,
+     "wrong": 5
+    },
+    "reg = v&127": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 10,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 22,
+     "wrong": 10
+    },
+    "reg = v&15": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 22,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 234,
+     "wrong": 22
+    },
+    "reg = v&63": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 10,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 54,
+     "wrong": 10
+    },
+    "reg = v>>1  ((reg<<1)|size)": {
+     "distinct_regs": 11,
+     "hits": 11,
+     "identified": 11,
+     "multi": 0,
+     "rate": 1.0,
+     "silent": 21,
+     "wrong": 0
+    },
+    "reg = v>>2  (reg<<2)": {
+     "distinct_regs": 0,
+     "hits": 0,
+     "identified": 11,
+     "multi": 0,
+     "rate": 0.0,
+     "silent": 53,
+     "wrong": 11
+    }
+   },
+   "written": {
+    "reg = (v>>1)&63": {
+     "distinct_regs": 1,
+     "hits": 2,
+     "identified": 62,
+     "multi": 0,
+     "rate": 0.032,
+     "silent": 2,
+     "wrong": 60
+    },
+    "reg = v": {
+     "distinct_regs": 1,
+     "hits": 1,
+     "identified": 15,
+     "multi": 0,
+     "rate": 0.067,
+     "silent": 1,
+     "wrong": 14
+    },
+    "reg = v&127": {
+     "distinct_regs": 1,
+     "hits": 2,
+     "identified": 30,
+     "multi": 0,
+     "rate": 0.067,
+     "silent": 2,
+     "wrong": 28
+    },
+    "reg = v&15": {
+     "distinct_regs": 1,
+     "hits": 16,
+     "identified": 254,
+     "multi": 0,
+     "rate": 0.063,
+     "silent": 2,
+     "wrong": 238
+    },
+    "reg = v&63": {
+     "distinct_regs": 1,
+     "hits": 4,
+     "identified": 62,
+     "multi": 0,
+     "rate": 0.065,
+     "silent": 2,
+     "wrong": 58
+    },
+    "reg = v>>1  ((reg<<1)|size)": {
+     "distinct_regs": 1,
+     "hits": 1,
+     "identified": 31,
+     "multi": 0,
+     "rate": 0.032,
+     "silent": 1,
+     "wrong": 30
+    },
+    "reg = v>>2  (reg<<2)": {
+     "distinct_regs": 1,
+     "hits": 4,
+     "identified": 63,
+     "multi": 0,
+     "rate": 0.063,
+     "silent": 1,
+     "wrong": 59
+    }
+   }
+  },
+  "regmodel_written": null,
+  "relevant_bits": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "semantics": "ok <=> (v & 0x7f) == 0x05, 0 exceptions over the dense 256-value range",
+  "strict_frozen_gate_would_gate": 512,
+  "target": "G17P",
+  "uncovered": {
+   "seed1": [],
+   "seed2": []
+  },
+  "unresolved_cases": 0,
+  "values_clean_agreed_minority": [],
+  "values_fault_prone": [],
+  "values_from_reproducible_failure": [],
+  "values_needing_validity_filter": [],
+  "why": "M1 MASK; destination word predicted from the seeds for ALL 256 values in BOTH seed sets (0 misses); P3's signature proxy did not apply here -- seed set 1 saturates, so the destination looks unchanged"
+ }
+}

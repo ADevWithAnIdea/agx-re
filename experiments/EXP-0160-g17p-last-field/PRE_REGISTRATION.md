@@ -212,3 +212,29 @@ agents editing the shared `~/agxre/tools` (avoided: this experiment pins its own
 schema, plus `db_defects`), `RESULTS.md`, `PROGRESS.md`, and immutable `raw/` for every run.
 `db.json`, `validation.json`, `docs/` and `PROVENANCE.md` are NOT edited, and nothing is
 committed by this experiment.
+
+---
+
+## Addendum A (frozen 2026-08-30, BEFORE the extension runs) — `falu3`/`falu3_ext` `srcB`
+
+**Why.** The dispatch's premise was that each of the eight instructions is ONE field from
+emittable. For `falu3` and `falu3_ext` that is **wrong**: `tools/agx-isa/validation.json`
+leaves **both** `op` and `srcB` below emitter grade, so closing `op` alone does not unblock
+them. `srcB` was sampled at only 29 of its 256 values by EXP-0154 (`ok at {0x81}` for `falu3`,
+`ok at {}` for `falu3_ext`) and left `untested`. This addendum sweeps it densely with the same
+instrument, under the same promotion rule.
+
+* **H9.** `falu3`/`falu3_ext` byte+3 is the SECOND source-operand descriptor (EXP-0138's
+  operand-slot rename), in the family's `(reg<<1)|size` packing. Predicted: the 16-register
+  release-on-read dump yields a value→register map that a candidate model explains for ≥90% of
+  the identified releases over ≥6 distinct registers, and the anchor value `0x05` names r2.
+* **Refuter.** No register model reaches that bar, or the ok-set has no exact model in the
+  frozen class — in which case the field is reported as not a register selector, exactly as
+  `iminmax.srcB` was.
+* **Everything else is unchanged:** same carriers, same lifted blocks, same two seed sets, same
+  falsifier (byte0 → `0x00`), same P1–P5, same evidence-validity gate.
+* **Frozen separately.** `harness/casematrix_ext.py` + `harness/run_ext.py`; the original
+  `harness/casematrix.py` and `harness/run.py` stay byte-identical to the copies hashed in
+  `CAPTURE_CONTRACT.json`, so run01/run02 remain exactly reproducible. Extension matrix:
+  **1028 cases, sha256 `e919aa1b93a437e7394b707bb4d7ef58d12f994f59b2b5eb0e1f218b83d4d858`**.
+  Runs `g17p_20260830_ext_run01` (forward) and `g17p_20260830_ext_run02` (reverse).

@@ -26,6 +26,60 @@
    "utc": "2026-08-30T06:57:17Z",
    "what": "Added the M4 extension `affine_in_product` for integer arms and fixed its `addend_depends_only_on_high5` predicate.",
    "why": "analysis/verdicts.py is not among the frozen authored inputs (only analysis/modelfit.py is). The promotion rule in PRE_REGISTRATION section 7 is unchanged; the addition is a reported diagnostic, and it is NOT a promotion path."
+  },
+  {
+   "file": "harness/confirm_faults.py",
+   "handling": "New run id g17p_20260830_confirm03; confirm01 and confirm02 retained untouched.",
+   "id": "amendment_04",
+   "sha256_after": "d7eeb70b804cffd835e6b566190b040bbf1161d703cd535b398178c242e324d4",
+   "utc": "2026-08-30T07:04:16Z",
+   "what": "Added --idx-file so the isolated 5-repetition adjudication can also be pointed at cross-run DISAGREEMENTS and at observations the poisoned buffer proves never ran.",
+   "why": "The gated pair left 19 values unusable, of which 25 individual observations (18 in run01, 7 in run02) had ALL 16 registers AND BOTH integrity sentinels still holding 0xDEADBEEF -- i.e. the dispatch produced no stores at all, while reporting command-buffer status OK. That is a discarded/never-executed dispatch, evidence about the machine and not about the encoding, and it is exactly what FIELD-SWEEP-PROTOCOL 7A says the poison buffer is for."
+  },
+  {
+   "file": "analysis/verdicts.py (gate)",
+   "handling": "Declared here, after the gated pair was captured and BEFORE the re-adjudication was run. Every value resolved this way is listed per field in analysis/field_verdicts.json under `isolated_verdicts_used`, so a reviewer can see exactly which values rest on it.",
+   "id": "amendment_05",
+   "utc": "2026-08-30T07:04:16Z",
+   "what": "Where the two gated runs DISAGREE and an isolated 5-repetition verdict exists for that case, the isolated verdict is used, exactly as P5 already prescribes for fault/hang. Where no isolated verdict exists the value stays EXCLUDED, as the frozen P2 requires.",
+   "why": "A disagreement between two unlocked runs is by definition contamination: a given encoding either behaves deterministically or it does not, and P5 exists because an unlocked observation can be wrong. Extending the SAME isolation procedure to the same contamination class is a narrowing of the gate, not a loosening: an isolated 5x verdict is stronger evidence than either unlocked run."
+  },
+  {
+   "file": "analysis/verdicts.py (gate)",
+   "handling": "Applied to all 4064 cases; result: 0 clean disagreements, 0 unresolved. Every gated case records n_valid/n_failed so any value can be re-decided from the committed raw.",
+   "id": "amendment_06",
+   "utc": "2026-08-30T07:37:16Z",
+   "what": "RETRACTS amendment 05. The gate is now a threshold-free evidence-validity filter: an observation is evidence only if the dispatch ran and reported a coherent state (no command-buffer failure, not victim-flagged, and not all-16-registers-plus-both-sentinels still poison). Two or more valid agreeing observations decide the case outright; a failure counts only when fewer than two valid observations exist. A separately measured `fault-prone` class handles encodings that mostly do not complete.",
+   "why": "Amendment 05 let a 5-repetition re-run overrule two agreeing clean observations. With the GPU lease removed from the protocol mid-experiment that re-run had no isolation and manufactured faults of its own (imad srcC_desc v=186 seed set 2: silent_zero in BOTH gated runs, fault 3/5 on re-run). The physical asymmetry is the justification: contamination can only DESTROY an observation, never fabricate a coherent 16-register dump that independently agrees with another run's."
+  },
+  {
+   "file": "analysis/verdicts.py (`fault-prone` class)",
+   "handling": "The full failure-rate distribution is in RESULTS.md; the affected values are listed per field as `values_fault_prone`.",
+   "id": "amendment_07",
+   "utc": "2026-08-30T07:37:16Z",
+   "what": "A case whose pooled failure rate exceeds 0.60 over >=20 observations is classed `fault-prone`, and its signature is the constant \"FAULT-PRONE\" so the two seed sets compare consistently.",
+   "why": "MEASURED, not tuned. Pooled over five independent runs the per-case failure rate in the two falu3 arms is sharply bimodal with an EMPTY gap: (v & 7) == 7 (128 cases) 0.714..0.980; every other value (896 cases) 0.000..0.500. Any cut in that gap gives the same partition; 0.60 is its midpoint. Ambient contamination cannot be value-selective, so a rate that tracks one field value is a property of the encoding."
+  },
+  {
+   "file": "analysis/verdicts.py (P3 alternative)",
+   "handling": "Only falu3_ext.srcB rests on this route; it is stated in that field's `why` and the per-seed-set hit/miss counts are in `m4_full_state_prediction`.",
+   "id": "amendment_08",
+   "utc": "2026-08-30T07:37:16Z",
+   "what": "P3 may also be satisfied by an exact FULL-STATE PREDICTION: the destination word predicted from the seeds alone, for every value of the field, in BOTH seed sets, with zero misses.",
+   "why": "P3's register-role signature is a coarse PROXY for out-of-sample prediction and can fail for a non-hardware reason: on the saturating `falu3_ext` carrier, seed set 1 clamps saturate(a*b+c) to 1.0 for nearly every srcB, so the destination looks unchanged. The direct prediction is strictly stronger and it succeeds 256/256 in both seed sets for both srcB arms."
+  },
+  {
+   "file": "harness/casematrix_ext.py, harness/run_ext.py, harness/confirm_ext.py",
+   "handling": "harness/casematrix.py and harness/run.py are UNCHANGED and still hash to the values recorded above, so run01/run02 stay exactly reproducible. Addendum A is pre-registered in PRE_REGISTRATION.md and runs under its own run ids g17p_20260830_ext_*.",
+   "id": "amendment_09",
+   "sha256": {
+    "harness/casematrix_ext.py": "f813bad716391734422306af81ebc8d95cfb0170c1deeee889bbc97e0cfc8fd7",
+    "harness/confirm_ext.py": "73c19783a9b591e44a38d53a716c7d63e3fa59883df83b4cd60c08b2411a27e9",
+    "harness/run_ext.py": "7702019750d76303b443661fd6b4faff348270424c006836953c1103cbb036b8"
+   },
+   "utc": "2026-08-30T07:37:16Z",
+   "what": "Addendum A: a separately frozen 1028-case extension matrix (sha256 e919aa1b93a437e7394b707bb4d7ef58d12f994f59b2b5eb0e1f218b83d4d858) sweeping falu3.srcB and falu3_ext.srcB densely.",
+   "why": "The dispatch's premise -- each instruction one field from emittable -- is wrong for falu3 and falu3_ext: validation.json leaves BOTH `op` and `srcB` below emitter grade, so closing `op` alone would not have unblocked them. EXP-0154 sampled only 29 of srcB's 256 values."
   }
  ],
  "arms": {
@@ -265,6 +319,20 @@
  },
  "repo_dirty_at_freeze": true,
  "repo_revision": "443981cc240592e205d638c805d0decaefc24af7",
+ "runs_actual": [
+  "g17p_20260830_confirm01",
+  "g17p_20260830_confirm02",
+  "g17p_20260830_confirm03",
+  "g17p_20260830_confirm04",
+  "g17p_20260830_confirm05b",
+  "g17p_20260830_confirm06",
+  "g17p_20260830_ext_confirm01",
+  "g17p_20260830_ext_run01",
+  "g17p_20260830_ext_run02",
+  "g17p_20260830_run01",
+  "g17p_20260830_run02",
+  "g17p_20260830_smoke01"
+ ],
  "runs_planned": [
   {
    "locked": false,

@@ -51,25 +51,56 @@ register post-state out of sample.
 
 ```sh
 # on the repo host (M4): push authored inputs + pinned toolchain to the test target
-export SSHPASS=...   ; NEO=192.168.10.243
+export SSHPASS=...            # NEO=192.168.10.243
 harness/sync.sh push
 
 # on the neo (A18 Pro / G17P), under ~/agxre/EXP-0160:
-python3 harness/anchors.py                       # compile our MSL, locate the anchors
-python3 harness/casematrix.py                    # print the frozen matrix + its sha256
-~/agxre/gpulease.sh EXP-0160-run01 1800 -- python3 harness/run.py --run g17p_20260830_run01 --order forward
-~/agxre/gpulease.sh EXP-0160-run02 1800 -- python3 harness/run.py --run g17p_20260830_run02 --order reverse
-~/agxre/gpulease.sh EXP-0160-conf  1800 -- python3 harness/confirm_faults.py \
-        --run g17p_20260830_confirm01 --from raw/g17p_20260830_run01 raw/g17p_20260830_run02
+python3 harness/anchors.py            # compile our MSL, locate the eight anchors
+python3 harness/casematrix.py         # the frozen matrix: 4064 cases, sha256 f2a2fec3...
+python3 harness/casematrix_ext.py     # Addendum A: 1028 cases, sha256 e919aa1b...
+
+python3 harness/run.py     --run g17p_20260830_run01     --order forward
+python3 harness/run.py     --run g17p_20260830_run02     --order reverse
+python3 harness/run_ext.py --run g17p_20260830_ext_run01 --order forward
+python3 harness/run_ext.py --run g17p_20260830_ext_run02 --order reverse
+
+# adjudication (FIELD-SWEEP-PROTOCOL 7A). The GPU lease was REMOVED from the
+# protocol while this experiment ran, so these are repetition, not isolation --
+# see RESULTS.md section 4.4 for what that cost and what replaced it.
+python3 harness/confirm_faults.py --run g17p_20260830_confirm02 \
+        --from raw/g17p_20260830_run01 raw/g17p_20260830_run02 --reps 5
+python3 harness/confirm_faults.py --run g17p_20260830_confirm03 \
+        --from raw/g17p_20260830_run01 raw/g17p_20260830_run02 \
+        --idx-file work/readjudicate.idx  --reps 5
+python3 harness/confirm_faults.py --run g17p_20260830_confirm04 \
+        --from raw/g17p_20260830_run01 --idx-file work/readjudicate2.idx --reps 9
+python3 harness/confirm_faults.py --run g17p_20260830_confirm05b \
+        --from raw/g17p_20260830_smoke01 --idx-file work/readjudicate4.idx --reps 25
+python3 harness/confirm_faults.py --run g17p_20260830_confirm06 \
+        --from raw/g17p_20260830_smoke01 --idx-file work/readjudicate6.idx --reps 40
+python3 harness/confirm_ext.py    --run g17p_20260830_ext_confirm01 \
+        --from raw/g17p_20260830_ext_run01 --idx-file work/ext_readjudicate.idx --reps 20
 
 # back on the repo host
-harness/sync.sh pull g17p_20260830_run01         # (and run02, confirm01)
+harness/sync.sh pull <each run id>
 python3 analysis/verdicts.py raw/g17p_20260830_run01 raw/g17p_20260830_run02 \
-        --confirm raw/g17p_20260830_confirm01
+    --confirm raw/g17p_20260830_confirm01,raw/g17p_20260830_confirm02,\
+raw/g17p_20260830_confirm03,raw/g17p_20260830_confirm04,\
+raw/g17p_20260830_confirm05b,raw/g17p_20260830_confirm06
+python3 analysis/verdicts.py raw/g17p_20260830_ext_run01 raw/g17p_20260830_ext_run02 \
+    --confirm raw/g17p_20260830_ext_confirm01 --matrix casematrix_ext \
+    --out analysis/field_verdicts_ext.json
+python3 analysis/merge_ext.py         # folds Addendum A into field_verdicts.json
 ```
 
 `analysis/prior_scan.py` and `analysis/design_check.py` are desk-only re-readings of EXP-0154's
 committed raw records; they touch no hardware and promote nothing.
+
+`raw/g17p_20260830_confirm01/` is retained but superseded: a victim-class failure on one arm's
+baseline made 32 of its cases `undecodable`, which is why `confirm02` exists (contract
+amendment 01). `work/preview_verdicts.json` and `work/preview2.json` are retained snapshots of
+two **superseded** analysis gates, including the one retracted by amendment 06; they are kept
+so the retraction is auditable, and no label depends on them.
 
 ## Scope and non-goals
 

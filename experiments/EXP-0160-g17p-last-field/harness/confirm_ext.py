@@ -28,7 +28,7 @@ EXP = HERE.parent
 sys.path.insert(0, str(HERE))
 import isa_helpers as H      # noqa: E402
 import sweeprun as S         # noqa: E402
-import casematrix as CM      # noqa: E402
+import casematrix_ext as CM  # noqa: E402  (EXTENSION matrix)
 
 SUSPECT = ("fault", "hang", "undecodable")
 
