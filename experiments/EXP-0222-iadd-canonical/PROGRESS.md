@@ -18,3 +18,7 @@
   independently zeroes the first physical source and bit 1 independently zeroes the second;
   `0x11` retains both. The other three nominated bits were null only in this bounded context.
   AMENDMENT-04 freezes the R1 recipe and its alias/consumer/64-op validation.
+- 2026-08-31: pilot04 (reverse) and pilot05 (canonical) passed all 16 V1 cases. Per-case generated
+  program SHA-256 and full-buffer output SHA-256 agree between runs, including the 64-op DAG.
+  These remain disclosed pilots, not promoted captures. AMENDMENT-05 freezes load-provenance and
+  r16..r23 tests before extending the claimed envelope.
