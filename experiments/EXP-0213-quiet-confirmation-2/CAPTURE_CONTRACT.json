@@ -1,0 +1,216 @@
+{
+ "agreement_key": [
+  "arm",
+  "field",
+  "value",
+  "byte_index",
+  "carrier"
+ ],
+ "amendments": [
+  "AMENDMENT-01: ADD harness/drive_cap.sh + harness/capture_cap.sh -- a process-group wall-clock cap. perl alarm + exec kills only the shell and ORPHANS the python child. Frozen before stage 6A's first dispatch; phases 1-3 keep drive_one.sh/capture.sh unchanged and are not re-scored.",
+  "AMENDMENT-02: ADD phase 6, one cold-device capture of tex_write@twdyn/0 after a declared >=35 min idle. Designed AFTER seeing phase 1/5 data; explicitly NOT Gate E evidence; changes no pair designation, budget, exclusion or verdict.",
+  "AMENDMENT-03: ADD a device-health gate (harness/health_gate.py) that must pass before any further capture, after stage 6B drove EXP-0206's abort-path-free run.py into a self-inflicted hang cascade that outlived the capture and hung the NEXT capture's carrier_open. Adds a conjunct that can fail; changes no verdict.",
+  "AMENDMENT-04: ADD one 900 s-capped cascade-threshold probe on ret_luse.linkmode@cl_atomic, to test whether stage 6B's measured ~20-hang cascade onset generalises to a second arm family. NOT Gate E; does NOT reach stage 6C, which stays NOT REACHED.",
+  "AMENDMENT-05: RE-CAPTURE stage 6C under NEW run ids (L3/L4). The AMENDMENT-04 threshold probe refuted the premise on which 6C was stopped: ret_luse.linkmode hangs ARE driver-recoverable (225 resets, no cascade over 149 values) unlike if_push.scope@cf_nl2+106's, which reset nothing and accumulate. L1_cl_atomic retained, never reused."
+ ],
+ "clean_room": "HW-PROBE: re-running our OWN committed harnesses over shaders compiled from our OWN MSL, plus black-box IOKit registry PROPERTY reads. No Apple binary is disassembled, decompiled, symbol-dumped or otherwise introspected.",
+ "declared_exclusions": {
+  "EXP-0204/tex_deriv": "the 9 named hazard values",
+  "EXP-0206/stage_6A": [
+   "key if_push.scope on cf_nl2 (both +106 hazard and +140 safe: the --only selector is keyed by field name and cannot separate them)",
+   "key ret_luse.linkmode on cl_atomic, cl_leaf, cl_chain"
+  ]
+ },
+ "device_state_at_freeze": {
+  "fBusyCount": 0,
+  "fLastSubmissionPID": 328,
+  "foreign_gpu_processes": 0,
+  "load1": 0.35,
+  "note": "NOT a fresh device: ~22134 cumulative resets are already on it and cannot be cleared (macvdmtool is forbidden to this agent). Declared as a live confounder.",
+  "recoveryCount": 22134,
+  "uptime": "4h20m"
+ },
+ "experiment": "EXP-0213-quiet-confirmation-2",
+ "frozen_utc": "2026-08-30T23:03:28Z",
+ "gate_e": {
+  "a_capture_stopped_by_a_guard_or_budget_or_cap_is_NOT_a_clean_run": true,
+  "ledger": "byte-identical actual_bytes on every shared key",
+  "malformed_response": "measurement_failure, never a hardware outcome",
+  "orders": "reversed or shuffled, differing between the pair",
+  "quiet": "measured, not assumed",
+  "runs": 2,
+  "victim_cascade": "none"
+ },
+ "gate_e_pair_designation": {
+  "EXP-0206": "S1 (forward) x S2 (reversed) per carrier per stage",
+  "tex_deriv.dstsrc": "D_fwd x D_sh1 -- DESIGNATED NOW, before any of the four orders runs, so the pair cannot be chosen after seeing which shuffle covered more",
+  "tex_sample.mode / tex_write.amode / tex_write.rsv11": "B1 (forward) x B2 (reverse), per-arm; B3 (shuffle 213) is an additional adversarial order"
+ },
+ "gate_note": "Captures are validated against repo_revision recorded HERE, not against live HEAD. A sibling experiment landing is not contamination (SUBAGENT_BRIEF; EXP-0082).",
+ "hang_budget": {
+  "EXP-0204": {
+   "per_arm": 10,
+   "per_field_default": 2,
+   "source": "the harness's own frozen values, UNCHANGED",
+   "tex_deriv_claim_domain": "the 56 non-hazard values of the frozen 65-value sample",
+   "tex_deriv_dstsrc_mapping_pass": 8,
+   "tex_deriv_hazard_family_excluded_by_name": [
+    "0x03FFFF",
+    "0x07FFFF",
+    "0x0FFFFF",
+    "0x1FFFFF",
+    "0x3FFFFF",
+    "0x7FFFFF",
+    "0xFBEEE7",
+    "0xFFFFFE",
+    "0xFFFFFF"
+   ]
+  },
+  "EXP-0206": {
+   "measured_hang_cost_s": 24.07,
+   "measured_other_cost_s": 0.01,
+   "source": "declared HERE; EXP-0206's run.py deliberately has no abort path and that is not changed. The cap is enforced by an EXTERNAL alarm wrapper.",
+   "stage_6A": {
+    "hangs": 60,
+    "wall_clock_s": 1800
+   },
+   "stage_6B": {
+    "hangs": 160,
+    "wall_clock_s": 4500
+   },
+   "stage_6C": {
+    "hangs": 80,
+    "wall_clock_s": 2100
+   }
+  }
+ },
+ "harnesses_run_unchanged": {
+  "EXP-0204-g17p-tex-carrier-dimensions": {
+   "CAPTURE_CONTRACT.json": "09c8dbc41deeb420eb0447e9f305a073fa2b1100fc58b644fb3ae9804cce286f",
+   "PRE_REGISTRATION.md": "42fd62f3cd78784833f632f5cb61807643a577af1bf861c571bc8cd0ca04105c",
+   "harness/arms.py": "836ec9d9c0d026a0614b0782154df5b61d329a4f0f7b8035ffeb1b0aa82f1d7e",
+   "harness/carriers.py": "b5c8b8286543a7b19c69956e83aee15a50f2379f2e11e9b56d13a0888b18b427",
+   "harness/gfrun4.m": "ef045df669b59c432ce3e2e8a4a4319b7fc6f8c7c778cd91e7b3ab9246c8dbcd",
+   "harness/oracle.py": "c3f5565e3c82267a9272c1fcc80d5b355f654cc7b3e06e3e053edb0c5f487ac7",
+   "harness/quietconfirm.sh": "7f75b35dd3a7bd7a921fd6c3954bae873e8831e29abde70dfd47634752383712",
+   "harness/runner4.py": "9498240e7036d07523eb7a7478729ead708744ef21429a38198ff61b68aaf1a7",
+   "harness/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
+   "pinned/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+   "run.py": "d3b49c39f735cef7e5ce7f8316407cc91cb96cebe7ec3d14384d30d623f7c3b3"
+  },
+  "EXP-0206-g17p-cf-scope": {
+   "CAPTURE_CONTRACT.json": "bc5bf723ab22e8d457a2e08c7382f85393c97abb678126c63545d65c2c4fcdd2",
+   "PRE_REGISTRATION.md": "54d65f61370b2bbab07661746cee131dfe653f312039e5c512c12617d5b3bd12",
+   "PRE_REGISTRATION_A2.md": "d745b9aa802b7cfefc50c9bbd8b23b2f1ebbde986cf8af5834e3ae66d6240205",
+   "harness/arms206.json": "3be53e5221d9cbebfee68090806109d05485e2858e06e4a27f6e2d0ccb15a78a",
+   "harness/carriers206.py": "9c8824dc5560df74cea0ac7dc280dac63473a0eb81c3ae582102a83f3fdced5c",
+   "harness/locate206.py": "4cbe5cb0daae3d8372fcc6fbec8288e5e12cd1f949c7584a7e871c4ea88271d5",
+   "harness/saferunner206.py": "ed4757cf87aa831f513633de8e411de223fcc397d842ad32b867148b0c4c929b",
+   "run.py": "c782e8d11bd5de420dcd3947668e0326284f7214570d670337e06b973b53061b"
+  }
+ },
+ "own_source_hashes": {
+  "AMENDMENT-01.md": "d52ced6a45738565863f59a5c6fdd8a241d896f5863bb9e059934112413c421b",
+  "AMENDMENT-02.md": "a1a5c2bece798b56506ffa006a9450337603be3600bd08490a6d9802a671475e",
+  "AMENDMENT-03.md": "937f2731cf5a95d13fb6d1b83929919587e90ad6e62b3912ec87c0a3f53600a1",
+  "AMENDMENT-04.md": "955f5ae3a8ef66ad2bc776f0b8d0c2ddb4971ed1df56569edfd84607c4fd07f6",
+  "AMENDMENT-05.md": "c7ba0c3c88b3e90e17bdeee66cc30283a9fc574e6d0e60d5d4bc1f7512d86530",
+  "CAPTURE_CONTRACT.json": "dcc0e22ecfff7429fe118993f36ae544c10fbec9c29cecf57a595f33ccea851a",
+  "PRE_REGISTRATION.md": "a0d4a509659239f44a0ad6b7caa484a8f6ec62aa0e935220f71b3ed0bb27b011",
+  "PROGRESS.md": "cfc1126d4794d4efdc495e0f674a132d9ddb31c5e41411e88beea36539929c2e",
+  "README.md": "677f31ca8512f2f8f3297ef80f93870699077eef36db89b3075daa3187c7284d",
+  "RESULTS.md": "748bbc7a6ac5d2ddd7c50500503092b2aed2d446645c9f06d23abb5eef40e6af",
+  "analysis/arm_agreement.py": "bc3bbf4b15132aa35fcfe11516ce3a3e7d032044d75c7d1ca5157b8dc4fbd7bb",
+  "analysis/concat.py": "5eb874d481c281f63a616b42f1e4838bfb384c5231c96b266dbb3fb53f43dfa7",
+  "analysis/disagree_detail.py": "cd8fac1c7b59fe2c103d306e81305e729fabe128611fb3bbf04a7511e630769d",
+  "analysis/e0206_scorer/gate206.json": "7ba57da9b5479a4d0ce17ab8684a0643d56cf6948e6c000d3b9c4f9f01d80463",
+  "analysis/e0206_scorer/models206.py": "fd5e2d91c85f18314febc08dc87863a88732f189f09238176699ca9ffd097343",
+  "analysis/e0206_scorer/verdicts206.py": "3afc75dd4674f4ee3a169460fbcfb145770615a1a78f7b054813bcbbf4854b42",
+  "analysis/gate_e_summary.py": "1a3bd3488badb5df59d447207127bcbfb99dd4f34bba28b25c2e31beb411366c",
+  "analysis/hazard_map.py": "a8df392cbe76cbfebba8c03246072d6392379137356df855eec97e816bcbe571",
+  "analysis/pairwise.py": "9830883ab959a4d38d0851789f8e5e71bbbaf4797d8d4916e1db2db3d86bbdda",
+  "analysis/per_field.py": "73052094a4a29ee9a3ba15ea2472b5f4c10ca3fb2f6efe79181aecb95aa9c2d6",
+  "analysis/quiet_table.py": "545531def518323f9dde2d8ca2ff2ea2624bd3fdeac8769b67f0ea0585b13511",
+  "analysis/stability.py": "a1c3c3e4b6dd19cc38a7ec29f31e2c2ff4a5f88c98e9d2a329e2d78fbe3f4cb4",
+  "analysis/verify_pulls.py": "b07acef0fcd93f991f12de3feba3c25594a86a9030ef4c94608a3d6f57bd3904",
+  "harness/capture.sh": "cb88a9ea00854e50673978b88ef35753a0860ff982af29da56671389c44ade8e",
+  "harness/capture_cap.sh": "0e1530c85f1d8c679a77d31158815d10ca2621e95ccb3fcdd6ff6cccc8e38952",
+  "harness/drive.py": "7ecebe53512e35ad66b5f6530e97839fdfd7a58476cfbc65623b8d2276e79361",
+  "harness/drive_cap.sh": "71d928a34d2ab7e4ae4be474d7d48d0085c8da0004face42bf59c7498999c84f",
+  "harness/drive_one.sh": "437f1850822cb3e7b0d289634056425fdb3500dc3bacf3bcb1e4a2b38cea0767",
+  "harness/gpusnap.py": "2a626bfd17d0531670636abf2bd2152cf8d366e01721c5b4377493cc81011f00",
+  "harness/health_gate.py": "8df0ab3b849bedeee144b858b1ef1d72c646052eb6063840d9f1fc7a3ce06462",
+  "harness/neo.sh": "cd8e255f7c97314b57feb0c37e9f13a413432422c47cdc46686aea4dcc96c822",
+  "harness/pull_run.sh": "37ad3e93f2fe4a8ca9ed1cf6d52bee64b50aa2a67eab1a0210cae687738c1ce9",
+  "harness/quietcheck.py": "19c7f27e7a0fafe51c20278cec7c1481b2976da295f9771537b026af9c6acf8d",
+  "harness/quietsample.py": "47e2829e6d990beab643bc992eaa438f27d27830f23c335b23fdad5a11bf78d2",
+  "harness/verify_repo_eq_neo.py": "538064dba0d44574716619fbab50cc499a9759fd6f05554225c944ebfe106408"
+ },
+ "predecessor": "EXP-0210-quiet-confirmation",
+ "pull_policy": "one run directory at a time via harness/pull_run.sh, which REFUSES a pull onto an existing local directory. No tree-wide rsync/tar pull (EXP-0210 disclosed that one overwrote a committed raw file).",
+ "quiet_gate": {
+  "criterion": "Q1 zero LIVE foreign dispatch runners in every sample AND Q3 no foreign submitter AND Q4 sampler alive AND zero ioreg errors",
+  "device_counters_per_capture": "gpusnap.py pre and post, plus every 2 s sample",
+  "instrument": "harness/quietsample.py (EXP-0210's, byte-identical) + harness/quietcheck.py (new)",
+  "not_gated_reported_only": [
+   "recoveryCount delta (EXP-0210 AMENDMENT-03: a gate no fault-heavy capture can pass)",
+   "MTLCompilerService count (launchd-owned XPC, does not dispatch)",
+   "exiting/parenthesised-comm foreign rows (zombies hold no GPU context)"
+  ],
+  "sample_interval_s": 2.0
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision": "b2d2a723b2dbf0bb8411c51c9ff5ee5924fedc95",
+ "run_id_prefix": "g17p_e0213_",
+ "stop_rules": [
+  "neo unresponsive -> STOP and report BLOCKED; macvdmtool is forbidden here",
+  "a stage exceeding its cap is not retried; its pair is NOT REACHED",
+  "global device-time budget 6 h"
+ ],
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "addr": "192.168.170.254",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "device": "Apple A18 Pro",
+  "host": "users-MacBook-Neo.local",
+  "metal_family": "Apple9",
+  "os": "macOS 26.6",
+  "workdir_on_device": "~/agxre/EXP-0213"
+ },
+ "timeouts_s": {
+  "per_capture_alarm_phase1": 300,
+  "per_capture_alarm_phase2": 900,
+  "per_capture_alarm_phase3": 900,
+  "ssh_margin": 180
+ },
+ "volatile_excluded_from_agreement": [
+  "gputime_ns",
+  "gputime",
+  "ts",
+  "elapsed",
+  "duration_ns",
+  "wall",
+  "time_ns",
+  "cpu_ns",
+  "prog_hash_fnv1a64",
+  "program_sha256",
+  "prog_hash",
+  "archive_sha256"
+ ],
+ "writes": {
+  "allowed": [
+   "experiments/EXP-0213-quiet-confirmation-2/**",
+   "experiments/EXP-0204-g17p-tex-carrier-dimensions/raw/g17p_e0213_*",
+   "experiments/EXP-0206-g17p-cf-scope/raw/g17p_e0213_*"
+  ],
+  "forbidden": [
+   "any label",
+   "tools/agx-isa/**",
+   "docs/**",
+   "PROVENANCE.md",
+   "any existing raw directory",
+   "git commit"
+  ]
+ }
+}

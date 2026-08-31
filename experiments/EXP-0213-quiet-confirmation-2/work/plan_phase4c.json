@@ -1,0 +1,66 @@
+{
+ "phase": "4C -- EXP-0206 stage 6C: ret_luse.linkmode on the three call carriers (64 of 256 expected hangs each at (v&7) in {4,5}). Budget 80 hangs / 2100 s.",
+ "captures": [
+  {
+   "tag": "g17p_e0213_L1_cl_atomic",
+   "run_id": "g17p_e0213_L1_cl_atomic",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L1_cl_atomic --carriers cl_atomic --only ret_luse.linkmode --order forward"
+  },
+  {
+   "tag": "g17p_e0213_L2_cl_atomic",
+   "run_id": "g17p_e0213_L2_cl_atomic",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L2_cl_atomic --carriers cl_atomic --only ret_luse.linkmode --order reversed"
+  },
+  {
+   "tag": "g17p_e0213_L1_cl_leaf",
+   "run_id": "g17p_e0213_L1_cl_leaf",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L1_cl_leaf --carriers cl_leaf --only ret_luse.linkmode --order forward"
+  },
+  {
+   "tag": "g17p_e0213_L2_cl_leaf",
+   "run_id": "g17p_e0213_L2_cl_leaf",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L2_cl_leaf --carriers cl_leaf --only ret_luse.linkmode --order reversed"
+  },
+  {
+   "tag": "g17p_e0213_L1_cl_chain",
+   "run_id": "g17p_e0213_L1_cl_chain",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L1_cl_chain --carriers cl_chain --only ret_luse.linkmode --order forward"
+  },
+  {
+   "tag": "g17p_e0213_L2_cl_chain",
+   "run_id": "g17p_e0213_L2_cl_chain",
+   "remote_exp": "EXP-0206",
+   "local_exp": "../EXP-0206-g17p-cf-scope",
+   "sample_s": 2160,
+   "alarm_s": 2100,
+   "capped": true,
+   "cmd": "python3 -B run.py --run-id g17p_e0213_L2_cl_chain --carriers cl_chain --only ret_luse.linkmode --order reversed"
+  }
+ ],
+ "ordering_note": "Reordered PAIR-FIRST before stage 6C's first dispatch: L1 and L2 of the SAME carrier run back to back, so a stop on the global device-time budget leaves COMPLETE pairs behind rather than six unpaired halves. This changes dispatch order only; no selection, budget, cap or gate is changed."
+}

@@ -1,0 +1,6664 @@
+{
+ "_concurrency": {
+  "max_other_gpu_agent_processes": 3,
+  "note": "GATE E: a confirmation run may not rely on a busy machine. This is a MEASUREMENT of how busy it was, taken from raw/<run>/procs.jsonl, not a claim in prose. Non-zero here caps every reproducibility axis at `auditable`.",
+  "samples": 60
+ },
+ "_gate": "PRE_REGISTRATION.md section 7 + PRE_REGISTRATION_A2.md (Gates A/B/C/E), recomputed from raw",
+ "_runs": [
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S1_cf_nl2",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S2_cf_nl2",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S1_cl_atomic",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S2_cl_atomic",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S1_cl_leaf",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S2_cl_leaf",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S1_cl_chain",
+  "../EXP-0206-g17p-cf-scope/raw/g17p_e0213_S2_cl_chain"
+ ],
+ "_selftest": "passed",
+ "arms": {
+  "CTRL:b6@cl_atomic._agc.main+52": {
+   "L": 16,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 32
+   },
+   "carrier": "cl_atomic",
+   "comparable": 16,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "b6",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 32,
+   "n_valid": 32,
+   "occ_dim": null,
+   "off": 52,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 48,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:b6@cl_chain._agc.main+54": {
+   "L": 16,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 18,
+    "correct": 14
+   },
+   "carrier": "cl_chain",
+   "comparable": 16,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "b6",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 9,
+   "moved_values": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    32,
+    36,
+    84,
+    128
+   ],
+   "n_records": 32,
+   "n_valid": 32,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 48,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:b6@cl_leaf._agc.main+54": {
+   "L": 16,
+   "V": 3,
+   "agreement": 0.4375,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 18,
+    "correct": 14
+   },
+   "carrier": "cl_leaf",
+   "comparable": 16,
+   "contaminated_cases": 0,
+   "disagree": 9,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "b6",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 9,
+   "moved_values": [
+    0,
+    1,
+    4,
+    5,
+    8,
+    32,
+    36,
+    84,
+    128
+   ],
+   "n_records": 32,
+   "n_valid": 32,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 48,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:byte0@cf_nl2._agc.main+268": {
+   "L": 6,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 12,
+    "reject": 4
+   },
+   "carrier": "cf_nl2",
+   "comparable": 6,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "_byte0",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "hang": 4
+   },
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 12,
+   "occ_dim": null,
+   "off": 268,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 8
+  },
+  "CTRL:byte0@cl_atomic._agc.main+124": {
+   "L": 6,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 12,
+    "reject": 4
+   },
+   "carrier": "cl_atomic",
+   "comparable": 6,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "_byte0",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 4
+   },
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 12,
+   "occ_dim": null,
+   "off": 124,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 8
+  },
+  "CTRL:byte0@cl_leaf._agc.main+88": {
+   "L": 6,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 12,
+    "reject": 4
+   },
+   "carrier": "cl_leaf",
+   "comparable": 6,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "_byte0",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "hang": 4
+   },
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 12,
+   "occ_dim": null,
+   "off": 88,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 8
+  },
+  "CTRL:linkmode@cl_chain.l__ZL5c_midjj+104": {
+   "L": 4,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 2,
+    "correct": 6,
+    "reject": 24
+   },
+   "carrier": "cl_chain",
+   "comparable": 4,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "linkmode",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 16,
+    "hang": 8
+   },
+   "instr": "ret",
+   "key": "ret.scoreboard",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 1,
+   "moved_values": [
+    2
+   ],
+   "n_records": 32,
+   "n_valid": 8,
+   "occ_dim": 18,
+   "off": 104,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "l__ZL5c_midjj",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 8,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:offset@cl_atomic._agc.main+52": {
+   "L": 8,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 6,
+    "correct": 10
+   },
+   "carrier": "cl_atomic",
+   "comparable": 8,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "offset",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 3,
+   "moved_values": [
+    281474976710538,
+    281474976710540,
+    281474976710544
+   ],
+   "n_records": 16,
+   "n_valid": 16,
+   "occ_dim": null,
+   "off": 52,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 56,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 48
+  },
+  "CTRL:offset@cl_chain._agc.main+54": {
+   "L": 4,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 8,
+    "reject": 8
+   },
+   "carrier": "cl_chain",
+   "comparable": 4,
+   "contaminated_cases": 1,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "offset",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 8
+   },
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 8,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 56,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 48
+  },
+  "CTRL:offset@cl_leaf._agc.main+54": {
+   "L": 4,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 8,
+    "reject": 8
+   },
+   "carrier": "cl_leaf",
+   "comparable": 4,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "offset",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 6,
+    "hang": 2
+   },
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 8,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 56,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 48
+  },
+  "CTRL:scope_kind@cf_nl2._agc.main+216": {
+   "L": 14,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 28,
+    "reject": 4
+   },
+   "carrier": "cf_nl2",
+   "comparable": 14,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "scope_kind",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 4
+   },
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 32,
+   "n_valid": 28,
+   "occ_dim": 2,
+   "off": 216,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:scope_kind@cf_nl2._agc.main+222": {
+   "L": 15,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 30,
+    "reject": 2
+   },
+   "carrier": "cf_nl2",
+   "comparable": 15,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "scope_kind",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 2
+   },
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 32,
+   "n_valid": 30,
+   "occ_dim": 1,
+   "off": 222,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:scope_kind@cl_atomic._agc.main+66": {
+   "L": 15,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 2,
+    "correct": 28,
+    "reject": 2
+   },
+   "carrier": "cl_atomic",
+   "comparable": 15,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "scope_kind",
+   "foreign_cascade_window_cases": 0,
+   "hard": {
+    "fault": 2
+   },
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 32,
+   "moved": 1,
+   "moved_values": [
+    1
+   ],
+   "n_records": 32,
+   "n_valid": 30,
+   "occ_dim": 2,
+   "off": 66,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
+  "CTRL:synth_word@cl_chain._agc.main+50": {
+   "L": 3,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 4,
+    "dead": 2
+   },
+   "carrier": "cl_chain",
+   "comparable": 3,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 3,
+   "distinct_encodings": 3,
+   "distinct_requested_values": 3,
+   "encoding_collision": false,
+   "field": "_synth_word",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "stop",
+   "key": "stop.reserved@synth_mid",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 6,
+   "moved": 1,
+   "moved_values": [
+    14
+   ],
+   "n_records": 6,
+   "n_valid": 6,
+   "occ_dim": null,
+   "off": 50,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": true,
+   "unclassified": {},
+   "values_dispatched": 3,
+   "width": 32
+  },
+  "CTRL:synth_word@cl_leaf._agc.main+50": {
+   "L": 3,
+   "V": 2,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 4,
+    "dead": 2
+   },
+   "carrier": "cl_leaf",
+   "comparable": 3,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 3,
+   "distinct_encodings": 3,
+   "distinct_requested_values": 3,
+   "encoding_collision": false,
+   "field": "_synth_word",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": "stop",
+   "key": "stop.reserved@synth_mid",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 6,
+   "moved": 1,
+   "moved_values": [
+    14
+   ],
+   "n_records": 6,
+   "n_valid": 6,
+   "occ_dim": null,
+   "off": 50,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": true,
+   "unclassified": {},
+   "values_dispatched": 3,
+   "width": 32
+  },
+  "call.tail@cl_atomic._agc.main+52": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cl_atomic",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:b6@cl_atomic._agc.main+52",
+     "fires": false,
+     "why": "control did NOT fire (V=1, valid=32, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert"
+    },
+    {
+     "arm": "CTRL:offset@cl_atomic._agc.main+52",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "tail",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": null,
+   "off": 52,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_low_bit": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ],
+      [
+       27,
+       "reject",
+       "correct"
+      ],
+      [
+       29,
+       "reject",
+       "correct"
+      ],
+      [
+       31,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 1536,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 104,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "call.tail@cl_chain._agc.main+54": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cl_chain",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:b6@cl_chain._agc.main+54",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    },
+    {
+     "arm": "CTRL:offset@cl_chain._agc.main+54",
+     "fires": true,
+     "why": "control produced a valid<->hard split (8 valid, 8 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "tail",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_low_bit": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ],
+      [
+       27,
+       "reject",
+       "correct"
+      ],
+      [
+       29,
+       "reject",
+       "correct"
+      ],
+      [
+       31,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 1536,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 104,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "call.tail@cl_leaf._agc.main+54": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cl_leaf",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:b6@cl_leaf._agc.main+54",
+     "fires": true,
+     "why": "control produced 3 distinct valid payloads"
+    },
+    {
+     "arm": "CTRL:offset@cl_leaf._agc.main+54",
+     "fires": true,
+     "why": "control produced a valid<->hard split (8 valid, 8 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "tail",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_low_bit": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ],
+      [
+       27,
+       "reject",
+       "correct"
+      ],
+      [
+       29,
+       "reject",
+       "correct"
+      ],
+      [
+       31,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 1536,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 104,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "carrier_open": {
+   "L": 0,
+   "V": 0,
+   "agreement": null,
+   "agreement_pair": null,
+   "baseline_per_run": {},
+   "buckets": {},
+   "carrier": null,
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 0,
+   "distinct_encodings": 0,
+   "distinct_requested_values": 0,
+   "encoding_collision": false,
+   "field": null,
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "instr": null,
+   "key": null,
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 0,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 0,
+   "n_valid": 0,
+   "occ_dim": null,
+   "off": null,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": null,
+   "role": null,
+   "runs": [],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": null,
+   "synthesized": null,
+   "unclassified": {},
+   "values_dispatched": 0,
+   "width": null
+  },
+  "pop_reconverge.reserved@cf_nl2._agc.main+216": {
+   "L": 52,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 104
+   },
+   "carrier": "cf_nl2",
+   "comparable": 52,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cf_nl2._agc.main+216",
+     "fires": true,
+     "why": "control produced a valid<->hard split (28 valid, 4 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 52,
+   "distinct_encodings": 52,
+   "distinct_requested_values": 52,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 104,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 104,
+   "n_valid": 104,
+   "occ_dim": 2,
+   "off": 216,
+   "prediction": {
+    "checked": 104,
+    "held": 104,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 104,
+     "hit": 104,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 104,
+     "hit": 2,
+     "miss": 102,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 104,
+     "hit": 2,
+     "miss": 102,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 312,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 32,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 52,
+   "width": 16
+  },
+  "pop_reconverge.reserved@cl_atomic._agc.main+66": {
+   "L": 52,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 104
+   },
+   "carrier": "cl_atomic",
+   "comparable": 52,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cl_atomic._agc.main+66",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 52,
+   "distinct_encodings": 52,
+   "distinct_requested_values": 52,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 104,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 104,
+   "n_valid": 104,
+   "occ_dim": 2,
+   "off": 66,
+   "prediction": {
+    "checked": 104,
+    "held": 104,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 104,
+     "hit": 104,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 104,
+     "hit": 2,
+     "miss": 102,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 104,
+     "hit": 2,
+     "miss": 102,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 312,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 32,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 52,
+   "width": 16
+  },
+  "pop_reconverge.scope@cf_nl2._agc.main+216": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M3_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cf_nl2",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cf_nl2._agc.main+216",
+     "fires": true,
+     "why": "control produced a valid<->hard split (28 valid, 4 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "scope",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": 2,
+   "off": 216,
+   "prediction": {
+    "checked": 2,
+    "held": 2,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {
+    "M1_bank_bit5": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       34,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       36,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       38,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       40,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       44,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       46,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ],
+      [
+       48,
+       "reject",
+       "correct"
+      ],
+      [
+       49,
+       "reject",
+       "correct"
+      ],
+      [
+       50,
+       "reject",
+       "correct"
+      ],
+      [
+       51,
+       "reject",
+       "correct"
+      ],
+      [
+       52,
+       "reject",
+       "correct"
+      ],
+      [
+       53,
+       "reject",
+       "correct"
+      ],
+      [
+       54,
+       "reject",
+       "correct"
+      ],
+      [
+       55,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M2_low_nibble": {
+     "checked": 512,
+     "hit": 32,
+     "miss": 480,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M4_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 2048,
+   "sem_surviving_models": [
+    "M3_inert"
+   ],
+   "start": 16,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "pop_reconverge.scope@cf_nl2._agc.main+222": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M3_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cf_nl2",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cf_nl2._agc.main+222",
+     "fires": true,
+     "why": "control produced a valid<->hard split (30 valid, 2 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "scope",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": 1,
+   "off": 222,
+   "prediction": {
+    "checked": 2,
+    "held": 2,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {
+    "M1_bank_bit5": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       34,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       36,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       38,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       40,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       44,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       46,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ],
+      [
+       48,
+       "reject",
+       "correct"
+      ],
+      [
+       49,
+       "reject",
+       "correct"
+      ],
+      [
+       50,
+       "reject",
+       "correct"
+      ],
+      [
+       51,
+       "reject",
+       "correct"
+      ],
+      [
+       52,
+       "reject",
+       "correct"
+      ],
+      [
+       53,
+       "reject",
+       "correct"
+      ],
+      [
+       54,
+       "reject",
+       "correct"
+      ],
+      [
+       55,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M2_low_nibble": {
+     "checked": 512,
+     "hit": 32,
+     "miss": 480,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M4_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 2048,
+   "sem_surviving_models": [
+    "M3_inert"
+   ],
+   "start": 16,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "pop_reconverge.scope@cl_atomic._agc.main+66": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M3_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cl_atomic",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cl_atomic._agc.main+66",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "scope",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": 2,
+   "off": 66,
+   "prediction": {
+    "checked": 2,
+    "held": 2,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {
+    "M1_bank_bit5": {
+     "checked": 512,
+     "hit": 256,
+     "miss": 256,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M2_low_nibble": {
+     "checked": 512,
+     "hit": 32,
+     "miss": 480,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M4_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "correct"
+      ],
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 2048,
+   "sem_surviving_models": [
+    "M3_inert"
+   ],
+   "start": 16,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": {
+   "L": 256,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "bounded-map(2 models still survive: M1_wait_mask,M2_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 512
+   },
+   "carrier": "cl_chain",
+   "comparable": 256,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:linkmode@cl_chain.l__ZL5c_midjj+104",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "scoreboard",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "ret",
+   "key": "ret.scoreboard",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 512,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 512,
+   "n_valid": 512,
+   "occ_dim": 18,
+   "off": 104,
+   "prediction": {
+    "checked": 2,
+    "held": 2,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "l__ZL5c_midjj",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {
+    "M1_wait_mask": {
+     "checked": 2,
+     "hit": 2,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M3_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 1026,
+   "sem_surviving_models": [
+    "M1_wait_mask",
+    "M2_inert"
+   ],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
+  "stop.reserved@cf_nl2._agc.main+268": {
+   "L": 73,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cf_nl2": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 146
+   },
+   "carrier": "cf_nl2",
+   "comparable": 73,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:byte0@cf_nl2._agc.main+268",
+     "fires": true,
+     "why": "control produced a valid<->hard split (12 valid, 4 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 146,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 146,
+   "n_valid": 146,
+   "occ_dim": null,
+   "off": 268,
+   "prediction": {
+    "checked": 146,
+    "held": 146,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cf_nl2",
+    "g17p_e0213_S2_cf_nl2"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 146,
+     "hit": 146,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 438,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  },
+  "stop.reserved@cl_atomic._agc.main+124": {
+   "L": 73,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_atomic": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 146
+   },
+   "carrier": "cl_atomic",
+   "comparable": 73,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:byte0@cl_atomic._agc.main+124",
+     "fires": true,
+     "why": "control produced a valid<->hard split (12 valid, 4 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 146,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 146,
+   "n_valid": 146,
+   "occ_dim": null,
+   "off": 124,
+   "prediction": {
+    "checked": 146,
+    "held": 146,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_atomic",
+    "g17p_e0213_S2_cl_atomic"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 146,
+     "hit": 146,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 438,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  },
+  "stop.reserved@cl_leaf._agc.main+88": {
+   "L": 73,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 146
+   },
+   "carrier": "cl_leaf",
+   "comparable": 73,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:byte0@cl_leaf._agc.main+88",
+     "fires": true,
+     "why": "control produced a valid<->hard split (12 valid, 4 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 146,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 146,
+   "n_valid": 146,
+   "occ_dim": null,
+   "off": 88,
+   "prediction": {
+    "checked": 146,
+    "held": 146,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 146,
+     "hit": 146,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 438,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  },
+  "stop.reserved@synth_mid@cl_chain._agc.main+50": {
+   "L": 73,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_chain": "{\"nunwritten\": 32, \"sent\": 1515852340, \"",
+    "g17p_e0213_S2_cl_chain": "{\"nunwritten\": 32, \"sent\": 1515852340, \""
+   },
+   "buckets": {
+    "dead": 146
+   },
+   "carrier": "cl_chain",
+   "comparable": 73,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:synth_word@cl_chain._agc.main+50",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "stop",
+   "key": "stop.reserved@synth_mid",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 146,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 146,
+   "n_valid": 146,
+   "occ_dim": null,
+   "off": 50,
+   "prediction": {
+    "checked": 146,
+    "held": 0,
+    "refuted": 146
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_chain",
+    "g17p_e0213_S2_cl_chain"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 146,
+     "hit": 146,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "dead"
+      ],
+      [
+       1,
+       "reject",
+       "dead"
+      ],
+      [
+       2,
+       "reject",
+       "dead"
+      ],
+      [
+       3,
+       "reject",
+       "dead"
+      ],
+      [
+       4,
+       "reject",
+       "dead"
+      ],
+      [
+       5,
+       "reject",
+       "dead"
+      ],
+      [
+       7,
+       "reject",
+       "dead"
+      ],
+      [
+       8,
+       "reject",
+       "dead"
+      ],
+      [
+       16,
+       "reject",
+       "dead"
+      ],
+      [
+       32,
+       "reject",
+       "dead"
+      ],
+      [
+       42,
+       "reject",
+       "dead"
+      ],
+      [
+       64,
+       "reject",
+       "dead"
+      ],
+      [
+       85,
+       "reject",
+       "dead"
+      ],
+      [
+       127,
+       "reject",
+       "dead"
+      ],
+      [
+       128,
+       "reject",
+       "dead"
+      ],
+      [
+       129,
+       "reject",
+       "dead"
+      ],
+      [
+       165,
+       "reject",
+       "dead"
+      ],
+      [
+       195,
+       "reject",
+       "dead"
+      ],
+      [
+       240,
+       "reject",
+       "dead"
+      ],
+      [
+       256,
+       "reject",
+       "dead"
+      ],
+      [
+       512,
+       "reject",
+       "dead"
+      ],
+      [
+       1024,
+       "reject",
+       "dead"
+      ],
+      [
+       2048,
+       "reject",
+       "dead"
+      ],
+      [
+       3855,
+       "reject",
+       "dead"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       0,
+       "coherent",
+       "dead"
+      ],
+      [
+       1,
+       "coherent",
+       "dead"
+      ],
+      [
+       2,
+       "coherent",
+       "dead"
+      ],
+      [
+       3,
+       "coherent",
+       "dead"
+      ],
+      [
+       4,
+       "coherent",
+       "dead"
+      ],
+      [
+       5,
+       "coherent",
+       "dead"
+      ],
+      [
+       7,
+       "coherent",
+       "dead"
+      ],
+      [
+       8,
+       "coherent",
+       "dead"
+      ],
+      [
+       16,
+       "coherent",
+       "dead"
+      ],
+      [
+       32,
+       "coherent",
+       "dead"
+      ],
+      [
+       42,
+       "coherent",
+       "dead"
+      ],
+      [
+       64,
+       "coherent",
+       "dead"
+      ],
+      [
+       85,
+       "coherent",
+       "dead"
+      ],
+      [
+       127,
+       "coherent",
+       "dead"
+      ],
+      [
+       128,
+       "coherent",
+       "dead"
+      ],
+      [
+       129,
+       "coherent",
+       "dead"
+      ],
+      [
+       165,
+       "coherent",
+       "dead"
+      ],
+      [
+       195,
+       "coherent",
+       "dead"
+      ],
+      [
+       240,
+       "coherent",
+       "dead"
+      ],
+      [
+       256,
+       "coherent",
+       "dead"
+      ],
+      [
+       512,
+       "coherent",
+       "dead"
+      ],
+      [
+       1024,
+       "coherent",
+       "dead"
+      ],
+      [
+       2048,
+       "coherent",
+       "dead"
+      ],
+      [
+       3855,
+       "coherent",
+       "dead"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 438,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": true,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  },
+  "stop.reserved@synth_mid@cl_leaf._agc.main+50": {
+   "L": 73,
+   "V": 1,
+   "agreement": 1.0,
+   "agreement_pair": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_e0213_S1_cl_leaf": "{\"nunwritten\": 32, \"sent\": 1515852340, \"",
+    "g17p_e0213_S2_cl_leaf": "{\"nunwritten\": 32, \"sent\": 1515852340, \""
+   },
+   "buckets": {
+    "dead": 146
+   },
+   "carrier": "cl_leaf",
+   "comparable": 73,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:synth_word@cl_leaf._agc.main+50",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "foreign_cascade_window_cases": 0,
+   "hard": {},
+   "inert": "INERT",
+   "inert_blockers": [],
+   "instr": "stop",
+   "key": "stop.reserved@synth_mid",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 146,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 146,
+   "n_valid": 146,
+   "occ_dim": null,
+   "off": 50,
+   "prediction": {
+    "checked": 146,
+    "held": 0,
+    "refuted": 146
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_e0213_S1_cl_leaf",
+    "g17p_e0213_S2_cl_leaf"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 146,
+     "hit": 146,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       0,
+       "reject",
+       "dead"
+      ],
+      [
+       1,
+       "reject",
+       "dead"
+      ],
+      [
+       2,
+       "reject",
+       "dead"
+      ],
+      [
+       3,
+       "reject",
+       "dead"
+      ],
+      [
+       4,
+       "reject",
+       "dead"
+      ],
+      [
+       5,
+       "reject",
+       "dead"
+      ],
+      [
+       7,
+       "reject",
+       "dead"
+      ],
+      [
+       8,
+       "reject",
+       "dead"
+      ],
+      [
+       16,
+       "reject",
+       "dead"
+      ],
+      [
+       32,
+       "reject",
+       "dead"
+      ],
+      [
+       42,
+       "reject",
+       "dead"
+      ],
+      [
+       64,
+       "reject",
+       "dead"
+      ],
+      [
+       85,
+       "reject",
+       "dead"
+      ],
+      [
+       127,
+       "reject",
+       "dead"
+      ],
+      [
+       128,
+       "reject",
+       "dead"
+      ],
+      [
+       129,
+       "reject",
+       "dead"
+      ],
+      [
+       165,
+       "reject",
+       "dead"
+      ],
+      [
+       195,
+       "reject",
+       "dead"
+      ],
+      [
+       240,
+       "reject",
+       "dead"
+      ],
+      [
+       256,
+       "reject",
+       "dead"
+      ],
+      [
+       512,
+       "reject",
+       "dead"
+      ],
+      [
+       1024,
+       "reject",
+       "dead"
+      ],
+      [
+       2048,
+       "reject",
+       "dead"
+      ],
+      [
+       3855,
+       "reject",
+       "dead"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 146,
+     "hit": 2,
+     "miss": 144,
+     "miss_values": [
+      [
+       0,
+       "coherent",
+       "dead"
+      ],
+      [
+       1,
+       "coherent",
+       "dead"
+      ],
+      [
+       2,
+       "coherent",
+       "dead"
+      ],
+      [
+       3,
+       "coherent",
+       "dead"
+      ],
+      [
+       4,
+       "coherent",
+       "dead"
+      ],
+      [
+       5,
+       "coherent",
+       "dead"
+      ],
+      [
+       7,
+       "coherent",
+       "dead"
+      ],
+      [
+       8,
+       "coherent",
+       "dead"
+      ],
+      [
+       16,
+       "coherent",
+       "dead"
+      ],
+      [
+       32,
+       "coherent",
+       "dead"
+      ],
+      [
+       42,
+       "coherent",
+       "dead"
+      ],
+      [
+       64,
+       "coherent",
+       "dead"
+      ],
+      [
+       85,
+       "coherent",
+       "dead"
+      ],
+      [
+       127,
+       "coherent",
+       "dead"
+      ],
+      [
+       128,
+       "coherent",
+       "dead"
+      ],
+      [
+       129,
+       "coherent",
+       "dead"
+      ],
+      [
+       165,
+       "coherent",
+       "dead"
+      ],
+      [
+       195,
+       "coherent",
+       "dead"
+      ],
+      [
+       240,
+       "coherent",
+       "dead"
+      ],
+      [
+       256,
+       "coherent",
+       "dead"
+      ],
+      [
+       512,
+       "coherent",
+       "dead"
+      ],
+      [
+       1024,
+       "coherent",
+       "dead"
+      ],
+      [
+       2048,
+       "coherent",
+       "dead"
+      ],
+      [
+       3855,
+       "coherent",
+       "dead"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 438,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": true,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  }
+ },
+ "fields": {
+  "call.tail": {
+   "L_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 256,
+    "call.tail@cl_chain._agc.main+54": 256,
+    "call.tail@cl_leaf._agc.main+54": 256
+   },
+   "L_total": 768,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 1,
+    "call.tail@cl_chain._agc.main+54": 1,
+    "call.tail@cl_leaf._agc.main+54": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": [
+     "g17p_e0213_S1_cl_atomic",
+     "g17p_e0213_S2_cl_atomic"
+    ],
+    "call.tail@cl_chain._agc.main+54": [
+     "g17p_e0213_S1_cl_chain",
+     "g17p_e0213_S2_cl_chain"
+    ],
+    "call.tail@cl_leaf._agc.main+54": [
+     "g17p_e0213_S1_cl_leaf",
+     "g17p_e0213_S2_cl_leaf"
+    ]
+   },
+   "agreement_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 1.0,
+    "call.tail@cl_chain._agc.main+54": 1.0,
+    "call.tail@cl_leaf._agc.main+54": 1.0
+   },
+   "arms_inert": [
+    "call.tail@cl_atomic._agc.main+52",
+    "call.tail@cl_chain._agc.main+54",
+    "call.tail@cl_leaf._agc.main+54"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "call.tail@cl_chain._agc.main+54": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "call.tail@cl_leaf._agc.main+54": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "correct": 1536
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 256,
+    "call.tail@cl_chain._agc.main+54": 256,
+    "call.tail@cl_leaf._agc.main+54": 256
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": {},
+    "call.tail@cl_chain._agc.main+54": {},
+    "call.tail@cl_leaf._agc.main+54": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 1536,
+   "moved_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 0,
+    "call.tail@cl_chain._agc.main+54": 0,
+    "call.tail@cl_leaf._agc.main+54": 0
+   },
+   "n_arms": 3,
+   "semantic_models": {
+    "M1_inert": {
+     "checked": 1536,
+     "hit": 1536,
+     "miss": 0
+    },
+    "M2_exact": {
+     "checked": 1536,
+     "hit": 6,
+     "miss": 1530
+    },
+    "M3_low_bit": {
+     "checked": 1536,
+     "hit": 768,
+     "miss": 768
+    }
+   },
+   "surviving_models": [
+    "M1_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  },
+  "pop_reconverge.reserved": {
+   "L_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 52,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 52
+   },
+   "L_total": 104,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 1,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": [
+     "g17p_e0213_S1_cf_nl2",
+     "g17p_e0213_S2_cf_nl2"
+    ],
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": [
+     "g17p_e0213_S1_cl_atomic",
+     "g17p_e0213_S2_cl_atomic"
+    ]
+   },
+   "agreement_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 1.0,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 1.0
+   },
+   "arms_inert": [
+    "pop_reconverge.reserved@cf_nl2._agc.main+216",
+    "pop_reconverge.reserved@cl_atomic._agc.main+66"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "correct": 208
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 52,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 52
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": {},
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 208,
+   "moved_per_arm": {
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 0,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 0
+   },
+   "n_arms": 2,
+   "semantic_models": {
+    "M1_inert": {
+     "checked": 208,
+     "hit": 208,
+     "miss": 0
+    },
+    "M2_exact": {
+     "checked": 208,
+     "hit": 4,
+     "miss": 204
+    },
+    "M3_any_live": {
+     "checked": 208,
+     "hit": 4,
+     "miss": 204
+    }
+   },
+   "surviving_models": [
+    "M1_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  },
+  "pop_reconverge.scope": {
+   "L_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 256,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 256,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 256
+   },
+   "L_total": 768,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 1,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 1,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": [
+     "g17p_e0213_S1_cf_nl2",
+     "g17p_e0213_S2_cf_nl2"
+    ],
+    "pop_reconverge.scope@cf_nl2._agc.main+222": [
+     "g17p_e0213_S1_cf_nl2",
+     "g17p_e0213_S2_cf_nl2"
+    ],
+    "pop_reconverge.scope@cl_atomic._agc.main+66": [
+     "g17p_e0213_S1_cl_atomic",
+     "g17p_e0213_S2_cl_atomic"
+    ]
+   },
+   "agreement_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 1.0,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 1.0,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 1.0
+   },
+   "arms_inert": [
+    "pop_reconverge.scope@cf_nl2._agc.main+216",
+    "pop_reconverge.scope@cf_nl2._agc.main+222",
+    "pop_reconverge.scope@cl_atomic._agc.main+66"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M3_inert)",
+     "target": "G17P-direct"
+    },
+    "pop_reconverge.scope@cf_nl2._agc.main+222": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M3_inert)",
+     "target": "G17P-direct"
+    },
+    "pop_reconverge.scope@cl_atomic._agc.main+66": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M3_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "correct": 1536
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 256,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 256,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 256
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": {},
+    "pop_reconverge.scope@cf_nl2._agc.main+222": {},
+    "pop_reconverge.scope@cl_atomic._agc.main+66": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 1536,
+   "moved_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 0,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 0,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 0
+   },
+   "n_arms": 3,
+   "semantic_models": {
+    "M1_bank_bit5": {
+     "checked": 1536,
+     "hit": 768,
+     "miss": 768
+    },
+    "M2_low_nibble": {
+     "checked": 1536,
+     "hit": 96,
+     "miss": 1440
+    },
+    "M3_inert": {
+     "checked": 1536,
+     "hit": 1536,
+     "miss": 0
+    },
+    "M4_exact": {
+     "checked": 1536,
+     "hit": 6,
+     "miss": 1530
+    }
+   },
+   "surviving_models": [
+    "M3_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  },
+  "ret.scoreboard": {
+   "L_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 256
+   },
+   "L_total": 256,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": [
+     "g17p_e0213_S1_cl_chain",
+     "g17p_e0213_S2_cl_chain"
+    ]
+   },
+   "agreement_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 1.0
+   },
+   "arms_inert": [
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "bounded-map(2 models still survive: M1_wait_mask,M2_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "correct": 512
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 256
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 512,
+   "moved_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 0
+   },
+   "n_arms": 1,
+   "semantic_models": {
+    "M1_wait_mask": {
+     "checked": 2,
+     "hit": 2,
+     "miss": 0
+    },
+    "M2_inert": {
+     "checked": 512,
+     "hit": 512,
+     "miss": 0
+    },
+    "M3_exact": {
+     "checked": 512,
+     "hit": 2,
+     "miss": 510
+    }
+   },
+   "surviving_models": [
+    "M1_wait_mask",
+    "M2_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  },
+  "stop.reserved": {
+   "L_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 73,
+    "stop.reserved@cl_atomic._agc.main+124": 73,
+    "stop.reserved@cl_leaf._agc.main+88": 73
+   },
+   "L_total": 219,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 1,
+    "stop.reserved@cl_atomic._agc.main+124": 1,
+    "stop.reserved@cl_leaf._agc.main+88": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": [
+     "g17p_e0213_S1_cf_nl2",
+     "g17p_e0213_S2_cf_nl2"
+    ],
+    "stop.reserved@cl_atomic._agc.main+124": [
+     "g17p_e0213_S1_cl_atomic",
+     "g17p_e0213_S2_cl_atomic"
+    ],
+    "stop.reserved@cl_leaf._agc.main+88": [
+     "g17p_e0213_S1_cl_leaf",
+     "g17p_e0213_S2_cl_leaf"
+    ]
+   },
+   "agreement_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 1.0,
+    "stop.reserved@cl_atomic._agc.main+124": 1.0,
+    "stop.reserved@cl_leaf._agc.main+88": 1.0
+   },
+   "arms_inert": [
+    "stop.reserved@cf_nl2._agc.main+268",
+    "stop.reserved@cl_atomic._agc.main+124",
+    "stop.reserved@cl_leaf._agc.main+88"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "stop.reserved@cl_atomic._agc.main+124": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "stop.reserved@cl_leaf._agc.main+88": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "correct": 438
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 73,
+    "stop.reserved@cl_atomic._agc.main+124": 73,
+    "stop.reserved@cl_leaf._agc.main+88": 73
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": {},
+    "stop.reserved@cl_atomic._agc.main+124": {},
+    "stop.reserved@cl_leaf._agc.main+88": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 438,
+   "moved_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 0,
+    "stop.reserved@cl_atomic._agc.main+124": 0,
+    "stop.reserved@cl_leaf._agc.main+88": 0
+   },
+   "n_arms": 3,
+   "semantic_models": {
+    "M1_inert": {
+     "checked": 438,
+     "hit": 438,
+     "miss": 0
+    },
+    "M2_exact": {
+     "checked": 438,
+     "hit": 6,
+     "miss": 432
+    },
+    "M3_any_live": {
+     "checked": 438,
+     "hit": 6,
+     "miss": 432
+    }
+   },
+   "surviving_models": [
+    "M1_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  },
+  "stop.reserved@synth_mid": {
+   "L_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 73,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 73
+   },
+   "L_total": 146,
+   "V_max_per_arm": 1,
+   "V_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 1,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 1
+   },
+   "V_union": null,
+   "agreement_min": 1.0,
+   "agreement_pair_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": [
+     "g17p_e0213_S1_cl_chain",
+     "g17p_e0213_S2_cl_chain"
+    ],
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": [
+     "g17p_e0213_S1_cl_leaf",
+     "g17p_e0213_S2_cl_leaf"
+    ]
+   },
+   "agreement_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 1.0,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 1.0
+   },
+   "arms_inert": [
+    "stop.reserved@synth_mid@cl_chain._agc.main+50",
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50"
+   ],
+   "arms_promoted": [],
+   "arms_unresolved": [],
+   "axes_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 3 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    }
+   },
+   "buckets_total": {
+    "dead": 292
+   },
+   "contaminated_cases": 0,
+   "distinct_actual_encodings_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 73,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 73
+   },
+   "foreign_cascade_window_cases": 0,
+   "hard_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": {},
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": {}
+   },
+   "hard_total": {},
+   "ledger_bad_total": 0,
+   "ledger_ok_total": 292,
+   "moved_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 0,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 0
+   },
+   "n_arms": 2,
+   "semantic_models": {
+    "M1_inert": {
+     "checked": 292,
+     "hit": 292,
+     "miss": 0
+    },
+    "M2_exact": {
+     "checked": 292,
+     "hit": 4,
+     "miss": 288
+    },
+    "M3_any_live": {
+     "checked": 292,
+     "hit": 4,
+     "miss": 288
+    }
+   },
+   "surviving_models": [
+    "M1_inert"
+   ],
+   "verdict": "accepted-inert in tested envelope"
+  }
+ }
+}

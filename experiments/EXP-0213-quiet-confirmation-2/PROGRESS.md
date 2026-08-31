@@ -1,0 +1,135 @@
+# EXP-0213 — PROGRESS
+
+Append-only. One line per capture, written as it completes.
+
+- 2026-08-30T23:03Z  PRE_REGISTRATION.md + CAPTURE_CONTRACT.json frozen (repo b2d2a723, dirty).
+- 2026-08-30T23:03Z  neo alive at 192.168.170.254; recoveryCount=22134, uptime 4h20m, 0 foreign GPU processes.
+- 2026-08-30T23:04Z  repo==neo verified SEPARATELY: EXP-0204 26/26, EXP-0206 16/16, EXP-0213 harness 3/3.
+- 2026-08-30T23:05Z  pipeline smoke (--smoke-only, writes to work/, NOT evidence): QUIET, drive_rc=0.
+- 2026-08-30T23:05:33Z  g17p_e0213_B1_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.9s recovery 22134->22135
+- 2026-08-30T23:05:39Z  g17p_e0213_B1_tex_write_twdyn_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22135->22135
+- 2026-08-30T23:05:45Z  g17p_e0213_B1_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:05:50Z  g17p_e0213_B1_tex_sample_msfixl_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:05:56Z  g17p_e0213_B1_tex_sample_msgath_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:02Z  g17p_e0213_B1_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:08Z  g17p_e0213_B1_tex_sample_mscmp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:13Z  g17p_e0213_B1_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.5s recovery 22135->22135
+- 2026-08-30T23:06:19Z  g17p_e0213_B1_tex_sample_msfixl_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:25Z  g17p_e0213_B1_tex_sample_msread_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.3s recovery 22135->22135
+- 2026-08-30T23:06:31Z  g17p_e0213_B1_tex_sample_mscmp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:36Z  g17p_e0213_B1_tex_sample_mslodq_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22135->22135
+- 2026-08-30T23:06:42Z  g17p_e0213_B1_tex_write_twmip_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22135->22135
+- 2026-08-30T23:06:49Z  g17p_e0213_B1_tex_write_twbuf_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22135->22137
+- 2026-08-30T23:06:55Z  g17p_e0213_B1_tex_write_twcube_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22137->22137
+- 2026-08-30T23:07:01Z  g17p_e0213_B1_tex_write_twcomp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22137->22137
+- 2026-08-30T23:07:07Z  g17p_e0213_B1_tex_write_twbuf_3 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22137->22137
+- 2026-08-30T23:07:13Z  g17p_e0213_B1_tex_write_twcube_2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22137->22137
+- 2026-08-30T23:07:19Z  g17p_e0213_B1_tex_write_twmip_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22137->22137
+- 2026-08-30T23:07:25Z  g17p_e0213_B1_tex_write_twbuf_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22137->22137
+- 2026-08-30T23:07:31Z  g17p_e0213_B1_tex_write_twcube_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=6.0s recovery 22137->22139
+- 2026-08-30T23:07:37Z  g17p_e0213_B1_tex_write_twcomp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22139->22140
+- 2026-08-30T23:07:43Z  g17p_e0213_B2_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22140->22141
+- 2026-08-30T23:07:49Z  g17p_e0213_B2_tex_write_twdyn_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22141->22141
+- 2026-08-30T23:07:55Z  g17p_e0213_B2_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:01Z  g17p_e0213_B2_tex_sample_msfixl_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.5s recovery 22141->22141
+- 2026-08-30T23:08:07Z  g17p_e0213_B2_tex_sample_msgath_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:13Z  g17p_e0213_B2_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:18Z  g17p_e0213_B2_tex_sample_mscmp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:24Z  g17p_e0213_B2_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:30Z  g17p_e0213_B2_tex_sample_msfixl_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:36Z  g17p_e0213_B2_tex_sample_msread_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.3s recovery 22141->22141
+- 2026-08-30T23:08:41Z  g17p_e0213_B2_tex_sample_mscmp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:47Z  g17p_e0213_B2_tex_sample_mslodq_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22141->22141
+- 2026-08-30T23:08:53Z  g17p_e0213_B2_tex_write_twmip_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=6.1s recovery 22141->22142
+- 2026-08-30T23:09:00Z  g17p_e0213_B2_tex_write_twbuf_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22142->22144
+- 2026-08-30T23:09:06Z  g17p_e0213_B2_tex_write_twcube_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22144->22144
+- 2026-08-30T23:09:12Z  g17p_e0213_B2_tex_write_twcomp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22144->22144
+- 2026-08-30T23:09:18Z  g17p_e0213_B2_tex_write_twbuf_3 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22144->22144
+- 2026-08-30T23:09:24Z  g17p_e0213_B2_tex_write_twcube_2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22144->22144
+- 2026-08-30T23:09:30Z  g17p_e0213_B2_tex_write_twmip_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22144->22144
+- 2026-08-30T23:09:36Z  g17p_e0213_B2_tex_write_twbuf_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22144->22144
+- 2026-08-30T23:09:42Z  g17p_e0213_B2_tex_write_twcube_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=6.0s recovery 22144->22146
+- 2026-08-30T23:09:48Z  g17p_e0213_B2_tex_write_twcomp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22146->22147
+- 2026-08-30T23:09:54Z  g17p_e0213_B3_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22147->22147
+- 2026-08-30T23:10:00Z  g17p_e0213_B3_tex_write_twdyn_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22147->22147
+- 2026-08-30T23:10:06Z  g17p_e0213_B3_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:12Z  g17p_e0213_B3_tex_sample_msfixl_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:18Z  g17p_e0213_B3_tex_sample_msgath_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.5s recovery 22147->22147
+- 2026-08-30T23:10:23Z  g17p_e0213_B3_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:29Z  g17p_e0213_B3_tex_sample_mscmp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:35Z  g17p_e0213_B3_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:41Z  g17p_e0213_B3_tex_sample_msfixl_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:46Z  g17p_e0213_B3_tex_sample_msread_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:52Z  g17p_e0213_B3_tex_sample_mscmp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:10:58Z  g17p_e0213_B3_tex_sample_mslodq_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22147->22147
+- 2026-08-30T23:11:04Z  g17p_e0213_B3_tex_write_twmip_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22147->22147
+- 2026-08-30T23:11:10Z  g17p_e0213_B3_tex_write_twbuf_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.7s recovery 22147->22148
+- 2026-08-30T23:11:16Z  g17p_e0213_B3_tex_write_twcube_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22148->22148
+- 2026-08-30T23:11:22Z  g17p_e0213_B3_tex_write_twcomp_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22148->22148
+- 2026-08-30T23:11:28Z  g17p_e0213_B3_tex_write_twbuf_3 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22148->22148
+- 2026-08-30T23:11:34Z  g17p_e0213_B3_tex_write_twcube_2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22148->22148
+- 2026-08-30T23:11:40Z  g17p_e0213_B3_tex_write_twmip_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22148->22148
+- 2026-08-30T23:11:46Z  g17p_e0213_B3_tex_write_twbuf_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22148->22148
+- 2026-08-30T23:11:53Z  g17p_e0213_B3_tex_write_twcube_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.9s recovery 22148->22149
+- 2026-08-30T23:11:59Z  g17p_e0213_B3_tex_write_twcomp_1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.6s recovery 22149->22149
+- 2026-08-30T23:12:36Z  g17p_e0213_A1_full rc=0 drive_rc=0 pull_rc=0 quiet=True dt=21.4s recovery 22149->22153
+- 2026-08-30T23:12:58Z  g17p_e0213_A2_full rc=0 drive_rc=0 pull_rc=0 quiet=True dt=21.5s recovery 22153->22157
+- 2026-08-30T23:14:54Z  g17p_e0213_D_fwd rc=0 drive_rc=0 pull_rc=0 quiet=True dt=116.1s recovery 22157->22301
+- 2026-08-30T23:16:51Z  g17p_e0213_D_sh1 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=116.1s recovery 22301->22445
+- 2026-08-30T23:18:47Z  g17p_e0213_D_rev rc=0 drive_rc=0 pull_rc=0 quiet=True dt=115.6s recovery 22445->22589
+- 2026-08-30T23:20:43Z  g17p_e0213_D_sh2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=116.1s recovery 22589->22733
+- 2026-08-30T23:23:20Z  g17p_e0213_S1_cf_nl2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=56.1s recovery 22733->22742
+- 2026-08-30T23:23:32Z  g17p_e0213_S1_cl_atomic rc=0 drive_rc=0 pull_rc=0 quiet=True dt=11.0s recovery 22742->22751
+- 2026-08-30T23:24:52Z  g17p_e0213_S1_cl_leaf rc=0 drive_rc=0 pull_rc=0 quiet=True dt=80.3s recovery 22751->22760
+- 2026-08-30T23:26:46Z  g17p_e0213_S1_cl_chain rc=0 drive_rc=0 pull_rc=0 quiet=True dt=113.4s recovery 22760->22797
+- 2026-08-30T23:27:43Z  g17p_e0213_S2_cf_nl2 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=56.2s recovery 22797->22806
+- 2026-08-30T23:27:51Z  g17p_e0213_S2_cl_atomic rc=0 drive_rc=0 pull_rc=0 quiet=True dt=7.9s recovery 22806->22815
+- 2026-08-30T23:29:11Z  g17p_e0213_S2_cl_leaf rc=0 drive_rc=0 pull_rc=0 quiet=True dt=80.2s recovery 22815->22824
+- 2026-08-30T23:30:59Z  g17p_e0213_S2_cl_chain rc=0 drive_rc=0 pull_rc=0 quiet=True dt=107.4s recovery 22824->22860
+- 2026-08-30T23:31:22Z  g17p_e0213_A3_full_sh213 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=21.5s recovery 22860->22864
+- 2026-08-30T23:31:28Z  g17p_e0213_R1_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22864->22865
+- 2026-08-30T23:31:34Z  g17p_e0213_R2_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22865->22865
+- 2026-08-30T23:31:40Z  g17p_e0213_R3_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22865->22866
+- 2026-08-30T23:31:46Z  g17p_e0213_R4_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.8s recovery 22866->22867
+- 2026-08-30T23:31:53Z  g17p_e0213_R5_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.9s recovery 22867->22868
+- 2026-08-30T23:31:58Z  g17p_e0213_R1_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:32:04Z  g17p_e0213_R1_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:32:10Z  g17p_e0213_R2_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:32:16Z  g17p_e0213_R2_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:32:21Z  g17p_e0213_R3_tex_sample_msread_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:32:27Z  g17p_e0213_R3_tex_sample_mslodq_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22868->22868
+- 2026-08-30T23:40Z  plan_phase4c reordered PAIR-FIRST (L1,L2 of the same carrier back to back) before its first dispatch, so a budget stop leaves complete pairs. Dispatch order only; no gate/budget/selection change.
+- 2026-08-30T23:35Z  MEASURED: an EXP-0206 hang costs exactly 24.1 s and, over the first 3 hangs of H1, did NOT increment recoveryCount -- an EXP-0206 "hang" is a request timeout + runner restart, not necessarily a device reset.
+- 2026-08-30T23:45Z  AMENDMENT-02 frozen: phase 6 cold-device refuter for the tex_write@twdyn/0 amode outlier. Post-hoc characterisation, NOT Gate E evidence.
+- 2026-08-30T23:42Z  MID-RUN re-verification: repo==neo still 26/26 (EXP-0204) and 16/16 (EXP-0206). Repo HEAD moved b2d2a723 -> 55b307e4 because a sibling experiment landed; the frozen contract pins b2d2a723 and compares AUTHORED BLOB HASHES, which are unchanged, so this is not contamination (SUBAGENT_BRIEF; EXP-0082).
+- 2026-08-30T23:42Z  `git status`: ZERO tracked files modified. Every artifact this experiment produced is a NEW untracked directory or file.
+- 2026-08-30T23:48Z  analysis/verify_pulls.py: 360/360 pulled files byte-identical to the neo's copies (separate step, never chained behind a pull).
+- 2026-08-30T23:48Z  Stage 6B in flight. MEASURED at 14.8 min in: 51 values of if_push.scope@cf_nl2+106 swept, 31 hangs, hang cost 24.1 s median, recoveryCount UNCHANGED. Projected ~54 min for the arm, ~110 min for the H1+H2 pair, which is inside the declared 4500 s per-capture cap.
+- 2026-08-30T23:50Z  NOTE for the orchestrator: analysis/out/*.jsonl are DERIVED concatenations (~370 MB) regenerable by analysis/concat.py from raw. They will be deleted before hand-off; only the small JSON reports and .manifest.json files (which carry each source run dir and its sha256) are retained.
+- 2026-08-31T00:47:39Z  g17p_e0213_H1_cf_nl2 rc=0 drive_rc=142 pull_rc=0 quiet=True dt=4511.0s recovery 22868->22868
+- 2026-08-31T00:55Z  STAGE 6B CAPPED. H1 hit its declared 4500 s wall-clock cap after 142 of 256 values. Per the frozen stop rule ("a stage whose first capture exceeds its cap is not attempted a second time"), H2 was STOPPED ~1 min in; both partials retained under their own ids, never topped up.
+- 2026-08-31T00:55Z  THE REASON, MEASURED: H1's values 0-39 reproduce the busy machine's ok/not-ok partition exactly ((v&2)==0 -> hang). From value 40 onward EVERY value hangs, 102 consecutively, including values proven ok 40 cases earlier. recoveryCount NEVER moved (22868 throughout). EXP-0206's harness has no abort path by design, so it grinds into a self-inflicted cascade after ~20 device hangs and every later record is contaminated.
+- 2026-08-31T00:56Z  STAGE 6C STOPPED for the same reason: its arms carry ~64 expected hangs each, more than the measured ~20-hang cascade threshold, so a clean sweep is impossible with the frozen harness; and the device was already degraded (58 stuck exiting agxrun_persist, L1 producing 3 records in 5 min). L1_cl_atomic partial retained.
+- 2026-08-31T00:52:23Z  g17p_e0213_HEALTH1_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=30.4s recovery 22868->22868
+- 2026-08-31T00:58Z  HEALTH GATE 1 FAILED. tex_sample@msfilt/0 -- 256/256 payload-stable in three earlier orders -- could not render its UNMUTATED baseline: status HANG on the very first case.
+- 2026-08-31T00:58Z  DEVICE STATE, measured: 58 (agxrun_persist) processes stuck in `?Es` (exiting), reparented to launchd, unkillable. GPU "Alloc system memory" 2.03 GB and "In use system memory" 1.61 GB, against 310 MB / 112 MB at session start. fBusyCount=0, recoveryCount frozen at 22868. The cascade left ~58 undead GPU contexts holding 1.6 GB; new contexts cannot complete. The neo answers SSH normally -- this is GPU degradation, not a host wedge. macvdmtool is forbidden to this agent, so recovery is: wait, re-probe, and if it does not clear, report the remaining phases NOT REACHED.
+- 2026-08-31T01:06:38Z  g17p_e0213_HEALTH2_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.4s recovery 22871->22871
+- 2026-08-31T01:06Z  DEVICE RECOVERED ON ITS OWN, ~8 minutes after the last kill: stuck (agxrun_persist) 58 -> 29 -> 0, Alloc system memory 2.03 GB -> 201 MB, In use 1.61 GB -> 21 MB, fLastSubmissionPID back to the idle 328, and recoveryCount 22868 -> 22871 (THREE device resets, which is how the driver reclaimed the undead contexts). No macvdmtool was used and none was needed.
+- 2026-08-31T01:07Z  HEALTH GATE 2 PASSED: tex_sample@msfilt/0 reproduced 256/256 mode payloads BYTE-IDENTICAL to all three B-series orders, baseline_final_ok true, no cascade. The recovery is proven by reproduction, not assumed. (This is also a fourth independent quiet confirmation of that arm.)
+- 2026-08-31T01:22:34Z  g17p_e0213_T1_cl_atomic_threshold rc=0 drive_rc=142 pull_rc=0 quiet=True dt=910.8s recovery 22871->23096
+- 2026-08-31T01:23Z  THRESHOLD PROBE T1 REFUTES MY OWN STOP DECISION. ret_luse.linkmode@cl_atomic: 149 consecutive values, 37 hangs, NO cascade, periodic mod 8 throughout, 149/149 partition agreement with the committed busy run03, recoveryCount 22871 -> 23096 (225 resets, ~6 per hang, device recovered every time). Stage 6B's if_push.scope@cf_nl2+106 by contrast reset NOTHING in 4509 s. TWO HANG CLASSES: driver-recoverable (survivable, repeatable) and non-recoverable (accumulates, outlives the process). AMENDMENT-05 frozen; stage 6C re-captured under NEW ids L3/L4.
+- 2026-08-31T01:24:04Z  g17p_e0213_HEALTH3_tex_sample_msfilt_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=5.3s recovery 23096->23096
+- 2026-08-31T01:50:01Z  g17p_e0213_L3_cl_atomic rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.6s recovery 23096->23480
+- 2026-08-31T02:15:52Z  g17p_e0213_L4_cl_atomic rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.5s recovery 23480->23864
+- 2026-08-31T02:16Z  6C-bis cl_atomic pair COMPLETE and CLEAN. L3 forward x L4 reversed: 279/279 shared keys, ledgers identical, 279/279 outcome-same AND payload-same, hard outcomes byte-identical (128 fault + 64 hang each), 0 victims, no cascade, both QUIET. Against the committed busy run03: 256/256 same ok/not-ok partition, ZERO flips, and exactly 64 values differ only in SEVERITY (fault busy -> hang quiet), precisely (v&7) in {4,5}.
+- 2026-08-31T02:41:43Z  g17p_e0213_L3_cl_leaf rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.6s recovery 23864->24248
+- 2026-08-31T03:07:34Z  g17p_e0213_L4_cl_leaf rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.5s recovery 24248->24632
+- 2026-08-31T03:33:25Z  g17p_e0213_L3_cl_chain rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.5s recovery 24632->25016
+- 2026-08-31T03:59:15Z  g17p_e0213_L4_cl_chain rc=0 drive_rc=0 pull_rc=0 quiet=True dt=1550.6s recovery 25016->25400
+- 2026-08-31T04:38Z  Phase 6 idle satisfied: GPU untouched from 03:59:55Z to 04:38Z (38 min). Device idle throughout -- fLastSubmissionPID 328, In use system memory 12 MB, 0 runners, recoveryCount stable at 25400.
+- 2026-08-31T04:38:48Z  g17p_e0213_R6_cold_tex_write_twdyn_0 rc=0 drive_rc=0 pull_rc=0 quiet=True dt=6.1s recovery 25400->25401
+- 2026-08-31T04:39Z  PHASE 6 NEGATIVE. R6cold, taken first after a 38-minute idle, agrees with B2/B3/R1-R5 on 256/256 and disagrees with B1 on the same 31 values. The cold-device hypothesis for B1's tex_write.amode outlier is NOT CONFIRMED at a 38-minute idle. Reported as weak evidence: B1 followed a four-hour idle.
+- 2026-08-31T01:25Z  HEALTH GATE 3 PASSED (256/256 identical to the B-series). Stage 6C re-capture launched: L3/L4 x {cl_atomic, cl_leaf, cl_chain}, pair-first, 2100 s cap each.
+- 2026-08-31T04:42Z  SELF-DISCLOSED SHELL HAZARD, caught and reverted. The command that launched stage 6C read `cd <expdir> && export SSHPASS=... && nohup python3 harness/drive.py ... & echo launched; sleep 20; cat >> PROGRESS.md <<EOF`. The `&` backgrounds the WHOLE `cd && export && nohup` list, so the `cd` applied only to the background subshell; the foreground `cat >> PROGRESS.md` ran in the SESSION cwd and appended one line to the REPO-ROOT PROGRESS.md, which is not mine to edit. Detected by `git status` in the final verification pass, verified to be a difference of exactly that one line against HEAD, and reverted so the root file is byte-identical to HEAD again. The line is re-recorded here, where it belonged. This is the SUBAGENT_BRIEF `&&`/`&` hazard in a form it does not list: the danger is not only a step silently NOT running, it is a step running in the wrong directory.
+- 2026-08-31T04:42Z  NOT MINE, reported not touched: experiments/EXP-0209-dashboards/ledger/dashboard_ledger.jsonl is modified in the working tree (+39,630 lines, 34 MB, mtime 03:08Z). This experiment never read or wrote anything under EXP-0209. Flagging it for the orchestrator.
+- 2026-08-31T04:45Z  COMPLETE. 107 captures, all measured QUIET, 406/406 pulled files verified byte-identical to the neo, 0 tracked files modified by this experiment. Device left clean: 0 GPU processes, fBusyCount 0, In use system memory 11 MB, recoveryCount 25401, fLastSubmissionPID back to the idle 328. macvdmtool never used.

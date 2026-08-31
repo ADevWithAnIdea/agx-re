@@ -516,9 +516,44 @@ def read_ledger(path=LEDGER):
     return hi, n
 
 
+def _scores_digest(scores):
+    """Content hash of a run's scored rows, ignoring timestamp and run id."""
+    h = hashlib.sha256()
+    for dash, obs in sorted(scores.items()):
+        for key, (status, why, evid) in sorted(obs.items()):
+            h.update(("%s|%s|%s|%s\n" % (dash, key, status, rank(dash, status))).encode())
+    return h.hexdigest()
+
+
 def append_ledger(scores, run_id, path=LEDGER, meta=None):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    # The ledger is append-only BY DESIGN -- it is the monotonicity mechanism and
+    # `attained` is a max over its lines. But it appended ~6,525 lines on EVERY
+    # invocation, so merely INSPECTING the dashboards grew the evidence file: one
+    # session added 39,630 lines and 34 MB without a single score changing.
+    # Appending identical content adds no monotonic information, so skip it and
+    # say so. A run whose scores DIFFER in any row still appends in full.
+    digest = _scores_digest(scores)
+    if os.path.exists(path):
+        last = None
+        with open(path) as fh:
+            for line in fh:
+                try:
+                    rec = json.loads(line)
+                except Exception:
+                    continue
+                d = (rec.get("meta") or {}).get("scores_digest")
+                if d:
+                    last = d
+        if last == digest:
+            print("ledger: scores identical to the last recorded run (%s) -- "
+                  "nothing appended (inspection must not grow the evidence file)"
+                  % digest[:12])
+            return
+    meta = dict(meta or {})
+    meta["scores_digest"] = digest
     with open(path, "a") as fh:
         for dash, obs in sorted(scores.items()):
             for key, (status, why, evid) in sorted(obs.items()):
