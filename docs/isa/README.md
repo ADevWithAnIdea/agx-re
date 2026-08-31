@@ -1865,23 +1865,57 @@ and **2/2**. It is not a register by four independent tests — 384/384 encoding
 addend under both G17P seed sets, one scalar addend explains all 8 M4 lanes, and 2360/2361 are
 launch-stable.
 
-**Bounds an emitter must respect — these are not resolved:**
+**All four earlier bounds have now been dispatched (EXP-0219) — three SETTLED, one narrowed:**
 
-- **On G17P, byte+9 bit 1 and bit 3 are NOT separable.** Both are 0 in all five literal-mode values
-  and 1 in all six fetch-mode values ever dispatched there. *"The selector is bit 3"* is
-  **G16G-direct** (64/64 flip pairs for bit 3, 0/64 for bit 1); *"there is a selector in byte+9"*
-  is direct on both targets. Emit the whole byte pattern from a known-good anchor rather than
-  assuming bit 3 alone on G17P.
-- **Whether the fetch index is 5 bits or 8 is undecidable here** — 0 of 4086 scored cases separate
-  them, because this carrier's file reads 0 above half-index 31, making "index >= 32" and "addend
-  suppressed" the same observation.
-- **32-bit fetch as pairs `(K, K+1)` versus word `K>>1` is undecidable** — identical at even K, and
-  all 8 observed 32-bit fetches are at K = 12.
-- **The (byte+7 x byte+9) cross product was never dispatched.** Immediate mode across all 32 K is
-  **G16G-only**; on G17P it rests on 10 cases at K = 12.
+- **SETTLED: the selector is bit 3, and it is now G17P-DIRECT.** The whole low nibble was swept
+  (`b9 in 0x20..0x2f` x `K in 0..31` x 2 seed sets). Every `bit3 == 0` value gives `A = IMM8`
+  **64/64** — including **`0x22`**, which has bit 1 SET — and every `bit3 == 1` value gives
+  `A = FILE[K]` **64/64** — including **`0x2c`**, which has bit 1 CLEAR. Whole-model `sel = bit3`
+  scores **2054/2054** against **1040/2054** for `sel = bit1`. **Bits 1 and 2 are inert for the
+  addend across the entire cross product.**
+- **SETTLED: 32-bit fetch is a WORD, not a pair.** `word` scores 64/64 against `pair` 54/64 on one
+  carrier and 64/64 against 38/64 on another, and **all 36 discriminating odd-K cases say word**.
+  At K = 15 the destination is `0xB3D6BF95` — the carrier's own `-1e-7f`, recovered whole from an
+  **odd** index, which a `(K, K+1)` pairing cannot produce.
+- **SETTLED: the immediate branch is G17P-direct.** All 32 K at `b9 = 0x26` (64/64), and **all 256
+  immediate values** via `b8 = 0xd0..0xd7` (512/512 per carrier per run).
+- **NARROWED: the fetch index is AT LEAST 7 bits — the 5-bit reading is REFUTED, and the evidence
+  for it was a CARRIER ARTEFACT.** A purpose-built carrier with 48 constants (96 distinct
+  hand-chosen halves) reaches **half-index 75**, and fetch-mode sweeps return exactly what a
+  prediction from *our own MSL source* says should be there — **190/224 held out, both runs** —
+  while the same `b8` bits in *immediate* mode give `A = ((b8&7)<<5)|K` at **512/512**, proving
+  those bits reach the instruction. **The old carrier reproduces the "suppression above index 31"
+  artefact in the very same captures (0 of 512 non-zero): it was a property of that carrier's
+  constant file, not of the instruction.** Still open: **bit 2 of the index (values >= 128)**,
+  because no carrier's file reaches that far.
 
 Related, from the same analysis: **`db.json`'s `mulsel[0:3]` is one bit too wide** — byte+8's
 immediate high bits are 60/60 and bit 3 is not among them (8/8 flip pairs identical).
+
+
+### `tex_sample.mode` bit 6 — periodic in the DISPATCH INDEX, not nondeterministic (EXP-0219)
+
+**An emitter must not set bit 6.** That is the whole actionable rule; the rest is why.
+
+Bit 6 was previously read as instability — it caused every cross-order disagreement in an earlier
+Gate E attempt (53 of them, all at values with **bit 6 set and bit 3 clear**). It is not random.
+Repeating each value **inside one process** — a measurement nobody had made — shows the payload is
+a **strictly periodic function of the dispatch index**, smallest period **4 or 8**, over
+**240/240 sequences with 0 aperiodic**, confirmed **out of sample at N = 24** (divisible by 4 and 8
+but not 16). An interleaved run rotates the phase by one step per value, so **the phase follows the
+GLOBAL dispatch counter**, not the value.
+
+It is not our harness: with **one arm and one context** 32/32 are still unstable and 31/32 sit at
+period exactly 4, and the matched **bit6-CLEAR twin set is 0 of 33 on every arm of every capture**.
+
+**Bit 6 is live on 4 of 9 arms and inert on 5**, with the partition identical across all four
+captures. The best predicate is *a chain of >= 3 samples, not the last* — recorded **`INFERRED`**,
+with `mscmp/0` (first of a 2-chain, inert) named as the reason it is not stronger. Two of the inert
+arms are the **last `tex_sample` of a 3-chain**, which no prior experiment had ever armed.
+
+**Consequence for anyone re-testing this field: Gate E as payload-equality is UNMEETABLE for it on
+any machine, quiet or not.** What reproduces is the *partition* and the *period structure* — so
+score those, not the payload. **Semantics remain UNKNOWN.**
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
