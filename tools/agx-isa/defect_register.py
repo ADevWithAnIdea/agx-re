@@ -33,9 +33,49 @@ def scan():
             path, ln, body = line.split(":", 2)
         except ValueError:
             continue
+        # Never read the generated register itself: it lives in the tree, so a
+        # plain `git grep` finds its own rows and the file starts feeding on its
+        # own summaries. The count rose 93 -> 94 on the first run that did this,
+        # and several "primary sources" pointed at the register rather than at
+        # the evidence.
+        if os.path.normpath(path) == os.path.join("docs", "defect-register.md"):
+            continue
         for m in ID.finditer(body):
             out[m.group(0)].append((path, int(ln), body.strip()))
+    _extend_multiline(out)
     return out
+
+
+def _extend_multiline(found):
+    """Pull in following lines when a definition CONTINUES past the ID's line.
+
+    The first version was line-based, so it reported 6 defects as having "no
+    prose definition anywhere". They all had one -- it just continued onto the
+    next line, or the id sat at the end of its own line ("Recorded as
+    db_defects -> DEF-0153-1."). Scraping a line at a time and then calling the
+    result a gap in the RECORD blamed the corpus for a limitation of the tool.
+    """
+    want = collections.defaultdict(set)
+    for did, ms in found.items():
+        for path, ln, body in ms:
+            i = body.find(did)
+            if i >= 0 and len(body[i + len(did):].split()) < 8:
+                want[path].add((ln, did))
+    for path, entries in want.items():
+        full = os.path.join(ROOT, path)
+        try:
+            lines = open(full, encoding="utf-8", errors="replace").read().split("\n")
+        except Exception:
+            continue
+        for ln, did in entries:
+            tail = []
+            for k in range(ln, min(ln + 3, len(lines))):
+                nxt = lines[k].strip().lstrip("#").strip()
+                if not nxt or ID.search(nxt):
+                    break
+                tail.append(nxt)
+            if tail:
+                found[did].append((path, ln, did + " " + " ".join(tail)))
 
 
 def summarise(did, mentions):
