@@ -794,7 +794,17 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ledger", default=LEDGER)
-    ap.add_argument("--reports", default=REPORTS)
+    # DEF-0212-2, second instance. The LEDGER is append-only by design -- that is
+    # the monotonicity mechanism and appending to it is correct. The REPORTS
+    # directory is not: defaulting there meant every run silently rewrote a
+    # committed experiment's artifacts. Same fix as promotion_check.py: writing
+    # reports is opt-in, the ledger still appends, and the summary always prints.
+    ap.add_argument("--reports", default=os.path.join(ROOT, "work", "dashboard_reports"),
+                    help="write the per-dashboard reports here. Defaults to a SCRATCH "
+                         "path under work/, not into EXP-0209's committed reports/ -- "
+                         "that default meant every run silently rewrote a committed "
+                         "experiment's artifacts (DEF-0212-2, second instance). Pass "
+                         "EXP-0209's path explicitly to regenerate them deliberately.")
     ap.add_argument("--labels", default=None)
     ap.add_argument("--index-dir", default=None)
     ap.add_argument("--no-append", action="store_true",
