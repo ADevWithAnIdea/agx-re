@@ -1,0 +1,167 @@
+{
+ "authored_input_sha256": {
+  "PRE_REGISTRATION.md": "10e10c45f06ff6d4fe2d9e94d0822d64b1f62273e8d45bb2771b7395de0af7a9",
+  "harness/capture.sh": "d17da3bb3b3c147d738718ea499d6f49a1a5c341b50a537dc8dfb9c4cd09d581",
+  "harness/cases221.py": "b0b6875ed07172061e8b328bf4bf43ca0f0880ff6baab0a6ed48fbce9946ef5c",
+  "harness/gpusnap.py": "2a626bfd17d0531670636abf2bd2152cf8d366e01721c5b4377493cc81011f00",
+  "harness/neo.sh": "e24e3185beb2efabfa1b1858f764f32a0aa94ed4b8d90fc64f46924edd6c0bdc",
+  "harness/prog221.py": "ee23d9a0e314e26de27a057060846b78c3d0f76ebfc0ddb4b804cbcfb7532a4e",
+  "harness/pull_run.sh": "4bd05f02422bc2bd4a96337e73dc6a25f25e15c1a6226e8cac4e35e764dd8a6b",
+  "harness/push.sh": "7e6ce9faf775145a56926119823b3f8749ab2cc5244c37121e8428f15e1d29ac",
+  "harness/quietsample.py": "47e2829e6d990beab643bc992eaa438f27d27830f23c335b23fdad5a11bf78d2",
+  "harness/run221.py": "3583d3d7ff9dc147945de6afddc2674274742edf49f3303a0f981efb795b5b6f",
+  "harness/runner221.py": "556ebe8f72b1c5db970f58bab72441a5b086d1cd5d6d9fc138f832e9be84903e",
+  "harness/selftest221.py": "635ce71f0079840041a5aa6428ff72e1924be39fda0fe452e8847fc2df6acb7f",
+  "harness/synth221.py": "13028fb1c97e02235b9d5ee670c3f08b2a03e6d3fdac518371f80956cc8a8fad",
+  "harness/tgpilot.py": "29ad5ca887efdb0edc46a72016745662094e403c363a41cb3543048625d57600",
+  "kernels/carrier221.metal": "72197bda53afbba05add3b05009a954563250f5270d57218a9982affc3bbb0a7",
+  "kernels/carrier221_notg.metal": "f1fca2f84c0239946d00d1b7dbaf8a58d6dbf09435345a855ebffa3ad7d5a3ae",
+  "work/frozen/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "work/frozen/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "work/frozen/db.json": "e90c62cce215ef63c0e4a6878a042ef9530fc5447b18cb90dbf565ff8c85be2e",
+  "work/frozen/e141_m4_accepted_sets.json": "3acaecea1dbd2192e24d8ae72422b1a825e78ee93d360be5c3f5b4a08f56f320",
+  "work/frozen/isadb.py": "731e8a2f62189670dc47f8a663c02791110028ddf5e21d138165d0a6d2b245fc",
+  "work/frozen/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "carriers": {
+  "carrier221.metal": "16384 bytes of STATIC threadgroup memory",
+  "carrier221_notg.metal": "identical, NO threadgroup allocation (Phase-5 control)"
+ },
+ "case_matrix": {
+  "arms": {
+   "CTL": 9,
+   "D1-access_desc": 256,
+   "D1-addr_mode": 256,
+   "D1-elem_size": 256,
+   "D1-reserved13": 256,
+   "D1-reserved7": 256,
+   "D1-st_desc_hi": 64,
+   "D1-st_format_ext": 128,
+   "D2-space": 256,
+   "D3-extmode": 256,
+   "D4-index_reg": 256,
+   "D5-st_format": 256,
+   "L1-access_desc": 256,
+   "L1-addr_mode": 256,
+   "L1-dst_ext9": 128,
+   "L1-dst_lo": 4,
+   "L1-elem_size": 256,
+   "L1-ldform_hi11": 64,
+   "L1-reserved13": 256,
+   "L1-reserved7": 256,
+   "L1-space": 256,
+   "L2-extmode": 256,
+   "L3-ld_format": 64,
+   "L4-index_reg": 256,
+   "L5-base_slot": 256,
+   "S0": 8,
+   "S1-stop.reserved": 1178,
+   "T0-detection-power": 4,
+   "T1-tg-discovery": 792,
+   "T2-tg-negative-control": 8,
+   "T3-tg-address-law": 80,
+   "T4-tg-shape": 21
+  },
+  "n_cases_with_hazards": 7160,
+  "n_cases_without_hazards": 7122,
+  "n_hazard_cases": 38,
+  "predicted_buckets": {
+   "corrupt": 1130,
+   "exact": 4179,
+   "measure": 1849,
+   "refute": 2
+  }
+ },
+ "experiment": "EXP-0221-recipes-2",
+ "frozen_utc": "2026-08-31T08:07:24Z",
+ "gates": {
+  "A": {
+   "criterion": "requested bytes == bytes in the dispatched program, and an independent bit-extraction decode of those bytes returns the requested field values, for every instruction of every case",
+   "note": "section 3z does not apply as a precondition: no offset here is signature-derived",
+   "pass": "gate_a.n_bad == 0 over all cases; dispatched_bytes_verified true for all"
+  },
+  "B": {
+   "controls": [
+    "ctl_baseline",
+    "ctl_norun",
+    "ctl_move_j40/j41/j300",
+    "ctl_tripwire_pre (arm S)",
+    "tg_ctl_device00..03 (arm T)"
+   ],
+   "criterion": "every arm has a pre-registered control that MUST move the observable",
+   "pass": "all controls fire; a failed control makes its arm carrier-undecidable"
+  },
+  "C": {
+   "criterion": "every case carries a predicted bucket chosen before the run; arm T additionally carries a boolean expect_codeword",
+   "pass": "bucket_ok true for every gated case; codeword_prediction_ok true wherever expect_codeword is not null"
+  },
+  "D": {
+   "criterion": "zero fields tagged COPIED or CARRIER over every field of every instruction of every program, verified after REBUILDING every program from the frozen inputs and asserting sha256 against raw",
+   "pass": "total_COPIED == 0 and total_CARRIER == 0 and program_hash_mismatches == 0"
+  },
+  "E": {
+   "criterion": "two clean G17P runs in canonical and shuffled order with identical programs and buckets, on a MEASURED-quiet machine, with recoveryCount recorded pre/post and every hang classified driver-recoverable vs accumulating",
+   "note": "recoveryCount delta is RECORDED and attributed, not required to be zero: this matrix deliberately dispatches faulting encodings",
+   "pass": "0 program-hash disagreements, 0 bucket disagreements, 0 foreign dispatch runners in the quiet samples"
+  }
+ },
+ "hazard_budget": {
+  "declared_hazards": [
+   "index_reg & 0x7F in {96,97,100,111,112,120,127} (load and store)",
+   "device_store.extmode >= 252",
+   "stop.reserved & 0xFF in {0x0F, 0x8F}"
+  ],
+  "hangs_per_run": 24
+ },
+ "pre_registered_verdicts": {
+  "device_load": "evidence produced for four unlabelled fields; the LABEL is the orchestrator's and dashboard 4 cannot move without it",
+  "device_store": "stays generated-no-donor -- the pilot did NOT yield a shape-independent threadgroup recipe (PRE_REGISTRATION section 6.5)",
+  "stop": "evidence produced for stop.reserved over a structured 1178-value sample; same label caveat"
+ },
+ "prediction_source": {
+  "e141_m4_accepted_sets.json": "extracted mechanically from EXP-0141's committed raw/*/sweep.jsonl; used ONLY as the pre-registered cross-target PREDICTION, never to build a byte"
+ },
+ "repo_dirty_paths_at_prereg": [
+  "M experiments/EXP-0209-dashboards/ledger/dashboard_ledger.jsonl",
+  "?? experiments/EXP-0221-recipes-2/"
+ ],
+ "repo_head_at_prereg": "2502899c3a291954be38cc8cf062ecac71a9720c",
+ "runs_planned": [
+  {
+   "carrier": "carrier221.metal",
+   "order": "canonical",
+   "run": "g17p-<date>-run01"
+  },
+  {
+   "carrier": "carrier221.metal",
+   "order": "shuffle",
+   "run": "g17p-<date>-run02",
+   "seed": 221
+  },
+  {
+   "arms": [
+    "D2",
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "CTL"
+   ],
+   "carrier": "carrier221_notg.metal",
+   "order": "canonical",
+   "run": "g17p-<date>-notg"
+  }
+ ],
+ "stopping_rule": "every 8-bit domain dense 256/256; stop.reserved STRUCTURED 1178 of 16777216 and reported as sampled",
+ "target": {
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "device": "Apple A18 Pro",
+  "gpu": "AGXAcceleratorG17P",
+  "host": "192.168.170.254",
+  "model": "Mac17,5",
+  "nothing_ran_on": "M4 / G16G",
+  "os": "macOS 26.6"
+ }
+}

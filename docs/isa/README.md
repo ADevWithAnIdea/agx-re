@@ -1959,8 +1959,33 @@ emitter blocker; it stays open on the capability map.
 **What `device_store` covers:** all six `st_format` shapes byte-exactly (confirming element *n* =
 register `extmode/2 + n`), the full 256-value `addr_mode` sweep in **both** data-source classes,
 `extmode` 64/64 even 0..126, 30 index registers, 29 `idx_off` boundaries, all three bound slots.
-**NOT covered: the threadgroup address space** (4/4 `space` bit1 values fault against a device
-buffer — a carrier limit, not a hardware one) and **`extmode >= 128`**.
+**NOT covered: the threadgroup address space** — but **NOT for the reason EXP-0220 gave, and its
+claim is withdrawn.** EXP-0220's RESULTS said "threadgroup-space stores fault, 4 of 4"; **its own
+committed raw shows its `space` arm at 8 fault / 12 ok**, and a dense two-carrier sweep (EXP-0221)
+gives **64 of 256 faulting, exactly `space & 0x06 == 0x06`, byte-identical with and without a
+threadgroup allocation** — so the faults are not a threadgroup property at all. The threadgroup
+class **executes and writes the tile**, with an address law pre-registered as a boolean before the
+run and confirmed **80/80**: the codeword arrives iff **`load_idx_off == 4 x store_idx_off`** (8
+deliver, 72 silent), which is EXP-0100's 16-byte-store / 4-byte-load asymmetry measured on G17P
+**from bytes we generated** rather than by splicing Apple-emitted ones. `base_slot = 16` is the
+selector — exactly **one** store config of 792 delivered. **The real blocker is narrower: no single
+generated `device_load` reads the tile back.** Only a 16-entry bank of *differing* descriptors
+does — 0/14, 0/3,336 and 0/1,596 across three attempts. **`extmode >= 128` is CLOSED** (see below).
+
+
+### `device_store.extmode` is a 16-bit HALF-REGISTER index that WRAPS MOD 96 (EXP-0221)
+
+Even `2R` stores `r(R)`; **odd values straddle two registers**; and **the register index wraps
+mod 96** — `extmode` 192–255 reproduce 0–63 byte for byte, and `extmode` 191 reads r95's high half
+with r0's low half above it. This **closes EXP-0220's `extmode >= 128` gap** and refutes that
+experiment's own H6 (128 failures). One part is unresolved: the **odd-index top half is
+operand-provenance dependent**.
+
+**`index_reg` bit 7 is IGNORED on both load and store**, including the release side effect, and the
+fault set is identical on both: `(v & 0x7F) in 96..127` — i.e. values 96–127 and 224–255.
+
+**`stop.reserved` is inert over 1,178 structured values** (sampled, and said so). And **EXP-0206's
+control-flow-leader fault does NOT reproduce on G17P**: all six `0x0F`/`0x8F` bodies halted cleanly.
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

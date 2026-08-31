@@ -1,0 +1,600 @@
+{
+ "_db_defects": {
+  "device_store.extmode": {
+   "current_model": "extmode = 2*R (EXP-0090 finding_5 / EXP-0141 H10), bit 0 live but unexplained",
+   "evidence": "raw/g17p-20260831-run01 arm D3-extmode, target16 field",
+   "measured_here": "extmode is a 16-BIT HALF-REGISTER INDEX.  A 32-bit store reads the 32 bits starting at half index `extmode`: even 2R stores r(R) exactly; odd 2R+1 stores a word whose LOW half is r(R)'s HIGH half.  The register index WRAPS MOD 96 -- extmode 192..255 reproduce 0..63 byte for byte, and extmode 191 reads r95's high half with r0's low half above it.",
+   "unresolved": "the TOP half of an odd-index read follows the next half-register for mov_imm-written registers and reads ZERO for device_load-written ones.  Operand provenance, not an encoding bit -- section 6's required dimension."
+  },
+  "device_store.index_reg / device_load.index_reg": {
+   "evidence": "raw/g17p-20260831-run01 arms D4-index_reg, L4-index_reg",
+   "measured_here": "bit 7 is IGNORED for register selection AND for the store's index-register release side effect: index_reg 128+k behaves as r(k) in both.  EXP-0141 recorded the mirror for the LOAD; this experiment's own frozen oracle did not model it, which is why 117 cases are scored as Gate C failures rather than retro-edited."
+  },
+  "device_store.space bit 1 (threadgroup)": {
+   "evidence": "raw/g17p-20260831-{run01,run02,notg} arms T0..T4, D2-space",
+   "measured_here": "EXP-0220's four faults are a CARRIER property: with a static tile declared the same encodings execute; without one they fault.  A generated threadgroup store at store idx_off k is read back by a generated threadgroup load at load idx_off 4k and at no other offset.",
+   "unresolved": "the round trip is not shape-independent, so this is NOT a recipe and device_store stays generated-no-donor."
+  },
+  "stop.reserved": {
+   "caveat": "1,178 of 16,777,216 is a SAMPLE, not a sweep.",
+   "current_label": "untested",
+   "evidence": "raw/g17p-20260831-run01 arm S1-stop.reserved",
+   "measured_here": "inert over 1,178 structured values INCLUDING the six control-flow-leader bodies EXP-0206 recorded as faulting: on G17P in this carrier they do not fault and the program still halts.  Inertness is measured against a POST-STOP TRIPWIRE store, whose paired pre-stop control fires."
+  }
+ },
+ "device_load.access_desc": {
+  "accepted_G17P": "0-255",
+  "arm": "L1-access_desc",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.addr_mode": {
+  "accepted_G17P": "0-255",
+  "arm": "L1-addr_mode",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.base_slot": {
+  "accepted_G17P": "0-2,128-130",
+  "arm": "L5-base_slot",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "0,2,128,130",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 6,
+   "identical": false,
+   "m4_accepted_count": 2
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": false,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "ORACLE-LIMITED: 250 of 256 cases are `unpredicted` because this experiment's frozen host model was narrower than the field's real behaviour.  The `accepted` count here is ORACLE COVERAGE, not an acceptance measurement, and must not be read as one.",
+  "range": "256 of 256 dispatched (DENSE); 6 accepted, 250 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.dst_ext9": {
+  "accepted_G17P": "1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,75,77,79,81,83,85,87,89,91,93,95,97,99,101,103,105,107,109,111,113,115,117,119,121,123,125,127",
+  "arm": "L1-dst_ext9",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 64,
+   "identical": true,
+   "m4_accepted_count": 64
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "128 of 128 dispatched (DENSE); 64 accepted, 64 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.dst_lo": {
+  "accepted_G17P": "1",
+  "arm": "L1-dst_lo",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 1,
+   "identical": true,
+   "m4_accepted_count": 1
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "4 of 4 dispatched (DENSE); 1 accepted, 3 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.elem_size": {
+  "accepted_G17P": "64,66,68-70,72,74,76,78-80,82,84,86,88,90,92,94,128,130-132,134,136,138-144,146,148,150,152,154,156,158,192,194-196,198,200,202,204,206-208,210,212,214,216,218,220,222",
+  "arm": "L1-elem_size",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "69,79,131,139,141,143,195,207",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 56,
+   "identical": false,
+   "m4_accepted_count": 48
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 56 accepted, 200 not accepted, 32 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.extmode": {
+  "accepted_G17P": "0,30",
+  "arm": "L2-extmode",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "1-29,31-127",
+   "g17p_accepted_count": 2,
+   "identical": false,
+   "m4_accepted_count": 128
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": false,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "ORACLE-LIMITED: 186 of 256 cases are `unpredicted` because this experiment's frozen host model was narrower than the field's real behaviour.  The `accepted` count here is ORACLE COVERAGE, not an acceptance measurement, and must not be read as one.",
+  "range": "256 of 256 dispatched (DENSE); 2 accepted, 254 not accepted, 4 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.index_reg": {
+  "accepted_G17P": "0-95,128,138,143,152-223",
+  "arm": "L4-index_reg",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "10,138",
+   "accepted_on_M4_not_G17P": "129-137,139-142,144-151",
+   "g17p_accepted_count": 171,
+   "identical": false,
+   "m4_accepted_count": 190
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 171 accepted, 85 not accepted, 64 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.ld_format": {
+  "accepted_G17P": "17",
+  "arm": "L3-ld_format",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "3,7,9,13,19,21,23,25,27,29,31,39,49,51,53,55,57,59,61,63",
+   "g17p_accepted_count": 1,
+   "identical": false,
+   "m4_accepted_count": 21
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": false,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "ORACLE-LIMITED: 28 of 64 cases are `unpredicted` because this experiment's frozen host model was narrower than the field's real behaviour.  The `accepted` count here is ORACLE COVERAGE, not an acceptance measurement, and must not be read as one.",
+  "range": "64 of 64 dispatched (DENSE); 1 accepted, 63 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.ldform_hi11": {
+  "accepted_G17P": "0,8,16,24,32,40,48,56",
+  "arm": "L1-ldform_hi11",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 8,
+   "identical": true,
+   "m4_accepted_count": 8
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "64 of 64 dispatched (DENSE); 8 accepted, 56 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.reserved13": {
+  "accepted_G17P": "0-255",
+  "arm": "L1-reserved13",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.reserved7": {
+  "accepted_G17P": "0-255",
+  "arm": "L1-reserved7",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_load.space": {
+  "accepted_G17P": "0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,232,236,240,244,248,252",
+  "arm": "L1-space",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 64,
+   "identical": true,
+   "m4_accepted_count": 64
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 64 accepted, 192 not accepted, 55 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.access_desc": {
+  "accepted_G17P": "0-255",
+  "arm": "D1-access_desc",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.addr_mode": {
+  "accepted_G17P": "0-255",
+  "arm": "D1-addr_mode",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "0-1,4-5,8-9,12-13,16-17,20-21,24-25,28-29,32-33,36-37,40-41,44-45,48-49,52-53,56-57,60-61,64-65,68-69,72-73,76-77,80-81,84-85,88-89,92-93,96-97,100-101,104-105,108-109,112-113,116-117,120-121,124-125,128-129,132-133,136-137,140-141,144-145,148-149,152-153,156-157,160-161,164-165,168-169,172-173,176-177,180-181,184-185,188-189,192-193,196-197,200-201,204-205,208-209,212-213,216-217,220-221,224-225,228-229,232-233,236-237,240-241,244-245,248-249,252-253",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": false,
+   "m4_accepted_count": 128
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.elem_size": {
+  "accepted_G17P": "16-23,32-39,48-55,80-87,96-103,112-119,144-151,160-167,176-183,208-215,224-231,240-247",
+  "arm": "D1-elem_size",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 96,
+   "identical": true,
+   "m4_accepted_count": 96
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 96 accepted, 160 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.extmode": {
+  "accepted_G17P": "0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126",
+  "arm": "D3-extmode",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 64,
+   "identical": null,
+   "m4_accepted_count": 0
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 64 accepted, 192 not accepted, 4 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.index_reg": {
+  "accepted_G17P": "0-95",
+  "arm": "D4-index_reg",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "0-95",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 96,
+   "identical": null,
+   "m4_accepted_count": 0
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 96 accepted, 160 not accepted, 64 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.reserved13": {
+  "accepted_G17P": "0-255",
+  "arm": "D1-reserved13",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.reserved7": {
+  "accepted_G17P": "0-255",
+  "arm": "D1-reserved7",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 256,
+   "identical": true,
+   "m4_accepted_count": 256
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 256 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "semantically-mapped",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.space": {
+  "accepted_G17P": "0-5,8-13,16-21,24-29,32-37,40-45,48-53,56-61,64-69,72-77,80-85,88-93,96-101,104-109,112-117,120-125,128-133,136-141,144-149,152-157,160-165,168-173,176-181,184-189,192-197,200-205,208-213,216-221,224-229,232-237,240-245,248-253",
+  "arm": "D2-space",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "2-3,10-11,18-19,26-27,34-35,42-43,50-51,58-59,66-67,74-75,82-83,90-91,98-99,106-107,114-115,122-123,130-131,138-139,146-147,154-155,162-163,170-171,178-179,186-187,194-195,202-203,210-211,218-219,226-227,234-235,242-243,250-251",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 192,
+   "identical": false,
+   "m4_accepted_count": 128
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 192 accepted, 64 not accepted, 64 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.st_desc_hi": {
+  "accepted_G17P": "0,2,4,6,8,10,12,14,32,34,36,38,40,42,44,46",
+  "arm": "D1-st_desc_hi",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 16,
+   "identical": true,
+   "m4_accepted_count": 16
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "64 of 64 dispatched (DENSE); 16 accepted, 48 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.st_format": {
+  "accepted_G17P": "0-1,16-17,23,25,29,32-33,48,64,80,96,112,128,144,160,176,192,208,224,240",
+  "arm": "D5-st_format",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "0-1,16,32-33,48,64,80,96,112,128,144,160,176,192,208,224,240",
+   "accepted_on_M4_not_G17P": "3,7,9,13,19,21,27,31,39,49,51,53,55,57,59,61,63,67,71,73,77,81,83,85,87,89,91,93,95,103,113,115,117,119,121,123,125,127,131,135,137,141,145,147,149,151,153,155,157,159,167,177,179,181,183,185,187,189,191,195,199,201,205,209,211,213,215,217,219,221,223,231,241,243,245,247,249,251,253,255",
+   "g17p_accepted_count": 22,
+   "identical": false,
+   "m4_accepted_count": 84
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "256 of 256 dispatched (DENSE); 22 accepted, 234 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "device_store.st_format_ext": {
+  "accepted_G17P": "0-31",
+  "arm": "D1-st_format_ext",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": "",
+   "accepted_on_M4_not_G17P": "",
+   "g17p_accepted_count": 32,
+   "identical": true,
+   "m4_accepted_count": 32
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "geometry-mapped",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "128 of 128 dispatched (DENSE); 32 accepted, 96 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ },
+ "stop.reserved": {
+  "accepted_G17P": "0-256,512,768,1024,1280,1536,1792,2048,2304,2560,2816,3072,3328,3584,3840,4096,4352,4608,4864,5120,5376,5632,5888,6144,6400,6656,6912,7168,7424,7680,7936,8192,8448,8704,8960,9216,9472,9728,9984,10240,10496,10752,11008,11264,11520,11776,12032,12288,12544,12800,13056,13312,13568,13824,14080,14336,14592,14848,15104,15360,15616,15872,16128,16384,16640,16896,17152,17408,17664,17920,18176,18432,18688,18944,19200,19456,19712,19968,20224,20480,20736,20992,21248,21504,21760,22016,22272,22528,22784,23040,23296,23552,23808,24064,24320,24576,24832,25088,25344,25600,25856,26112,26368,26624,26880,27136,27392,27648,27904,28160,28416,28672,28928,29184,29440,29696,29952,30208,30464,30720,30764,30976,31232,31488,31744,32000,32256,32512,32768,33024,33280,33536,33792,34048,34304,34560,34816,35072,35328,35584,35840,36096,36352,36608,36864,37120,37376,37632,37888,38144,38400,38656,38912,39168,39424,39680,39936,40192,40448,40704,40960,41216,41472,41728,41984,42240,42496,42752,43008,43264,43520,43776,44032,44288,44544,44800,45056,45312,45568,45824,46080,46336,46592,46848,47104,47360,47616,47872,48128,48384,48640,48896,49152,49408,49664,49920,50176,50432,50688,50944,51200,51456,51712,51968,52224,52480,52736,52992,53248,53504,53760,54016,54272,54528,54784,55040,55296,55552,55808,56064,56320,56576,56832,57088,57344,57600,57856,58112,58368,58624,58880,59136,59392,59648,59904,60160,60416,60672,60928,61184,61440,61696,61952,62208,62464,62720,62976,63232,63488,63744,64000,64256,64512,64768,65024,65280,65536,96561,131072,196608,230374,262144,308080,327680,393216,412071,458752,477370,524288,534667,589824,600470,655360,709212,720896,786432,851968,910026,917504,923904,983040,989213,1048576,1114112,1172253,1179648,1245184,1251786,1310720,1321308,1376256,1441792,1495947,1507328,1572864,1618599,1638400,1703936,1722480,1743266,1769472,1835008,1900544,1931494,1943860,1966080,2031616,2064945,2097152,2142473,2162688,2228224,2247646,2293760,2312899,2359296,2390613,2424832,2456392,2490368,2555904,2589087,2621",
+  "arm": "S1-stop.reserved",
+  "cross_target": {
+   "accepted_on_G17P_not_M4": null,
+   "accepted_on_M4_not_G17P": null,
+   "g17p_accepted_count": null,
+   "identical": null,
+   "m4_accepted_count": null
+  },
+  "evidence": [
+   "EXP-0221"
+  ],
+  "exact_is_acceptance": true,
+  "geometry": "ledger-verified",
+  "liveness": "decided-one-carrier",
+  "note": "",
+  "range": "1178 of 16777216 dispatched (SAMPLED); 1178 accepted, 0 not accepted, 0 faulted or hung",
+  "recipe": "generated-no-donor",
+  "reproducibility": "independently-confirmed",
+  "semantics": "bounded-map",
+  "target": "G17P-direct-repeated"
+ }
+}

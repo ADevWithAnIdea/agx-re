@@ -1,0 +1,532 @@
+{
+ "runs": {
+  "g17p-20260831-notg": {
+   "assemble_calls_per_mnemonic": {
+    "device_load": 17660,
+    "device_store": 30389,
+    "falu2": 2265,
+    "mov_imm": 1555798,
+    "stop": 1178
+   },
+   "carrier": "carrier221_notg.metal",
+   "carrier_agc_main_len": 3228,
+   "cases_in_raw": 1178,
+   "cases_rebuilt": 1178,
+   "citations_per_field": {
+    "device_load.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_load.addr_mode": [
+     "EXP-0141 inert 256/256 on this shape; G17P-confirmed at 0,0xA5,0xFF (EXP-0167 frozen_pilot)"
+    ],
+    "device_load.base_slot": [
+     "EXP-0220 arm S0 / EXP-0221 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_load.dst_ext9": [
+     "EXP-0141 EXACT rule dst_ext9 & 0x01 == 0x01"
+    ],
+    "device_load.dst_lo": [
+     "EXP-0141 EXACT rule dst_lo & 0x03 == 0x01"
+    ],
+    "device_load.elem_size": [
+     "EXP-0082 elem_size = 0x40 | (code<<1)"
+    ],
+    "device_load.extmode": [
+     "EXP-0101 H1 + EXP-0141: extmode = 2*R, bit0 don't-care"
+    ],
+    "device_load.idx_off": [
+     "EXP-0082 load address formula"
+    ],
+    "device_load.index_reg": [
+     "EXP-0141 index GPR selector, r0..r95 valid"
+    ],
+    "device_load.ld_format": [
+     "EXP-0167 frozen_pilot DL_LDFORMAT_ONE_REGISTER (G17P): 17 and 49 deliver the addressed word to the extmode target and write no other register"
+    ],
+    "device_load.ldform_hi11": [
+     "EXP-0141 exact rule v&0x07==0; G17P-confirmed at 0,24,56"
+    ],
+    "device_load.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.space": [
+     "EXP-0141 exact rule v&0x03==0 (G17P-confirmed set, EXP-0167 frozen_pilot DL_FIELD_OK)"
+    ],
+    "device_store.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_store.addr_mode": [
+     "EXP-0141: byte+2 bit1 is the DATA-SOURCE selector -- clear = ALU-computed (inert 256/256), set = REQUIRED for a live load-result forward"
+    ],
+    "device_store.base_slot": [
+     "EXP-0220 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_store.elem_size": [
+     "EXP-0141: 96 of 256 store correctly; G17P-confirmed set {17,23,39,55} (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.extmode": [
+     "EXP-0090 finding_5 / EXP-0141 H10: extmode>>1 = source register"
+    ],
+    "device_store.idx_off": [
+     "EXP-0082 store address formula (16-byte unit)"
+    ],
+    "device_store.index_reg": [
+     "EXP-0092/EXP-0141 index GPR 0..95"
+    ],
+    "device_store.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.space": [
+     "EXP-0141 exact rule v&0x02==0 (device space); G17P-confirmed at 0,20,252 (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.st_desc_hi": [
+     "EXP-0141 exact rule v&0x11==0; G17P-confirmed at 0,10,46"
+    ],
+    "device_store.st_format": [
+     "db.json st_format enum + EXP-0141: 17 = 32-bit scalar"
+    ],
+    "device_store.st_format_ext": [
+     "EXP-0141 exact rule v&0x60==0; G17P-confirmed at 0,31"
+    ],
+    "falu2.ctrl": [
+     "EXP-0119: ctrl bits 0/1 are the INSTRUCTION-LENGTH selector -- 0 selects the 6-byte form; bits 5/6 corrupt (EXP-0113)"
+    ],
+    "falu2.dst": [
+     "EXP-0090/EXP-0112 dst nibble r0..r15"
+    ],
+    "falu2.mod_hi": [
+     "EXP-0167 frozen_pilot (G17P): ALU-sourced operand -> the eight EVEN values deliver the correct result (bit0 must be 0); LOAD-sourced operand -> 0xC is the only working value (EXP-0101 H1)"
+    ],
+    "falu2.opflags": [
+     "EXP-0086/0089/0099/0119 lifetime bits: bit0 release src0, bit2 destination publication; bits 3/4 are silent corruptors (EXP-0105).  BIT1 IS OPERAND-CLASS DEPENDENT (EXP-0220 D7/D8, G17P): with a GPR srcB it releases that register (the register then reads 0); with a non-GPR/inline srcB it NEGATES the immediate, XORing with srcB_neg"
+    ],
+    "falu2.opsel": [
+     "EXP-0003/EXP-0005 opsel enum (4=fadd, 5=fmul)"
+    ],
+    "falu2.srcA_class": [
+     "EXP-0138 source-class model: 0 = srcA reads the GPR file"
+    ],
+    "falu2.srcA_reg": [
+     "EXP-0099/EXP-0105: 6-bit source register"
+    ],
+    "falu2.srcA_reg_top": [
+     "EXP-0099/0105/0113/0119 HW-TESTED INERT top bit (six families)"
+    ],
+    "falu2.srcA_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half (EXP-0006 HW-validated)"
+    ],
+    "falu2.srcB_class": [
+     "EXP-0138 source-class model: 0 = GPR, 1 = non-GPR file / inline immediate, 2 and 3 read 0.0 (bit2 dominates bit1)"
+    ],
+    "falu2.srcB_imm": [
+     "db.json bit39 = 0: not the falu2i packed-immediate overload"
+    ],
+    "falu2.srcB_neg": [
+     "EXP-M4-10 / EXP-0006: srcB negate bit"
+    ],
+    "falu2.srcB_reg": [
+     "EXP-0099/EXP-0119 6-bit source register; in srcB_class 1 the index 64..127 is EXP-0138's inline 8-bit minifloat"
+    ],
+    "falu2.srcB_reg_top": [
+     "EXP-0099 inert in GPR mode; EXP-0138 SS3: LIVE in srcB_class 1, where it selects the inline-immediate half of the file"
+    ],
+    "falu2.srcB_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half"
+    ],
+    "mov_imm.dst": [
+     "EXP-0031/EXP-0140 mov_imm.dst 0..15 dense"
+    ],
+    "mov_imm.imm7": [
+     "EXP-0031/EXP-0140 imm7 0..127 load-bearing"
+    ],
+    "mov_imm.imm_top": [
+     "EXP-0140 imm_top=1 suppresses the write"
+    ],
+    "stop.reserved": [
+     "EXP-0003/EXP-0010 E4 inert 24-bit pad; EXP-0206 G17P: inert over 73 sampled values on three carriers, control-flow leaders excluded",
+     "EXP-0221 arm S: the 24-bit body is SWEPT on G17P against a post-stop tripwire store, so the accepted set is measured in this experiment rather than inherited from EXP-0206's 73 sampled values"
+    ]
+   },
+   "field_emissions_by_provenance": {
+    "device_load": {
+     "FREE": 105960,
+     "RULE": 141280
+    },
+    "device_store": {
+     "FREE": 243112,
+     "RULE": 151945
+    },
+    "falu2": {
+     "RULE": 33975
+    },
+    "mov_imm": {
+     "RULE": 4667394
+    },
+    "stop": {
+     "FREE": 1178
+    }
+   },
+   "program_hash_mismatches": [],
+   "total_CARRIER": 0,
+   "total_COPIED": 0
+  },
+  "g17p-20260831-run01": {
+   "assemble_calls_per_mnemonic": {
+    "device_load": 93194,
+    "device_store": 183357,
+    "falu2": 10385,
+    "mov_imm": 11142948,
+    "stop": 7160
+   },
+   "carrier": "carrier221.metal",
+   "carrier_agc_main_len": 3666,
+   "cases_in_raw": 7160,
+   "cases_rebuilt": 7160,
+   "citations_per_field": {
+    "device_load.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_load.addr_mode": [
+     "EXP-0141 inert 256/256 on this shape; G17P-confirmed at 0,0xA5,0xFF (EXP-0167 frozen_pilot)"
+    ],
+    "device_load.base_slot": [
+     "EXP-0220 arm S0 / EXP-0221 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_load.dst_ext9": [
+     "EXP-0141 EXACT rule dst_ext9 & 0x01 == 0x01"
+    ],
+    "device_load.dst_lo": [
+     "EXP-0141 EXACT rule dst_lo & 0x03 == 0x01"
+    ],
+    "device_load.elem_size": [
+     "EXP-0082 elem_size = 0x40 | (code<<1)"
+    ],
+    "device_load.extmode": [
+     "EXP-0101 H1 + EXP-0141: extmode = 2*R, bit0 don't-care"
+    ],
+    "device_load.idx_off": [
+     "EXP-0082 load address formula"
+    ],
+    "device_load.index_reg": [
+     "EXP-0141 index GPR selector, r0..r95 valid"
+    ],
+    "device_load.ld_format": [
+     "EXP-0167 frozen_pilot DL_LDFORMAT_ONE_REGISTER (G17P): 17 and 49 deliver the addressed word to the extmode target and write no other register"
+    ],
+    "device_load.ldform_hi11": [
+     "EXP-0141 exact rule v&0x07==0; G17P-confirmed at 0,24,56"
+    ],
+    "device_load.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.space": [
+     "EXP-0141 exact rule v&0x03==0 (G17P-confirmed set, EXP-0167 frozen_pilot DL_FIELD_OK)"
+    ],
+    "device_store.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_store.addr_mode": [
+     "EXP-0141: byte+2 bit1 is the DATA-SOURCE selector -- clear = ALU-computed (inert 256/256), set = REQUIRED for a live load-result forward"
+    ],
+    "device_store.base_slot": [
+     "EXP-0220 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_store.elem_size": [
+     "EXP-0141: 96 of 256 store correctly; G17P-confirmed set {17,23,39,55} (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.extmode": [
+     "EXP-0090 finding_5 / EXP-0141 H10: extmode>>1 = source register"
+    ],
+    "device_store.idx_off": [
+     "EXP-0082 store address formula (16-byte unit)"
+    ],
+    "device_store.index_reg": [
+     "EXP-0092/EXP-0141 index GPR 0..95"
+    ],
+    "device_store.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.space": [
+     "EXP-0141 exact rule v&0x02==0 (device space); G17P-confirmed at 0,20,252 (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.st_desc_hi": [
+     "EXP-0141 exact rule v&0x11==0; G17P-confirmed at 0,10,46"
+    ],
+    "device_store.st_format": [
+     "db.json st_format enum + EXP-0141: 17 = 32-bit scalar"
+    ],
+    "device_store.st_format_ext": [
+     "EXP-0141 exact rule v&0x60==0; G17P-confirmed at 0,31"
+    ],
+    "falu2.ctrl": [
+     "EXP-0119: ctrl bits 0/1 are the INSTRUCTION-LENGTH selector -- 0 selects the 6-byte form; bits 5/6 corrupt (EXP-0113)"
+    ],
+    "falu2.dst": [
+     "EXP-0090/EXP-0112 dst nibble r0..r15"
+    ],
+    "falu2.mod_hi": [
+     "EXP-0167 frozen_pilot (G17P): ALU-sourced operand -> the eight EVEN values deliver the correct result (bit0 must be 0); LOAD-sourced operand -> 0xC is the only working value (EXP-0101 H1)"
+    ],
+    "falu2.opflags": [
+     "EXP-0086/0089/0099/0119 lifetime bits: bit0 release src0, bit2 destination publication; bits 3/4 are silent corruptors (EXP-0105).  BIT1 IS OPERAND-CLASS DEPENDENT (EXP-0220 D7/D8, G17P): with a GPR srcB it releases that register (the register then reads 0); with a non-GPR/inline srcB it NEGATES the immediate, XORing with srcB_neg"
+    ],
+    "falu2.opsel": [
+     "EXP-0003/EXP-0005 opsel enum (4=fadd, 5=fmul)"
+    ],
+    "falu2.srcA_class": [
+     "EXP-0138 source-class model: 0 = srcA reads the GPR file"
+    ],
+    "falu2.srcA_reg": [
+     "EXP-0099/EXP-0105: 6-bit source register"
+    ],
+    "falu2.srcA_reg_top": [
+     "EXP-0099/0105/0113/0119 HW-TESTED INERT top bit (six families)"
+    ],
+    "falu2.srcA_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half (EXP-0006 HW-validated)"
+    ],
+    "falu2.srcB_class": [
+     "EXP-0138 source-class model: 0 = GPR, 1 = non-GPR file / inline immediate, 2 and 3 read 0.0 (bit2 dominates bit1)"
+    ],
+    "falu2.srcB_imm": [
+     "db.json bit39 = 0: not the falu2i packed-immediate overload"
+    ],
+    "falu2.srcB_neg": [
+     "EXP-M4-10 / EXP-0006: srcB negate bit"
+    ],
+    "falu2.srcB_reg": [
+     "EXP-0099/EXP-0119 6-bit source register; in srcB_class 1 the index 64..127 is EXP-0138's inline 8-bit minifloat"
+    ],
+    "falu2.srcB_reg_top": [
+     "EXP-0099 inert in GPR mode; EXP-0138 SS3: LIVE in srcB_class 1, where it selects the inline-immediate half of the file"
+    ],
+    "falu2.srcB_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half"
+    ],
+    "mov_imm.dst": [
+     "EXP-0031/EXP-0140 mov_imm.dst 0..15 dense"
+    ],
+    "mov_imm.imm7": [
+     "EXP-0031/EXP-0140 imm7 0..127 load-bearing"
+    ],
+    "mov_imm.imm_top": [
+     "EXP-0140 imm_top=1 suppresses the write"
+    ],
+    "stop.reserved": [
+     "EXP-0003/EXP-0010 E4 inert 24-bit pad; EXP-0206 G17P: inert over 73 sampled values on three carriers, control-flow leaders excluded",
+     "EXP-0221 arm S: the 24-bit body is SWEPT on G17P against a post-stop tripwire store, so the accepted set is measured in this experiment rather than inherited from EXP-0206's 73 sampled values"
+    ]
+   },
+   "field_emissions_by_provenance": {
+    "device_load": {
+     "FREE": 559164,
+     "RULE": 745552
+    },
+    "device_store": {
+     "FREE": 1466856,
+     "RULE": 916785
+    },
+    "falu2": {
+     "RULE": 155775
+    },
+    "mov_imm": {
+     "RULE": 33428844
+    },
+    "stop": {
+     "FREE": 7160
+    }
+   },
+   "program_hash_mismatches": [],
+   "total_CARRIER": 0,
+   "total_COPIED": 0
+  },
+  "g17p-20260831-run02": {
+   "assemble_calls_per_mnemonic": {
+    "device_load": 93194,
+    "device_store": 183357,
+    "falu2": 10385,
+    "mov_imm": 11142948,
+    "stop": 7160
+   },
+   "carrier": "carrier221.metal",
+   "carrier_agc_main_len": 3666,
+   "cases_in_raw": 7160,
+   "cases_rebuilt": 7160,
+   "citations_per_field": {
+    "device_load.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_load.addr_mode": [
+     "EXP-0141 inert 256/256 on this shape; G17P-confirmed at 0,0xA5,0xFF (EXP-0167 frozen_pilot)"
+    ],
+    "device_load.base_slot": [
+     "EXP-0220 arm S0 / EXP-0221 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_load.dst_ext9": [
+     "EXP-0141 EXACT rule dst_ext9 & 0x01 == 0x01"
+    ],
+    "device_load.dst_lo": [
+     "EXP-0141 EXACT rule dst_lo & 0x03 == 0x01"
+    ],
+    "device_load.elem_size": [
+     "EXP-0082 elem_size = 0x40 | (code<<1)"
+    ],
+    "device_load.extmode": [
+     "EXP-0101 H1 + EXP-0141: extmode = 2*R, bit0 don't-care"
+    ],
+    "device_load.idx_off": [
+     "EXP-0082 load address formula"
+    ],
+    "device_load.index_reg": [
+     "EXP-0141 index GPR selector, r0..r95 valid"
+    ],
+    "device_load.ld_format": [
+     "EXP-0167 frozen_pilot DL_LDFORMAT_ONE_REGISTER (G17P): 17 and 49 deliver the addressed word to the extmode target and write no other register"
+    ],
+    "device_load.ldform_hi11": [
+     "EXP-0141 exact rule v&0x07==0; G17P-confirmed at 0,24,56"
+    ],
+    "device_load.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_load.space": [
+     "EXP-0141 exact rule v&0x03==0 (G17P-confirmed set, EXP-0167 frozen_pilot DL_FIELD_OK)"
+    ],
+    "device_store.access_desc": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0,0x5A,0xFF"
+    ],
+    "device_store.addr_mode": [
+     "EXP-0141: byte+2 bit1 is the DATA-SOURCE selector -- clear = ALU-computed (inert 256/256), set = REQUIRED for a live load-result forward"
+    ],
+    "device_store.base_slot": [
+     "EXP-0220 arm S0: slot->bound-buffer mapping determined by HARDWARE PROBE in this experiment, not read off a compiled instruction"
+    ],
+    "device_store.elem_size": [
+     "EXP-0141: 96 of 256 store correctly; G17P-confirmed set {17,23,39,55} (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.extmode": [
+     "EXP-0090 finding_5 / EXP-0141 H10: extmode>>1 = source register"
+    ],
+    "device_store.idx_off": [
+     "EXP-0082 store address formula (16-byte unit)"
+    ],
+    "device_store.index_reg": [
+     "EXP-0092/EXP-0141 index GPR 0..95"
+    ],
+    "device_store.reserved13": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.reserved7": [
+     "EXP-0141 inert 256/256; G17P-confirmed at 0x5A,0xFF"
+    ],
+    "device_store.space": [
+     "EXP-0141 exact rule v&0x02==0 (device space); G17P-confirmed at 0,20,252 (EXP-0167 frozen_pilot DS_FIELD_OK)"
+    ],
+    "device_store.st_desc_hi": [
+     "EXP-0141 exact rule v&0x11==0; G17P-confirmed at 0,10,46"
+    ],
+    "device_store.st_format": [
+     "db.json st_format enum + EXP-0141: 17 = 32-bit scalar"
+    ],
+    "device_store.st_format_ext": [
+     "EXP-0141 exact rule v&0x60==0; G17P-confirmed at 0,31"
+    ],
+    "falu2.ctrl": [
+     "EXP-0119: ctrl bits 0/1 are the INSTRUCTION-LENGTH selector -- 0 selects the 6-byte form; bits 5/6 corrupt (EXP-0113)"
+    ],
+    "falu2.dst": [
+     "EXP-0090/EXP-0112 dst nibble r0..r15"
+    ],
+    "falu2.mod_hi": [
+     "EXP-0167 frozen_pilot (G17P): ALU-sourced operand -> the eight EVEN values deliver the correct result (bit0 must be 0); LOAD-sourced operand -> 0xC is the only working value (EXP-0101 H1)"
+    ],
+    "falu2.opflags": [
+     "EXP-0086/0089/0099/0119 lifetime bits: bit0 release src0, bit2 destination publication; bits 3/4 are silent corruptors (EXP-0105).  BIT1 IS OPERAND-CLASS DEPENDENT (EXP-0220 D7/D8, G17P): with a GPR srcB it releases that register (the register then reads 0); with a non-GPR/inline srcB it NEGATES the immediate, XORing with srcB_neg"
+    ],
+    "falu2.opsel": [
+     "EXP-0003/EXP-0005 opsel enum (4=fadd, 5=fmul)"
+    ],
+    "falu2.srcA_class": [
+     "EXP-0138 source-class model: 0 = srcA reads the GPR file"
+    ],
+    "falu2.srcA_reg": [
+     "EXP-0099/EXP-0105: 6-bit source register"
+    ],
+    "falu2.srcA_reg_top": [
+     "EXP-0099/0105/0113/0119 HW-TESTED INERT top bit (six families)"
+    ],
+    "falu2.srcA_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half (EXP-0006 HW-validated)"
+    ],
+    "falu2.srcB_class": [
+     "EXP-0138 source-class model: 0 = GPR, 1 = non-GPR file / inline immediate, 2 and 3 read 0.0 (bit2 dominates bit1)"
+    ],
+    "falu2.srcB_imm": [
+     "db.json bit39 = 0: not the falu2i packed-immediate overload"
+    ],
+    "falu2.srcB_neg": [
+     "EXP-M4-10 / EXP-0006: srcB negate bit"
+    ],
+    "falu2.srcB_reg": [
+     "EXP-0099/EXP-0119 6-bit source register; in srcB_class 1 the index 64..127 is EXP-0138's inline 8-bit minifloat"
+    ],
+    "falu2.srcB_reg_top": [
+     "EXP-0099 inert in GPR mode; EXP-0138 SS3: LIVE in srcB_class 1, where it selects the inline-immediate half of the file"
+    ],
+    "falu2.srcB_size": [
+     "db.json enum: 1 = b32, 0 = b16 low half"
+    ],
+    "mov_imm.dst": [
+     "EXP-0031/EXP-0140 mov_imm.dst 0..15 dense"
+    ],
+    "mov_imm.imm7": [
+     "EXP-0031/EXP-0140 imm7 0..127 load-bearing"
+    ],
+    "mov_imm.imm_top": [
+     "EXP-0140 imm_top=1 suppresses the write"
+    ],
+    "stop.reserved": [
+     "EXP-0003/EXP-0010 E4 inert 24-bit pad; EXP-0206 G17P: inert over 73 sampled values on three carriers, control-flow leaders excluded",
+     "EXP-0221 arm S: the 24-bit body is SWEPT on G17P against a post-stop tripwire store, so the accepted set is measured in this experiment rather than inherited from EXP-0206's 73 sampled values"
+    ]
+   },
+   "field_emissions_by_provenance": {
+    "device_load": {
+     "FREE": 559164,
+     "RULE": 745552
+    },
+    "device_store": {
+     "FREE": 1466856,
+     "RULE": 916785
+    },
+    "falu2": {
+     "RULE": 155775
+    },
+    "mov_imm": {
+     "RULE": 33428844
+    },
+    "stop": {
+     "FREE": 7160
+    }
+   },
+   "program_hash_mismatches": [],
+   "total_CARRIER": 0,
+   "total_COPIED": 0
+  }
+ }
+}
