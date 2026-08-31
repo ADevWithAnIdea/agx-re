@@ -505,8 +505,11 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   | `0x35` | 6 | `carry_gen` (u64 add carry-out) | l_add |
   | `0x3d` | 6 | fcmp→predicate (feeds a psel) | k_int_arith `42 0d 3d` (EXP-M4-01 r2) |
   | `0x23` | 6 | SFU polynomial fma (exp/log/pow Horner step, feeds a sel) | k_transcend `42 81 23` (EXP-M4-01 r2) |
-  | `0x1d,0x2d` | 14 | icmpsel (compare → 0/1 const-select) | i_cmp |
-  | `0x27`/`0x2f`, byte+3`==0x80`, **byte+4 bit1 (0x02) set** | 10 | coordinate / integer-madd `dst=a*b+c`, WIDE srcC (+ trailing 16-bit operand word) | s_div, k_int64@230 |
+  | `0x1d` | 14 | icmpsel (compare → 0/1 const-select) | i_cmp |
+| `0x2d` | **10** | icmpsel, register-operand form — **byte+2 is the discriminator, corrected 2026-08-30 (EXP-0200/0212)**. Every HW-validated 14-byte instance carries byte+2 `0x1d`; both 10-byte hardware sites carry `0x2d`. The length is **context-dependent and `db.json`'s single `icmpsel.length` integer cannot express it**, so a blanket 14 → 10 was refused and only this narrow form applied. | k_uint_arith@0x134 |
+  | low-nibble-1 group, byte+2 `(b2 & 0xc7)` = `0x04`/`0x05` | 8 | native bfloat ALU — **mask corrected 2026-08-30 (EXP-0216)**. The op-select is byte+2 bits **[2:0]** (`100` add / `101` mul / `110` fma); bits [5:3] are NOT part of it. Hardware accepted **eight** byte+2 values (`0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x34, 0x3c`) with **bit-identical output**, and the old gate sized only `0x1c`. Widening is **strictly additive**: 21 encodings gained a length, none was reassigned. | EXP-0171 NAT carrier |
+| low-nibble-1 group, byte+2 `(b2 & 0xc7)` = `0x06` | 10 | same group, fma select | |
+| `0x27`/`0x2f`, byte+3`==0x80`, **byte+4 bit1 (0x02) set** | 10 | coordinate / integer-madd `dst=a*b+c`, WIDE srcC (+ trailing 16-bit operand word) | s_div, k_int64@230 |
   | `0x27`/`0x2f`, byte+3`==0x80`, **byte+4 bit1 clear** | 8 | same madd, narrow srcC | k_cf_switch@78, k_int_bitcount@72/@98 (EXP-M4-01 r2) |
   | `0x27`, byte+3`==0x81`&byte+4`==0x22` | 10 | `rt_transform_test` | (EXP-O2C) |
   | `0x27`, else | 8 | quotient / wide-select (incl. dst `0x22`) | u_div, k_cf_if |
@@ -844,7 +847,7 @@ DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless not
   byte+2 + byte+4/+5 inverts) — covers every Vulkan/GL logic op. See `../hypotheses.md`.
 - **Shifts:** arithmetic `>>` imm = `0xa7` 10B (amount = byte+6>>2); logical `>>` imm = `0xa7` 12B
   extract; `<<` imm = `0x9f` 10B; `extract_bits` = `0xa7` 12B. Register-amount shifts are multi-instruction.
-- **Compare condition codes** (`0x12` icmpsel, 14B): byte+6 = `0x02 f> / 0x03 f< / 0x04 u> / 0x05 u< /
+- **Compare condition codes** (`0x12` icmpsel, **14B at byte+2 `0x1d`; the byte+2 `0x2d` register-operand form is 10B** — see the length table): byte+6 = `0x02 f> / 0x03 f< / 0x04 u> / 0x05 u< /
   0x06 s> / 0x07 s<` (bits[1:3]=type float/uint/sint, bit0=lt/gt); byte+4 = `0x22 ordered / 0x26 equality`;
   result-negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op handles float and signed/unsigned int.
 
@@ -1692,10 +1695,17 @@ Everything here is **M4/G16G**; A18/G17P is deferred.
   values correct; 43 non-zero all give one identical wrong payload); high byte inert over 9
   values. **Gate E MET for this row** (quiet pair). (EXP-0206)
 - **`tex_write.rsv10` is the write's mip LEVEL, not reserved.** (EXP-0204)
-- **`frame_marker_compact` is 4 bytes, not 2**, in the tested envelope: `60 XX` is correct at 0/7
-  insertion boundaries and 0/254 byte+1 values; `60 XX 00 00` is correct at 7/7. Control
-  `00 00 00 00` is correct at only 2/7, so a 4-byte insertion is not automatically benign.
-  *Bounded: straight-line COMPUTE carriers only.* (EXP-0199)
+- **`frame_marker_compact`: the 4-byte form is correct where it was tested, and the 2-byte length
+  in `db.json` was NOT changed — both facts are load-bearing and an emitter needs both.** By
+  insertion: `60 XX` is correct at **0/7** boundaries and 0/254 byte+1 values, while `60 XX 00 00`
+  is correct at **7/7**, and the control `00 00 00 00` is correct at only 2/7 so a 4-byte insertion
+  is not automatically benign (EXP-0199). **But applying 2 -> 4 to the tokenizer was REFUSED as a
+  MEASURED CORPUS REGRESSION** (EXP-0212): clean files **841 -> 838**, strict leftover **+410
+  bytes**, instructions **25,634 -> 25,565 (-69)**. The reconciliation is the scope EXP-0199 stated
+  about itself — its 7 boundaries were insertions into **straight-line COMPUTE carriers**, whereas
+  the corpus `60 00 <nonzero>` sites are **threadgroup-atomic and divergent-control-flow**
+  contexts it did not re-test. So: **emit the 4-byte form only in the straight-line compute context
+  where it was measured; do not assume it globally, and do not expect our tokenizer to accept it.**
 - **`sfu_marker` accepts 8 of the 32 values `db.json` declares** — exactly `(b0 & 0x1f) == 0x06`.
   `0x0e` satisfies the declared match but is `stop`. (EXP-0199)
 - **`frag_depth_store`'s byte+2 declared match `0x54` is NOT ENFORCED AT ALL** (256/256 ok, both
