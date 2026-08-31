@@ -14,3 +14,7 @@
   arithmetic tokens nominate five changed bits, but the source also confounds source liveness with
   result use count. AMENDMENT-03 freezes an exhaustive 32-combination generated hardware sweep;
   no compiler-emitted instruction byte is copied.
+- 2026-08-31: pilot03 completed all 32 L1 combinations with no fault or hang. `opc_tail` bit 2
+  independently zeroes the first physical source and bit 1 independently zeroes the second;
+  `0x11` retains both. The other three nominated bits were null only in this bounded context.
+  AMENDMENT-04 freezes the R1 recipe and its alias/consumer/64-op validation.
