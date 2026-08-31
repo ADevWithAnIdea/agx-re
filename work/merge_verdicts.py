@@ -161,6 +161,23 @@ def main():
             lab = v.get("label")
             if lab not in STRENGTH:
                 problems.append("%s: %s has invalid label %r" % (src, key, lab)); continue
+            # DEF-0214-1: the gates checked whether `evidence` was EMPTY but never
+            # what TYPE it was. EXP-0214 emitted a prose locator string
+            # ("EXP-0203 (raw/g17p_run21,22,... field `ext` byte_index 5)") where the
+            # schema takes a list of experiment IDs; this merged 13 rows clean and
+            # validate_labels.py failed on all of them afterwards. A string is also
+            # truthy, so the emptiness check above passed it through. Locator prose is
+            # useful -- it belongs in `note`.
+            ev = v.get("evidence")
+            if ev is not None and not isinstance(ev, list):
+                problems.append(
+                    "%s: %s has evidence of type %s, not a list. `evidence` takes "
+                    "experiment IDs (e.g. [\"EXP-0203\"]); put locator prose in `note`."
+                    % (src, key, type(ev).__name__)); continue
+            if isinstance(ev, list) and any(not isinstance(x, str) or not x.strip()
+                                            for x in ev):
+                problems.append("%s: %s has a non-string or empty entry in `evidence`"
+                                % (src, key)); continue
             if lab != "untested" and not v.get("evidence"):
                 problems.append("%s: %s is %s with empty evidence" % (src, key, lab)); continue
             if lab == "hardware-run" and v.get("range") in (None, "", "tested"):

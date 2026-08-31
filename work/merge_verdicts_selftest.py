@@ -60,6 +60,11 @@ CASES = [
     # them. This one skipped the span guard entirely until EXP-0212 found it.
     ("verdict states no start/width",  {"%s.%s" % (M, F): variant(start=None, width=None)},
                                                                                 "states no start/width"),
+    # DEF-0214-1: a prose locator string is truthy, so the emptiness check passed it.
+    ("evidence is prose, not a list",  {"%s.%s" % (M, F): variant(
+        evidence="EXP-0138 (raw/m4_run01, field `ext` byte_index 5)")},          "not a list"),
+    ("evidence list holds a non-string", {"%s.%s" % (M, F): variant(evidence=[123])},
+                                                                                "non-string or empty entry"),
 ]
 
 
