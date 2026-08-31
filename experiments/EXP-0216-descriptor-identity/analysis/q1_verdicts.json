@@ -1,0 +1,462 @@
+[
+ {
+  "current_span_in_db_json": [
+   48,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(40, 8)"
+  ],
+  "evidence": "analysis/q1_arith_oracle.json (imad.srcB); experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl:12598",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "imad.srcB",
+  "scope": "db.json now calls byte 5 `srcC_lo`.  Byte 5 is not an addend, so that name is wrong at its current span.  EXP-0165's swap did not remove the wrong name, it moved it from byte 6 to byte 5.",
+  "verdict": "CURRENT-REFUTED",
+  "what_the_bits_are": "byte 5 is a MULTIPLICAND register selector, reg = value>>2.  The destination equals SEED[reg]*10+1 on every in-domain case (10 = the seed of the register byte 6 selects); an addend would give 340+SEED[reg].  Host oracle M_mulmul 64/64, M_b5addend 0/64, M_b6addend 0/64."
+ },
+ {
+  "current_span_in_db_json": [
+   40,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(48, 8)"
+  ],
+  "evidence": "analysis/q1_arith_oracle.json (imad.srcC_lo); experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl:12854",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "imad.srcC_lo",
+  "scope": "The frozen name `srcC_lo` at byte 6 is refuted.  Which multiplicand is A and which is B is NOT decidable here -- multiplication is commutative and this carrier has no non-commutative probe.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "byte 6 is the OTHER MULTIPLICAND, reg = value>>3, bit0 kills the product.  dest = SEED[b5>>2]*SEED[b6>>3] + 1 on 68/128 in-domain cases and the other 60 are the bit0-killed cases; M_b6addend 0/128."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_arith_oracle.json (falu3.*); experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl:17886",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 3,
+  "gateA_agree_at_declared": 768,
+  "n_records": 768,
+  "row": "falu3.srcA",
+  "scope": "byte 3 IS an operand, so the committed verdict is not void -- but it is a verdict about the row db.json now calls `falu3.srcB`.  A vs B is undecidable (commutative multiply).",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "dest = A*B + C with A from byte1, B from byte3, C from byte5, reg = byte>>1 and bit0 = operand width.  The model is exact on every in-domain case of every arm (srcA 32/32, srcC 32/32, dst 13/13, dst_lo 13/14).  The frozen model (B from byte4) is out of domain on every record: byte4's baseline is 0x81, register 64."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl:17886",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 3,
+  "gateA_agree_at_declared": 768,
+  "n_records": 768,
+  "row": "falu3_ext.srcA",
+  "scope": "Source-vs-not is decided; the operand SLOT is not, because the carrier saturates.  `carrier-undecidable` for the slot.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "byte 3 selects a source register (release-on-read: value 3 -> r1, value 7 -> r3, value 5 -> r2), same law as falu3.  The value channel is BLIND here: k_sat_fma saturates and the destination is 1.0 on every case."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json; analysis/q1_arith_oracle.json (iminmax)",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "iminmax.srcA",
+  "scope": "db.json's `srcB` at byte 3 is confirmed as A SOURCE.  A vs B undecidable (min is commutative).",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "byte 3 is a source register selector, reg = value>>1, release-on-read law 56/56; min(SEED[b1>>1], SEED[b3>>1]) reproduces the destination on 32/32 in-domain cases.  The frozen model (B from byte5) scores 2/32."
+ },
+ {
+  "current_span_in_db_json": [
+   24,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(40, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (iminmax srcB, LIVE-NOT-SELECTOR, 4 distinct vectors over 256 cases)",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "iminmax.srcB",
+  "scope": "The frozen name `srcB` is refuted.  db.json's current `dst_full` is NOT confirmed -- nothing here shows byte 5 is destination-related.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "byte 5 is NOT a source register selector: over all 256 values no register other than the two baseline sources is ever released, and the destination never takes another seed.  Only values 0 and 8 keep the instruction correct."
+ },
+ {
+  "current_span_in_db_json": [
+   24,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(40, 8)"
+  ],
+  "evidence": "analysis/q1_arith_oracle.json (EXP-0160 iminmax srcB)",
+  "exp": "EXP-0160-g17p-last-field",
+  "gateA_agree_at_current": 4,
+  "gateA_agree_at_declared": 1024,
+  "n_records": 1024,
+  "row": "iminmax.srcB",
+  "scope": "Same scope as the EXP-0154 row.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "Independent repetition of the row above on a second experiment: identical counts (M_current 80/256, M_frozen 2/32, 4 distinct register vectors)."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (half_alu srcA / dst arms)",
+  "exp": "EXP-0169-g17p-rerecord",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "half_alu.srcA",
+  "scope": "Confirms db.json's srcA=(8,8), srcB=(24,8) as SOURCES.  A vs B not separated by this carrier.",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "byte 3 is a source register selector, release-on-read law reg = value>>1, 26/26; byte 1 is a source too by the same law, 26/26."
+ },
+ {
+  "current_span_in_db_json": [
+   24,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(32, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (half_alu srcB, LIVE-NOT-SELECTOR)",
+  "exp": "EXP-0169-g17p-rerecord",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "half_alu.srcB",
+  "scope": "Frozen `srcB` at byte 4 refuted; current `ctrl` not confirmed.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "byte 4 is live (5 distinct register vectors over 256 values, incl. whole-program poison at v in {2,6,10,...}) but selects no register: no release map, no seed ever reaches the destination."
+ },
+ {
+  "current_span_in_db_json": [
+   4,
+   4
+  ],
+  "declared_span_in_the_records": [
+   "(8, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (half_alu_ext8 __dst_nibble)",
+  "exp": "EXP-0180-g17p-halfalu-rerecord",
+  "gateA_agree_at_current": 10,
+  "gateA_agree_at_declared": 2560,
+  "n_records": 2560,
+  "row": "half_alu_ext8.dst",
+  "scope": "The repair (8,8)->(4,4) is confirmed for the NAME `dst`.  What byte 1 is remains undecided in this carrier (current db calls it `srcA`).",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "The destination is byte0's HIGH NIBBLE, not byte 1: in EXP-0180's own `__dst_nibble` arm the register whose index equals the nibble is the one that changes in 60 of 64 cases (C_HI; the written low half is the single constant 7.05859375) and 56 of 64 (C_LO).  Byte 1 itself is inert or law-free in every arm of this carrier."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (half_alu_ext8 srcA)",
+  "exp": "EXP-0180-g17p-halfalu-rerecord",
+  "gateA_agree_at_current": 10,
+  "gateA_agree_at_declared": 2560,
+  "n_records": 2560,
+  "row": "half_alu_ext8.srcA",
+  "scope": "Neither the frozen nor the current name is decided by these records.  The sibling instruction half_alu_fma12 IS decided (next row) and the layout is shared, but that is INFERRED, not measured, for ext8.",
+  "verdict": "UNDECIDABLE-NO-DETECTION-POWER",
+  "what_the_bits_are": "Two of five arm/run slices produce ONE identical register vector across all 136-256 values; the others move but follow no index law.  Gate B: the arm has no detection power for operand identity."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_fma12_oracle.json; experiments/EXP-0203-g17p-half-oracle/raw/g17p_run21/sweep.jsonl:16",
+  "exp": "EXP-0180-g17p-halfalu-rerecord",
+  "gateA_agree_at_current": 6,
+  "gateA_agree_at_declared": 1536,
+  "n_records": 1536,
+  "row": "half_alu_fma12.srcA",
+  "scope": "srcA=(8,8), srcB=(24,8), srcC=(40,8), dst=(4,4) are confirmed as a SET.  The frozen srcA=(24,8) is refuted.  This is a second experiment and a second method relative to EXP-0180.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "EXP-0203 committed a host oracle (a, b, c, dst) beside 51 220 cases.  With operand = (reg = byte>>1, half = byte&1) read out of the committed `pre` dump, a/b/c come from bytes 1/3/5 on 47 030 cases and from bytes 3/4/5 on ZERO.  oracle.dst == byte0>>4 on 51 096."
+ },
+ {
+  "current_span_in_db_json": [
+   48,
+   48
+  ],
+  "declared_span_in_the_records": [
+   "(32, 64)"
+  ],
+  "evidence": "analysis/q1_partition.json",
+  "exp": "EXP-0203-g17p-half-oracle",
+  "gateA_agree_at_current": 0,
+  "gateA_agree_at_declared": 0,
+  "n_records": 49664,
+  "row": "half_alu_fma12.ext",
+  "scope": "Nothing is lost and nothing is misattributed once the records are split by byte index.  The 12 750 byte-4/5 records are a sweep of the fields EXP-0212 carved out, and byte 5 is srcC -- confirmed by the oracle row above.",
+  "verdict": "PARTITIONED",
+  "what_the_bits_are": "The declared span (32,64) is bytes 4..11; the current span (48,48) is bytes 6..11.  EXP-0203 swept `ext` byte-wise, so the records partition exactly: byte4 6 630 and byte5 6 120 records now belong to `lensel`/`mods` and `srcC`; bytes 6..11 36 720 records are still `ext`."
+ },
+ {
+  "current_span_in_db_json": [
+   24,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(12, 4)"
+  ],
+  "evidence": "analysis/q1_roles.json (fspecial dst, INERT-IN-CARRIER)",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 4,
+  "gateA_agree_at_declared": 64,
+  "n_records": 64,
+  "row": "fspecial.dst",
+  "scope": "Current name `src_ext` is neither confirmed nor refuted; `inert in the EXP-0161 rsqrt carrier; global role unknown`.",
+  "verdict": "FROZEN-REFUTED",
+  "what_the_bits_are": "(12,4) is INERT: all 16 values give one identical register vector.  The destination is byte 3 (next row), so the frozen name `dst` at (12,4) is refuted by elimination."
+ },
+ {
+  "current_span_in_db_json": [
+   40,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (fspecial src, DST-SELECTOR); experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl:6365",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 4,
+  "gateA_agree_at_declared": 832,
+  "n_records": 832,
+  "row": "fspecial.src",
+  "scope": "db.json's `dst` at (24,8) is confirmed.  The frozen name `src` is refuted.",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "byte 3 RELOCATES THE DESTINATION: index == value>>1, 26/26.  value 0/1 -> the result stays in r0; 2/3 -> r1; 4/5 -> r2; 6/7 -> r3 ... with the source register unchanged."
+ },
+ {
+  "current_span_in_db_json": [
+   12,
+   4
+  ],
+  "declared_span_in_the_records": [
+   "(40, 8)"
+  ],
+  "evidence": "analysis/q1_roles.json (fspecial src_ext, SRC-SELECTOR); experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl:7069",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 4,
+  "gateA_agree_at_declared": 1024,
+  "n_records": 1024,
+  "row": "fspecial.src_ext",
+  "scope": "db.json's `src` at (40,8) is confirmed.  The frozen name `src_ext` is refuted. Together with the two rows above, EXP-0165's three-way rotation of fspecial is CORRECT on two of its three legs and unfalsified on the third.",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "byte 5 SELECTS THE SOURCE: release-on-read index == value>>2, 56/56, and the result tracks rsqrt of the selected register's seed (v=4..7 -> rsqrt(9)=1/3; v=8,9 -> rsqrt(0.25)=2)."
+ },
+ {
+  "current_span_in_db_json": [
+   4,
+   4
+  ],
+  "declared_span_in_the_records": [
+   "(8, 7)"
+  ],
+  "evidence": "experiments/EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl:3371; analysis/q1_roles.json (mov_zext16 src_reg INERT, __raw_b0)",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 7,
+  "gateA_agree_at_declared": 896,
+  "n_records": 896,
+  "row": "mov_zext16.src_reg",
+  "scope": "Confirms EXP-0197 section 4.1 independently, from bytes and registers rather than from prose.  NOTE: the same nibble is also the DESTINATION, and db.json gives mov_zext16 no dst field -- recorded as a proposal, not an edit.",
+  "verdict": "CURRENT-CONFIRMED",
+  "what_the_bits_are": "byte0's HIGH NIBBLE is the register the instruction both reads and writes.  For byte0 = 0xN3, register N receives zext16 of ITS OWN pre-value, verified against the committed `pre` dump for N = 0..10 (e.g. N=2: 0x0A2C51E7 -> 0x000051E7; N=3: 0xA7D50B49 -> 0x00000B49); N >= 11 writes nothing.  The frozen span (8,7) is INERT: 128 values, one identical register vector, in TWO independent experiments."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [
+   "(15, 1)"
+  ],
+  "evidence": "analysis/q1_geometry.json (mov_zext16.src_flag)",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 7,
+  "gateA_agree_at_declared": 14,
+  "n_records": 14,
+  "row": "mov_zext16.src_flag",
+  "scope": "Evidence survives as a 2/256 partial sweep; no role is decided.",
+  "verdict": "UNDECIDABLE-GEOMETRY",
+  "what_the_bits_are": "This is a WIDENING, not a narrowing: declared (15,1) is one bit inside the current (8,8).  The 14 committed records are a 2-point sample of a 256-value field.  Byte 1 is inert in this carrier (see the row above)."
+ },
+ {
+  "current_span_in_db_json": [
+   27,
+   5
+  ],
+  "declared_span_in_the_records": [
+   "(24, 8)"
+  ],
+  "evidence": "analysis/q1_subspan.json",
+  "exp": "EXP-0161-g17p-carry-fspecial",
+  "gateA_agree_at_current": 7,
+  "gateA_agree_at_declared": 1792,
+  "n_records": 1792,
+  "row": "mov_zext16.extend",
+  "scope": "The narrowing is neither confirmed nor refuted.  All 32 match-preserving values of the 5-bit field WERE dispatched, so the liveness evidence stands at the new span.",
+  "verdict": "UNDECIDABLE-GEOMETRY",
+  "what_the_bits_are": "Narrowing (24,8) -> (27,5).  Of 1 792 records only 224 preserve the instruction's match; bits 24..26 are match bits, so the match bits and the field TILE the swept byte and exactly ONE encoding exists per sub-span value. A single-byte sweep cannot separate them."
+ },
+ {
+  "current_span_in_db_json": [
+   20,
+   4
+  ],
+  "declared_span_in_the_records": [
+   "(16, 8)"
+  ],
+  "evidence": "analysis/q1_subspan.json",
+  "exp": "EXP-0169-g17p-rerecord",
+  "gateA_agree_at_current": 4,
+  "gateA_agree_at_declared": 1024,
+  "n_records": 1024,
+  "row": "reg_move_cb.form",
+  "scope": "As above.",
+  "verdict": "UNDECIDABLE-GEOMETRY",
+  "what_the_bits_are": "Narrowing (16,8) -> (20,4); 64 of 1 024 records preserve match; one encoding per sub-span value in both carriers."
+ },
+ {
+  "current_span_in_db_json": [
+   20,
+   4
+  ],
+  "declared_span_in_the_records": [
+   "(16, 8)"
+  ],
+  "evidence": "analysis/q1_subspan.json",
+  "exp": "EXP-0154-g17p-emit-alu",
+  "gateA_agree_at_current": 2,
+  "gateA_agree_at_declared": 512,
+  "n_records": 512,
+  "row": "shift_amt_move.kind",
+  "scope": "As above.",
+  "verdict": "UNDECIDABLE-GEOMETRY",
+  "what_the_bits_are": "Narrowing (16,8) -> (20,4); 32 of 512 records preserve match; one encoding per sub-span value."
+ },
+ {
+  "current_span_in_db_json": [
+   7,
+   1
+  ],
+  "declared_span_in_the_records": [
+   "(0, 8)"
+  ],
+  "evidence": "analysis/q1_subspan.json",
+  "exp": "EXP-0168-g17p-dst-resweep",
+  "gateA_agree_at_current": 24,
+  "gateA_agree_at_declared": 71,
+  "n_records": 71,
+  "row": "iter_at.grp",
+  "scope": "As above.",
+  "verdict": "UNDECIDABLE-GEOMETRY",
+  "what_the_bits_are": "Narrowing (0,8) -> (7,1); 14 of 71 records preserve match; 2 sub-span groups, one encoding each."
+ },
+ {
+  "current_span_in_db_json": [
+   8,
+   8
+  ],
+  "declared_span_in_the_records": [],
+  "evidence": "analysis/q2_sibling.json; experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl:1855",
+  "exp": "EXP-0144-m4-emit-pack",
+  "gateA_agree_at_current": 0,
+  "gateA_agree_at_declared": 0,
+  "n_records": 0,
+  "row": "cvt_f2h.b1",
+  "scope": "cvt_f2h.b1 and cvt_f2h_dst.srcfmt are the SAME bits (8,8); re-pointing cannot move an operand.",
+  "verdict": "DESCRIPTOR-MATCH-OVERFIT",
+  "what_the_bits_are": "1 280 of 1 280 records fail cvt_f2h's match and 1 280 of 1 280 satisfy cvt_f2h_dst's.  The ONLY failing constraint is byte0: its LOW nibble (the opcode group) is 1 on all 1 280; only the HIGH nibble differs, and that nibble is a destination register in every dst-parameterised sibling."
+ },
+ {
+  "current_span_in_db_json": [
+   24,
+   8
+  ],
+  "declared_span_in_the_records": [],
+  "evidence": "analysis/q2_sibling.json",
+  "exp": "EXP-0144-m4-emit-pack",
+  "gateA_agree_at_current": 0,
+  "gateA_agree_at_declared": 0,
+  "n_records": 0,
+  "row": "cvt_f2h.src",
+  "scope": "cvt_f2h.src and cvt_f2h_dst.src are the same (24,8).  1 200 of the 1 280 cases lie outside cvt_f2h_dst's match, so a re-point would carry an out-of-descriptor majority with it.",
+  "verdict": "DESCRIPTOR-MATCH-OVERFIT",
+  "what_the_bits_are": "Same byte0 story, but note the asymmetry: only 80 of these 1 280 records satisfy cvt_f2h_dst, because that descriptor additionally pins byte3's high nibble ((28,4)==8) and this arm sweeps byte 3 through all 256 values."
+ },
+ {
+  "current_span_in_db_json": [
+   32,
+   8
+  ],
+  "declared_span_in_the_records": [],
+  "evidence": "analysis/q2_sibling.json",
+  "exp": "EXP-0144-m4-emit-pack",
+  "gateA_agree_at_current": 0,
+  "gateA_agree_at_declared": 0,
+  "n_records": 0,
+  "row": "cvt_f2h.b4",
+  "scope": "cvt_f2h.b4 and cvt_f2h_dst.dhalf are the same (32,8).",
+  "verdict": "DESCRIPTOR-MATCH-OVERFIT",
+  "what_the_bits_are": "1 280/1 280 fail cvt_f2h, 1 280/1 280 satisfy cvt_f2h_dst."
+ },
+ {
+  "current_span_in_db_json": [
+   40,
+   8
+  ],
+  "declared_span_in_the_records": [],
+  "evidence": "analysis/q2_sibling.json",
+  "exp": "EXP-0144-m4-emit-pack",
+  "gateA_agree_at_current": 0,
+  "gateA_agree_at_declared": 0,
+  "n_records": 0,
+  "row": "cvt_f2h.tail",
+  "scope": "cvt_f2h.tail and cvt_f2h_dst.tail are the same (40,8).",
+  "verdict": "DESCRIPTOR-MATCH-OVERFIT",
+  "what_the_bits_are": "1 280/1 280 fail cvt_f2h, 1 280/1 280 satisfy cvt_f2h_dst."
+ }
+]

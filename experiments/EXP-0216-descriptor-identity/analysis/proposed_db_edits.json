@@ -1,0 +1,59 @@
+{
+ "_status": "PROPOSALS ONLY. Nothing here was applied. EXP-0216 did not edit tools/agx-isa/db.json, tools/agx-isa/validation.json, tools/agx-isa/isadb.py, docs/ or PROVENANCE.md, and committed nothing. No evidence LABEL is changed or proposed by any item below; every item is a descriptor-geometry proposal.",
+ "_authored": "hand-written from analysis/q1_verdicts.json, analysis/q2_sibling.json and analysis/q2_lengthrule.json in this directory; the numbers are re-derivable by re-running scripts/.",
+ "_target_of_record": "every observation cited is G17P-direct except the cvt_f2h items, which are M4/G16G-direct (EXP-0144). No cross-target promotion is proposed.",
+
+ "P1_imad_operand_names": {
+  "file": "tools/agx-isa/db.json",
+  "instruction": "imad",
+  "observation": "bytes 5 and 6 are BOTH multiplicand register selectors (reg = byte>>2 and byte>>3 respectively). dest = SEED[b5>>2] * SEED[b6>>3] + 1 fits 64/64 and 68/128 in-domain cases; the two addend models fit 0.",
+  "current": "srcC_lo = (40,8) [byte 5], srcB = (48,8) [byte 6], no srcA field at all",
+  "problem": "`srcC_lo` names an addend low-half. Byte 5 is not an addend. EXP-0165 moved that name from byte 6 to byte 5; both placements are wrong, so the swap relocated a defect rather than fixing one.",
+  "proposal": "rename (40,8) to a multiplicand name and keep (48,8) as the other; do NOT choose which is A and which is B from this evidence -- multiply is commutative and the EXP-0154 carrier has no non-commutative probe. Open a successor experiment for (a) the A/B question via a non-commutative op or a differing-width probe and (b) the location of the real addend, which bytes 7 and 8 demonstrably move (byte7 moves the destination by 0/1/256/16256/46038/49045 above the unchanged product 340; byte8 gives addend 1 on 12 of 256 values (all with low nibble 0), addend 0 on 240, and a non-integer result on 4).",
+  "do_not": "do not re-point EXP-0154's `imad.srcB` verdict onto the row now called `srcB`; the verdict is about byte 5, which is the row now called `srcC_lo`."
+ },
+
+ "P2_cvt_f2h_match_overfit": {
+  "file": "tools/agx-isa/db.json",
+  "instruction": "cvt_f2h",
+  "observation": "6 550 of 6 555 committed encodings fail the match; the ONLY failing constraint is byte0, and its low nibble (the opcode group) holds on 6 515 of them. EXP-0144 swept byte0 through 0x11 and those 5 cases DO satisfy the match and DO tokenize as cvt_f2h.",
+  "current": "match [[0, 8, 17]] -- eight bits of byte0, of which the high four are a destination register in cvt_f2h_dst, cvt_bf16, bf_add_dst and bf_fma_dst",
+  "problem": "the descriptor is pinned to destination register r1. It is the DEF-0171-1 dst-nibble over-fit that db.json's own bf_alu semantics already names.",
+  "proposal": "either (a) narrow the match to [[0,4,1]] and add dst = (4,4), which makes cvt_f2h identical to cvt_f2h_dst and argues for deleting one of them, or (b) keep cvt_f2h as an explicitly dst-r1 special case and move the four field rows' citations to cvt_f2h_dst. Option (b) is SAFE on operands: cvt_f2h.b1/.src/.b4/.tail occupy exactly the same bits as cvt_f2h_dst.srcfmt/.src/.dhalf/.tail.",
+  "caveat": "cvt_f2h_dst additionally pins (28,4)==8. 1 200 of the 1 280 `cvt_f2h.src` records sweep byte 3 outside that pin, so a re-point of THAT row carries an out-of-descriptor majority; the other three rows are 1280/1280 inside."
+ },
+
+ "P3_bf_alu_match_overfit": {
+  "file": "tools/agx-isa/db.json",
+  "instruction": "bf_alu",
+  "observation": "0 of 13 144 committed encodings satisfy the match. byte1 == 0x00 on ALL 13 144 (the match wants 0x02); byte0 == 0x31 on 12 626 (the match wants 0x11).",
+  "current": "match [[0,8,17],[8,8,2]]",
+  "problem": "the same dst-nibble over-fit as P2, plus a byte1 constant G17P never emits. db.json's own `bf_alu` semantics string already states both facts and says the match was 'left alone rather than widened blind'.",
+  "proposal": "no change is required for the three suspect field rows: bf_alu.srcA/.srcB/.tail sit on (24,8)/(32,8)/(40,24), which are BYTE-FOR-BYTE the same spans in bf_add_dst and bf_mul_dst. If bf_alu is widened or retired, do it for byte 0 and byte 1 only, and treat bf_alu.opsel separately -- see P4."
+ },
+
+ "P4_bfloat_byte2_capability_gap": {
+  "file": "tools/agx-isa/db.json AND tools/agx-isa/isadb.py",
+  "observation": "in EXP-0171's NAT carrier the hardware accepted EIGHT byte-2 values -- 0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x34, 0x3c -- with BIT-IDENTICAL output words. 0x1d gives a different coherent result (the multiply). bits 3..5 of byte 2 are accepted-inert aliases of the bfloat add IN THIS CARRIER; bit 6 or 7 set gives silent_zero; 0x1f and 0xff fault.",
+  "problem_A_descriptor": "bf_add_dst / bf_mul_dst pin byte 2 as a match constant (0x1c / 0x1d), so seven hardware-accepted encodings of the same operation are outside every descriptor. bf_alu models byte 2 as an 8-bit `opsel` FIELD, which does cover them. Which modelling is right is NOT a hardware question -- 'one field with an enum' and 'two descriptors with different match constants' are the same bits -- but the capability map needs the seven aliases recorded somewhere.",
+  "problem_B_length_rule": "isadb._n1_len gates the bfloat branch on byte2 in (0x1c, 0x1d, 0x1e). SEVEN of the eight hardware-accepted byte-2 encodings therefore get NO LENGTH at all: decode_one raises 'unknown instruction length (byte0=0x31)'. This is the same failure the function's own docstring says EXP-0182 fixed for byte1 -- keying the length on a byte that is not the instruction's identifier -- and it is in isadb.py, not db.json.",
+  "evidence": "analysis/q2_lengthrule.json; experiments/EXP-0171-g17p-ilogic-srca/raw/g17p_20260830_run01/sweep.jsonl:25540 (0x04, ok) vs :25564 (0x1c, ok), identical first four output words.",
+  "proposal": "REPORT to the length-rule owner. Do not patch isadb.py from this experiment. The bounded wording for the seven aliases is 'accepted-inert in the EXP-0171 NAT bfloat-add carrier; global role unknown' (RE_EXPERIMENT_PROCESS_CORRECTIONS section 7)."
+ },
+
+ "P5_mov_zext16_src_reg_is_also_the_destination": {
+  "file": "tools/agx-isa/db.json",
+  "instruction": "mov_zext16",
+  "observation": "for byte0 = 0xN3 the instruction writes zext16 of register N INTO register N, verified against the committed pre-dump for N = 0..10; N >= 11 writes nothing. The descriptor has no dst field.",
+  "current": "src_reg = (4,4), match [[0,4,3],[24,3,1]]",
+  "proposal": "record that (4,4) is both source and destination (an in-place zero-extend), and note the N >= 11 no-write bound as a finite-resource observation needing its own confirmation. This is a documentation/geometry proposal; the span itself is CONFIRMED and needs no change.",
+  "also": "the frozen span (8,7) is inert across 128 values in TWO independent experiments (EXP-0154 and EXP-0161), which is the independent re-derivation of EXP-0197 section 4.1."
+ },
+
+ "P6_two_names_refuted_but_not_replaced": {
+  "file": "tools/agx-isa/db.json",
+  "rows": ["iminmax (40,8) currently `dst_full`", "half_alu (32,8) currently `ctrl`"],
+  "observation": "the FROZEN name `srcB` is refuted at both spans: neither byte selects a source register in its carrier. Neither current name is confirmed by anything in these records.",
+  "proposal": "no edit. Open a targeted probe: for iminmax byte 5 only values 0 and 8 keep the instruction correct, and for half_alu byte 4 values 2/6/10/... poison the whole program while 3/7/11/... give a silent no-write -- both are cheap, well-posed successor questions."
+ }
+}
