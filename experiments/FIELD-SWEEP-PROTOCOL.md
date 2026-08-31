@@ -1,5 +1,30 @@
 # Field-sweep protocol — how to move a field to `hardware-run`
 
+> ## ⚠ SUPERSEDED IN PART — read `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` FIRST
+>
+> That document (repo root, user-authored 2026-08-30) is **normative for every new ISA/capability
+> experiment and for any future evidence promotion**, and it says so itself: *"Where a single field
+> label or a mechanical promotion rule conflicts with this document, this document wins."*
+>
+> **What it changes, in one paragraph.** Promotion now requires **five gates**: (A) an actual-byte
+> ledger proving the value requested is the value really dispatched; (B) a pre-registered
+> detection-power control per arm — a failed control means `carrier-undecidable`, never "inert";
+> (C) an **independent semantic predictor**, because a difference from baseline is not an oracle and
+> cross-run agreement proves repeatability rather than meaning; (D) a **generated recipe with no
+> donor field**; (E) clean confirmation on a **measured-quiet** machine. One label may no longer
+> carry four conclusions — score **six independent axes** (geometry, liveness, semantics, recipe,
+> target, reproducibility). **`sem_checked == 0` can never produce `hardware-run`.**
+>
+> **`validate_labels.py` is NOT the promotion gate** (it validates schema, not evidence), and **no
+> single `N of 166 emittable` headline may be derived from field labels at all** — the seven
+> monotonic dashboards in `tools/agx-isa/dashboards.py` are the accounting, and
+> `tools/agx-isa/promotion_check.py` is the gate.
+>
+> **§9/§10 matter as much as the gates:** never bulk-withdraw because a shared tool had a defect —
+> re-read raw and scope the affected cases; and a later, stricter gate does **not** make an earlier
+> observation false. Record both whether an experiment passed **its own frozen gate** and whether
+> its evidence meets today's.
+
 **Read with** `../CLAUDE.md`, `../CODEX.md`, `SUBAGENT_BRIEF.md`, and
 `../docs/evidence-classification.md` (the label definitions this protocol serves).
 
