@@ -1917,6 +1917,51 @@ arms are the **last `tex_sample` of a 3-chain**, which no prior experiment had e
 any machine, quiet or not.** What reproduces is the *partition* and the *period structure* — so
 score those, not the payload. **Semantics remain UNKNOWN.**
 
+
+### 2026-08-31 rules CORRECTED by the first canonical recipe (EXP-0220, `target: G17P`)
+
+> All seven were found **pre-freeze**, folded into the pre-registration, and then **re-measured**
+> under the frozen contract — they are not post-hoc rationalisations of a passing run. The recipe
+> that carries them is `falu2` at **620/620** with `COPIED = 0` and `CARRIER = 0` over 14,240,584
+> field emissions.
+
+- **`falu2.opflags` bit 1 is OPERAND-CLASS DEPENDENT — an emitter using one rule for both classes
+  emits wrong code.** With a **GPR** `srcB` it is release-src1. With an **inline immediate** `srcB`
+  it **NEGATES THE IMMEDIATE** (XOR with `srcB_neg`). This supersedes EXP-0090 finding_1 and
+  explains EXP-0167's otherwise-unexplained `INLINE_NEG0_SIGN = -1`.
+- **`falu2.mod_hi` bit 0 set ⇒ the destination is NOT WRITTEN AT ALL.** Bits 2+3 are an **in-flight
+  load accept** control: `0xC` is required only while a load is still unlanded and is free after
+  one intervening instruction. **`0xC` is the canonical value.**
+- **`device_store.addr_mode` bit 1 is the store-side twin of the load rule: clear ⇒ it stores the
+  STALE register AND DROPS THE LOAD.** This refines EXP-0141's "stores 0" — the store still
+  happens, with the wrong data.
+- **A `device_store` RELEASES its index register.** A second store reusing that register addresses
+  with **index 0**, silently.
+- **A store whose index register holds a live (unlanded) load result uses the STALE index.**
+- **`device_store.extmode` bit 0 is NOT a don't-care** — only the **even** values 0..126 deliver
+  `r(extmode/2)`.
+- **NINE `mov_imm` immediates fail to tokenize, not one**: value 12, plus every `imm7 ≡ 6 (mod 16)`.
+
+**Also measured:** `falu2.opsel` values 0, 1, 2, 3 and 7 **fault**; denormal results **flush to
+zero**. And two descriptor ambiguities that an emitter must route around: `falu2` opsel 0/1 collides
+with `falu_compact4`, and **`device_store` space 6/22 collides with `frag_color_store` /
+`imageblock_store` — which DESYNCS the length-rule walk**, so a stream containing one of those
+values will mis-tokenize downstream.
+
+**What the `falu2` recipe covers** (an emitter can rely on these): dst 16/16, `srcA_reg` 64/64,
+`srcB_reg` 64/64, inline immediate 256/256 (64 codes × 2 signs × 2 ops), constant-zero classes 2
+and 3, `opflags` 32/32 with a per-source re-read truth table, `mod_hi` 16/16 in two provenance
+classes, both b32 **and** b16, and provenance {live load, ALU, `mov_imm`} × distance {0,1,2} =
+60/60. **NOT covered: the uniform-register operand source** — 8 cases dispatched but not predicted.
+Any value it supplies is reachable via a GPR or an inline immediate, both proven, so it is not an
+emitter blocker; it stays open on the capability map.
+
+**What `device_store` covers:** all six `st_format` shapes byte-exactly (confirming element *n* =
+register `extmode/2 + n`), the full 256-value `addr_mode` sweep in **both** data-source classes,
+`extmode` 64/64 even 0..126, 30 index registers, 29 `idx_off` boundaries, all three bound slots.
+**NOT covered: the threadgroup address space** (4/4 `space` bit1 values fault against a device
+buffer — a carrier limit, not a hardware one) and **`extmode >= 128`**.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
