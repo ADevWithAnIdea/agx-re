@@ -1821,6 +1821,58 @@ re-claims carry `byte+1 == 0x00`**, the only byte+1 the hardware alias sweep hel
 value means different things in different groups, so a mask that is correct for one group is wrong
 for the other. An emitter must not treat these bits as a free-standing enum.
 
+
+### `imad`'s addend — TWO modes, selected by byte+9 bit 3 (EXP-0218, `target: G16G`+`G17P`)
+
+**An emitter must choose the mode explicitly; there is no single "addend field".**
+
+```
+K      = (b7 >> 3) & 0x1F          hi3 = b8 & 7
+IMM8   = K | (hi3 << 5)            -- 8 bits, 0..255
+sel    = (b9 >> 3) & 1             -- 0 : addend = IMM8      (value IS in the instruction)
+                                   -- 1 : addend = FILE[K]   (external scalar file; NOT in it)
+width  = b9 & 1                    -- FETCH MODE ONLY: 0 = 16-bit half, 1 = 32-bit word
+                                   -- 32-bit fetch = FILE[K] | (FILE[K+1] << 16)
+```
+
+**This reconciles two claims in this repository that flatly contradicted each other, and retracts
+neither.** EXP-M4-13 R6 recorded "the immediate is in the instruction"; DEF-0160-3 recorded "the
+addend is not in the instruction". **Both are correct — each in its own mode.** Both were merely
+stated as general. The two anchors the corpus was built on differ in **exactly two bytes**, byte+7
+and byte+9, and byte+9 differs by **exactly bit 3**:
+
+| anchor | bytes | mode |
+|---|---|---|
+| M4 | `9f 00 56 00 02 08 00 38 d0 `**`26`**` 0a 00` | immediate |
+| G17P | `9f 00 56 00 02 08 00 60 d0 `**`2e`**` 0a 00` | fetch |
+
+**Evidence.** The model was frozen before fitting and scores **381/382 on G16G** and
+**1832/1832 HELD OUT on G17P**. Every immediate-only alternative — including `db.json`'s own
+`(b8 & 0xF) << 5 | K` — scores **42/1832**; fetch-only scores **0/10** on the M4 population; the
+best of 45 register models scores **167/4126**. The mode switch is **156/156 vs 0/128** on G16G
+and 10/10 on G17P. The 32-bit form was predicted **out-of-sample** from the 16-bit table: **6/6**
+and **2/2**. It is not a register by four independent tests — 384/384 encodings give an identical
+addend under both G17P seed sets, one scalar addend explains all 8 M4 lanes, and 2360/2361 are
+launch-stable.
+
+**Bounds an emitter must respect — these are not resolved:**
+
+- **On G17P, byte+9 bit 1 and bit 3 are NOT separable.** Both are 0 in all five literal-mode values
+  and 1 in all six fetch-mode values ever dispatched there. *"The selector is bit 3"* is
+  **G16G-direct** (64/64 flip pairs for bit 3, 0/64 for bit 1); *"there is a selector in byte+9"*
+  is direct on both targets. Emit the whole byte pattern from a known-good anchor rather than
+  assuming bit 3 alone on G17P.
+- **Whether the fetch index is 5 bits or 8 is undecidable here** — 0 of 4086 scored cases separate
+  them, because this carrier's file reads 0 above half-index 31, making "index >= 32" and "addend
+  suppressed" the same observation.
+- **32-bit fetch as pairs `(K, K+1)` versus word `K>>1` is undecidable** — identical at even K, and
+  all 8 observed 32-bit fetches are at K = 12.
+- **The (byte+7 x byte+9) cross product was never dispatched.** Immediate mode across all 32 K is
+  **G16G-only**; on G17P it rests on 10 cases at K = 12.
+
+Related, from the same analysis: **`db.json`'s `mulsel[0:3]` is one bit too wide** — byte+8's
+immediate high bits are 60/60 and bit 3 is not among them (8/8 flip pairs identical).
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
