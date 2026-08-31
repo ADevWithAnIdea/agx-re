@@ -30,16 +30,31 @@ def fv(value, note):
 
 def emit_iadd(pg, dst, src_a, src_b, add=True, model_a=None, model_b=None,
               packing="h1", opmode=2, src_a_desc=0, srca_ctl=0xA8,
-              opc_tail=0x17, opc_tail2=0x05):
+              opc_tail=0x17, opc_tail2=0x05, logical_order=False,
+              release_a=None, release_b=None):
     """Emit one complete no-donor iadd2 and advance the independent host model."""
+    phys_a, phys_b = src_a, src_b
+    subtract_swapped = logical_order and not add
+    if subtract_swapped:
+        # The hardware subtraction observed in pilot01 is second - first.
+        phys_a, phys_b = src_b, src_a
+
     if packing == "h1":
-        ea, eb = (src_a << 2) | src_a_desc, src_b << 2
+        ea, eb = (phys_a << 2) | src_a_desc, phys_b << 2
     elif packing == "h2":
-        ea, eb = (src_a << 1) | 1, (src_b << 1) | 1
+        ea, eb = (phys_a << 1) | 1, (phys_b << 1) | 1
     elif packing == "h3":
         ea, eb = src_b << 2, src_a << 2
     else:
         raise ValueError(packing)
+
+    if release_a is not None or release_b is not None:
+        if release_a is None or release_b is None:
+            raise ValueError("release_a and release_b must be specified together")
+        release_first, release_second = release_a, release_b
+        if subtract_swapped:
+            release_first, release_second = release_b, release_a
+        opc_tail = 0x11 | (int(release_second) << 1) | (int(release_first) << 2)
 
     pg.E.emit("iadd2", {
         "addsub": fv(1 if add else 0, "1 add; 0 subtract"),
@@ -69,6 +84,12 @@ def emit_iadd(pg, dst, src_a, src_b, add=True, model_a=None, model_b=None,
         out = (av + bv) & 0xFFFFFFFF
     else:
         out = (av - bv) & 0xFFFFFFFF
+    # L1 observes source release before destination publication for aliases:
+    # an aliased destination contains the arithmetic result, not zero.
+    if release_a:
+        pg.set_reg(src_a, 0)
+    if release_b:
+        pg.set_reg(src_b, 0)
     pg.set_reg(dst, out)
 
 
@@ -157,6 +178,70 @@ def build_cases(include_hazard=False):
                             "ops": ops, "expect_match": True,
                             "predicted_bucket": "discovery",
                         })
+
+    v1_specs = [
+        ("v1_add_retain", [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("v1_sub_retain", [dict(dst=3, src_a=4, src_b=5, add=False)]),
+        ("v1_add_alias_a", [dict(dst=6, src_a=6, src_b=7, add=True)]),
+        ("v1_sub_alias_b", [dict(dst=8, src_a=9, src_b=8, add=False)]),
+        ("v1_add_same_src", [dict(dst=10, src_a=11, src_b=11, add=True)]),
+        ("v1_repeat_sources", [
+            dict(dst=10, src_a=1, src_b=2, add=True),
+            dict(dst=11, src_a=1, src_b=2, add=True),
+            dict(dst=12, src_a=10, src_b=11, add=False),
+        ]),
+        ("v1_rel_add_none", [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("v1_rel_add_a", [dict(dst=0, src_a=1, src_b=2, add=True,
+                                    release_a=True, release_b=False)]),
+        ("v1_rel_add_b", [dict(dst=0, src_a=1, src_b=2, add=True,
+                                    release_a=False, release_b=True)]),
+        ("v1_rel_add_both", [dict(dst=0, src_a=1, src_b=2, add=True,
+                                       release_a=True, release_b=True)]),
+        ("v1_rel_sub_a", [dict(dst=3, src_a=4, src_b=5, add=False,
+                                    release_a=True, release_b=False)]),
+        ("v1_rel_sub_b", [dict(dst=3, src_a=4, src_b=5, add=False,
+                                    release_a=False, release_b=True)]),
+        ("v1_rel_alias_a", [dict(dst=6, src_a=6, src_b=7, add=True,
+                                      release_a=True, release_b=False)]),
+        ("v1_rel_alias_b", [dict(dst=8, src_a=9, src_b=8, add=False,
+                                      release_a=False, release_b=True)]),
+        ("v1_last_use_chain", [
+            dict(dst=10, src_a=1, src_b=2, add=True,
+                 release_a=True, release_b=True),
+            dict(dst=11, src_a=10, src_b=3, add=True,
+                 release_a=True, release_b=True),
+            dict(dst=12, src_a=11, src_b=4, add=False,
+                 release_a=True, release_b=True),
+        ]),
+    ]
+    for name, raw_ops in v1_specs:
+        ops = []
+        for op in raw_ops:
+            op = dict(op)
+            op.setdefault("logical_order", True)
+            op.setdefault("release_a", False)
+            op.setdefault("release_b", False)
+            ops.append(op)
+        out.append({
+            "i": len(out), "name": name, "arm": "V1", "kind": "iadd",
+            "ops": ops, "expect_match": True, "predicted_bucket": "exact",
+        })
+
+    dag_ops = []
+    for i in range(64):
+        dag_ops.append(dict(
+            dst=(i * 11 + 3) % 15,
+            src_a=(i * 5 + 1) % 15,
+            src_b=(i * 7 + 2) % 15,
+            add=(i % 3 != 0),
+            logical_order=True,
+            release_a=False,
+            release_b=False,
+        ))
+    out.append({
+        "i": len(out), "name": "v1_dag64_reuse", "arm": "V1", "kind": "iadd",
+        "ops": dag_ops, "expect_match": True, "predicted_bucket": "exact",
+    })
     return out
 
 
