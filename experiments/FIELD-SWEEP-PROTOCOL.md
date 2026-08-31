@@ -379,3 +379,81 @@ The full 29: `copysign.operands`, `cvt_f2i.b9`, `frag_color_store.store_mode`,
 `imad.{b1hi,b2_fmt,b11}`, `imageblock_store.b4`, `ishift.{src_cache,pad9}`, `iter.b9`,
 `ray_move.{dst,src,b3}`, `ray_move_copy6.{dst,src}`, `ray_move_zero6.{dst,src,b3}`,
 `tex_write.{amode,rsv11}`, `tg_addr_compute.{b3,b4,b5}`.
+
+---
+
+## 10. Operational facts learned on 2026-08-30 — read before designing a sweep
+
+These cost real device time to learn. Each is measured, not inferred.
+
+### 10.1 A quiet GPU FAILS HARDER — every severity label from a busy machine is suspect
+
+Same encodings, same ok/not-ok partition, **escalated severity**: silent-no-write → fault
+(**18 → 355**, identical in both orders); `if_push.scope` fault → **HANG** at the same values;
+`tex_deriv` 7 and 11 hangs → **48 and 48**. One experiment is the counterexample with
+byte-identical hard outcomes, so this is **not** an instrument artefact. Confirmed later over full
+256-value arms on three carriers: same partition 256/256, **zero flips**, exactly **64 values
+differing only in severity** (`fault` → `hang`) at `(v&7) ∈ {4,5}`.
+
+A busy machine was also **MASKING** contained faults as OK-but-wrote-nothing: `(v&7)==7` is 32/32
+`not_written` busy and **32/32 fault quiet**, with the other 224 values byte-identical.
+
+**Rule: the ok/not-ok PARTITION is trustworthy across machine states; the SEVERITY LABEL is not.
+Scope every fault/hang claim to the machine state it was measured on.**
+
+### 10.2 A hang is TWO different things, and only one makes a sweep impossible
+
+- **Driver-recoverable:** `recoveryCount` advances (+225 over 37 hangs), no cascade, the sweep
+  continues, and the partition still matches the busy run 149/149.
+- **Accumulating:** `recoveryCount` is **FROZEN** (4,509 s unchanged) and after ~40 values
+  **every remaining value hangs** (102 of 102).
+
+**Record `recoveryCount` pre/post for every capture and classify.** A frozen counter on a clean run
+means "nothing reset the device", not the pathological case — do not read it as evidence either way
+without hangs to explain.
+
+### 10.3 Invoke a per-arm harness ONE ARM AT A TIME
+
+One experiment's `run.py` aborts its **entire arm loop** on a cascade. Invoked once per arm through
+its own selector, with nothing edited: **66/66 captures, 102/102 complete field sweeps, 0 cascades,
+9,276 records per order — against 5,055** for the same harness run whole. The full 22-arm run still
+aborts at **case index 5240 in three independent orders**: accumulated **in-process** state, not the
+carrier, not occupancy, not the ~22,000 prior device resets.
+
+### 10.4 A capture can contaminate the NEXT capture on a totally idle machine
+
+One stage left **58 stuck `agxrun_persist` processes holding 1.6 GB and ~58 GPU contexts**; the next
+capture's `carrier_open` hung and a known-good arm could not render its unmutated baseline. It
+cleared itself in ~8 minutes with 3 driver resets. **Check for your own leftovers before declaring a
+machine quiet** — the quiet metric cannot see contexts you are holding yourself.
+
+### 10.5 "Unstable" may be PERIODIC — repeat a value inside one process before believing it
+
+`tex_sample.mode` bit 6 read as instability for two experiments. It is a **strictly periodic
+function of the dispatch index**: smallest period **4 or 8**, **240/240 sequences, 0 aperiodic**,
+confirmed out of sample at N=24, with the phase following the **global dispatch counter**. The
+matched bit-clear twin set is **0 of 33** everywhere, so it is not a harness artefact.
+
+**Rule: before recording a field as unstable, repeat one value N times inside a single process and
+test for periodicity.** Where a field is periodic in the dispatch index, **Gate E as
+payload-equality is unmeetable on any machine** — score the partition and the period structure
+instead.
+
+### 10.6 A length change must be MEASURED against the corpus, and "additive" is the safety test
+
+Two hardware-founded length changes, opposite outcomes. One was **strictly additive** — 21
+encodings gained a length, **none was reassigned**, every other bucket identical — and went in. The
+other was correct at **7/7 insertion boundaries** on hardware and was **REFUSED** as a measured
+regression: clean files 841 → 838, **+410 leftover bytes, −69 instructions**, because it *moved*
+lengths rather than adding them.
+
+And a corpus TOTAL is not the test: three match-bit candidates left clean files, leftover,
+instructions and resync gap **bit-identical**, and were refused on a broken round-trip, on one
+descriptor **swallowing all 135 firings of another by winning a match-bit tie on list order**, and
+on re-claiming 37 tokens of which **none carried the byte+1 the hardware sweep actually held**.
+
+### 10.7 Measure the delta on the population that CONTAINS the affected encodings
+
+A length change measured against a 292-file sample showed a delta of **exactly zero** — because the
+sample did not contain the affected encodings, not because the change was inert. **A zero delta on
+the wrong population is the easiest way to mistake "no effect" for "no risk."**
