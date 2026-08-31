@@ -1,0 +1,27 @@
+{
+ "C_G17P_32bit_via_byte8_0xf0": {
+  "cases": {
+   "(12, 1065353217, 1065353217)": 2
+  },
+  "predicted": 2,
+  "scored": 2
+ },
+ "C_G17P_32bit_via_byte9_bit0": {
+  "cases": {
+   "(12, 1065353217, 1065353217, '0x3f')": 2,
+   "(12, 1065353217, 1065353217, '0x7f')": 2,
+   "(12, 1065353217, 1065353217, '0xff')": 2
+  },
+  "predicted_by_SLOT[K] | SLOT[K+1]<<16": 6,
+  "scored": 6
+ },
+ "C_M4_fetch_by_width": {
+  "16bit(b9 bit0 == 0)": {
+   "(7, 0)": 64
+  },
+  "32bit(b9 bit0 == 1)": {
+   "(7, 256)": 64
+  },
+  "note": "SLOT_M4[8] was never dispatched, so the pairing rule cannot be scored here; the two observations are consistent with a 32-bit word file whose half 7 is 0 and whose word 3 is 0x100."
+ }
+}

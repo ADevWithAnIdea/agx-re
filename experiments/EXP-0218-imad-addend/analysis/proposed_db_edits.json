@@ -1,0 +1,47 @@
+{
+  "STATUS": "PROPOSAL ONLY. EXP-0218 edited nothing. tools/agx-isa/db.json, tools/agx-isa/validation.json, docs/ and PROVENANCE.md are untouched; no evidence label is changed or proposed. These entries are for the owner of tools/agx-isa to accept, reject or amend.",
+  "experiment": "EXP-0218-imad-addend",
+  "basis": "Desk re-analysis of 13,937 committed `imad` records / 4,118 distinct encodings from EXP-0139 (M4/G16G), EXP-0154 and EXP-0160 (A18 Pro/G17P). No device contacted. See RESULTS.md for every numerator and denominator.",
+  "proposals": [
+    {
+      "id": "P1",
+      "target": "instructions[imad].fields[srcC_desc]  (start 56, width 8 = byte+7)",
+      "current": "byte+7 = a 2-bit MODE (bits 0-1) + an INERT bit 2 + a 5-bit ADDEND-SOURCE SELECT (bits 3-7) ... The addend is NOT carried here -- it is read from an external uniform/constant slot that bits 3-7 index.",
+      "proposed_addition": "SCOPE CORRECTION (EXP-0218). Bits 3-7 are the LOW FIVE BITS OF AN 8-BIT ADDEND FIELD whose high three bits are byte+8 bits 0-2. Whether that 8-bit number is USED AS A VALUE or AS AN INDEX is decided by byte+9 bit 3, which this descriptor does not model: bit3 == 0 -> the 8-bit number IS the addend (an immediate in the instruction); bit3 == 1 -> it indexes an external scalar (uniform/constant) file and the addend value is NOT in the instruction. The existing external-source text is correct for byte+9 bit3 == 1 -- the mode EXP-0160's anchor (byte+9 = 0x2e) sits in -- and does not describe byte+9 bit3 == 0. Evidence: A == ((b8&7)<<5)|(b7>>3) in 381/382 cases over 32/32 values of K on G16G (EXP-0139, byte+9 = 0x26, all 8 lanes exact); A == FILE[K] in 2040/2040 on G17P (208 fitted / 1832 held out across 2 experiments, 4 runs and 2 seed sets); and flipping byte+9 bit 3 switches between them on BOTH targets (G16G 156/156 vs 0/128; G17P 10/10 at K=12). Mode bits 0-1 and the bit-2 inertness are unchanged.",
+      "target_status": "immediate/index split: G16G-direct (EXP-0139) + G17P-direct at K=12 only (EXP-0154). External-file branch: G17P-direct (EXP-0154/0160) + G16G-direct at K=7 (EXP-0139)."
+    },
+    {
+      "id": "P2",
+      "target": "instructions[imad].fields[mulsel]  (start 64, width 8 = byte+8)",
+      "current": "byte+8. Does NOT participate in the addend (HW, G17P, EXP-0160/EXP-0165, DEF-0160-7: the recovered addend is constant across every mulsel point, for all 12 byte+7 values probed).",
+      "proposed_addition": "SCOPE CORRECTION (EXP-0218). Bits 0-2 ARE the high three bits of the 8-bit immediate addend, but ONLY while byte+9 bit 3 == 0. DEF-0160-7 measured byte+9 bit3 == 1 (its anchor byte+9 = 0x2e), where those bits do not supply a value -- which is why it read as 'does not participate'. G16G-direct evidence (EXP-0139, byte+9 = 0x26, mulsel high nibble 0xd): A == ((b8&7)<<5)|K in 60/60, i.e. 0xd0->7, 0xd1->39, 0xd2->71, ... 0xd7->231. Bit 3 is NOT part of the immediate: 8/8 bit-flip pairs leave the addend identical, so db.json's historical 'mulsel[0:3]' is one bit too wide. In the byte+9 bit3 == 1 branch on G17P, a non-zero low nibble instead yields addend 0 in 68/68 cases -- consistent BOTH with an 8-bit source index whose file is empty above half-index 31 AND with a 5-bit index plus suppression; 0 of 4086 committed cases separate those two readings. The documented hi/lo multiply role of the high nibble is unaffected.",
+      "target_status": "G16G-direct for the immediate high bits; G17P-direct for the fetch-mode behaviour."
+    },
+    {
+      "id": "P3",
+      "target": "instructions[imad].fields[b9]  (start 72, width 8 = byte+9)",
+      "current": "no note",
+      "proposed_addition": "byte+9 carries imad's ADDEND-SOURCE-CLASS SELECTOR. bit 3: 0 -> the 8-bit field (byte+7 bits 3-7 | byte+8 bits 0-2) is an IMMEDIATE addend; 1 -> that field INDEXES an external scalar (uniform/constant) file and the addend is not in the instruction. bit 0 (fetch mode only): 0 -> 16-bit half, 1 -> 32-bit word of that file; the 32-bit value was predicted out-of-sample from the 16-bit table as FILE[K] | FILE[K+1]<<16 and confirmed 6/6 (via byte+9 bit0) and 2/2 (via byte+8 = 0xf0). bit 5 must be 1 for the block to compute at all in both carriers. bits 1, 2, 4, 6, 7 are accepted-inert FOR THE ADDEND in the EXP-0139 byte+9 sweep (0 of 64 bit-flip pairs move it); global role unknown. CAVEAT, do not drop it: the bit-3 identification is G16G-direct (64/64 flip pairs on G16G, bit 1 scoring 0/64). On G17P the committed byte+9 values never separate bit 1 from bit 3 -- both are 0 in all five literal-mode values dispatched and 1 in all six fetch-mode values -- so on G17P only the EXISTENCE of a byte+9 selector is direct, not its bit index. Dispatching byte+9 = 0x2c and 0x22 on G17P would settle it.",
+      "target_status": "bit 3 identity: G16G-direct. Existence of the selector: direct on both targets."
+    },
+    {
+      "id": "P4",
+      "target": "instructions[imad].semantics",
+      "current": "contains BOTH 'EXP-M4-13 R6 ... immediate-accumulate value (K<<3) proven by a K sweep' (later called a COMPILE-ONLY correlation) and 'byte+7 ... the addend is NOT in the instruction', with the second presented as superseding the first.",
+      "proposed_addition": "Both statements are correct and neither supersedes the other: they describe imad's TWO ADDEND MODES, selected by byte+9 bit 3, and the two anchors the corpus was built from differ in exactly that bit (C-M4 byte+9 = 0x26 -> immediate; C-G17P byte+9 = 0x2e -> external fetch; the anchors differ at byte+7 and byte+9 and nowhere else). Suggested single sentence: 'd = m*(X*Y) + A, X = reg(byte+5 >> 2), Y = reg(byte+6 >> 3); A is an 8-bit immediate byte+7[3:8] | byte+8[0:3]<<5 when byte+9 bit 3 == 0, and is fetched from an external scalar file indexed by that same field when byte+9 bit 3 == 1 (byte+9 bit 0 selects a 16-bit half or a 32-bit word).' EXP-M4-13's '(K<<3) is an immediate' should be recorded as CORRECT IN ITS MODE with the width corrected from 9 bits to 8; DEF-0160-3's 'the addend is not in the instruction' should be recorded as CORRECT IN ITS MODE. Retracting either would lose a real hardware fact.",
+      "target_status": "immediate mode G16G-direct + G17P-direct at K=12; fetch mode G17P-direct + G16G-direct at K=7."
+    },
+    {
+      "id": "P5",
+      "target": "instructions[imad].fields[srcC_lo] / [srcB] naming",
+      "proposed_addition": "NOT PROPOSED HERE. EXP-0218 makes no naming proposal for byte+5 or byte+6; EXP-0217's refusal (a name opposite `srcB` re-asserts an ordering EXP-0216 calls undecidable, and a rename carries a label onto a new name) is unaffected by anything in this experiment. Recorded so a reader does not infer a rename from the addend correction.",
+      "target_status": "n/a"
+    }
+  ],
+  "explicitly_not_proposed": [
+    "Any change to an evidence label, in db.json or validation.json.",
+    "Any promotion of a G16G measurement to G17P or the reverse.",
+    "Any retraction of EXP-M4-13 R6 or DEF-0160-3 -- both are mode-restricted, not false.",
+    "Any change to the byte+5 / byte+6 multiplicand names."
+  ]
+}

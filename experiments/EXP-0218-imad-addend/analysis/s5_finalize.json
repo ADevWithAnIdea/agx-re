@@ -1,0 +1,306 @@
+{
+ "C_M4_byte7_anomaly_0x24": [
+  {
+   "excl": null,
+   "outcome": "wrong_value",
+   "run": "m4_20260828_run01",
+   "src": "EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl:11098",
+   "status": "OK",
+   "words": [
+    916259692,
+    4294967295,
+    522244,
+    3735928563,
+    35,
+    4,
+    4,
+    4
+   ]
+  },
+  {
+   "excl": null,
+   "outcome": "silent_zero",
+   "run": "m4_20260828_run02",
+   "src": "EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/sweep.jsonl:11098",
+   "status": "OK",
+   "words": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "excl": "no_output_words",
+   "outcome": "wrong_value",
+   "run": "m4_20260828_reval02",
+   "src": "EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/revalidate.jsonl:88",
+   "status": null,
+   "words": null
+  }
+ ],
+ "byte8_low_nibble_in_fetch_mode": {
+  "A_equals_imm8": 0,
+  "per_low_nibble": {
+   "0": {
+    "1": 38
+   },
+   "1": {
+    "0": 2
+   },
+   "10": {
+    "0": 2
+   },
+   "11": {
+    "0": 2
+   },
+   "12": {
+    "0": 2
+   },
+   "13": {
+    "0": 2
+   },
+   "14": {
+    "0": 2
+   },
+   "15": {
+    "0": 2
+   },
+   "2": {
+    "0": 2
+   },
+   "3": {
+    "0": 2
+   },
+   "4": {
+    "0": 2
+   },
+   "5": {
+    "0": 2
+   },
+   "6": {
+    "0": 2
+   },
+   "7": {
+    "0": 2
+   },
+   "8": {
+    "0": 2
+   },
+   "9": {
+    "0": 2
+   }
+  },
+  "population": "C-G17P byte+8 sweep, mulsel high nibble 0xd, FETCH mode",
+  "scored": 68
+ },
+ "byte9_bit_roles": {
+  "C_G17P": {
+   "bit_roles": {
+    "bit0": {
+     "pairs_compared": 2,
+     "pairs_whose_addend_differs": 1
+    },
+    "bit1": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit2": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit3": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit4": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit5": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit6": {
+     "pairs_compared": 3,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit7": {
+     "pairs_compared": 3,
+     "pairs_whose_addend_differs": 0
+    }
+   },
+   "values_observed": 11
+  },
+  "C_M4": {
+   "bit_roles": {
+    "bit0": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 32
+    },
+    "bit1": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit2": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit3": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 64
+    },
+    "bit4": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit5": {
+     "pairs_compared": 0,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit6": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 0
+    },
+    "bit7": {
+     "pairs_compared": 64,
+     "pairs_whose_addend_differs": 0
+    }
+   },
+   "values_observed": 128
+  }
+ },
+ "byte9_literal_switch": {
+  "C_G17P": {
+   "K_at_anchor": 12,
+   "fetch_branch(b9 bit5==1, bit3==1)": {
+    "byte9_values": [
+     46,
+     63,
+     127,
+     170,
+     254,
+     255
+    ],
+    "cases": 48,
+    "cases_with_A_equal_to_K": 0,
+    "per_value": {
+     "0x2e": {
+      "1": 38
+     },
+     "0x3f": {
+      "1065353217": 2
+     },
+     "0x7f": {
+      "1065353217": 2
+     },
+     "0xaa": {
+      "1": 2
+     },
+     "0xfe": {
+      "1": 2
+     },
+     "0xff": {
+      "1065353217": 2
+     }
+    }
+   },
+   "literal_branch(b9 bit5==1, bit3==0)": {
+    "addends_seen": [
+     12
+    ],
+    "byte9_values": [
+     32,
+     33,
+     96,
+     160,
+     224
+    ],
+    "cases": 10,
+    "cases_with_A_equal_to_K": 10
+   }
+  },
+  "C_M4": {
+   "K_at_anchor": 7,
+   "fetch_branch(b9 bit5==1, bit3==1)": {
+    "addends_seen": [
+     "0",
+     "256"
+    ],
+    "cases": 128,
+    "cases_with_A_equal_to_imm8": 0,
+    "n_byte9_values": 64,
+    "split_by_b9_bit0": {
+     "0": [
+      "0"
+     ],
+     "1": [
+      "256"
+     ]
+    }
+   },
+   "literal_branch(b9 bit5==1, bit3==0)": {
+    "addends_seen": [
+     "7"
+    ],
+    "cases": 156,
+    "cases_with_A_equal_to_imm8": 156,
+    "n_byte9_values": 64
+   }
+  }
+ },
+ "slot_table_holdout_C_G17P": {
+  "EXP-0154/g17p_20260829_run02/sset1": {
+   "predicted_by_fitted_SLOT": 191,
+   "scored": 191
+  },
+  "EXP-0154/g17p_20260829_run04/sset1": {
+   "predicted_by_fitted_SLOT": 183,
+   "scored": 183
+  },
+  "EXP-0160/g17p_20260830_confirm03/sset1": {
+   "predicted_by_fitted_SLOT": 14,
+   "scored": 14
+  },
+  "EXP-0160/g17p_20260830_confirm03/sset2": {
+   "predicted_by_fitted_SLOT": 28,
+   "scored": 28
+  },
+  "EXP-0160/g17p_20260830_confirm04/sset1": {
+   "predicted_by_fitted_SLOT": 18,
+   "scored": 18
+  },
+  "EXP-0160/g17p_20260830_confirm04/sset2": {
+   "predicted_by_fitted_SLOT": 23,
+   "scored": 23
+  },
+  "EXP-0160/g17p_20260830_confirm06/sset1": {
+   "predicted_by_fitted_SLOT": 278,
+   "scored": 278
+  },
+  "EXP-0160/g17p_20260830_confirm06/sset2": {
+   "predicted_by_fitted_SLOT": 472,
+   "scored": 472
+  },
+  "EXP-0160/g17p_20260830_run01/sset1": {
+   "predicted_by_fitted_SLOT": 208,
+   "scored": 208
+  },
+  "EXP-0160/g17p_20260830_run01/sset2": {
+   "predicted_by_fitted_SLOT": 205,
+   "scored": 205
+  },
+  "EXP-0160/g17p_20260830_run02/sset1": {
+   "predicted_by_fitted_SLOT": 211,
+   "scored": 211
+  },
+  "EXP-0160/g17p_20260830_run02/sset2": {
+   "predicted_by_fitted_SLOT": 209,
+   "scored": 209
+  }
+ }
+}
