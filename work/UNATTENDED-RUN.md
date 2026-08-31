@@ -201,7 +201,58 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 
 ---
 
-# FINAL ACCOUNTING — 2026-08-30, written before the 10:00 PST deadline
+# FINAL ACCOUNTING — superseded twice on 2026-08-30; read this header first
+
+> ## ⚠ THE SECTION BELOW IS THE MORNING'S ACCOUNTING AND IS SUPERSEDED
+>
+> **Current: 37 of 166 emitter-relevant instructions, 560 of 1053 fields.** The figure below
+> (32 / 543 / 1040) was written before the afternoon, and the denominator itself has since changed:
+> `db.json` gained **13 new fields** when hardware-confirmed descriptor repairs split five
+> descriptors, so 1040 → 1053.
+>
+> **The single emittability headline is RETIRED as the completeness measure** —
+> `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` §8 forbids deriving it from field labels at all. The
+> seven §9 dashboards are the accounting (`python3 tools/agx-isa/dashboards.py`). The §8 promotion
+> checker, which opens cited raw instead of trusting citations, **rejects the great majority of
+> emitter-grade rows**; `validate_labels.py` passes the same corpus at exit 0 because it validates
+> schema, not evidence.
+>
+> ### The full arc, and what each direction means
+>
+> **79 → 41 → 55 → 38 → 37 → 34 → 33 → 32 → 40 → 37.**
+>
+> - Every **fall** was a withdrawal an independent audit confirmed, each caused by finding a check
+>   that could not come out the other way. **Fifteen** such checks are now catalogued.
+> - The **rise to 40** is not a relaxation. It came after a serialized quiet window satisfied Gate E
+>   for 17 fields, and every row that crossed carries an actual-byte ledger, a pre-registered
+>   detection-power control, an independent semantic predictor and a measured-quiet confirmation —
+>   a strictly higher bar than any of the original 79.
+> - The **fall to 37** is the most honest number of the day: three instructions dropped out because
+>   the descriptor repair **split their fields**, revealing sub-fields nobody has ruled on.
+>   **Knowing more about an encoding lowered the completeness count**, and a measure that only ever
+>   rose when we learned things would be measuring the wrong quantity.
+>
+> ### What the afternoon actually produced
+>
+> | | |
+> |---|---|
+> | Gate E MET | **17 of 22** fields, on a machine measured quiet (0 foreign dispatch runners vs a fan-out median of 9, peak 17) |
+> | `InnocentVictim` | **167 and 160 → 0 and 0** on the quiet pair; genuine faults identical, i.e. deterministic |
+> | Descriptor repairs | 33 descriptors, 5 spans moved, **13 new fields**, **6 refused outright** |
+> | Promotions | 8 instructions crossed, then 3 fell back out on the split |
+> | Tooling defects found | **4 in the merge/audit tools**, every one found by an experiment running against the tool, never by the tool's own tests |
+> | Security | the device password was committed in **5 files, 7 places** — cleaned; **it remains in git history** |
+>
+> ### The finding that qualifies everything above
+>
+> **A quiet GPU fails harder.** Same encodings, same ok/not-ok partition, escalated severity:
+> silent-no-write → fault (**18 → 355**), fault → hang at the same values, 7 and 11 hangs → **48
+> and 48**. A busy machine was *masking* contained faults as OK-but-wrote-nothing. **Every fault
+> and hang label taken during the concurrent wave is therefore suspect in its SEVERITY, though not
+> in its partition** — a caveat now carried on 467 hazard rows.
+
+## The morning's accounting (superseded — kept as written)
+
 
 ## The number
 
