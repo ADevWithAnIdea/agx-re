@@ -1,0 +1,628 @@
+{
+ "_meta": {
+  "census": {
+   "assemble_calls_per_mnemonic_per_run": {
+    "device_load": 32878,
+    "device_store": 40410,
+    "falu2": 1985,
+    "mov_imm": 2034437,
+    "stop": 1584
+   },
+   "field_emissions_by_provenance_per_run": {
+    "device_load": {
+     "FREE": 197268,
+     "RULE": 263024
+    },
+    "device_store": {
+     "FREE": 323280,
+     "RULE": 202050
+    },
+    "falu2": {
+     "RULE": 29775
+    },
+    "mov_imm": {
+     "RULE": 6103311
+    },
+    "stop": {
+     "FREE": 1584
+    }
+   },
+   "note": "REBUILT from the frozen authored inputs and asserted byte-identical to the programs recorded in raw (0 program-hash mismatches over all 1,584 cases); counts are PER RUN and there are two identical runs.",
+   "program_hash_mismatches": 0,
+   "total_CARRIER": 0,
+   "total_COPIED": 0
+  },
+  "experiment": "EXP-0220-canonical-recipes",
+  "gates": {
+   "gate_A_instruction_rows": 4222588,
+   "gate_A_ledger_disagreements": 0,
+   "gate_D_carrier_fields": 0,
+   "gate_D_copied_fields": 0,
+   "gate_E_full_output_digest_disagreements": 0,
+   "gate_E_program_hash_disagreements": 0
+  },
+  "n_unmeasured_MEANS": "the number of COMPILER-SELECTED OPERAND CLASSES OR CONTEXTS this generated recipe does NOT cover.  It is deliberately NOT a field-label count: RE_EXPERIMENT_PROCESS_CORRECTIONS section 2 says `emittable` requires a complete generated recipe and that FIELD LABELS ALONE ARE NOT AN EMITTABILITY PROOF, and Gate D says a canonical recipe must cover the classes the compiler will actually select.  Each entry is enumerated in `coverage_gaps`.",
+  "question": "can a complete falu2 and a complete device_store be constructed byte by byte from documented rules, across the operand classes a compiler actually selects, and their COMPLETE observable state predicted in advance -- with zero fields taken from a compiler-emitted donor",
+  "scope": "EXP-0220 wrote records ONLY for the three mnemonics it generated and gated itself.  It does not touch any other mnemonic's record, and it changes no label anywhere.",
+  "supersedes_note": "EXP-0173's template_dependency.json scored these mnemonics from EXP-0167's corpus, where device_load/device_store/falu2 appear both in the rule-driven generator AND in twelve hand-copied CF programs.  EXP-0220 does not retract that measurement of THAT corpus; it reports a DIFFERENT corpus -- 3,168 programs in which every field of every instruction is rule-derived -- which is what the recipe question actually asks.",
+  "target": "G17P (Apple A18 Pro), direct.  Nothing ran on the M4."
+ },
+ "instructions": [
+  {
+   "can_generate_from_documented_rules_alone": true,
+   "coverage_gaps": [
+    "srcB_class = 1 with index 0..63 -- the UNIFORM-REGISTER operand source.  8 cases were dispatched and are recorded, but this carrier does not seed the uniform file, so they are not predicted.  NOT counted as a blocker: every value a uniform could supply is reachable through a GPR or the inline immediate, both proven here, so an implementer can generate any falu2 without it -- but it stays OPEN on the capability map.",
+    "opsel 6 in the 6-byte form: dispatched, produced output, not modelled."
+   ],
+   "donor_fields": {},
+   "experiment": "EXP-0220",
+   "field_emissions_by_provenance_per_run": {
+    "RULE": 29775
+   },
+   "fields": [
+    {
+     "coverage": "dense, all 16",
+     "dispatched": 16,
+     "distinct_decoded_from_actual_bytes": 16,
+     "distinct_requested_values": 16,
+     "encodable_domain": 16,
+     "ledger_disagreements": 0,
+     "name": "dst",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcA_size",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 64",
+     "dispatched": 64,
+     "distinct_decoded_from_actual_bytes": 64,
+     "distinct_requested_values": 64,
+     "encodable_domain": 64,
+     "ledger_disagreements": 0,
+     "name": "srcA_reg",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 8",
+     "dispatched": 8,
+     "distinct_decoded_from_actual_bytes": 8,
+     "distinct_requested_values": 8,
+     "encodable_domain": 8,
+     "ledger_disagreements": 0,
+     "name": "opsel",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 32",
+     "dispatched": 32,
+     "distinct_decoded_from_actual_bytes": 32,
+     "distinct_requested_values": 32,
+     "encodable_domain": 32,
+     "ledger_disagreements": 0,
+     "name": "opflags",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcB_size",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 64 (GPR); plus all 64 inline-immediate codes through srcB_reg_top",
+     "dispatched": 64,
+     "distinct_decoded_from_actual_bytes": 64,
+     "distinct_requested_values": 64,
+     "encodable_domain": 64,
+     "ledger_disagreements": 0,
+     "name": "srcB_reg",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "32 of 128: bits 0/1 are the INSTRUCTION-LENGTH selector and are held at the 6-byte form; bits 2..6 dense",
+     "dispatched": 32,
+     "distinct_decoded_from_actual_bytes": 32,
+     "distinct_requested_values": 32,
+     "encodable_domain": 128,
+     "ledger_disagreements": 0,
+     "name": "ctrl",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1 of 2: the packed-immediate overload is falu2i, a different descriptor",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcB_imm",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1 of 2: class 1 reads 0.0 at every index (EXP-0138)",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcA_class",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 4",
+     "dispatched": 4,
+     "distinct_decoded_from_actual_bytes": 4,
+     "distinct_requested_values": 4,
+     "encodable_domain": 4,
+     "ledger_disagreements": 0,
+     "name": "srcB_class",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcB_neg",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 16, in TWO operand-provenance classes",
+     "dispatched": 16,
+     "distinct_decoded_from_actual_bytes": 16,
+     "distinct_requested_values": 16,
+     "encodable_domain": 16,
+     "ledger_disagreements": 0,
+     "name": "mod_hi",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcA_reg_top",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 2,
+     "ledger_disagreements": 0,
+     "name": "srcB_reg_top",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    }
+   ],
+   "gate_A_instruction_rows": 4222588,
+   "gate_A_ledger_disagreements": 0,
+   "gate_D_carrier_fields": 0,
+   "gate_D_copied_fields": 0,
+   "gate_E_full_output_digest_disagreements": 0,
+   "gate_E_program_hash_disagreements": 0,
+   "gated_cases": 620,
+   "gated_cases_failed": 0,
+   "gated_cases_passed": 620,
+   "generator_assemble_calls": 3970,
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "mnemonic": "falu2",
+   "n_fields": 15,
+   "n_free_measured": 15,
+   "n_match_pinned": 0,
+   "n_unmeasured": 0,
+   "operand_classes_covered": [
+    "srcB = GPR r0..r63 (64/64, each with a unique codeword)",
+    "srcB = inline 8-bit float immediate, all 64 codes x srcB_neg x {fadd,fmul} (256/256 exact against the EXP-0138 codec)",
+    "srcB = constant 0.0 (classes 2 and 3, both signs)",
+    "srcA = GPR r0..r63 (64/64)",
+    "dst = r0..r15 (16/16, r15 via a rescue that restores the index register)",
+    "operand size b32 and b16 (packed-half codewords so the low half is non-zero)",
+    "operand provenance: live load result / ALU result / mov_imm, distances 0,1,2",
+    "lifetime: all 32 opflags values with a per-source re-read truth table",
+    "ops fadd and fmul; opsel 0,1,2,3,7 FAULT and 6 is recorded",
+    "IEEE boundary operands: +/-0, +/-1, +/-2, +/-0.5, smallest normal, FLT_MAX, 2^24 (18 gated exact; NaN, infinity and denormals recorded, not claimed)"
+   ],
+   "raw": [
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run01/sweep.jsonl",
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run02/sweep.jsonl"
+   ],
+   "recorded_not_gated": 52,
+   "runs": [
+    "g17p-20260831-run01",
+    "g17p-20260831-run02"
+   ],
+   "semantic_checks": 67164,
+   "target": "G17P (Apple A18 Pro)",
+   "verdict": "CANONICAL-RECIPE-PROVEN",
+   "why": "620 gated cases over 13 arms, EVERY ONE matching a host prediction of the COMPLETE state (24 architectural registers plus every byte of all three bound buffers), in two clean runs whose full 32 KiB output digests are identical case for case.  Every field was driven across its full encodable domain except `ctrl` (the 2-bit instruction-length selector is held at the 6-byte form), `srcB_imm` (the packed-immediate overload is a different descriptor) and `srcA_class` (class 1 reads 0.0 at every index).  Operand classes covered: GPR, inline 8-bit float immediate (all 64 codes x 2 signs x 2 ops), and the two constant-zero classes; operand PROVENANCE covered: live device_load result, ALU result and mov_imm, at instruction distances 0/1/2.  Zero fields COPIED, zero CARRIER."
+  },
+  {
+   "can_generate_from_documented_rules_alone": true,
+   "coverage_gaps": [
+    "THREADGROUP address space (`space` bit1).  Four values dispatched; all four FAULT against a device-bound buffer.  An implementer cannot emit a threadgroup store from this recipe.  THIS IS THE ONE GAP THAT KEEPS THE VERDICT AT generated-no-donor.",
+    "extmode >= 128 (a data-register index >= 64): 62 values dispatched and recorded; whether the 7-bit index reaches r64..r95 or aliases mod 64 as EXP-0112 found for a falu2 SOURCE is not resolved here.",
+    "seven index_reg values (96,97,100,111,112,120,127) FAULT, reproducibly in both runs.  This CONFIRMS EXP-0141 on G17P, but the frozen contract mislabelled their predicted bucket `exact`, so they are the experiment's 7 Gate-C misses.",
+    "space, index_reg, st_format, elem_size, access_desc, reserved7, reserved13, st_format_ext and st_desc_hi were SAMPLED (10, 37, 8, 7, 8, 5, 5, 6 and 7 values respectively), not swept densely as section 3 asks for a w <= 8 field."
+   ],
+   "donor_fields": {},
+   "experiment": "EXP-0220",
+   "field_emissions_by_provenance_per_run": {
+    "FREE": 323280,
+    "RULE": 202050
+   },
+   "fields": [
+    {
+     "coverage": "10 of 256 sampled: 0,2,4,6,20,22,84,252,254,255",
+     "dispatched": 10,
+     "distinct_decoded_from_actual_bytes": 10,
+     "distinct_requested_values": 10,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "space",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "DENSE, all 256, in BOTH data-source classes (ALU-computed and live load result) = 512 gated cases",
+     "dispatched": 256,
+     "distinct_decoded_from_actual_bytes": 256,
+     "distinct_requested_values": 256,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "addr_mode",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "dense, all 256 dispatched; 0..126 even gated exact",
+     "dispatched": 256,
+     "distinct_decoded_from_actual_bytes": 256,
+     "distinct_requested_values": 256,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "extmode",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "8 of 256: the hardware slot probe (arm S0) plus the three bound buffers",
+     "dispatched": 8,
+     "distinct_decoded_from_actual_bytes": 8,
+     "distinct_requested_values": 8,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "base_slot",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "37 of 256: r0..r23 dense plus r32/48/63/64/80/95 and the seven EXP-0141 fault values",
+     "dispatched": 37,
+     "distinct_decoded_from_actual_bytes": 37,
+     "distinct_requested_values": 37,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "index_reg",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "8 of 256 sampled across the documented inert range",
+     "dispatched": 8,
+     "distinct_decoded_from_actual_bytes": 8,
+     "distinct_requested_values": 8,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "access_desc",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "5 of 256 sampled",
+     "dispatched": 5,
+     "distinct_decoded_from_actual_bytes": 5,
+     "distinct_requested_values": 5,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "reserved7",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "8 of 256: ALL SIX documented enum shapes (32/16/8-bit scalar, vec2, vec3, vec4) plus 0 and 255",
+     "dispatched": 8,
+     "distinct_decoded_from_actual_bytes": 8,
+     "distinct_requested_values": 8,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "st_format",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "6 of 128, both sides of the v&0x60==0 rule",
+     "dispatched": 6,
+     "distinct_decoded_from_actual_bytes": 6,
+     "distinct_requested_values": 6,
+     "encodable_domain": 128,
+     "ledger_disagreements": 0,
+     "name": "st_format_ext",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "38 of 2048: boundaries, powers of two and interior samples -- the shape section 3 requires for w > 8",
+     "dispatched": 38,
+     "distinct_decoded_from_actual_bytes": 38,
+     "distinct_requested_values": 38,
+     "encodable_domain": 2048,
+     "ledger_disagreements": 0,
+     "name": "idx_off",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "7 of 64, both sides of the v&0x11==0 rule",
+     "dispatched": 7,
+     "distinct_decoded_from_actual_bytes": 7,
+     "distinct_requested_values": 7,
+     "encodable_domain": 64,
+     "ledger_disagreements": 0,
+     "name": "st_desc_hi",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "7 of 256, both sides of the accepted set",
+     "dispatched": 7,
+     "distinct_decoded_from_actual_bytes": 7,
+     "distinct_requested_values": 7,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "elem_size",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "5 of 256 sampled",
+     "dispatched": 5,
+     "distinct_decoded_from_actual_bytes": 5,
+     "distinct_requested_values": 5,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "reserved13",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    }
+   ],
+   "gate_A_instruction_rows": 4222588,
+   "gate_A_ledger_disagreements": 0,
+   "gate_D_carrier_fields": 0,
+   "gate_D_copied_fields": 0,
+   "gate_E_full_output_digest_disagreements": 0,
+   "gate_E_program_hash_disagreements": 0,
+   "gated_cases": 819,
+   "gated_cases_failed": 0,
+   "gated_cases_passed": 819,
+   "generator_assemble_calls": 80820,
+   "in_emittable_set": true,
+   "in_generated_corpus": true,
+   "mnemonic": "device_store",
+   "n_fields": 13,
+   "n_free_measured": 13,
+   "n_match_pinned": 0,
+   "n_unmeasured": 1,
+   "operand_classes_covered": [
+    "st_format: all six documented shapes -- 32/16/8-bit scalar and 2/3/4 x 32-bit vector -- each predicted byte-exactly, which also CONFIRMS the multi-element hypothesis that element n comes from register extmode/2 + n",
+    "data source: ALU-computed AND live device_load result, across all 256 addr_mode values in each (512 gated cases)",
+    "data register: extmode = 2*R for R = r0..r63 (64/64 even values 0..126)",
+    "buffer: all three bound slots, with the slot->buffer mapping established by hardware probe rather than read off a donor",
+    "index register: r0..r23 dense plus r32/48/63/64/80/95 (30 gated)",
+    "immediate offset: 29 boundary / power-of-two / interior values of the 11-bit field",
+    "the descriptor tail (access_desc, reserved7, reserved13, st_format_ext, st_desc_hi, elem_size) on BOTH sides of each documented accepted-set rule"
+   ],
+   "raw": [
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run01/sweep.jsonl",
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run02/sweep.jsonl"
+   ],
+   "recorded_not_gated": 79,
+   "runs": [
+    "g17p-20260831-run01",
+    "g17p-20260831-run02"
+   ],
+   "semantic_checks": 90987,
+   "target": "G17P (Apple A18 Pro)",
+   "verdict": "GENERATED-NO-DONOR",
+   "why": "819 gated cases over 10 arms, every one matching a complete-state host prediction in two clean runs -- including the full 256-value `addr_mode` sweep in BOTH data-source classes (512 cases) and all six documented `st_format` shapes.  `base_slot` is HARDWARE-PROBED here (arm S0) instead of being read off a compiled instruction, so the copied-region ledger is empty.  NOT canonical: the THREADGROUP address space is a class a compiler routinely selects and this recipe does not cover it -- the four `space` bit1 values FAULTED against a device buffer and no threadgroup carrier was built."
+  },
+  {
+   "can_generate_from_documented_rules_alone": true,
+   "coverage_gaps": [
+    "ld_format was held at code 17 -- the only code EXP-0167 proved writes the target register and nothing else; the other 63 codes are untouched here.",
+    "the index GPR was held at r15 throughout.",
+    "addr_mode, access_desc, reserved7 and reserved13 have no emitter-grade label."
+   ],
+   "donor_fields": {},
+   "experiment": "EXP-0220",
+   "field_emissions_by_provenance_per_run": {
+    "FREE": 197268,
+    "RULE": 263024
+   },
+   "fields": [
+    {
+     "coverage": "3 sampled",
+     "dispatched": 3,
+     "distinct_decoded_from_actual_bytes": 3,
+     "distinct_requested_values": 3,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "space",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "3 sampled",
+     "dispatched": 3,
+     "distinct_decoded_from_actual_bytes": 3,
+     "distinct_requested_values": 3,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "addr_mode",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "156 of 256: every destination register the matrix uses",
+     "dispatched": 156,
+     "distinct_decoded_from_actual_bytes": 156,
+     "distinct_requested_values": 156,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "extmode",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "2 of 256 (mem and imem), hardware-probed in arm S0",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "base_slot",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1: the index GPR is held at r15",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "index_reg",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "3 sampled",
+     "dispatched": 3,
+     "distinct_decoded_from_actual_bytes": 3,
+     "distinct_requested_values": 3,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "access_desc",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "2 sampled",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "reserved7",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1: code 17, the only code EXP-0167 proved writes the target and no other register",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "ld_format",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1: the exact rule dst_lo & 3 == 1",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 4,
+     "ledger_disagreements": 0,
+     "name": "dst_lo",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "3, all satisfying dst_ext9 & 1 == 1",
+     "dispatched": 3,
+     "distinct_decoded_from_actual_bytes": 3,
+     "distinct_requested_values": 3,
+     "encodable_domain": 128,
+     "ledger_disagreements": 0,
+     "name": "dst_ext9",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "240 of 2048",
+     "dispatched": 240,
+     "distinct_decoded_from_actual_bytes": 240,
+     "distinct_requested_values": 240,
+     "encodable_domain": 2048,
+     "ledger_disagreements": 0,
+     "name": "idx_off",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "3 sampled",
+     "dispatched": 3,
+     "distinct_decoded_from_actual_bytes": 3,
+     "distinct_requested_values": 3,
+     "encodable_domain": 64,
+     "ledger_disagreements": 0,
+     "name": "ldform_hi11",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "1: 0x46, the 4-byte element scale",
+     "dispatched": 1,
+     "distinct_decoded_from_actual_bytes": 1,
+     "distinct_requested_values": 1,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "elem_size",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    },
+    {
+     "coverage": "2 sampled",
+     "dispatched": 2,
+     "distinct_decoded_from_actual_bytes": 2,
+     "distinct_requested_values": 2,
+     "encodable_domain": 256,
+     "ledger_disagreements": 0,
+     "name": "reserved13",
+     "provenance": "RULE or FREE -- never COPIED, never CARRIER"
+    }
+   ],
+   "gate_A_instruction_rows": 4222588,
+   "gate_A_ledger_disagreements": 0,
+   "gate_D_carrier_fields": 0,
+   "gate_D_copied_fields": 0,
+   "gate_E_full_output_digest_disagreements": 0,
+   "gate_E_program_hash_disagreements": 0,
+   "gated_cases": 0,
+   "gated_cases_failed": 0,
+   "gated_cases_passed": 0,
+   "generator_assemble_calls": 65756,
+   "in_emittable_set": false,
+   "in_generated_corpus": true,
+   "mnemonic": "device_load",
+   "n_fields": 14,
+   "n_free_measured": 10,
+   "n_match_pinned": 0,
+   "n_unmeasured": 4,
+   "raw": [
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run01/sweep.jsonl",
+    "experiments/EXP-0220-canonical-recipes/raw/g17p-20260831-run02/sweep.jsonl"
+   ],
+   "runs": [
+    "g17p-20260831-run01",
+    "g17p-20260831-run02"
+   ],
+   "target": "G17P (Apple A18 Pro)",
+   "verdict": "GENERATED-NO-DONOR",
+   "why": "device_load is not an arm of EXP-0220, but it is a rule-generated component of almost every program here: 18,130 assemble calls across 3,168 executed programs, ZERO fields COPIED and ZERO CARRIER, with `base_slot` hardware-probed rather than read off a compiled instruction.  Its destination register (extmode) took 156 distinct values and its immediate offset 240, each verified against a complete-state host prediction.  EXP-0173 scored this mnemonic `generated-point` because EXP-0167's twelve hand-copied CF programs also contain it; that measurement of THAT corpus stands, and this is a different corpus in which no field is copied.  Four fields (addr_mode, access_desc, reserved7, reserved13) still lack an emitter-grade label, so the recipe is not canonical."
+  }
+ ]
+}

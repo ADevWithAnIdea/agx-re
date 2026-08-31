@@ -155,6 +155,7 @@ class Scorer(object):
         self.e = PC.Evidence(index_dir=index_dir, root=root)
         self.spec = EI.load_db()
         self.rows = PC.claims_from_validation(labels)
+        self._labels_path = labels
         self.by_key = {r["key"]: r for r in self.rows}
         self.ev = {}
 
@@ -269,6 +270,29 @@ class Scorer(object):
             obs[row["key"]] = (s, why, ev["resolved"])
         return obs
 
+    EMIT_OK = ("hardware-run", "isolated-byte-diff")
+
+    def _live_unmeasured(self, mnem):
+        """Fields of `mnem` whose CURRENT label is not emitter-grade.
+
+        Returns None when the sidecar has no entry, so a missing row is never
+        silently scored as zero.
+        """
+        try:
+            import json as _json
+            if not hasattr(self, "_labels_cache"):
+                path = getattr(self, "_labels_path", None) or os.path.join(
+                    HERE, "validation.json")
+                self._labels_cache = _json.load(open(path))["instructions"]
+            rows = self._labels_cache.get(mnem)
+        except Exception:
+            return None
+        if not rows:
+            return None
+        return sum(1 for f, e in rows.items()
+                   if f != "_instruction" and isinstance(e, dict)
+                   and e.get("label") not in self.EMIT_OK)
+
     # -- 4 -------------------------------------------------------------
     def recipe(self):
         obs = {}
@@ -286,7 +310,22 @@ class Scorer(object):
                                                                rec.get("_source")))
             else:
                 donors = rec.get("donor_fields") or {}
-                unmeasured = rec.get("n_unmeasured")
+                # DEF-0220-1: `n_unmeasured` is a STORED count from whenever the
+                # recipe record was written, and the labels have drifted under it
+                # both ways -- EXP-0220 found falu2/device_store understated and
+                # `stop` OVERSTATED, sitting at canonical while `stop.reserved`
+                # reads `untested`. A dashboard that trusts a stale stored number
+                # cannot come out the other way. Recompute from the LIVE labels and
+                # take the worse of the two, so a stored 0 can never mask a real
+                # unmeasured field.
+                live = self._live_unmeasured(m)
+                stored = rec.get("n_unmeasured")
+                if live is None:
+                    unmeasured = stored
+                elif isinstance(stored, int):
+                    unmeasured = max(stored, live)
+                else:
+                    unmeasured = live
                 if donors:
                     s, why = "generated-point", ("generated, but %d field(s) still "
                                                  "donor-supplied: %s"

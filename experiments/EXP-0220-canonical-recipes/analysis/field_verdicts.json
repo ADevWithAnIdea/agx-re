@@ -1,0 +1,102 @@
+{
+ "_meta": {
+  "experiment": "EXP-0220-canonical-recipes",
+  "target": "G17P (Apple A18 Pro) DIRECT -- nothing ran on the M4",
+  "runs": ["g17p-20260831-run01", "g17p-20260831-run02"],
+  "reading": "These are verdicts on RE_EXPERIMENT_PROCESS_CORRECTIONS section 2's SIX INDEPENDENT AXES, not legacy single labels. EXP-0220 changed no label anywhere and proposes none: the orchestrator owns tools/agx-isa and docs/. Every row is backed by the two committed raw runs above.",
+  "gate_summary": "Gate A 0 disagreements over 4,222,588 instruction ledger rows; Gate B controls fired in both runs; Gate C 1,446 of 1,453 gated cases per run (the 7 misses are named below); Gate D 0 COPIED and 0 CARRIER over 14,240,584 field emissions; Gate E 0 program-hash, 0 bucket and 0 full-output-digest disagreements across two runs in different case orders on a machine measured quiet."
+ },
+ "falu2.opflags": {
+  "geometry": "geometry-mapped: 32 of 32 encodable values dispatched, 32 distinct decoded values, 0 ledger disagreements",
+  "liveness": "live",
+  "semantics": "semantically-mapped OVER THE TESTED ENVELOPE, with a CORRECTION: bit0 releases src0 and bit2 is inert on the destination write, but BIT1 IS OPERAND-CLASS DEPENDENT. With a GPR srcB it releases that register (a later read returns 0, seen directly through a re-read instruction, not inferred). With a NON-GPR/INLINE srcB it NEGATES THE IMMEDIATE, XORing with srcB_neg. Values 8..31 (bits 3/4) corrupt, as EXP-0105 documented. Predicted in advance and matched 32/32 in both runs; the 2x2 control that separates the two readings is diagnostic D7 (inline) against D8 (GPR).",
+  "supersedes": "EXP-0090 finding_1 read bit1 as 'both real'; EXP-0167's frozen_pilot recorded INLINE_NEG0_SIGN = -1, which is that experiment's always-set bit1 folded into a constant.",
+  "recipe": "canonical: emitted from a rule in 1,985 falu2 instructions per run",
+  "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed (2 runs, reversed order, identical full-output digests)"
+ },
+ "falu2.mod_hi": {
+  "geometry": "geometry-mapped: 16 of 16 dispatched in TWO operand-provenance classes",
+  "liveness": "live",
+  "semantics": "bounded-map. bit0 (instr bit 44) set => THE DESTINATION IS NOT WRITTEN AT ALL (not merely a wrong value). bits 2 and 3 are an ACCEPT/FORWARD control for a device_load result still in flight: with the load immediately preceding, only 0xC of {0,4,8,C,E} delivers the operand; with ONE intervening instruction all five do. bit1 is inert in the tested envelope. Which subset bits 2 and 3 accept when only one is set depends on how many loads are in flight and is NOT resolved here.",
+  "emitter_rule": "mod_hi = 0xC is correct in every context tested and is the canonical value.",
+  "supersedes": "EXP-0167 frozen_pilot's FALU2_MODHI_OK_ALU/-LOAD split was measured only load-adjacent; the controlling variable is the in-flight load, not srcA's provenance.",
+  "recipe": "canonical", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "falu2.srcB_reg": {
+  "geometry": "geometry-mapped: 64 of 64 GPR indices dispatched, each with a unique codeword, AND all 64 inline-immediate codes through srcB_reg_top",
+  "liveness": "live",
+  "semantics": "semantically-mapped for the GPR and inline-immediate classes: 256 of 256 inline cases (64 codes x srcB_neg x {fadd,fmul}) matched the EXP-0138 minifloat codec exactly, in both runs.",
+  "recipe": "canonical", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "falu2.opsel": {
+  "geometry": "geometry-mapped: 8 of 8 dispatched",
+  "liveness": "live",
+  "semantics": "bounded-map: 4 (fadd) and 5 (fmul) exact; 0, 1, 2, 3 and 7 FAULT the command buffer reproducibly in both runs (kIOGPUCommandBufferCallbackErrorHang, device-recoverable); 6 executes and writes the destination but is not modelled here.",
+  "hazard": "5 of 8 values fault. Each fault costs one device reset; the device recovered every time and no neighbouring case was affected (identical output digests across runs).",
+  "recipe": "canonical for the two values a float ALU compiler selects",
+  "target": "G17P-direct-repeated", "reproducibility": "independently-confirmed"
+ },
+ "falu2.srcA_size|falu2.srcB_size": {
+  "geometry": "geometry-mapped: all four combinations x 2 ops x 4 operand pairs",
+  "liveness": "live",
+  "semantics": "semantically-mapped: size 0 reads the LOW HALF of the register as binary16 and the result is written as a full binary32. 32 of 32 exact. The operands are PACKED-HALF codewords: with the usual (j+1)/4 codewords the low half is all zero and a b16 arm passes by construction (the section 5a detection-power pitfall).",
+  "recipe": "canonical", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "device_store.addr_mode": {
+  "geometry": "geometry-mapped: 256 of 256 dispatched in EACH of two data-source classes = 512 gated cases",
+  "liveness": "live in one class, accepted-inert in the other -- and the two are the same rule",
+  "semantics": "semantically-mapped: bit1 is the ACCEPT/FORWARD control for a device_load result consumed as the store's DATA. Set: the loaded value is stored and the destination register keeps it. Clear: the STALE register value is stored AND THE LOAD IS DROPPED -- the destination register never receives it. With ALU-computed data the field is inert over all 256 values. This is the store-side twin of falu2's mod_hi bits 2/3. 512 of 512 gated cases exact in both runs.",
+  "refines": "EXP-0141's 'with a load-forwarded source only the 128 bit1-set values work and the other 128 store 0' -- they do not store 0, they store the stale register, and the load is lost.",
+  "recipe": "canonical for this field", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "device_store.extmode": {
+  "geometry": "geometry-mapped: 256 of 256 dispatched, 256 distinct decoded values",
+  "liveness": "live",
+  "semantics": "bounded-map. Even values 0..126 deliver register r(extmode/2): 64 of 64 exact with a unique codeword in every register r0..r63. ODD VALUES DO NOT -- bit0 is NOT a don't-care here (126 of 126 odd values dispatched, none exact). Values 252..255 FAULT. Values 128..250 are recorded but not modelled: whether the 7-bit index reaches r64..r95 or aliases mod 64 as EXP-0112 found for a falu2 SOURCE is OPEN.",
+  "limits": "usable count 64 of 128 encodable register indices in the tested envelope; the first invalid entry (252) faults.",
+  "recipe": "canonical over even 0..126", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "device_store.st_format": {
+  "geometry": "8 of 256 dispatched -- all six documented enum shapes plus 0 and 255",
+  "liveness": "live",
+  "semantics": "semantically-mapped for the six documented shapes: 17 stores 4 bytes, 1 stores the low 2, 33 stores the low byte, 25/29/23 store 2/3/4 consecutive 32-bit words. THE MULTI-ELEMENT SOURCE RULE IS CONFIRMED: element n comes from register extmode/2 + n. All six predicted byte-exactly before the run and matched in both runs. 255 writes something unpredicted; 0 writes nothing.",
+  "recipe": "canonical over the six documented shapes", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "device_store.index_reg": {
+  "geometry": "37 of 256 dispatched (r0..r23 dense plus r32/48/63/64/80/95 and the seven EXP-0141 fault values)",
+  "liveness": "live",
+  "semantics": "bounded-map plus TWO LIFETIME RULES, both predicted in advance and matched 4/4 and 30/30: (1) A device_store RELEASES its index register -- the register reads 0 afterwards, and a SECOND store reusing it addresses with index 0. (2) A store whose index register was written by the IMMEDIATELY PRECEDING device_load addresses with the STALE value; one intervening instruction makes the loaded value visible. Values 96,97,100,111,112,120,127 FAULT, reproducibly in both runs -- confirming EXP-0141 on G17P.",
+  "recipe": "generated-no-donor", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "device_store.base_slot": {
+  "geometry": "8 of 256 dispatched in the slot probe plus the three bound buffers",
+  "liveness": "live",
+  "semantics": "bounded-map: slot 0, 1 and 2 address the buffers bound at Metal buffer indices 0, 1 and 2 of OUR OWN carrier; slots 3..7 write none of the three and fault none. Established by HARDWARE PROBE (arm S0), which is the point: EXP-0167 obtained this field by disassembling its own compiled carrier, and Gate D asks for a value that came from neither a donor nor an assumption.",
+  "recipe": "canonical for the bound slots", "target": "G17P-direct-repeated",
+  "reproducibility": "independently-confirmed"
+ },
+ "db_defects": {
+  "mov_imm.imm7_tokenization": {
+   "claim": "EXP-0140 records imm7 == 12 as the only immediate in 0..127 that does not tokenize as a 2-byte instruction. Measured OFFLINE against the pinned db.json length rule, the set is NINE values: 12 and every imm7 == 6 (mod 16), i.e. 6, 22, 38, 54, 70, 86, 102, 118. A following pair whose byte+1 low nibble is 6 makes the leader look like a 4-byte low-nibble-0xc group, and the whole-program walk desynchronises.",
+   "evidence": "harness/prog220.py UNSAFE_IMM7 and harness/selftest220.py T2, which fails the build for any case whose generated offsets are not walk boundaries",
+   "kind": "decoder / length-rule, measured statically; not shown to be a hardware framing hazard",
+   "action": "NOT applied to db.json -- the orchestrator owns it"
+  },
+  "falu2_opsel_ambiguity": {
+   "claim": "falu2 with opsel 0 or 1 assembles to bytes that ALSO satisfy the `falu_compact4` descriptor's match, and the whole-program walk decodes them as falu_compact4. The bytes are exactly the ones requested (Gate A passes); the DESCRIPTOR is ambiguous.",
+   "evidence": "analysis/gates.json gate_A.descriptor_ambiguities"
+  },
+  "device_store_space_ambiguity": {
+   "claim": "device_store with space 6 or 22 assembles to bytes that also satisfy `frag_color_store` / `imageblock_store`, and the length-rule walk then desynchronises for the rest of the program (16 later device_store offsets stop being walk boundaries). Both values FAULT on hardware in both runs.",
+   "evidence": "analysis/gates.json gate_A.descriptor_ambiguities and not_walk_boundary"
+  }
+ }
+}
