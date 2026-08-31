@@ -7,6 +7,7 @@ instruction recipe and case matrix.  Pilot output goes under work/pilot and is n
 promotion evidence.
 """
 
+import random
 import sys
 from pathlib import Path
 
@@ -288,6 +289,66 @@ def build_cases(include_hazard=False):
             "prep": prep, "ops": ops, "expect_match": True,
             "predicted_bucket": "exact",
         })
+
+    cross_specs = []
+    for plan_name, regs in (("lo", list(range(0, 7))), ("hi", list(range(16, 23)))):
+        n = len(regs)
+        for i in range(n):
+            a = regs[i]
+            b = regs[(i * 3 + 1) % n]
+            d = regs[(i * 5 + 2) % n]
+            cross_specs.append((
+                f"cross_{plan_name}_{i:02d}_add",
+                [dict(dst=d, src_a=a, src_b=b, add=True)],
+            ))
+            cross_specs.append((
+                f"cross_{plan_name}_{i:02d}_sub",
+                [dict(dst=d, src_a=a, src_b=b, add=False)],
+            ))
+    for name, raw_ops in cross_specs:
+        ops = []
+        for op in raw_ops:
+            op = dict(op)
+            op.update(logical_order=True, release_a=False, release_b=False)
+            ops.append(op)
+        out.append({
+            "i": len(out), "name": name, "arm": "CROSS", "kind": "iadd",
+            "ops": ops, "expect_match": True, "predicted_bucket": "exact",
+        })
+
+    rng = random.Random(0xA9170222)
+    for case_i in range(100):
+        plan_name, regs = (("lo", list(range(0, 7))) if case_i < 50
+                           else ("hi", list(range(16, 23))))
+        nops = 2 + rng.randrange(63)
+        ops = []
+        for _ in range(nops):
+            ops.append(dict(
+                dst=rng.choice(regs),
+                src_a=rng.choice(regs),
+                src_b=rng.choice(regs),
+                add=bool(rng.getrandbits(1)),
+                logical_order=True,
+                release_a=False,
+                release_b=False,
+            ))
+        out.append({
+            "i": len(out),
+            "name": f"dag_{plan_name}_{case_i:03d}_{nops:02d}",
+            "arm": "DAG", "kind": "iadd", "ops": ops,
+            "expect_match": True, "predicted_bucket": "exact",
+        })
+
+    out.append({
+        "i": len(out), "name": "c0_generated_baseline", "arm": "C0", "kind": "iadd",
+        "ops": [], "expect_match": True, "predicted_bucket": "exact",
+    })
+    out.append({
+        "i": len(out), "name": "c0_wrong_first_selector", "arm": "C0", "kind": "iadd",
+        "ops": [dict(dst=0, src_a=2, src_b=2, add=True, model_a=1, model_b=2,
+                     logical_order=True, release_a=False, release_b=False)],
+        "expect_match": False, "predicted_bucket": "refute",
+    })
     return out
 
 

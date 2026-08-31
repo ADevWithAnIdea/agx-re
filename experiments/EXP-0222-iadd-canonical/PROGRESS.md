@@ -22,3 +22,6 @@
   program SHA-256 and full-buffer output SHA-256 agree between runs, including the 64-op DAG.
   These remain disclosed pilots, not promoted captures. AMENDMENT-05 freezes load-provenance and
   r16..r23 tests before extending the claimed envelope.
+- 2026-08-31: pilot06 passed all 11 P1 cases. Direct load-to-iadd consumption needs no provenance
+  route change in either physical operand, and R1 works through r23. AMENDMENT-06 and the capture
+  contract freeze 157 semantic cases plus the slot probe for two formal runs.
