@@ -1841,10 +1841,29 @@ def instr_length(buf, off=0):
                 return 10              # EXP-0182: isel10_c's unambiguous op-selects
                                        # (db.json `match [[0,4,2],[16,3,5]]`, length 10).
             if b2 in (0x1d, 0x2d):
-                if b2 == 0x2d and b3 == 0x80:
-                    return 10          # register-operand cmpsel (div/mod correction SELECT, EXP-M4-12
-                                       # S3: k_uint_arith@0x134 `12 06 2d 80 26 80 ..` = 10B). The old
-                                       # flat `-> 14` over-read it and swallowed the next op's head.
+                if b2 == 0x2d:
+                    # EXP-0212 candidate L1, applied 2026-08-30. Widened from the old
+                    # `b2 == 0x2d and b3 == 0x80` to byte+2 alone.
+                    #
+                    # Why byte+2 is the discriminator and not a blanket 14 -> 10: EVERY
+                    # hardware-validated 14-byte instance (EXP-0013's icmp_lt / ucmp_lt /
+                    # fcmp_lt, which RUN and tokenize with zero leftover) carries b2 ==
+                    # 0x1d, and BOTH 10-byte hardware sites carry b2 == 0x2d. The length
+                    # is context-dependent, and `db.json`'s single `icmpsel.length`
+                    # integer cannot express that -- which is why EXP-0212 refused the
+                    # blanket change and handed this narrower form on instead.
+                    #
+                    # Anchored on EXP-0200's stop-ruler: two independent sites in two
+                    # carriers, 10-byte enclosing spans, 905 shared offsets at 99.56%
+                    # cross-run agreement. A halt proves a boundary the hardware honours.
+                    #
+                    # Measured effect on the corpus (EXP-0212 work/var_L1, re-verified
+                    # here): strict leftover 387,692 -> 387,686 (-6), instructions
+                    # 25,634 -> 25,637 (+3), resync gap 4,440 -> 4,416 (-24), clean files
+                    # unchanged at 841, round-trip 302 OK / 0 FAIL.
+                    return 10          # register-operand cmpsel (div/mod correction SELECT,
+                                       # EXP-M4-12 S3: k_uint_arith@0x134
+                                       # `12 06 2d 80 26 80 ..` = 10B).
                 return 14              # icmpsel: compare -> 0/1 const (b2=0x1d, b3=0x05)
             if b2 in (0x27, 0x2f) and b3 == 0x80:
                 # madd / register-operand select `dst = srcA*srcB + srcC`, for ALL dst regs
