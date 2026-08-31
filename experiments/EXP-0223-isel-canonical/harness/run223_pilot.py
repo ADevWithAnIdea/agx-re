@@ -58,7 +58,7 @@ def signed32(value):
     return value - (1 << 32) if value & 0x80000000 else value
 
 
-def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond,
+def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
                  model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
                  model_sel_false=None):
     pg.E.emit("isel10", {
@@ -69,7 +69,7 @@ def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond,
         "cmp_mode": fv(0x02, "R1 signed relational mode"),
         "selTrue": fv(sel_true << 1, "R1 true-value descriptor"),
         "cc": fv(0x07 if cond == "lt" else 0x06, "R1 signed condition"),
-        "flags": fv(0xC0, "R1 live-source control point"),
+        "flags": fv(flags, "R1 flags byte; AMENDMENT-03 L1 sweep"),
         "selFalse_file": fv(0, "R1 GPR false-source file"),
         "selFalse": fv(sel_false << 1, "R1 false-value descriptor"),
     })
@@ -135,6 +135,18 @@ def build_cases(include_hazard=False):
             "predicted_bucket": "refute" if name.startswith("h4_ctl") else "exact",
             "op_r1": op,
         })
+    for flags in range(256):
+        for direction, ca, cb in (("true", 1, 2), ("false", 2, 1)):
+            out.append({
+                "i": len(out),
+                "name": f"l1_flags{flags:02x}_{direction}",
+                "arm": "L1",
+                "kind": "isel10_flags",
+                "expect_match": True,
+                "predicted_bucket": "measure",
+                "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                              sel_false=4, cond="lt", flags=flags),
+            })
     return out
 
 
@@ -142,7 +154,7 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] == "H4":
+    if case["arm"] in ("H4", "L1"):
         emit_isel_r1(pg, **case["op_r1"])
     else:
         emit_isel(pg, **case["op"])
