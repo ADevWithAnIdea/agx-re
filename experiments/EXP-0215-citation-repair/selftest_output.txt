@@ -1,0 +1,22 @@
+PASS ADMIT: 16 match-preserving encodings of the field's own bits -> T1
+PASS ADMIT: harness declared the CURRENT span and swept it, no bytes -> T2
+PASS ADMIT: legacy byte-0 sweep whose match-preserving values move bit 7 -> T3
+PASS REFUSE: records declaring a DIFFERENT span (the carry_gen rename hazard)
+PASS REFUSE: 256 distinct bytes, ONE value of the field's own bits (EXP-0214)
+PASS REFUSE: every committed encoding fails the descriptor's own match bits
+PASS REFUSE: attribution by a group string containing the field's name (K3)
+PASS REFUSE: every record sweeps a byte OUTSIDE the field's current span
+PASS REFUSE: the run PLAN (00_manifest.json) with no observation records
+PASS REFUSE: records that live outside raw/ (a prior audit's own scan output)
+PASS REFUSE: a single value is not a sweep
+PASS REFUSE: a legacy byte sweep whose match-preserving values never move the bit
+PASS REFUSE: a P4 dispatched-program corpus is a program-level credit
+PASS REFUSE: legacy records with no execution outcome
+PASS REFUSE: a legacy sweep of a byte the field does not cover
+PASS match: iadd2 byte0 0x1f and 0x9f keep the descriptor
+PASS match: iadd2 byte0 0x00 destroys it
+PASS match: a byte carrying no match bits is always fine
+PASS field bits: bit 7 of byte 0 is 1 for 0x9f and 0 for 0x1f
+PASS field bits: byte 3 is outside a byte-0 field
+
+EXP-0215 PROPOSAL-RULE SELFTEST PASS
