@@ -1020,9 +1020,17 @@ def main():
     ap.add_argument("--labels", default=os.path.join(HERE, "validation.json"))
     ap.add_argument("--verdicts", nargs="*", help="check proposed field_verdicts.json "
                                                   "instead of validation.json")
-    ap.add_argument("--report-dir",
-                    default=os.path.join(ROOT, "experiments", "EXP-0209-dashboards",
-                                         "reports"))
+    # DEF-0212-2 (found by EXP-0212): this defaulted to
+    # experiments/EXP-0209-dashboards/reports, so simply RUNNING the checker
+    # silently overwrote a committed experiment's artifacts -- a 2,485/1,269 line
+    # diff on a tree the operator had not asked to change. An experiment's
+    # committed reports are evidence of what THAT experiment found; a later tool
+    # run must not rewrite them. Writing is now opt-in, and the summary prints
+    # either way.
+    ap.add_argument("--report-dir", default=None,
+                    help="write the six reports here. NOT set by default: writing "
+                         "into a committed experiment directory would overwrite its "
+                         "evidence. Use a scratch path, e.g. work/promotion_reports.")
     ap.add_argument("--index-dir", default=None)
     ap.add_argument("--row", help="check one <mnemonic>.<field> and print it")
     ap.add_argument("-v", "--verbose", action="store_true")
@@ -1048,9 +1056,13 @@ def main():
         return 0
 
     results = [check_row(r, e) for r in rows]
-    write_reports(results, a.report_dir, src)
+    if a.report_dir:
+        write_reports(results, a.report_dir, src)
     print("checked %d claim rows from %s" % (len(results), src))
-    print("reports written to %s" % os.path.relpath(a.report_dir, ROOT))
+    if a.report_dir:
+        print("reports written to %s" % os.path.relpath(a.report_dir, ROOT))
+    else:
+        print("(no --report-dir given: summary only, nothing written -- DEF-0212-2)")
     print()
     print("  axis            PASS  REJECT  INSUFF     N/A")
     for name in sorted(REPORTS):
