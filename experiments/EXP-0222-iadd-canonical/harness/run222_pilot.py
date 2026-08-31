@@ -29,10 +29,11 @@ def fv(value, note):
 
 
 def emit_iadd(pg, dst, src_a, src_b, add=True, model_a=None, model_b=None,
-              packing="h1"):
+              packing="h1", opmode=2, src_a_desc=0, srca_ctl=0xA8,
+              opc_tail=0x17, opc_tail2=0x05):
     """Emit one complete no-donor iadd2 and advance the independent host model."""
     if packing == "h1":
-        ea, eb = src_a << 2, src_b << 2
+        ea, eb = (src_a << 2) | src_a_desc, src_b << 2
     elif packing == "h2":
         ea, eb = (src_a << 1) | 1, (src_b << 1) | 1
     elif packing == "h3":
@@ -48,13 +49,13 @@ def emit_iadd(pg, dst, src_a, src_b, add=True, model_a=None, model_b=None,
         "store_en": fv(1, "publish destination"),
         "b2_fmt": fv(0x15, "canonical accepted format point"),
         "dst": fv((dst << 1) | 1, "32-bit destination descriptor"),
-        "opmode": fv(2, "canonical register mode"),
+        "opmode": fv(opmode, "canonical register mode plus nominated lifecycle bit"),
         "srcB_imm": fv(eb, "H1 second source selector"),
         "srcB_imm_hi": fv(0, "canonical register form"),
         "srcB_ext": fv(ea, "H1 first source selector"),
-        "srcA": fv(0xA8, "canonical operand-control point"),
-        "opc_tail": fv(0x17, "canonical accepted tail"),
-        "opc_tail2": fv(0x05, "canonical accepted tail 2"),
+        "srcA": fv(srca_ctl, "canonical operand-control point plus nominated lifecycle bit"),
+        "opc_tail": fv(opc_tail, "canonical accepted tail plus nominated lifecycle bits"),
+        "opc_tail2": fv(opc_tail2, "canonical accepted tail 2"),
     })
 
     # Any pending load is deliberately outside this pilot's envelope.
@@ -134,6 +135,28 @@ def build_cases(include_hazard=False):
             c["ops"] = [dict(dst=0, src_a=2, src_b=2, add=True,
                              model_a=1, model_b=2, packing="h1")]
         out.append(c)
+
+    # AMENDMENT-03 L1: exhaustive cross of the five bits nominated by the
+    # authored-MSL differential.  The host state deliberately predicts both
+    # inputs survive; released inputs therefore appear as explicit diffs.
+    for o in (0, 1):
+        for a in (0, 1):
+            for b in (0, 1):
+                for t1 in (0, 1):
+                    for t2 in (0, 1):
+                        name = f"l1_o{o}_a{a}_b{b}_t{t1}{t2}"
+                        ops = [dict(
+                            dst=0, src_a=1, src_b=2, add=True,
+                            opmode=2 | o,
+                            src_a_desc=a,
+                            srca_ctl=0xA8 | (b << 2),
+                            opc_tail=0x11 | (t1 << 1) | (t2 << 2),
+                        )]
+                        out.append({
+                            "i": len(out), "name": name, "arm": "L1", "kind": "iadd",
+                            "ops": ops, "expect_match": True,
+                            "predicted_bucket": "discovery",
+                        })
     return out
 
 
