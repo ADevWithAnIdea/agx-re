@@ -10,3 +10,7 @@
 - 2026-08-31: AMENDMENT-01's constant-index own-MSL differential was carrier-undecidable: all three
   functions had an identical 30-byte main and no comparable iadd token. AMENDMENT-02 freezes a
   dynamic-thread-index revision; the null result is retained.
+- 2026-08-31: AMENDMENT-02's dynamic revision produced three clean 134-byte mains. The probable
+  arithmetic tokens nominate five changed bits, but the source also confounds source liveness with
+  result use count. AMENDMENT-03 freezes an exhaustive 32-combination generated hardware sweep;
+  no compiler-emitted instruction byte is copied.
