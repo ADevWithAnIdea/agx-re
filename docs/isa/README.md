@@ -222,7 +222,7 @@ per-group length bit where needed:
 | low-nibble `0xC` | preamble | 4 |
 | low-nibble `0x7` (`67`/`e7`) | device load/store | 14 |
 | `0x09` | **float ALU (2-src)** | 6, or **8 if `byte[+2] & 0x02`** (the fma/length bit) |
-| `0x0b` | float unary | 10 |
+| `0x0b` | float unary | 10 — **UNVERIFIED against the live tokenizer (flagged 2026-08-30 by `check_doc_lengths.py`).** A zero-filled byte0 probe returns **4**, and **no byte0 = `0x0b` encoding appears in the sampled committed raw**, so this row cannot be confirmed or refuted here. It is an early-wave claim (EXP-0005) that no later experiment revisited. Treat as `INFERRED` until a real encoding is dispatched. |
 | `0x12` | float min/max | 6 |
 | `0x9f` | integer ALU | 10/12 — **not yet solved (follow-up)** |
 
