@@ -1773,6 +1773,54 @@ dimensions named. Its sibling **`simd_shuffle.cache` is LIVE and contextual**: c
 bit 1 where the compiler set it returns **foreign data** or a silent zero with a wrong atomic
 total, isolated by a matched pair differing only in **operand provenance**. (EXP-0205)
 
+
+### 2026-08-30 descriptor identity — corrections an emitter MUST have (EXP-0216/0217)
+
+> These are **descriptor-geometry and semantics** facts derived from committed bytes and
+> already-controlled oracles. No evidence label changed. Where a question is undecidable it says so
+> rather than guessing.
+
+- **`imad` has NO `srcA` field, and BOTH its operand bytes are multiplicands.**
+  `dest = SEED[b5>>2] * SEED[b6>>3] + 1` fits **64/64 and 68/128**, while **both addend models fit
+  0**. So an earlier repair moved the wrong *name* (`srcC_lo`, byte 6 → byte 5) instead of removing
+  it. **Which multiplicand is A and which is B is UNDECIDABLE** — multiplication commutes and no
+  observation separates them. **The addend is still unaccounted for.** Byte+5 is a multiplicand
+  selector with `reg = v>>2` (oracle 64/64); the descriptor's own note previously read "ROLE
+  UNRESOLVED — never swept", which its own sidecar contradicted with "byte+5: 0..255 dense, 512
+  records".
+- **`fspecial`'s operand rotation is real and correct.** Byte 3 relocates the **destination**
+  (`index = v>>1`, 26/26); byte 5 selects the **source** (`index = v>>2`, 56/56, checked
+  arithmetically with `rsqrt(9) = 1/3` and `rsqrt(0.25) = 2`). The `(12,4)` field is inert.
+- **`falu3` is `A*B+C` reading bytes 1/3/5, with `reg = byte>>1`** — not the frozen model, which
+  put srcB on byte 4 whose baseline `0x81` is register 64. **EXP-0203's own committed oracle scores
+  47,030 for bytes 1/3/5 against 0 for bytes 3/4/5.** The same shape holds for `iminmax`,
+  `half_alu` and `half_alu_fma12`.
+- **`mov_zext16`: byte0 = `0xN3` writes `zext16(r[N])` into `r[N]`** — the same register is source
+  and destination, verified against the committed pre-dump for N = 0..10; N >= 11 writes nothing.
+- **Two descriptor `match` constraints are OVER-FIT and will reject encodings the hardware runs.**
+  `cvt_f2h` spends 8 bits on byte 0 when only the **low nibble** (the opcode group) holds — it
+  fails **6,550 of 6,555** committed encodings, and the low nibble holds on **6,515** of them; the
+  high nibble is a `dst` register in every dst-parameterised sibling. `bf_alu` is worse:
+  **0 of 13,144** committed encodings satisfy it (`byte1 == 0x00` on all 13,144 where the match
+  wants `0x02`). **Neither match was widened**, because every candidate widening either broke
+  round-trip or let one descriptor swallow another's firings — see below.
+- **`bf_alu`, `bf_add_dst` and `bf_mul_dst` assign IDENTICAL spans per swept byte** (byte 3 =
+  `srcA (24,8)`, byte 4 = `srcB`, bytes 5–7 = `tail (40,24)`). An apparent sibling-mnemonic
+  conflict was an artefact of aggregating field counts across bytes 3–7.
+
+**Why the over-fit matches were NOT fixed — this is a fact about the ISA, not only about us.**
+All three candidate widenings leave the corpus decode *bit-identical* in clean files, leftover
+bytes, instructions and resync gap. What refuses them is finer: widening `cvt_f2h` breaks
+round-trip once and adds a field with no evidence; widening `bf_alu` breaks it twice and, tying
+`bf_alu8_var` at four match bits, **wins on list order and swallows all 135 of that descriptor's
+firings**; and the bfloat byte+2 masking recovers 112 records while **0 of the 37 corpus tokens it
+re-claims carry `byte+1 == 0x00`**, the only byte+1 the hardware alias sweep held.
+
+**And the underlying reason is context-dependence.** `0x14` is in the eight-value bfloat alias set
+**and** is the byte+2 of the hardware-validated convert anchor `01 01 14 81 04 02`. The same byte+2
+value means different things in different groups, so a mask that is correct for one group is wrong
+for the other. An emitter must not treat these bits as a free-standing enum.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
