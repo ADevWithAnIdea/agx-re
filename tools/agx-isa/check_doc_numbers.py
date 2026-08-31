@@ -61,10 +61,27 @@ def current():
 CLAUSE = re.compile(r"[.;:]\s|\s[—-]{1,2}\s|\|")
 
 
-def clause_of(line, pos):
-    starts = [0] + [m.end() for m in CLAUSE.finditer(line) if m.end() <= pos]
+def clause_of(line, pos, back=0):
+    """The clause around pos. `back` extends leftward by that many clauses.
+
+    An em-dash splits "Recipe is unmoved -- at 2 of 166" into two clauses and
+    strands the word that identifies the measure, so the OTHER check reads one
+    clause further left than the STALE check does. One clause, not the whole
+    line: the whole line is what produced the earlier false negative on a
+    status-board row.
+    """
+    ms = [m for m in CLAUSE.finditer(line) if m.end() <= pos]
+    bounds = [0] + [m.end() for m in ms]
+    start = bounds[-1]
+    if back and ms:
+        # Extend leftward ONLY across a dash. A dash continues a statement
+        # ("Recipe is unmoved -- at 2 of 166"); a period or semicolon starts a new
+        # one, and reaching across it would excuse a genuinely stale figure sitting
+        # after an unrelated mention. The selftest asserts both halves.
+        if "-" in ms[-1].group(0) or "\u2014" in ms[-1].group(0):
+            start = bounds[max(0, len(bounds) - 2)]
     ends = [m.start() for m in CLAUSE.finditer(line) if m.start() > pos] + [len(line)]
-    return line[max(starts):min(ends)]
+    return line[start:min(ends)]
 
 
 def scan(text, cur, path, out):
@@ -75,7 +92,7 @@ def scan(text, cur, path, out):
             if got == cur[denom]:
                 continue
             cl = clause_of(line, m.start())
-            if OTHER.search(cl):
+            if OTHER.search(clause_of(line, m.start(), back=1)):
                 out.append("    ok(other measure) %s:%d  %s" % (path, ln, m.group(0)))
                 continue
             if HIST.search(cl):
@@ -99,6 +116,11 @@ def selftest(cur):
            "emittable) | the number went down, from 79 to %d |"
            % (cur["166"] + 7, cur["166"] + 7))
     other = "the only committed recipe registry covers %d of 166 mnemonics" % (cur["166"] + 7)
+    # The em-dash case that motivated back=1: the identifying word is one clause left.
+    other_dash = "Recipe is unmoved - at %d of 166 nothing gained one" % (cur["166"] + 7)
+    # ...and back=1 must NOT reach so far that a real stale headline is excused.
+    stale_after_other = ("The recipe dashboard reads 2 of 166. Emittable is %d of 166."
+                         % (cur["166"] + 7))
     stale_near_other = ("%d of 166 instructions are emittable. Separately the recipe "
                         "registry covers 35 of 166." % (cur["166"] + 7))
     o = []
@@ -106,9 +128,13 @@ def selftest(cur):
     d = scan(row, cur, "T", o)
     e = scan(other, cur, "T", o)          # different measure -> exempt
     f = scan(stale_near_other, cur, "T", o)  # a real stale headline in the SAME line
-    if not (a == 1 and b == 0 and c == 0 and d == 1 and e == 0 and f == 1):
+    g = scan(other_dash, cur, "T", o)        # identifier one clause left -> exempt
+    h = scan(stale_after_other, cur, "T", o)  # back=1 must not excuse this
+    if not (a == 1 and b == 0 and c == 0 and d == 1 and e == 0 and f == 1
+            and g == 0 and h == 1):
         print("SELFTEST FAIL: stale=%d(1) fresh=%d(0) historical=%d(0) long-row=%d(1) "
-              "other-measure=%d(0) stale-beside-other=%d(1)" % (a, b, c, d, e, f))
+              "other-measure=%d(0) stale-beside-other=%d(1) other-across-dash=%d(0) "
+              "stale-after-other=%d(1)" % (a, b, c, d, e, f, g, h))
         return False
     return True
 

@@ -20,16 +20,26 @@ This is the live status board for closing every P0 and P1 item in
 > append-only ledger and **cannot fall**; monotonicity was demonstrated by re-scoring against an
 > empty evidence index, where `attained` held while `current` dropped to zero on six dashboards.
 >
-> | dashboard (top rung) | attained | denominator |
-> |---|---:|---:|
-> | Encoding geometry coverage / geometry-mappe | **502** | 1040 |
-> | Field/bit liveness coverag / decided-multi- | **99** | 1040 |
-> | Semantic-map coverage / semantically-m | **5** | 1040 |
-> | Canonical generated-recipe / canonical-reci | **2** | 166 |
-> | Direct G17P revalidation c / G17P-direct-re | **432** | 1040 |
-> | Reproducible evidence-chai / independently- | **264** | 1212 |
-> | Finite-resource limit and  / limit-mapped | **133** | 987 |
+> | dashboard (top rung) | attained | current | denominator | downgrades |
+> |---|---:|---:|---:|---:|
+> | Encoding geometry coverage / geometry-mappe | **571** | 567 | 1053 | 6 |
+> | Field/bit liveness coverag / decided-multi- | **158** | 158 | 1053 | 0 |
+> | Semantic-map coverage / semantically-m | **25** | 25 | 1053 | 0 |
+> | Canonical generated-recipe / canonical-reci | **2** | 2 | 166 | 0 |
+> | Direct G17P revalidation c / G17P-direct-re | **524** | 524 | 1053 | 0 |
+> | Reproducible evidence-chai / independently- | **465** | 465 | 1225 | 0 |
+> | Finite-resource limit and  / limit-mapped | **207** | 207 | 1002 | 0 |
 >
+> **Morning → now, same day:** geometry 502 → **571**, liveness 99 → **158**, semantics 5 → **25**,
+> G17P-direct 432 → **524**, evidence-chain 264 → **465**, limits 133 → **207**.
+> **The recipe dashboard is unmoved at 2 of 166** — nothing acquired a *generated* recipe today,
+> and that is the dashboard which actually gates emittability under §2.
+>
+> **Geometry shows `attained` 571 above `current` 567, with 6 downgrades — the monotonicity
+> mechanism working as designed.** Those six are rows where a citation repair added an M4-era
+> experiment that brings Gate A disagreements. §9: a later correction does not erase earlier
+> geometry evidence, so `attained` holds while `current` reflects the newest scoring.
+> 
 > Thin dashboards say why they are thin rather than scoring zero: **recipe** is registry-bound (the
 > only committed recipe registry covers 35 of 166 mnemonics), and §6's finite **resources** — slots,
 > banks, scoreboards, descriptor tables — report **0 of 0, no machine-readable registry exists**.
