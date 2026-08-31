@@ -25,3 +25,7 @@
 - 2026-08-31: pilot06 passed all 11 P1 cases. Direct load-to-iadd consumption needs no provenance
   route change in either physical operand, and R1 works through r23. AMENDMENT-06 and the capture
   contract freeze 157 semantic cases plus the slot probe for two formal runs.
+- 2026-08-31: formal run01 (canonical) and run02 (shuffle seed 222) completed. All 312 exact
+  semantic observations match; both refuters fire; 0 per-case program/output disagreement, Gate-A
+  mismatch, donor field, foreign runner, recovery, fault, hang, or sentinel failure. `RESULTS.md`
+  promotes the bounded r0..r23 register-register recipe.
