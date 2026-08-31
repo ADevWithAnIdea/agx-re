@@ -54,6 +54,39 @@ def emit_isel(pg, dst, cmp_a, cmp_b, sel_true, sel_false, packing,
     pg.set_reg(dst, out)
 
 
+def signed32(value):
+    return value - (1 << 32) if value & 0x80000000 else value
+
+
+def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond,
+                 model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
+                 model_sel_false=None):
+    pg.E.emit("isel10", {
+        "dst": fv(dst, "R1 destination GPR"),
+        "cmpA": fv((cmp_a << 1) | 1, "R1 compare-A descriptor"),
+        "opsel": fv(0, "R1 ten-byte member"),
+        "cmpB": fv((cmp_b << 1) | 1, "R1 compare-B descriptor"),
+        "cmp_mode": fv(0x02, "R1 signed relational mode"),
+        "selTrue": fv(sel_true << 1, "R1 true-value descriptor"),
+        "cc": fv(0x07 if cond == "lt" else 0x06, "R1 signed condition"),
+        "flags": fv(0xC0, "R1 live-source control point"),
+        "selFalse_file": fv(0, "R1 GPR false-source file"),
+        "selFalse": fv(sel_false << 1, "R1 false-value descriptor"),
+    })
+    pg._pending = None
+    ma = cmp_a if model_cmp_a is None else model_cmp_a
+    mb = cmp_b if model_cmp_b is None else model_cmp_b
+    mt = sel_true if model_sel_true is None else model_sel_true
+    mf = sel_false if model_sel_false is None else model_sel_false
+    av, bv, tv, fv_bits = pg.rbits(ma), pg.rbits(mb), pg.rbits(mt), pg.rbits(mf)
+    if None in (av, bv, tv, fv_bits):
+        out = None
+    else:
+        pred = signed32(av) < signed32(bv) if cond == "lt" else signed32(av) > signed32(bv)
+        out = tv if pred else fv_bits
+    pg.set_reg(dst, out)
+
+
 def fresh(case, slots):
     pg = P.Prog(slots, case["name"], offnatural=False)
     pg.prologue(seed_high=True)
@@ -80,6 +113,28 @@ def build_cases(include_hazard=False):
         "op": dict(dst=0, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4,
                    packing="h1", model_cmp_a=2, model_cmp_b=1),
     })
+    h4_specs = [
+        ("h4_lt_true", dict(dst=0, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_lt_false", dict(dst=0, cmp_a=2, cmp_b=1, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_gt_true", dict(dst=0, cmp_a=2, cmp_b=1, sel_true=3, sel_false=4, cond="gt")),
+        ("h4_gt_false", dict(dst=0, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4, cond="gt")),
+        ("h4_relocate", dict(dst=5, cmp_a=6, cmp_b=7, sel_true=8, sel_false=9, cond="lt")),
+        ("h4_alias_a", dict(dst=1, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_alias_b", dict(dst=2, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_alias_t", dict(dst=3, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_alias_f", dict(dst=4, cmp_a=2, cmp_b=1, sel_true=3, sel_false=4, cond="lt")),
+        ("h4_ctl_wrong_cmp", dict(dst=0, cmp_a=2, cmp_b=2, sel_true=3, sel_false=4,
+                                         cond="lt", model_cmp_a=1, model_cmp_b=2)),
+        ("h4_ctl_wrong_true", dict(dst=0, cmp_a=1, cmp_b=2, sel_true=5, sel_false=4,
+                                          cond="lt", model_sel_true=3)),
+    ]
+    for name, op in h4_specs:
+        out.append({
+            "i": len(out), "name": name, "arm": "H4", "kind": "isel10",
+            "expect_match": not name.startswith("h4_ctl"),
+            "predicted_bucket": "refute" if name.startswith("h4_ctl") else "exact",
+            "op_r1": op,
+        })
     return out
 
 
@@ -87,7 +142,10 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    emit_isel(pg, **case["op"])
+    if case["arm"] == "H4":
+        emit_isel_r1(pg, **case["op_r1"])
+    else:
+        emit_isel(pg, **case["op"])
     pg.dump()
     return pg, pg.finish(carrier_len)
 
