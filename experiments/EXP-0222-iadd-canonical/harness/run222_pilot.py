@@ -101,6 +101,16 @@ def fresh(case, slots):
 
 def build_iadd(case, slots, carrier_len):
     pg = fresh(case, slots)
+    for prep in case.get("prep", []):
+        kind = prep[0]
+        if kind == "load_i":
+            _, reg, word = prep
+            pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")
+        elif kind == "movi":
+            _, reg, value = prep
+            pg.movi(reg, value)
+        else:
+            raise ValueError(f"unknown prep {prep!r}")
     for op in case["ops"]:
         emit_iadd(pg, **op)
     return pg
@@ -242,6 +252,42 @@ def build_cases(include_hazard=False):
         "i": len(out), "name": "v1_dag64_reuse", "arm": "V1", "kind": "iadd",
         "ops": dag_ops, "expect_match": True, "predicted_bucket": "exact",
     })
+
+    p1_specs = [
+        ("p1_load_a_direct", [("load_i", 1, 123)],
+         [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("p1_load_b_direct", [("load_i", 2, 124)],
+         [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("p1_load_both_direct", [("load_i", 1, 123), ("load_i", 2, 124)],
+         [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("p1_load_logical_a_sub_direct", [("load_i", 4, 127)],
+         [dict(dst=3, src_a=4, src_b=5, add=False)]),
+        ("p1_load_a_delayed", [("load_i", 1, 123), ("movi", 14, 73)],
+         [dict(dst=0, src_a=1, src_b=2, add=True)]),
+        ("p1_high_add", [],
+         [dict(dst=18, src_a=16, src_b=17, add=True)]),
+        ("p1_high_sub", [],
+         [dict(dst=20, src_a=21, src_b=22, add=False)]),
+        ("p1_cross_low_high", [],
+         [dict(dst=19, src_a=3, src_b=18, add=True)]),
+        ("p1_r23_immediate_source", [],
+         [dict(dst=0, src_a=23, src_b=1, add=True)]),
+        ("p1_high_alias_a", [],
+         [dict(dst=16, src_a=16, src_b=17, add=True)]),
+        ("p1_high_alias_b_sub", [],
+         [dict(dst=22, src_a=21, src_b=22, add=False)]),
+    ]
+    for name, prep, raw_ops in p1_specs:
+        ops = []
+        for op in raw_ops:
+            op = dict(op)
+            op.update(logical_order=True, release_a=False, release_b=False)
+            ops.append(op)
+        out.append({
+            "i": len(out), "name": name, "arm": "P1", "kind": "iadd",
+            "prep": prep, "ops": ops, "expect_match": True,
+            "predicted_bucket": "exact",
+        })
     return out
 
 
