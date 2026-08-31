@@ -1281,9 +1281,27 @@ def _n1_len(buf, off):
     if (b3 & 0xf0) == 0x80:
         return 8 if (b4 & 0x01) else 6
     # NATIVE BFLOAT ALU, every dst register and every byte+1 source class.
-    if b2 in (0x1c, 0x1d):
+    if (b2 & 0xc7) in (0x04, 0x05):
+        # EXP-0216, applied 2026-08-30. The op-select is byte+2 bits [2:0]
+        # (0b100 add / 0b101 mul / 0b110 fma); bits [5:3] are NOT part of it, and
+        # the old gate hardcoded them as 0b011 by testing the whole byte for
+        # 0x1c/0x1d/0x1e.
+        #
+        # EXP-0171's NAT bfloat carrier accepted EIGHT byte+2 values with
+        # BIT-IDENTICAL output -- 0x04, 0x0c, 0x14, 0x1c, 0x24, 0x2c, 0x34, 0x3c,
+        # i.e. exactly (b2 & 0xc7) == 0x04 -- and our tokenizer could size only
+        # 0x1c. Seven hardware-accepted encodings had no length at all.
+        #
+        # Measured before applying, on EXP-0171's 16,991 distinct committed
+        # encodings: unsized 523 -> 502 (-21), and the length histogram is
+        # otherwise IDENTICAL (8: 4783 -> 4797, 10: 7859 -> 7866, every other
+        # bucket unchanged). So this is strictly ADDITIVE -- 21 encodings gain a
+        # length and none is reassigned. That distinction is the whole safety
+        # argument: frame_marker_compact's 2 -> 4 change looked equally
+        # well-founded on hardware today and was refused as a measured corpus
+        # regression because it MOVED lengths rather than adding them.
         return 8
-    if b2 == 0x1e:
+    if (b2 & 0xc7) == 0x06:   # EXP-0216: same masking, fma select
         return 10
     # ---- byte0 == 0x11 legacy sub-rules, preserved verbatim ----
     if b0 == 0x11 and b1 == 0x03:
