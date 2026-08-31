@@ -1,0 +1,126 @@
+{
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "eabff555c0b0072866fb5cd8f2e4d0e44ddd8ddc8c7913789d13ff9aa0a14c2d",
+  "analysis/desk_class_maps.py": "316ef322d94169e23692b9e43a6a75342615f3d7e61d732f05a31560ef851ee4",
+  "analysis/desk_mode_instability.py": "14532f8405bf51a151bcd4ee6dc1412aa2b7a2fa2f7970217231c90fa547216b",
+  "harness/calib_a.py": "ea4c39b7e79ff8b8b3ba048ea49d4c032d04e517184f7aecfdbf94276a5e3c16",
+  "harness/casematrix_a.py": "320dc54bb0fb4ae5bf5f2ad259944d924a2f1329a61cb7cba92e56e9cfefb51f",
+  "harness/gpusnap.py": "2a626bfd17d0531670636abf2bd2152cf8d366e01721c5b4377493cc81011f00",
+  "harness/imad_carrier.py": "af7d7627def10d29e6021318a3466f95a67cf1b331032c1c5c9eb3eb330a0c20",
+  "harness/imad_helpers.py": "2ca6591ee3f80e446b2bb582c3f1e0806dbc0ac9e2dc4c05cb7c569e8b35633f",
+  "harness/neo.sh": "94d3fdf22ff0fec39211585c5d5d793a01c56d4c8dd477defba27696401815a4",
+  "harness/oracle_a.py": "991f9d9179c671b9319aae32eaf044df14d4536f51d7a7131a076a117dadba42",
+  "harness/pull_run.sh": "6f91e998fcca4adc0af23729f2ec1ead8f24779b51c9d83cbf20cd7a569b06c5",
+  "harness/push.sh": "6dd52e5b92764eb40400eec007878a0a70ba42cc3ab45c9de6a6ef28c68999c4",
+  "harness/quietsample.py": "47e2829e6d990beab643bc992eaa438f27d27830f23c335b23fdad5a11bf78d2",
+  "harness/run_a.py": "0eb15f6e1a62082093c9f194e27e9bdf5dbb1f836fc05134e5ddbfbbd07366e0",
+  "kernels/carrier_const.metal": "d49d8cf29fdf87f708cfadfc6b8db7d2e62feed40fb5ca9d91d9d888ab8b178e",
+  "kernels/carrier_dag.metal": "c77777bf48c2b4d3e0fd6863c2dc54450922f5f74a8067de898e73a493050b8b",
+  "kernels/probes_imad.metal": "ba7ea957913f4e086b505f681a2040c020a2afe898eb233ffe6a2b67787d3bdf",
+  "work/frozen/db.json": "e90c62cce215ef63c0e4a6878a042ef9530fc5447b18cb90dbf565ff8c85be2e",
+  "work/frozen/isadb.py": "731e8a2f62189670dc47f8a663c02791110028ddf5e21d138165d0a6d2b245fc",
+  "work/frozen/persistrun.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8"
+ },
+ "budgets": {
+  "cascade_consecutive_hangs": 6,
+  "device_time_total_h": 5,
+  "hangs_per_arm": 8,
+  "hangs_total": 32,
+  "req_timeout_compute_s": 8.0,
+  "req_timeout_render_s": 15.0,
+  "wallclock_per_capture_s": 2700
+ },
+ "clean_room": "OWN-SHADER + HW-PROBE. No Apple binary disassembled or introspected.",
+ "experiment": "EXP-0219-named-dispatches",
+ "frozen_utc": "2026-08-31T05:09:33Z",
+ "gate_rule": "captures are gated on the AUTHORED BLOB HASHES below, never on repo HEAD",
+ "part_A": {
+  "anchor_imad_hex": "9f00560002080060d02e0a00",
+  "anchor_provenance": "kernels/probes_imad.metal compiled on the neo with tools/shdump, tokenized by the PINNED work/frozen isadb; sole imad at _agc.main+32 of 62; 0 leftover bytes (work/calib/calib_a.json)",
+  "carriers": {
+   "const": {
+    "block_off": 52,
+    "region_len": 1844,
+    "region_off": 11440,
+    "src": "kernels/carrier_const.metal"
+   },
+   "dag": {
+    "block_off": 52,
+    "region_len": 2412,
+    "region_off": 12592,
+    "src": "kernels/carrier_dag.metal"
+   }
+  },
+  "fit_rule": "FILE[j] := recovered addend from arm `cross` (dag) / `cross32` (const), b9=0x2e, b8=0xd0, K=j, seed set 1, run01 ONLY. Everything else held out.",
+  "gate_e_orders": {
+   "run01": "forward",
+   "run02": "reverse"
+  },
+  "gate_e_pair": {
+   "const": [
+    "g17p_e0219_A_const_run01",
+    "g17p_e0219_A_const_run02"
+   ],
+   "dag": [
+    "g17p_e0219_A_dag_run01",
+    "g17p_e0219_A_dag_run02"
+   ]
+  },
+  "matrix_sha256": {
+   "const": "8f2e4d7d49f4dadb5209001feef1cc53fb7bff74002fcdd68cf9a5b0949bb5be",
+   "dag": "ed9bc3d8c9218569d091ac27d3c4e060eeae63bd10d88d0662a42501ec98c486"
+  },
+  "n_cases": {
+   "const": 1162,
+   "dag": 2058
+  },
+  "predicted_product": {
+   "sset1": "SEED_I[2]*SEED_I[0] = 34*10 = 340",
+   "sset2": "SEED_I2[2]*SEED_I2[0] = 19*7 = 133"
+  },
+  "seed_sets": {
+   "1": "imad_helpers.SEED_I",
+   "2": "imad_helpers.SEED_I2"
+  }
+ },
+ "part_B": {
+  "arms_under_test": [
+   "tex_sample@msread/0",
+   "tex_sample@msread/1",
+   "tex_sample@mslodq/0",
+   "tex_sample@mslodq/1"
+  ],
+  "gate_b_control_value": 8,
+  "gate_e_orders": {
+   "run01": "forward, repeats adjacent",
+   "run02": "reverse, repeats interleaved"
+  },
+  "gate_e_pair": [
+   "g17p_e0219_B_run01",
+   "g17p_e0219_B_run02"
+  ],
+  "repeats_per_value": 16,
+  "source_experiment": "EXP-0204-g17p-tex-carrier-dimensions (harness + kernels copied byte-identical)",
+  "stable_controls": [
+   "tex_sample@msfilt/0",
+   "tex_sample@mscmp/0"
+  ],
+  "stop_ruler_first": true
+ },
+ "quiet": {
+  "interval_s": 2.0,
+  "recoveryCount": "recorded pre/post per capture; REPORTED, NOT GATED",
+  "sampler": "harness/quietsample.py (byte-identical copy of EXP-0213's, sha256 47e2829e6d99...)"
+ },
+ "raw_policy": "append-only; one run id per capture; never topped up, never reused; pulled back ONE directory at a time with harness/pull_run.sh",
+ "repo_head_at_prereg": "3cea1bc4d8d569bcd2ee917d518222188b1fdf9e",
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "host": "192.168.170.254",
+  "model": "Mac17,5",
+  "name": "A18 Pro / G17P",
+  "os": "macOS 26.6"
+ }
+}

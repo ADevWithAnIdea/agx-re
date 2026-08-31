@@ -1,0 +1,92 @@
+{
+  "_note": "EXP-0219 verdicts on the SIX INDEPENDENT AXES of RE_EXPERIMENT_PROCESS_CORRECTIONS section 2. A result on one axis never implies a result on another. NO label in tools/agx-isa/validation.json was changed or proposed by this experiment; these rows are this experiment's own verdicts and the orchestrator owns any promotion decision.",
+  "_target_note": "Everything below is G17P-direct. Nothing ran on the M4. Where a G16G fact is referenced it is cited as the prior, not as evidence.",
+
+  "imad.b9[bit3] :: addend-source-class selector": {
+    "encoding_geometry": "ledger-verified (6440/6440 requested==decoded from re-read actual bytes; 964 + 548 distinct actual encodings == distinct requested)",
+    "liveness": "live",
+    "semantics": "semantically-mapped over the tested domain: sel==0 -> A = IDX (immediate); sel==1 -> A = FILE[IDX]. sel=bit3 scores 2054/2054 and 1158/1158; the rival sel=bit1 scores 1040/2054 and 648/1158",
+    "compiler_recipe": "not-generated (Gate D not attempted)",
+    "target": "G17P-direct (was G16G-direct only)",
+    "reproducibility": "independently-confirmed (two orders per carrier, 100.0000% payload agreement, two carriers, two seed sets)",
+    "range": "b9 = 0x20..0x2f dense (all 16 low-nibble values with bit5=1) x K = 0..31 dense x 2 seed sets; plus b9 = 0x06/0x0e as the bit5-clear control",
+    "evidence": ["raw/g17p_e0219_A_dag_run01", "raw/g17p_e0219_A_dag_run02", "raw/g17p_e0219_A_const_run01", "raw/g17p_e0219_A_const_run02"],
+    "settles": "EXP-0218 section 6.1"
+  },
+
+  "imad.b9[bit0] :: fetch width, and the 32-bit index rule": {
+    "encoding_geometry": "ledger-verified",
+    "liveness": "live",
+    "semantics": "semantically-mapped: (b9&1)==1 reads a 32-bit WORD at index IDX & ~1, i.e. the index's LOW BIT IS IGNORED. 64/64 word vs 54/64 pair (C-DAG) and 64/64 vs 38/64 (C-CONST); all 36 discriminating odd-K cases say word, in every run",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "independently-confirmed (two carriers with completely different constant files, two orders each)",
+    "range": "b9 = 0x2f x K = 0..31 dense x 2 seed sets x 2 carriers",
+    "evidence": ["raw/g17p_e0219_A_dag_run01", "raw/g17p_e0219_A_dag_run02", "raw/g17p_e0219_A_const_run01", "raw/g17p_e0219_A_const_run02"],
+    "settles": "EXP-0218 section 6.3"
+  },
+
+  "imad.mulsel[bits 0..2] :: the addend field's high three bits": {
+    "encoding_geometry": "ledger-verified",
+    "liveness": "live in BOTH modes",
+    "semantics": "bounded-map. IMMEDIATE mode: A = ((b8&7)<<5) | K over all 256 values, 512/512 on each carrier in each run -- G17P-direct, all 32 K, which EXP-0218 had only on G16G. FETCH mode: the same bits are the INDEX's high bits, refuting the 5-bit-index-plus-suppression reading (190/224 held out against a prediction derived from our own MSL source). BOUNDED: bits 0 and 1 are directly demonstrated (indices 0..75); BIT 2 IS STILL UNDECIDABLE because no carrier's file reaches half-index 128",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "independently-confirmed (two carriers, two orders each)",
+    "range": "b8 = 0xd0..0xd7 x K = 0..31 dense x b9 in {0x26, 0x2e} x 2 seed sets x 2 carriers = 2048 records",
+    "evidence": ["raw/g17p_e0219_A_const_run01", "raw/g17p_e0219_A_const_run02", "raw/g17p_e0219_A_dag_run01", "raw/g17p_e0219_A_dag_run02"],
+    "settles": "EXP-0218 sections 6.2 and 6.4, the first PARTIALLY",
+    "open": "does any carrier place a non-zero value at half-index >= 128?"
+  },
+
+  "imad.b9[bits 1,2,4,6,7]": {
+    "encoding_geometry": "ledger-verified",
+    "liveness": "accepted-inert FOR THE ADDEND in the tested envelope (bit 1 and bit 2: 0 of 64 flip pairs move the addend across the whole b9 x K cross product, both seed sets, both runs); global role unknown",
+    "semantics": "unknown",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "auditable",
+    "detection_power": "the SAME arm shows bit 3 moving the addend in 64 of 64 flip pairs and the bit5-clear control producing silent_zero, so the observable demonstrably can move",
+    "evidence": ["raw/g17p_e0219_A_dag_run01", "raw/g17p_e0219_A_dag_run02"]
+  },
+
+  "imad :: external constant file (a FINITE RESOURCE, not an encoding field)": {
+    "encoding_geometry": "n/a",
+    "liveness": "live",
+    "semantics": "bounded-map. For kernels/carrier_const.metal the readable file is 76 halves (38 words), populated at half-indices 0..2 and 12..75; every one of the 256 dispatchable indices is single-valued; indices 76..255 read 0 with NO wrap, NO alias, NO fault and NO hang. For EXP-0160's carrier_dag it is populated only at 0..2 and 12..15. THE FILE'S CONTENTS ARE CARRIER STATE, NOT A HARDWARE FACT; what is a hardware fact is the indexing rule and the excess-capacity behaviour",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "independently-confirmed",
+    "evidence": ["raw/g17p_e0219_A_const_run01", "raw/g17p_e0219_A_const_run02"]
+  },
+
+  "tex_sample.mode[bit6]": {
+    "encoding_geometry": "ledger-verified (38974/38974 requested==decoded across every part-B capture); the 14-byte span is a HARDWARE-HONOURED BOUNDARY at all nine arm sites (stop-ruler, one-sided claim)",
+    "liveness": "LIVE on 4 of 9 arms (tex_sample@msread/0, msread/1, mslodq/0, mslodq/1 -- 112, 112, 116 and 20 of 128 flip pairs) and ACCEPTED-INERT on 5 (msfilt/0, mscmp/0, msread/2, mslodq/2, msread1/0 -- 0 of 128 each) in the tested envelope. The partition is identical in all four captures",
+    "semantics": "hypothesis, NOT a map. It is NOT the sample-operation-class selector db.json's enum implies. Where live it makes the destination write conditional on a device-side state that CYCLES WITH PERIOD 4 OR 8 IN THE DISPATCH INDEX, at pixel/quad granularity: the two outcomes at a given phase are 'the channel is written' and 'the channel is not written, or only its high 16-bit half is'. 240 of 240 alternating sequences have smallest period 4 or 8; 0 aperiodic; confirmed OUT OF SAMPLE at N=24 and with a single GPU context. WHAT THE PERIODIC STATE IS remains UNKNOWN",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "independently-confirmed for the PARTITION and the PERIOD STRUCTURE (4 captures, 3 orders, 2 repeat counts, 1- and 5-context). NOT reproducible as payload equality, and cannot be: the observable is a function of the dispatch index, so EXP-0213's Gate E criterion is unmeetable for this field on any machine",
+    "range": "full 256-value sweep on 9 arms in 2 orders; plus 65 matched values x 16 or 24 repeats x 9 arms in 3 captures",
+    "actionable": "AN EMITTER MUST NOT SET tex_sample.mode BIT 6. On a carrier where it is live the same program returns a different answer on successive draws.",
+    "evidence": ["raw/g17p_e0219_B_ruler01", "raw/g17p_e0219_B_rep_run01", "raw/g17p_e0219_B_rep_run02", "raw/g17p_e0219_B_rep_run03", "raw/g17p_e0219_B_rep_ctl04", "raw/g17p_e0219_B_sweep_run01", "raw/g17p_e0219_B_sweep_run02"],
+    "settles": "EXP-0213 section 2.5 -- as a CHARACTERISATION. It explains the Gate E failure; it does not clear Gate E, and it does not map the field"
+  },
+
+  "tex_sample.mode[bit7]": {
+    "encoding_geometry": "ledger-verified",
+    "liveness": "accepted-inert in the tested envelope: 0 of 128 flip pairs on EVERY one of nine arms across five carriers, two orders; global role unknown",
+    "semantics": "unknown",
+    "compiler_recipe": "not-generated",
+    "target": "G17P-direct",
+    "reproducibility": "auditable",
+    "detection_power": "every one of the nine arms shows bits 2 and 3 moving the same observable in the same capture",
+    "evidence": ["raw/g17p_e0219_B_sweep_run01", "raw/g17p_e0219_B_sweep_run02"]
+  },
+
+  "db_defects": {
+    "DEF-0219-1": "The committed `imad.mulsel` note records 'in the byte+9 bit3 == 1 branch on G17P, a non-zero low nibble instead yields addend 0 in 68/68 cases -- consistent BOTH with an 8-bit source index whose file is empty above half-index 31 AND with a 5-bit index plus suppression'. The 5-bit reading is now REFUTED on hardware: with kernels/carrier_const.metal, whose file reaches half-index 75, b8's low bits index the file (190/224 held out against an MSL-source prediction), while EXP-0160's carrier reproduces the 0-of-512 artefact in the same captures. The 68/68 observation stands; its generalisation does not. NOT PROPOSED as an edit -- the orchestrator owns db.json.",
+    "DEF-0219-2": "The committed `imad.b9` note says the 32-bit value 'was predicted out-of-sample from the 16-bit table as FILE[K] | FILE[K+1]<<16 and confirmed 6/6'. That is right at EVEN K only. At odd K the hardware reads the WORD at index K & ~1: 36 discriminating cases across two carriers and four captures, 100% word, 0% pair. NOT PROPOSED as an edit.",
+    "DEF-0219-3": "The committed `tex_sample.mode` enum and note call the field a bitfield whose live mask is 'AT MOST 0x2C'. Bit 6 is LIVE on four of nine arms measured here (112/128, 112/128, 116/128 and 20/128 flip pairs), so the live mask on those carriers is at least 0x6C. Bit 7 is inert on all nine. NOT PROPOSED as an edit; and bit 6's liveness must not be documented without the fact that its effect is dispatch-index-periodic and must not be emitted."
+  }
+}
