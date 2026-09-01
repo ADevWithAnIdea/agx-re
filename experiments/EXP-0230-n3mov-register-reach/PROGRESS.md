@@ -10,3 +10,7 @@
   zero foreign runners, zero recovery-count change.
 - `mod64` is the unique zero-mismatch model. Formal gate remains red only because the independent
   seed witness failed for both halves of S=92..95 under both plans (16 cases); successor required.
+- Amendment 02 committed before run03/run04. Its focused materialization makes every r92..r95 seed
+  and r28..r31 rival independently visible.
+- Focused formal gate passes: 16/16 cases, two controls, unique `mod64`; zero Gate-A, donor, seed,
+  state, quiet, fault/hang, or recovery failures. Combined source-reach closure passes.
