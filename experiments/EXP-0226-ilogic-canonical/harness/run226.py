@@ -66,7 +66,8 @@ def logic_value(kind, a, b):
 
 
 def emit_logic(pg, dst, src_a, src_b, func, model_func=None,
-               model_src_a=None, model_src_b=None):
+               model_src_a=None, model_src_b=None,
+               dependency_lifecycle=False):
     base, la, lb = TABLE[func]
     pg.E.emit("ilogic", {
         "dst": fv(dst, "destination low-bank GPR"),
@@ -87,9 +88,14 @@ def emit_logic(pg, dst, src_a, src_b, func, model_func=None,
     mb = src_b if model_src_b is None else model_src_b
     a, b = pg.rbits(ma), pg.rbits(mb)
     result = None if a is None or b is None else logic_value(model_func or func, a, b)
-    # Pre-registered destructive-source model; destination publication wins.
-    pg.set_reg(src_a, 0)
-    pg.set_reg(src_b, 0)
+    # H1 predicted both sources released. AMENDMENT-01's P1 rule is finer:
+    # hardware releases exactly the operands the selected LUT depends on.
+    uses_a = func not in ("zero", "b", "not_b", "ones")
+    uses_b = func not in ("zero", "a", "not_a", "ones")
+    if not dependency_lifecycle or uses_a:
+        pg.set_reg(src_a, 0)
+    if not dependency_lifecycle or uses_b:
+        pg.set_reg(src_b, 0)
     pg.set_reg(dst, result)
 
 
@@ -129,6 +135,29 @@ def build_cases(include_hazard=False):
         "kind": "logic", "expect_match": False, "predicted_bucket": "refute",
         "op": dict(dst=0, src_a=1, src_b=2, func="xor", model_func="or"),
     })
+
+    # P1 repeats the frozen H1 coverage under AMENDMENT-01's dependency-derived
+    # kill set. Keep the original H1 cases unchanged for provenance.
+    for old in [case for case in out if case["arm"] == "H1"]:
+        op = dict(old["op"])
+        op["dependency_lifecycle"] = True
+        out.append({
+            "i": len(out), "name": old["name"].replace("h1_", "p1_", 1),
+            "arm": "P1", "kind": "logic", "expect_match": True,
+            "predicted_bucket": "exact", "op": op,
+        })
+    out.append({
+        "i": len(out), "name": "p1_ctl_wrong_order", "arm": "P1",
+        "kind": "logic", "expect_match": False, "predicted_bucket": "refute",
+        "op": dict(dst=0, src_a=1, src_b=2, func="a_and_not_b",
+                   model_src_a=2, model_src_b=1, dependency_lifecycle=True),
+    })
+    out.append({
+        "i": len(out), "name": "p1_ctl_wrong_function", "arm": "P1",
+        "kind": "logic", "expect_match": False, "predicted_bucket": "refute",
+        "op": dict(dst=0, src_a=1, src_b=2, func="xor", model_func="or",
+                   dependency_lifecycle=True),
+    })
     return out
 
 
@@ -149,4 +178,3 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
