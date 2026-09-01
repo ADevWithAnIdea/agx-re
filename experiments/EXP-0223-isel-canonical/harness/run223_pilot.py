@@ -168,6 +168,17 @@ def build_cases(include_hazard=False):
                     "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
                                   sel_false=4, cond="lt", flags=flags),
                 })
+            for gap in (0, 1, 2, 4, 8, 16):
+                out.append({
+                    "i": len(out),
+                    "name": f"d1_f{flags:02x}_{direction}_gap{gap:02d}",
+                    "arm": "D1", "kind": "isel10_load_distance",
+                    "expect_match": True, "predicted_bucket": "measure",
+                    "loads": [(r, values[r]) for r in (1, 2, 3, 4)],
+                    "delay": gap,
+                    "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                                  sel_false=4, cond="lt", flags=flags),
+                })
                 # All four loaded, with `direct` deliberately last.
                 order = [r for r in (1, 2, 3, 4) if r != direct] + [direct]
                 out.append({
@@ -186,9 +197,11 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] == "P1":
+    if case["arm"] in ("P1", "D1"):
         for reg, word in case["loads"]:
             pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")
+        for n in range(case.get("delay", 0)):
+            pg.movi(14, 75 + (n & 3))
         emit_isel_r1(pg, **case["op_r1"])
     elif case["arm"] in ("H4", "L1"):
         emit_isel_r1(pg, **case["op_r1"])

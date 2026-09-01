@@ -14,3 +14,6 @@
   bit 4 suppresses destination update, and no mov-seeded source changed. AMENDMENT-04 freezes the
   high-bit cross over direct device-load provenance rather than declaring the remaining null bits
   unused.
+- 2026-08-31: P1 identifies `(flags & 0xe0) == 0xc0` as the exact load-accepting high mode (32/32);
+  all 224 other cases consume stale seeds and lose the explicit load writes. AMENDMENT-05 freezes
+  an order reproduction and a 0..16-instruction timing discriminator.
