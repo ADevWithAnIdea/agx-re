@@ -59,6 +59,7 @@ def signed32(value):
 
 
 def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
+                 cc_value=None, cmp_mode=0x02,
                  model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
                  model_sel_false=None):
     pg.E.emit("isel10", {
@@ -66,9 +67,10 @@ def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
         "cmpA": fv((cmp_a << 1) | 1, "R1 compare-A descriptor"),
         "opsel": fv(0, "R1 ten-byte member"),
         "cmpB": fv((cmp_b << 1) | 1, "R1 compare-B descriptor"),
-        "cmp_mode": fv(0x02, "R1 signed relational mode"),
+        "cmp_mode": fv(cmp_mode, "R1 compare mode; AMENDMENT-07 C2 sweep"),
         "selTrue": fv(sel_true << 1, "R1 true-value descriptor"),
-        "cc": fv(0x07 if cond == "lt" else 0x06, "R1 signed condition"),
+        "cc": fv((0x07 if cond == "lt" else 0x06) if cc_value is None else cc_value,
+                 "R1 condition; AMENDMENT-07 C1 sweep"),
         "flags": fv(flags, "R1 flags byte; AMENDMENT-03 L1 sweep"),
         "selFalse_file": fv(0, "R1 GPR false-source file"),
         "selFalse": fv(sel_false << 1, "R1 false-value descriptor"),
@@ -85,6 +87,68 @@ def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
         pred = signed32(av) < signed32(bv) if cond == "lt" else signed32(av) > signed32(bv)
         out = tv if pred else fv_bits
     pg.set_reg(dst, out)
+
+
+def emit_iadd_proven(pg, dst, src_a, src_b, add):
+    """EXP-0222's proven 32-bit register recipe, retained-source form."""
+    phys_a, phys_b = (src_a, src_b) if add else (src_b, src_a)
+    pg.E.emit("iadd2", {
+        "addsub": fv(1 if add else 0, "EXP-0222 add/sub operation"),
+        "lenbit": fv(1, "EXP-0222 ten-byte form"),
+        "srcB_reg_hi": fv(0, "EXP-0222 register form"),
+        "b2_bit0": fv(0, "EXP-0222 canonical point"),
+        "store_en": fv(1, "EXP-0222 publish destination"),
+        "b2_fmt": fv(0x15, "EXP-0222 format point"),
+        "dst": fv((dst << 1) | 1, "EXP-0222 32-bit destination"),
+        "opmode": fv(2, "EXP-0222 register mode"),
+        "srcB_imm": fv(phys_b << 2, "EXP-0222 second physical source"),
+        "srcB_imm_hi": fv(0, "EXP-0222 register form"),
+        "srcB_ext": fv(phys_a << 2, "EXP-0222 first physical source"),
+        "srcA": fv(0xA8, "EXP-0222 operand control"),
+        "opc_tail": fv(0x11, "EXP-0222 retain both sources"),
+        "opc_tail2": fv(0x05, "EXP-0222 tail"),
+    })
+    pg._pending = None
+    a, b = pg.rbits(src_a), pg.rbits(src_b)
+    pg.set_reg(dst, None if a is None or b is None else
+               ((a + b) if add else (a - b)) & 0xFFFFFFFF)
+
+
+def prepare_relation(pg, relation):
+    if relation == "lt":
+        return 1, 2
+    if relation == "gt":
+        return 2, 1
+    if relation == "eq":
+        pg.movi(2, 41)
+        return 1, 2
+    if relation == "sneg_lt":
+        pg.movi(1, 0)
+        pg.movi(2, 1)
+        emit_iadd_proven(pg, 1, 1, 2, False)
+        return 1, 2
+    if relation == "sneg_gt":
+        pg.movi(1, 1)
+        pg.movi(2, 0)
+        emit_iadd_proven(pg, 2, 2, 1, False)
+        return 1, 2
+    if relation == "flt":
+        pg.load_f(1, 3)
+        pg.load_f(2, 7)
+        return 1, 2
+    if relation == "fgt":
+        pg.load_f(1, 7)
+        pg.load_f(2, 3)
+        return 1, 2
+    if relation == "feq":
+        pg.load_f(1, 3)
+        pg.load_f(2, 3)
+        return 1, 2
+    if relation == "fnan":
+        pg.load_f(1, 522)
+        pg.load_f(2, 514)
+        return 1, 2
+    raise ValueError(relation)
 
 
 def fresh(case, slots):
@@ -190,6 +254,23 @@ def build_cases(include_hazard=False):
                     "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
                                   sel_false=4, cond="lt", flags=flags),
                 })
+    for cc in range(256):
+        for relation in ("lt", "gt", "eq", "sneg_lt", "sneg_gt"):
+            out.append({
+                "i": len(out), "name": f"c1_cc{cc:02x}_{relation}",
+                "arm": "C1", "kind": "isel10_cc", "relation": relation,
+                "expect_match": True, "predicted_bucket": "measure",
+                "cc_value": cc,
+            })
+    for mode in range(256):
+        for relation in ("lt", "gt", "eq", "sneg_lt", "sneg_gt",
+                         "flt", "fgt", "feq", "fnan"):
+            out.append({
+                "i": len(out), "name": f"c2_mode{mode:02x}_{relation}",
+                "arm": "C2", "kind": "isel10_cmp_mode", "relation": relation,
+                "expect_match": True, "predicted_bucket": "measure",
+                "cmp_mode": mode,
+            })
     return out
 
 
@@ -197,7 +278,12 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] in ("P1", "D1"):
+    if case["arm"] in ("C1", "C2"):
+        ca, cb = prepare_relation(pg, case["relation"])
+        emit_isel_r1(pg, dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                     cond="lt", flags=0xC0, cc_value=case.get("cc_value"),
+                     cmp_mode=case.get("cmp_mode", 0x02))
+    elif case["arm"] in ("P1", "D1"):
         for reg, word in case["loads"]:
             pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")
         for n in range(case.get("delay", 0)):

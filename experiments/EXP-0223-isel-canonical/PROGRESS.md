@@ -17,3 +17,6 @@
 - 2026-08-31: P1 identifies `(flags & 0xe0) == 0xc0` as the exact load-accepting high mode (32/32);
   all 224 other cases consume stale seeds and lose the explicit load writes. AMENDMENT-05 freezes
   an order reproduction and a 0..16-instruction timing discriminator.
+- 2026-08-31: reverse P1 reproduces 32/32 canonical and 224/224 stale; D1 shows the same partition
+  through a 16-instruction pre-consumer gap. AMENDMENT-06 bounds the load-accept mode; AMENDMENT-07
+  freezes exhaustive condition and compare-mode discovery without another compiler consultation.
