@@ -27,8 +27,10 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_store` releases its index register. Reusing that register as a second store index without
   redefining it addresses with zero. A just-loaded index can be stale until an intervening
   instruction permits publication.
+- `device_load` retains its index register. EXP-0231 distinguished this from release with a
+  nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, and EXP-0230.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, EXP-0230, and EXP-0231.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -70,14 +72,14 @@ sequence with correct complete-state and lifecycle behavior.
 |---|---|---|---:|---|
 | r0..r63 | r0..r15 | two retained `n3_mov` half copies | 32 | proved by EXP-0174 plus full source-reach closure in EXP-0230 |
 | r0..r63 | r0..r15 | one `n3_mov` | 16 | proved |
-| any set involving r64..r95 | any different GPR | none yet | — | **open** |
-| r0..r15 result | r16..r95 | none yet | — | **open** |
+| r0..r95 | r0..r95 | `device_store` to bound scratch, then `device_load` | 32 | proved as a tier/boundary cross-product by EXP-0231; dense endpoint reach comes from EXP-0221/0230 |
+| any set involving r64..r95 | any different GPR | direct GPR-only instruction | — | **open; memory fallback above is proved** |
 
-The memory instructions separately prove that values can be stored from and loaded into every
-physical GPR. They do **not yet** prove a lifecycle-correct GPR→memory→different-GPR transfer edge:
-that exact sequence, scratch address space, visibility point, retain/release behavior, and size/
-alignment bounds still need a formal test. Do not silently upgrade two independently valid
-instructions into a tested transfer path.
+EXP-0231 tested the previously missing composition directly. An adjacent store/load at scratch byte
+3200 was exact at gaps 0, 1, 4, and 16 in every low/middle/high direction. The store released its
+nonzero index, the load retained its nonzero index, and the source remained live. This proves the
+transfer edge, not the complete scratch resource: capacity, alignment envelope, concurrent-lane
+addressing, and first-invalid behavior remain open.
 
 ## 4. State transitions proved across anchor families
 
@@ -106,6 +108,8 @@ device_load              : creates a pending result, then publishes it to the na
 adjacent accepting use   : may consume/forward the pending value with a form-specific control
 non-accepting adjacent use: may consume stale state or drop the load, depending on consumer
 device_store index read  : consumes then releases the index GPR
+device_load index read   : consumes and retains the index GPR
+device_store -> load     : same-address device scratch is visible with zero intervening ops
 ```
 
 The last block is not yet a complete state machine. Slot assignment/reuse and multi-pending
@@ -113,10 +117,9 @@ behavior are Step 3 work.
 
 ## 5. Exact Step 2 blockers exposed by this artifact
 
-1. **Top-tier transfer:** find and fully validate low→high, high→low, and high→high copies involving
-   r64..r95, or prove that only a particular memory-mediated path exists. The first experiment
-   should test `device_store(rS)` followed by `device_load(rD)` with S/D crossing all three tiers,
-   complete-state observation, retained/released variants, and exact first-invalid scratch bounds.
+1. **Direct top-tier transfer capability:** the memory-mediated low↔mid↔high fallback is proved by
+   EXP-0231. Continue looking for a direct GPR-only move involving r64..r95 so the hardware
+   capability and performance alternative are known; do not treat the fallback as proof none exists.
 2. **Dense role reach:** finish r0..r95 matrices for `iadd2`, `imad`, `isel`, `falu3`, `fspecial`,
    logic, conversion, half, compare, and every alternate/compressed form. Mixed results are not a
    range.
@@ -124,8 +127,9 @@ behavior are Step 3 work.
    the first over-capacity case while high GPRs remain unused.
 4. **Pairs and partial overlap:** close 64-bit pair alignment, odd-pair behavior, overlapping pair
    source/destination cases, and every half-write/half-release alias.
-5. **Scratch/spill:** establish the hardware-visible address space, byte capacity, alignment,
-   allocation unit, maximum valid access, first invalid access, wrap/fault behavior, and lifetime.
+5. **Scratch/spill bounds:** EXP-0231 proves one device-memory scratch word at byte 3200 and an
+   adjacent 32-bit round trip. Establish byte capacity, alignment, allocation unit, maximum valid
+   access, first invalid access, wrap/fault behavior, per-lane addressing, and lifetime.
 6. **Lifecycle cross-product:** repeat retain, release, read-after-release, redefine-after-release,
    and fan-in/fan-out at tier boundaries and with pending memory/texture producers.
 7. **Schema coverage:** add a register-effect row for every discovered instruction form; no family

@@ -10,11 +10,15 @@ unproven in a way that would silently corrupt generated code.
 Target: **Apple M4 / G16G**, local host, `HW-PROBE + OWN-SHADER` splice evidence — every fact in
 this chapter is `target: G16G`. A18 Pro/G17P is `INFERRED`-by-family and is **not** relabelled.
 
-> **G17P successor result (EXP-0174/0175/0230).** The old `reg_move_*` warning below remains
+> **G17P successor result (EXP-0174/0175/0230/0231).** The old `reg_move_*` warning below remains
 > correct for that family, but G17P has a different generated move: `n3_mov`. It copies one 16-bit
 > half from r0..r63 to a half of r0..r15; two instructions copy 32 bits. EXP-0230 tested all 96
 > physical GPRs live and proved source numbers 64..127 alias modulo 64, so `n3_mov` does **not**
-> solve transfers involving physical r64..r95. Current normative state is
+> directly solve transfers involving physical r64..r95. EXP-0231 closes the compiler fallback: a
+> generated adjacent `device_store` to bound scratch followed by `device_load` transfers 32 bits
+> across every low/middle/high direction, including upper-tier sources and destinations. The store
+> releases its index; the load retains its index. This is a memory-mediated transfer, not evidence
+> for a direct upper-tier move. Current normative state is
 > `../../APPLE9_REGISTER_STATE.md`.
 
 > **Target status (2026-08-28).** All live testing has since moved to the **A18 Pro / G17P**, and

@@ -45,9 +45,15 @@ def main(argv):
             probe = rec.get("transfer_probe", {})
             ga = rec.get("gate_a", {})
             expected_instr = probe.get("gap", -99) + 2
+            expected_shape = (["device_store"]
+                              + ["mov_imm"] * probe.get("gap", 0)
+                              + ["device_load"])
+            actual_shape = [row.get("mnemonic")
+                            for row in rec.get("under_test", [])]
             if not rec.get("dispatched_bytes_verified") or ga.get("n_bad") != 0 \
                     or ga.get("n_alias") != 0 \
-                    or len(rec.get("under_test", [])) != expected_instr:
+                    or len(rec.get("under_test", [])) != expected_instr \
+                    or actual_shape != expected_shape:
                 gate_a_fail.append("%s:%s" % (name, rec.get("run")))
             ledger = rec.get("ledger", {})
             if rec.get("donor_fields") or ledger.get("COPIED") or ledger.get("CARRIER"):
@@ -72,9 +78,27 @@ def main(argv):
                     or got_b.get("post_destination") != want_b.get("destination")):
                 model_mismatches[model].append(name)
 
-    control_fired = [name for name in controls if name in a and name in b
-                     and not a[name].get("match") and not b[name].get("match")
-                     and a[name].get("bucket_ok") and b[name].get("bucket_ok")]
+    control_fired = []
+    for name in controls:
+        if name not in a or name not in b:
+            continue
+        for rec in (a[name], b[name]):
+            probe = rec.get("transfer_probe", {})
+            ga = rec.get("gate_a", {})
+            expected_shape = (["device_store"]
+                              + ["mov_imm"] * probe.get("gap", 0)
+                              + ["device_load"])
+            actual_shape = [row.get("mnemonic")
+                            for row in rec.get("under_test", [])]
+            if not rec.get("dispatched_bytes_verified") or ga.get("n_bad") != 0 \
+                    or ga.get("n_alias") != 0 or actual_shape != expected_shape:
+                gate_a_fail.append("%s:%s" % (name, rec.get("run")))
+            ledger = rec.get("ledger", {})
+            if rec.get("donor_fields") or ledger.get("COPIED") or ledger.get("CARRIER"):
+                donor_fail.append("%s:%s" % (name, rec.get("run")))
+        if not a[name].get("match") and not b[name].get("match") \
+                and a[name].get("bucket_ok") and b[name].get("bucket_ok"):
+            control_fired.append(name)
     zero_mismatch = sorted(m for m in MODELS if not model_mismatches[m])
     expected_direction_gap = 3 * 3 * 4
     result = {

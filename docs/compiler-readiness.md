@@ -1505,7 +1505,7 @@ Evidence: as cited inline. Where a claim rests on an uncommitted or in-flight
 > measured on**, and keeps the bounds the measuring experiment stated. Where a result is
 > deliberately bounded it says so; a doc that drops the bound is worse than no doc.
 
-**A bounded GPR move is closed; the full 96-GPR transfer problem is not.** `EXP-0174` found and **generated** the register-to-register move that
+**A bounded direct GPR move and a full-tier memory fallback are closed.** `EXP-0174` found and **generated** the register-to-register move that
 `EXP-0087` → `EXP-0090` → `EXP-0101` → `EXP-0113` → `EXP-0140` had concluded did not exist:
 `n3_mov` moves one GPR to a **different** GPR. All **240 ordered `(dst, src)` pairs with
 `dst != src`** were generated from the descriptor's bit geometry in both instruction orders and
@@ -1518,6 +1518,15 @@ half-moves matched, 0 failed.** Two gated runs, G17P. The encoding is in `docs/i
 live, `n3_mov` directly reads r0..r63 and aliases S=64..127 modulo 64; its destination remains
 r0..r15. The old 16-register carrier therefore proved the operation but not a general 96-GPR
 transfer. No GPR-only transfer involving physical r64..r95 is currently proved.
+
+**EXP-0231 closes the compiler-usable fallback.** A fully generated `device_store` to bound
+device scratch followed immediately by a generated `device_load` transferred distinct 32-bit
+codewords exactly across every low/middle/high direction at gaps 0, 1, 4, and 16. The matrix used
+six source and six destination boundary representatives, passed 144/144 cases in each of two
+opposite-order formal runs, and exact was the unique model. Combined with EXP-0221/0230's dense
+store/load endpoint reach, this gives r0..r95 → scratch → r0..r95. It is a spill/reload path, not a
+claim that a cheap direct upper-tier move does not exist. Scratch capacity and first-invalid
+address remain resource-limit work.
 
 The retracted `validation.json` note — *"AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON
 APPLE9"* — was correct **about the `reg_move_*` family**, which really is one instruction with a
@@ -1538,7 +1547,7 @@ established**.
 external compiler engineer building a NIR→Apple9 back end who *"could not get a basic
 register-to-register move to work."* That report is now answered.
 
-| 1 | bounded GPR→GPR move | **CLOSED only for r0..r63 → r0..r15** | `n3_mov`, generated end-to-end on G17P (`EXP-0174`/`EXP-0175`/`EXP-0230`); 16-bit granular, so a 32-bit copy is two instructions; physical r64..r95 transfer remains open |
+| 1 | register transfer | **CLOSED directly for r0..r63 → r0..r15; CLOSED via device scratch for r0..r95 → r0..r95** | `n3_mov` is a two-instruction 32-bit direct copy in its bounded range (`EXP-0174`/`EXP-0175`/`EXP-0230`); adjacent store/load is the bit-preserving full-tier fallback (`EXP-0231`); direct physical r64..r95 move remains open |
 
 - **`half_alu_ext8`** — `opsel` 6 selects the fma form (`byte+2 = 0x1e`), **but `opsel` is a
   length input and only 3 of its 8 values keep the 8-byte framing**. `dst`, `srcA`, `b5`, `rsv6`,

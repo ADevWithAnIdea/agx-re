@@ -240,8 +240,8 @@
       "cells": [
         {"first": 0, "last": 95, "status": "direct"}
       ],
-      "outside_behavior": "EXP-0230 value-proved the complete 0..95 set using generated loads and independent stores; first out-of-file behavior remains open for this form.",
-      "evidence": ["EXP-0221", "EXP-0230"]
+      "outside_behavior": "EXP-0230 value-proved the complete 0..95 set using generated loads and independent stores; EXP-0231 used tier/boundary destinations in a complete memory round trip; first out-of-file behavior remains open for this form.",
+      "evidence": ["EXP-0221", "EXP-0230", "EXP-0231"]
     },
     {
       "id": "device_store.14B.data.b32",
@@ -253,7 +253,7 @@
         {"first": 0, "last": 95, "status": "direct"}
       ],
       "outside_behavior": "extmode=2R selects rR. extmode 192 wraps to r0; upper half-index codes include aliases and faults.",
-      "evidence": ["EXP-0221"]
+      "evidence": ["EXP-0221", "EXP-0231"]
     },
     {
       "id": "device_memory.14B.index.b32",
@@ -265,7 +265,7 @@
         {"first": 0, "last": 95, "status": "direct"}
       ],
       "outside_behavior": "Low-seven-bit index 96..127 faults. Encoded bit7 is ignored and mirrors the low seven bits.",
-      "evidence": ["EXP-0221"]
+      "evidence": ["EXP-0221", "EXP-0231"]
     },
     {
       "id": "fspecial.10B.destination.b32",
@@ -308,6 +308,22 @@
         "n3_mov dst.hi <- src.hi retain"
       ],
       "evidence": ["EXP-0174", "EXP-0230"]
+    },
+    {
+      "id": "device_memory.copy32.all96_to_all96",
+      "source_first": 0,
+      "source_last": 95,
+      "destination_first": 0,
+      "destination_last": 95,
+      "width": 32,
+      "sequence": [
+        "device_store source -> bound scratch",
+        "device_load bound scratch -> destination",
+        "accept pending load at its immediate consumer"
+      ],
+      "coverage": "Dense store-source and load-destination endpoint reach from EXP-0221/0230; EXP-0231 directly tested sources 0,11,16,63,64,95 x destinations 1,10,17,62,65,94 at gaps 0,1,4,16, covering all nine tier directions and r63/r64 boundaries.",
+      "lifecycle": "store index released; load index retained; data source retained",
+      "evidence": ["EXP-0221", "EXP-0230", "EXP-0231"]
     }
   ]
 }
