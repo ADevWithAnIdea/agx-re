@@ -1,7 +1,8 @@
 # EXP-0224 results — generated G17P FP32 fused multiply-add
 
 Status: **canonical compiler recipe proven for FP32 FMA over the r0..r15 operand/destination
-bank.**  Values outside that bank are staged with the separately proven `n3_mov` recipe.
+bank.**  EXP-0230 later bounded the `n3_mov` fallback: only values held in r16..r63 can be staged
+into that bank with the compact move. See `AMENDMENT-04.md`.
 
 Target: Apple A18 Pro / G17P, Metal family Apple9.  Clean-room classes: OWN-SHADER carrier and
 HW-PROBE.  Every promoted instruction field was generated from the formulas below; no
@@ -81,11 +82,12 @@ operands were wrong.  P2 then isolated the boundary:
 - a 64-instruction gap did not generally repair them;
 - three high operands failed at gaps 1, 16, and 64.
 
-Therefore the initial backend must not guess the wide FMA source encoding.  `n3_mov` already moves
-an arbitrary r0..r63 value into an r0..r15 destination as two generated half-register moves, with a
-tested aliasing period of 64.  Stage high operands into temporary low registers, issue this FMA,
-and move the result as needed.  This makes arbitrary programs emittable while the wider native
-operand/group representation remains a capability-optimization question.
+Therefore the initial backend must not guess the wide FMA source encoding.  `n3_mov` moves an
+arbitrary r0..r63 value into an r0..r15 destination as two generated half-register moves, with an
+exactly tested aliasing period of 64. Values in r16..r63 can therefore be staged into temporary low
+registers before this FMA. Values in r64..r95 cannot: EXP-0230 proves their source descriptors alias
+r0..r31. The compact move also cannot move this FMA's result out to r16..r95. A wider native form
+or a tested memory-mediated transfer is still required for those paths. See `AMENDMENT-04.md`.
 
 ## Claim boundary
 

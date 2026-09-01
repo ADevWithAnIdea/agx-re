@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-09-01",
- "db_sha256": "a1a32d360240545e4a6dc6e1b94b287efd7fb5a3f7ba7950e74c0090ea26b62d",
+ "db_sha256": "9e901349b5b3258b2e3998bd37e9678a1291cd93bfe7404b6e29cc71707d5656",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -19076,11 +19076,12 @@
   "n3_mov": {
    "_instruction": {
     "label": "hardware-run",
-    "range": "840 GENERATED 32-bit copies over all 240 ordered (dst != src) pairs + 1680 generated half-moves, 0 failures, 2 gated runs x 2 register plans",
+    "range": "EXP-0174: 840 generated 32-bit low-bank copies + 1680 half-moves, 0 failures. EXP-0230: all 256 source/half bytes with r0..r95 live; direct r0..r63, S=64..127 aliases modulo 64, compact destination r0..r15.",
     "target": "G17P",
     "evidence": [
      "EXP-0174",
-     "EXP-0175"
+     "EXP-0175",
+     "EXP-0230"
     ],
     "note": "EXP-0181 refresh from corpus-correlation: The second end-to-end generated instruction in the corpus. EXP-0174 built every byte from the descriptor's bit geometry with ZERO bytes copied from any compiled shader, ran 840 generated 32-bit register copies over ALL 240 ordered (dst, src) pairs in both instruction orders and both register plans, and scored each against a full host-computed 16-register prediction: 0 failures. Its own analysis/field_verdicts.json already records `n3_mov._instruction: hardware-run (generated)`. The descriptor defect that blocked the merge (DEF-0174-1, byte+1 modelled one bit off) was re-derived and LANDED by EXP-0175."
    },
@@ -19102,12 +19103,13 @@
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "byte+1 dense 0..255 (all 256 values) x 2 register plans; covers source registers 0..127 and both source halves, and spans two aliasing bands",
+    "range": "byte+1 dense 0..255 x 2 plans; EXP-0230 value-proves both halves with r0..r95 live: direct physical sources r0..r63, then exact modulo-64 aliases for S=64..127",
     "target": "G17P",
     "evidence": [
      "EXP-0174",
      "EXP-0146-m4-emit-int-misc",
-     "EXP-0157-g17p-emit-misc"
+     "EXP-0157-g17p-emit-misc",
+     "EXP-0230"
     ],
     "note": "DB DEFECT DEF-0174-1. db.json declares srcA_reg = bits 0..6 of byte+1 (instruction bits 8..14) and srcA_uni = bit 7. Measured, the register field is byte+1 bits 1..7 and bit 0 is the source-half select -- the modelled field is shifted by one bit, so an emitter following db.json writes the register number into the wrong bits and gets r[S/2] with a half-select it did not intend. Source registers 16..63 read as 0 in this carrier (192 of 192 cases, both plans, both runs); that is a property of a carrier that allocates 16 GPRs, not a property of the field. **Citations ADDED 2026-08-30 by EXP-0215 (additions only, zero removals \u2014 the original `evidence` list is still a prefix).** Each addition is backed by a located OBSERVATION record, not a name match: EXP-0146-m4-emit-int-misc @ experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl:10396; EXP-0157-g17p-emit-misc @ experiments/EXP-0157-g17p-emit-misc/raw/g17p_run03/sweep.jsonl:1323",
     "values_dispatched": 256,

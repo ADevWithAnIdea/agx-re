@@ -2137,13 +2137,20 @@ list must be read:
 > disagreeing values), and that instability reproduces `EXP-0164`'s M4 instability, making it a
 > property of the field rather than of one machine's weather.
 
-### ✅ `nir_op_mov` IS CLOSED — `n3_mov` moves one GPR to a DIFFERENT GPR (EXP-0174/EXP-0175) — `target: G17P`
+### `n3_mov`: compact half-register move (EXP-0174/0175/0230) — `target: G17P`
 
 Evidence label **`HW-VALIDATED`, generated with zero copied bytes.** This closes the gap
 `docs/isa/register-move-and-liveness.md` records an external compiler engineer hitting head-on.
 
 `n3_mov` is a **16-bit half-register move** with independent source-half and destination-half
 selection:
+
+- **Exact register reach (EXP-0230):** the source descriptor is `(S << 1) | hs`, but this form
+  directly reads only physical **r0..r63**. All 256 descriptor bytes execute; S=64..127 reads
+  `r[S mod 64]`, including while r64..r95 hold independently observed different values. The
+  destination nibble directly writes **r0..r15**. Thus two half moves prove 32-bit transfers only
+  from r0..r63 to r0..r15. They do not provide any transfer involving physical r64..r95, nor a
+  low-to-high result move. See `../../APPLE9_REGISTER_STATE.md` and EXP-0230.
 
 - **`iter_at.loc` is bit 1 ALONE — two classes of exactly 128 values.** `bit1 = 0` → **centroid**,
   `bit1 = 1` → **per-sample**; **bit 0 and bits 2..7 are don't-care** (`0x81` behaves exactly as

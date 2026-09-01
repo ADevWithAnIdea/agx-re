@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "target": "Apple A18 Pro / G17P / Apple9",
+  "status": "working-step-2-artifact",
+  "physical_gprs": 96,
+  "cell_status": {
+    "direct": "Exact physical GPR is directly addressable in this role and was hardware-proved.",
+    "transfer": "Not direct, but an exact lifecycle-correct transfer sequence into this role was hardware-proved.",
+    "unaddressable": "This form cannot name the physical GPR; outcome is given in outside_behavior.",
+    "unknown": "Current evidence does not decide the cell."
+  },
+  "roles": [
+    {
+      "id": "n3_mov.compact4.source.h16",
+      "instruction": "n3_mov",
+      "form": "compact4",
+      "role": "source",
+      "width": 16,
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "Source S=64..127 aliases r[S mod 64]; every code executes.",
+      "evidence": ["EXP-0174", "EXP-0230"]
+    },
+    {
+      "id": "n3_mov.compact4.destination.h16",
+      "instruction": "n3_mov",
+      "form": "compact4",
+      "role": "destination",
+      "width": 16,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "Four-bit destination nibble cannot encode r16+.",
+      "evidence": ["EXP-0174"]
+    },
+    {
+      "id": "falu2.6B.sourceA.b32",
+      "instruction": "falu2",
+      "form": "6B-gpr",
+      "role": "sourceA",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "High descriptor values alias the low 64 rather than select physical r64+.",
+      "evidence": ["EXP-0220"]
+    },
+    {
+      "id": "falu2.6B.sourceB.b32",
+      "instruction": "falu2",
+      "form": "6B-gpr",
+      "role": "sourceB",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "High descriptor values alias the low 64 rather than select physical r64+.",
+      "evidence": ["EXP-0220"]
+    },
+    {
+      "id": "falu2.6B.destination.b32",
+      "instruction": "falu2",
+      "form": "6B-gpr",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "Four-bit destination field cannot encode r16+.",
+      "evidence": ["EXP-0220"]
+    },
+    {
+      "id": "falu3.8B.sourceA.b32",
+      "instruction": "falu3",
+      "form": "8B-canonical-fma",
+      "role": "sourceA",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
+      "evidence": ["EXP-0224"]
+    },
+    {
+      "id": "falu3.8B.sourceB.b32",
+      "instruction": "falu3",
+      "form": "8B-canonical-fma",
+      "role": "sourceB",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
+      "evidence": ["EXP-0224"]
+    },
+    {
+      "id": "falu3.8B.sourceC.b32",
+      "instruction": "falu3",
+      "form": "8B-canonical-fma",
+      "role": "sourceC",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
+      "evidence": ["EXP-0224"]
+    },
+    {
+      "id": "falu3.8B.destination.b32",
+      "instruction": "falu3",
+      "form": "8B-canonical-fma",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "No direct r16+ recipe or tested move-out sequence.",
+      "evidence": ["EXP-0224"]
+    },
+    {
+      "id": "iadd2.10B.source0.b32",
+      "instruction": "iadd2",
+      "form": "10B-register",
+      "role": "source0",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
+      "evidence": ["EXP-0222"]
+    },
+    {
+      "id": "iadd2.10B.source1.b32",
+      "instruction": "iadd2",
+      "form": "10B-register",
+      "role": "source1",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
+      "evidence": ["EXP-0222"]
+    },
+    {
+      "id": "iadd2.10B.destination.b32",
+      "instruction": "iadd2",
+      "form": "10B-register",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
+      "evidence": ["EXP-0222"]
+    },
+    {
+      "id": "imad.12B.sourceX.b32",
+      "instruction": "imad",
+      "form": "12B-low32",
+      "role": "sourceX",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23.",
+      "evidence": ["EXP-0225"]
+    },
+    {
+      "id": "imad.12B.sourceY.b32",
+      "instruction": "imad",
+      "form": "12B-low32",
+      "role": "sourceY",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23.",
+      "evidence": ["EXP-0225"]
+    },
+    {
+      "id": "imad.12B.destination.b32",
+      "instruction": "imad",
+      "form": "12B-low32",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Not tested beyond r23.",
+      "evidence": ["EXP-0225"]
+    },
+    {
+      "id": "isel10.source.b32",
+      "instruction": "isel10",
+      "form": "10B",
+      "role": "cmpA/cmpB/true/false source",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 23, "status": "direct"},
+        {"first": 24, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "All four source roles tested through r23; no claim above it.",
+      "evidence": ["EXP-0223"]
+    },
+    {
+      "id": "isel10.destination.b32",
+      "instruction": "isel10",
+      "form": "10B",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "No claim above r15.",
+      "evidence": ["EXP-0223"]
+    },
+    {
+      "id": "device_load.14B.destination.b32",
+      "instruction": "device_load",
+      "form": "14B-device",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 95, "status": "direct"}
+      ],
+      "outside_behavior": "EXP-0230 value-proved the complete 0..95 set using generated loads and independent stores; first out-of-file behavior remains open for this form.",
+      "evidence": ["EXP-0221", "EXP-0230"]
+    },
+    {
+      "id": "device_store.14B.data.b32",
+      "instruction": "device_store",
+      "form": "14B-device-even-extmode",
+      "role": "data source",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 95, "status": "direct"}
+      ],
+      "outside_behavior": "extmode=2R selects rR. extmode 192 wraps to r0; upper half-index codes include aliases and faults.",
+      "evidence": ["EXP-0221"]
+    },
+    {
+      "id": "device_memory.14B.index.b32",
+      "instruction": "device_load/device_store",
+      "form": "14B-device",
+      "role": "index source",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 95, "status": "direct"}
+      ],
+      "outside_behavior": "Low-seven-bit index 96..127 faults. Encoded bit7 is ignored and mirrors the low seven bits.",
+      "evidence": ["EXP-0221"]
+    },
+    {
+      "id": "fspecial.10B.destination.b32",
+      "instruction": "fspecial",
+      "form": "10B",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 0, "status": "unknown"},
+        {"first": 1, "last": 14, "status": "direct"},
+        {"first": 15, "last": 95, "status": "unknown"}
+      ],
+      "outside_behavior": "Generated value proof covered r1..r14. Destination descriptor for r96+ is the measured fault/hang boundary.",
+      "evidence": ["EXP-0161"]
+    },
+    {
+      "id": "fspecial.10B.source.b32",
+      "instruction": "fspecial",
+      "form": "10B",
+      "role": "source",
+      "width": 32,
+      "default_status": "unknown",
+      "overrides": [
+        {"registers": [1, 2, 3, 5, 7, 9, 14], "status": "direct"}
+      ],
+      "outside_behavior": "Only the listed source registers carried generated, distinct arithmetic proof; field geometry is broader but is not treated as evidence.",
+      "evidence": ["EXP-0161"]
+    }
+  ],
+  "transfers": [
+    {
+      "id": "n3_mov.copy32.low64_to_low16",
+      "source_first": 0,
+      "source_last": 63,
+      "destination_first": 0,
+      "destination_last": 15,
+      "width": 32,
+      "sequence": [
+        "n3_mov dst.lo <- src.lo retain",
+        "n3_mov dst.hi <- src.hi retain"
+      ],
+      "evidence": ["EXP-0174", "EXP-0230"]
+    }
+  ]
+}

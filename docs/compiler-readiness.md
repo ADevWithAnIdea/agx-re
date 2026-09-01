@@ -1505,7 +1505,7 @@ Evidence: as cited inline. Where a claim rests on an uncommitted or in-flight
 > measured on**, and keeps the bounds the measuring experiment stated. Where a result is
 > deliberately bounded it says so; a doc that drops the bound is worse than no doc.
 
-**`nir_op_mov` is CLOSED.** `EXP-0174` found and **generated** the register-to-register move that
+**A bounded GPR move is closed; the full 96-GPR transfer problem is not.** `EXP-0174` found and **generated** the register-to-register move that
 `EXP-0087` → `EXP-0090` → `EXP-0101` → `EXP-0113` → `EXP-0140` had concluded did not exist:
 `n3_mov` moves one GPR to a **different** GPR. All **240 ordered `(dst, src)` pairs with
 `dst != src`** were generated from the descriptor's bit geometry in both instruction orders and
@@ -1513,6 +1513,11 @@ two independent register plans; of the 960 dispatched per run, **840 were decida
 matched a full host-computed 16-register prediction, with 0 failures** (the other 120 land on a
 plan's blind or pad-masked slot and are covered by the other plan). Plus **1680 generated
 half-moves matched, 0 failed.** Two gated runs, G17P. The encoding is in `docs/isa/README.md` (`n3_mov`).
+
+**EXP-0230 supplies the missing full-register-pressure bound.** With all r0..r95 independently
+live, `n3_mov` directly reads r0..r63 and aliases S=64..127 modulo 64; its destination remains
+r0..r15. The old 16-register carrier therefore proved the operation but not a general 96-GPR
+transfer. No GPR-only transfer involving physical r64..r95 is currently proved.
 
 The retracted `validation.json` note — *"AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON
 APPLE9"* — was correct **about the `reg_move_*` family**, which really is one instruction with a
@@ -1525,13 +1530,15 @@ it.**
 32-bit copy is **two instructions** — phi lowering, parallel-copy breaking and spill reload all
 pay double. (2) `db.json`'s operand model for `n3_mov` is **one bit off** and fails silently (see
 `docs/isa/README.md`); use bits 1..7 for the source register and treat bit 0 as the source-half
-select. (3) Whether any `byte+2` value performs a **single 32-bit** move is **not established**.
+select. Those bits select r0..r63 and then alias modulo 64, rather than reaching r64..r95.
+(3) Whether any `byte+2` value performs a **single 32-bit** or wider-reach move is **not
+established**.
 
 `docs/isa/register-move-and-liveness.md` records that this repository received a report from an
 external compiler engineer building a NIR→Apple9 back end who *"could not get a basic
 register-to-register move to work."* That report is now answered.
 
-| 1 | `nir_op_mov` (GPR→GPR) | **CLOSED** | `n3_mov`, generated end-to-end on G17P (`EXP-0174`/`EXP-0175`); 16-bit granular, so a 32-bit copy is two instructions |
+| 1 | bounded GPR→GPR move | **CLOSED only for r0..r63 → r0..r15** | `n3_mov`, generated end-to-end on G17P (`EXP-0174`/`EXP-0175`/`EXP-0230`); 16-bit granular, so a 32-bit copy is two instructions; physical r64..r95 transfer remains open |
 
 - **`half_alu_ext8`** — `opsel` 6 selects the fma form (`byte+2 = 0x1e`), **but `opsel` is a
   length input and only 3 of its 8 values keep the 8-byte framing**. `dst`, `srcA`, `b5`, `rsv6`,
