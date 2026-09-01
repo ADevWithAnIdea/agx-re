@@ -298,12 +298,10 @@
       "role": "destination",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 0, "status": "unknown"},
-        {"first": 1, "last": 14, "status": "direct"},
-        {"first": 15, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 95, "status": "direct"}
       ],
-      "outside_behavior": "Generated value proof covered r1..r14. Destination descriptor for r96+ is the measured fault/hang boundary.",
-      "evidence": ["EXP-0161"]
+      "outside_behavior": "In the canonical FP32 direct-round form, byte values 0..191 select r[v >> 1], with bit 0 accepted-inert in the tested envelope. EXP-0161 established that r96 is first invalid and the upper descriptor region faults/hangs.",
+      "evidence": ["EXP-0161", "EXP-0237"]
     },
     {
       "id": "fspecial.10B.source.b32",
@@ -311,12 +309,12 @@
       "form": "10B",
       "role": "source",
       "width": 32,
-      "default_status": "unknown",
-      "overrides": [
-        {"registers": [1, 2, 3, 5, 7, 9, 14], "status": "direct"}
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "Only the listed source registers carried generated, distinct arithmetic proof; field geometry is broader but is not treated as evidence.",
-      "evidence": ["EXP-0161"]
+      "outside_behavior": "In the canonical FP32 direct-round form with a materialized GPR, all byte values 0..255 select and release r[v >> 2]; bits 0..1 are accepted-inert in this envelope. The exhausted field cannot represent physical r64..r95.",
+      "evidence": ["EXP-0161", "EXP-0237"]
     }
   ],
   "transfers": [

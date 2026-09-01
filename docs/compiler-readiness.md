@@ -79,7 +79,10 @@ emitter can apply, not as prose descriptions of them.
 > r0..r15. EXP-0236 closes canonical retained FP32 FMA over ordinary/materialized GPRs: A/B/C
 > directly read r0..r63, high descriptors alias modulo 64, and the destination is r0..r15. The
 > mixed r16..r23 result in EXP-0224 was pending-load state and remains a scoreboard question, not a
-> materialized-register limit. The older assessment below is retained as historical context, but its move,
+> materialized-register limit. EXP-0237 closes the canonical ten-byte FP32 direct-round `fspecial`
+> register class: its source byte reads and releases r0..r63 and cannot encode r64..r95; its
+> destination byte directly writes r0..r95, with r96 first invalid by EXP-0161. The older assessment
+> below is retained as historical context, but its move,
 > b32-`iadd2`, canonical low-32 `imad`, canonical `isel10`, and canonical `ilogic` blocker
 > statements, plus its canonical `falu3` register blocker, are superseded by §§3.6 and 8.
 >
@@ -764,6 +767,9 @@ stop          body = 0x000000, HW-proven non-load-bearing padding           [EXP
    source A r0..r31, source B r0..r63, and destination r0..r95 on G17P (`EXP-0220`/`EXP-0232`).
    Canonical retained FP32 `falu3` materialized sources A/B/C each reach r0..r63 and alias high
    descriptors modulo 64; its destination reaches r0..r15 (`EXP-0224`/`EXP-0236`).
+   Canonical FP32 direct-round `fspecial` reads/releases r0..r63 and writes r0..r95
+   (`EXP-0161`/`EXP-0237`); its source field has no representation for r64..r95, while r96 is the
+   destination's measured first-invalid boundary.
    G17P r96 is the first invalid `iadd2` destination and faults; r127 also faults without aliasing.
    The older r95-first-fault result belongs to M4/G16G and must not be transferred across targets.
    `device_load`/`device_store` separately reach all physical r0..r95 (`EXP-0221`/`EXP-0230`).
@@ -919,22 +925,22 @@ The tile-buffer side of the fragment pipeline *is* emittable (`tile_read`, `tile
 `pixel_order`, `n3_sample_read`), which is why `EXP-0147` records it as advancing P0.4: a BG/EOT
 program's tilebuffer **read** is now a specified encoding. The **write** is not.
 
-### 3.5 Transcendentals — the arm was stopped for hangs
+### 3.5 Transcendentals — canonical register placement closed; operation space incomplete
 
-`fspecial` has 11 fields, all still at their prior labels, from **one gated run only**. `EXP-0138`
-§6:
+EXP-0161/0165 correct the operand rotation: byte+3 is destination `v>>1`, byte+5 is source `v>>2`,
+and byte+1's high nibble is not the destination. EXP-0237 then generates the direct-round FP32
+form over the complete positive register namespaces in two quiet opposite-order runs:
 
-> **`fspecial.src` (byte+3) values 192..255 fault or hang the GPU.** `run01` (contended host): 60
-> reproducible faults. `run05` (isolated host): values 192, 193, 194 each **HUNG the GPU three times
-> in a row** under the 12 s watchdog. Only values 2 and 3 give the correct `rsqrt(4) = 0.5`; 188
-> values silently return 0.0; values 6 and 7 leave the poison intact (the store never ran). **An
-> emitter must never set byte+3 bit 7 of `fspecial`.**
+- all source-byte values 0..255 read and release r0..r63 as `v>>2`; the field cannot encode
+  physical r64..r95;
+- destination-byte values 0..191 directly write r0..r95 as `v>>1`;
+- source=destination publishes the result after release at eight tier boundaries;
+- destination r96 is first invalid: EXP-0161's upper-region sweep found 0 of 64 values working and
+  contained faults/hangs. Do not repeat that destructive sweep in ordinary validation.
 
-Per `FIELD-SWEEP-PROTOCOL` §8 ("after two genuine hangs in one area, STOP that arm") the whole arm
-was stopped. This is reported PARTIAL, not rounded up.
-
-**What this blocks:** `nir_op_frcp`, `frsq`, `fexp2`, `flog2`, `fsin`, `fcos`, `fsqrt` — i.e. every
-transcendental lowering. `fspecial_est` is separately blocked (`dst` `untested`).
+This removes register placement as a blocker for the tested canonical form. It does **not** close
+every `frcp`/`frsq`/`fexp2`/`flog2`/`fsin`/`fcos`/`fsqrt` datapath, exceptional-value behavior,
+pending-producer acceptance, or `fspecial_est`; those remain semantic/form-specific work.
 
 `iunary`/`ibitcount` do cover `nir_op_bit_count`, `ufind_msb` and `bitfield_reverse` (§1.3), so the
 bit-manipulation corner is open even though the float-special corner is not.
@@ -1390,7 +1396,7 @@ From `docs/hypotheses.md` and `docs/capability-matrix.md` §1 (20 native capabil
 | 6 | **`EXP-0146`'s 94 committed field verdicts are not in `validation.json`** | `ilogic` (all 16 logic ops), `carry_gen`, `irotate`, `mov_zext16`, `n2_op6/8/10`, `n3_mov`, `shift_amt_move` | **BOOKKEEPING** — the evidence exists and is committed | Merge the remaining eight descriptors. Do not import EXP-0146's carrier-scoped `iadd2.srcB_ext` modifier rule; EXP-0154/EXP-0232 supersede it with the b32 source-register mapping (§3.6). |
 | 7 | **Atomic op-selector field model** | every `nir_intrinsic_*_atomic` | **MODELLING** — the op *byte* was swept 256/256 with `0x36` = `sub` verified by value; the DB's split into `op_lsb`/`op`/`per_lane`/`op_msb` is what has no semantics | A `db.json` field-model fix plus a sweep that varies the sub-fields independently rather than the byte. |
 | 8 | **`falu3` (FMA) operands** | `nir_op_ffma`; every fused-multiply lowering | EVIDENCE — blocked by a *measurement artefact*: `EXP-0138` §9 shows the sweeps were destroyed by their own success, since reading a GPR as a 32-bit source through these slots **zeroes that register afterwards** (release-on-read), tripping the integrity sentinel | Re-run the six sweeps *"with the sentinel routed through a register no descriptor value can name"* — `EXP-0138`'s own prescription. |
-| 9 | **Transcendentals (`fspecial`)** | `frcp`, `frsq`, `fexp2`, `flog2`, `fsin`, `fcos`, `fsqrt` | EVIDENCE, but **hazardous** — arm stopped after 3 reproduced GPU hangs | A carrier that can reach the fields without byte+3 bit 7, under a hang budget. Low priority against #1–#5. |
+| 9 | **Remaining transcendental semantics/forms** | complete `frcp`, `frsq`, `fexp2`, `flog2`, `fsin`, `fcos`, `fsqrt` coverage | Register reach is closed for canonical direct-round `fspecial` by EXP-0237; other datapaths, exceptional values, pending producers, and `fspecial_est` remain | Generated operation-specific oracles in the known-safe destination region; never rediscover the established r96+ fault/hang region in a bulk arm. |
 | 10 | **Memory-ordering observables** | documented fence semantics | **EVIDENCE-BY-DESIGN** — six fields swept densely and deliberately not promoted, because neither carrier has an ordering observable | A real ordering litmus (message-passing / store-buffer). `compute_fence_scoped.mask` already shows a live signal at 10 of 256 values. |
 | 11 | **Subgroup ops** (`simd_ballot`/`shuffle`/`reduce`) | all subgroup intrinsics | EVIDENCE | Not yet attempted in the emitter wave. |
 | 12 | **`tg_addr_compute` model + G16G↔G17P divergence** | threadgroup-memory addressing | **MODEL DEFECT + open divergence** (§3.8) | Model byte0/byte+1 as fields first; a sweep is meaningless until then. |

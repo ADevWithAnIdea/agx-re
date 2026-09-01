@@ -346,16 +346,20 @@ EXP-0112 correctly found bit 6 inert (`r(R mod 64)` aliasing).
   | byte | what it actually is | rule | evidence (G17P) |
   |---|---|---|---|
   | byte+1 high nibble | **inert** | — | 16/16 both runs |
-  | **byte+3** | **destination** register | `reg = v >> 1`, requires `(v & 0xFE) == 0` | 28/28 fit, 0 misfits |
-  | **byte+5** | **source** register | `reg = v >> 2`, requires `(v & 0xFC) == 0` | 60/60 fit, 0 misfits |
+  | **byte+3** | **destination** register | `reg = v >> 1`; bit 0 aliases | all 192 safe values per run, r0..r95 |
+  | **byte+5** | **source** register | `reg = v >> 2`; bits 0..1 alias | all 256 values per run, r0..r63 |
 
-  Both mask rules are the **unique** separators over an exhaustive search of all 256 candidate
-  masks. **An emitter following the old layout puts the destination in a byte that does nothing
+  EXP-0161's earlier `(v & 0xFE) == 0` and `(v & 0xFC) == 0` mask statements described which
+  mutations reproduced one fixed-register baseline; they were not legality requirements. EXP-0237
+  generates and executes the entire positive namespaces with register-specific exact values.
+  In its materialized FP32 direct-round carrier, byte+3 bit 0 and byte+5 bits 0..1 are accepted
+  aliases; use zero for the canonical encoding, but do not call the other encodings illegal.
+  **An emitter following the old layout puts the destination in a byte that does nothing
   and the source in the byte that redirects the destination — the program runs, faults nothing,
   and silently writes the wrong register.** Established three ways, including **20/20 generated
   `r_i = rsqrt(r_j)` encodings that Apple's compiler never emitted** (the old model scored 10 fail
   + 10 unpredictable on the same bytes). `EXP-0161` (DEF-0161-1), re-derived independently from
-  raw and confirmed by `EXP-0165`.
+  raw and confirmed by `EXP-0165`; complete direct reach and release lifecycle are `EXP-0237`.
 
 - ⛔ **`fspecial` destination register ≥ 96 faults or hangs the GPU.** `reg = byte+3 >> 1` maps
   values 0..191 onto **r0..r95 — exactly the 96-entry GPR file** — so the safe rule is
@@ -366,6 +370,13 @@ EXP-0112 correctly found bit 6 inert (`r(R mod 64)` aliasing).
   unrelated instructions (`iter.dst`, `iter_at.dst`, `frag_color_pack.dst`,
   `simd_{ballot,reduce,shuffle}.dst`, `imageblock_store.src`), where `(v & 0xC0) == 0xC0` faults
   and the same plus bit 1 **hangs** — so it is a property of the register file, not of `fspecial`.
+
+- **Canonical `fspecial` register lifecycle (G17P, EXP-0237).** For the ten-byte materialized-
+  source FP32 direct-round form, the source byte exhaustively names and releases r0..r63; it cannot
+  represent r64..r95. The destination byte directly writes all r0..r95. Eight source=destination
+  cases across the r0/r15/r16/r31/r32/r47/r48/r63 boundaries prove that release happens before
+  result publication, so the new result wins. These access sets belong to this form and are not
+  inherited by `fspecial_est`, pending-producer forms, or other source classes/datapaths.
 
 - ⛔ **`imad` has NO first operand in older documentation.** `db.json` modelled no `srcA` at all;
   the byte it called `srcC_lo` (byte+6) is the **first multiplicand's register selector**,
@@ -1800,8 +1811,10 @@ total, isolated by a matched pair differing only in **operand provenance**. (EXP
   UNRESOLVED — never swept", which its own sidecar contradicted with "byte+5: 0..255 dense, 512
   records".
 - **`fspecial`'s operand rotation is real and correct.** Byte 3 relocates the **destination**
-  (`index = v>>1`, 26/26); byte 5 selects the **source** (`index = v>>2`, 56/56, checked
-  arithmetically with `rsqrt(9) = 1/3` and `rsqrt(0.25) = 2`). The `(12,4)` field is inert.
+  (`index = v>>1`); byte 5 selects and releases the **source** (`index = v>>2`). EXP-0237 closes
+  the direct-round materialized-GPR envelope densely: destination byte 0..191 reaches r0..r95,
+  and all 256 source-byte values reach r0..r63 four times. The `(12,4)` field is inert in the
+  earlier tested carriers.
 - **`falu3` is `A*B+C` reading bytes 1/3/5, with `reg = byte>>1`** — not the frozen model, which
   put srcB on byte 4 whose baseline `0x81` is register 64. **EXP-0203's own committed oracle scores
   47,030 for bytes 1/3/5 against 0 for bytes 3/4/5.** The same shape holds for `iminmax`,

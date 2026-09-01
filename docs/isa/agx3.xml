@@ -298,9 +298,9 @@
   </enum>
 
   <enum kind="tex_sample_mode" name="tex_sample mode">
-    <value value="0" label="gather/read/sample_compare">gather_read_sample_compare</value>
-    <value value="16" label="filtered sample">filtered_sample</value>
-    <value value="32" label="LOD query">LOD_query</value>
+    <value value="0" label="gather/read/sample_compare (baseline) -- see the note: this is a BITFIELD, not an enum">gather_read_sample_compare_see_the_note_this_is_a_BITFIELD_not_an_enum</value>
+    <value value="16" label="0x10 is INERT on every arm tested (DEF-0204-1)">0x10_is_INERT_on_every_arm_tested</value>
+    <value value="32" label="0x20 = bit 5, LIVE under implicit LOD, INERT under explicit level() (DEF-0204-2)">0x20_bit_5_LIVE_under_implicit_LOD_INERT_under_explicit_level</value>
   </enum>
 
   <enum kind="tex_sample_tex_type" name="tex_sample tex_type">
@@ -354,6 +354,11 @@
     <value value="16">quad_dyn</value>
     <value value="20">simd_dyn</value>
     <value value="21">simd_updown_dyn</value>
+  </enum>
+
+  <enum kind="simd_shuffle_ext12_dir" name="simd_shuffle_ext12 dir">
+    <value value="0" label="fill/up">fill_up</value>
+    <value value="1" label="rotate/down">rotate_down</value>
   </enum>
 
   <enum kind="simd_ballot_pred" name="simd_ballot pred">
@@ -525,10 +530,10 @@
   </enum>
 
   <enum kind="ret_linkmode" name="ret linkmode">
-    <value value="2">leaf</value>
-    <value value="4">cf_merge</value>
-    <value value="5">cf_merge_push</value>
-    <value value="18">nonleaf_restore_link</value>
+    <value value="2" label="leaf (v &amp; 3 == 2)">leaf</value>
+    <value value="4" label="FAULTS on G17P -- the old `cf_merge` reading is REFUTED (EXP-0206)">FAULTS_on_G17P_the_old_cf_merge_reading_is_REFUTED</value>
+    <value value="5" label="FAULTS on G17P -- the old `cf_merge_push` reading is REFUTED (EXP-0206)">FAULTS_on_G17P_the_old_cf_merge_push_reading_is_REFUTED</value>
+    <value value="18" label="nonleaf_restore_link (0x10 = restore-link flag; v &amp; 3 == 2)">nonleaf_restore_link</value>
   </enum>
 
   <enum kind="ibitcount_fn_hi" name="ibitcount fn_hi">
@@ -539,6 +544,7 @@
   <enum kind="ibitcount_form" name="ibitcount form">
     <value value="4">reverse</value>
     <value value="5" label="count/scan">count_scan</value>
+    <value value="21" label="observed on our own k_pc_two (occurrence 1); role UNNAMED -- DEF-0202-4">observed_on_our_own_k_pc_two_role_UNNAMED_DEF_0202_4</value>
   </enum>
 
   <enum kind="ibitcount_op_enable" name="ibitcount op_enable">
@@ -913,7 +919,7 @@
     <modifier name="b2_fmt" bit="18:23"/>
     <dest name="dst" bit="24:31"/>
     <modifier name="opmode" bit="32:39"/>
-    <modifier name="srcC_lo" bit="40:47"/>
+    <src name="srcC_lo" bit="40:47"/>
     <src name="srcB" bit="48:55"/>
     <modifier name="srcC_desc" bit="56:63"/>
     <modifier name="mulsel" bit="64:71"/>
@@ -1224,6 +1230,14 @@
     <modifier name="opclass" bit="40:47"/>
   </ins>
 
+  <!-- icmp_pred_ext10: Ten-byte low-nibble-a form at the exact compiler-produced prefix `2a 00 2b c0 06 00` -->
+  <!-- provenance: HW-VALIDATED LENGTH, G17P EXP-0200 stop scan: rq_bbox+960 is the beginning of the enclosing span [960,970), byte sequence `2a 00 2b c0 06 00 06 c2 00 ... -->
+  <ins name="icmp_pred_ext10" length="10" label="Ten-byte low-nibble-a form at the exact compiler-produced prefix `2a 00 2b c0 06 00`">
+    <exact bit="0:47">000000000000011011000000001010110000000000101010</exact>
+    <!-- tail [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+  </ins>
+
   <!-- sel: d = pred ? A : B -->
   <!-- provenance: HW-VALIDATED behaviour (EXP-0010 E3 dsel: compare-imm splice flips the chosen value, no jump). clean tokenization; fields byte-diff. -->
   <ins name="sel" length="4" label="d = pred ? A : B">
@@ -1278,7 +1292,8 @@
     <exact bit="8:15">00000110</exact>
     <modifier name="scope" bit="16:23" kind="pop_reconverge_scope"/>
     <modifier name="scope_kind" bit="24:31" kind="pop_reconverge_scope_kind"/>
-    <modifier name="reserved" bit="32:47"/>
+    <modifier name="reserved" bit="32:39"/>
+    <modifier name="reserved_hi" bit="40:47"/>
   </ins>
 
   <!-- mask_op: inner execution-mask op (0f 04 <mask_bank> <scope_kind>, 4 bytes) -->
@@ -1457,25 +1472,26 @@
     <exact bit="4:5">11</exact>
     <exact bit="16">0</exact>
     <exact bit="18:23">010101</exact>
-    <exact bit="8:15">op</exact>
+    <exact bit="8:10">op</exact>
     <modifier name="scope" bit="3" kind="simd_reduce_scope"/>
     <modifier name="b0hi" bit="6"/>
     <modifier name="opcls" bit="7"/>
     <modifier name="cache" bit="17"/>
+    <modifier name="op_hi" bit="11:15"/>
     <dest name="dst" bit="24:31"/>
     <modifier name="opmarker" bit="32:39"/>
     <src name="src" bit="40:47"/>
     <modifier name="shape" bit="48:55"/>
     <modifier name="dtype" bit="56:63" kind="simd_reduce_dtype"/>
 
-    <ins name="ior_iand" op="00000000" label="ior/iand"/>
-    <ins name="isum_ixor" op="00000001" label="isum/ixor"/>
-    <ins name="smax_smin" op="00000010" label="smax/smin"/>
-    <ins name="umax_umin" op="00000011" label="umax/umin"/>
-    <ins name="f16prod_f16sum" op="00000100" label="f16prod/f16sum"/>
-    <ins name="fmin" op="00000101"/>
-    <ins name="f32prod_f32sum" op="00000110" label="f32prod/f32sum"/>
-    <ins name="fmax" op="00000111"/>
+    <ins name="ior_iand" op="000" label="ior/iand"/>
+    <ins name="isum_ixor" op="001" label="isum/ixor"/>
+    <ins name="smax_smin" op="010" label="smax/smin"/>
+    <ins name="umax_umin" op="011" label="umax/umin"/>
+    <ins name="f16prod_f16sum" op="100" label="f16prod/f16sum"/>
+    <ins name="fmin" op="101"/>
+    <ins name="f32prod_f32sum" op="110" label="f32prod/f32sum"/>
+    <ins name="fmax" op="111"/>
   </group>
 
   <!-- simd_shuffle: d = src read from another lane -->
@@ -1494,6 +1510,26 @@
     <modifier name="rtype" bit="56:63"/>
     <dest name="dsthi" bit="64:71"/>
     <modifier name="rsv9" bit="72:79"/>
+  </ins>
+
+  <!-- simd_shuffle_ext12: Twelve-byte mode-0x06 SIMD rotate/shuffle-and-fill form -->
+  <!-- provenance: HW-VALIDATED LENGTH, EXP-0229: generated marker staircase over all currently named simd_shuffle modes, both directions, both mode-6 byte+9 bit7 ... -->
+  <ins name="simd_shuffle_ext12" length="12" label="Twelve-byte mode-0x06 SIMD rotate/shuffle-and-fill form">
+    <exact bit="0:6">1000111</exact>
+    <exact bit="8:15">00000110</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
+    <modifier name="dir" bit="7" kind="simd_shuffle_ext12_dir"/>
+    <modifier name="cache" bit="17"/>
+    <dest name="dst" bit="24:31"/>
+    <src name="src" bit="32:39"/>
+    <modifier name="srctype" bit="40:47"/>
+    <immediate name="lane" bit="48:55"/>
+    <modifier name="rtype" bit="56:63"/>
+    <dest name="dsthi" bit="64:71"/>
+    <modifier name="rsv9" bit="72:79"/>
+    <!-- extra [80:95]: inferred / not yet bit-decoded -->
+    <zero bit="80:95"/>
   </ins>
 
   <!-- simd_ballot: produces the SIMD-group ballot / vote mask (per-lane boolean -> 32-bit mask) -->
@@ -1912,8 +1948,10 @@
   <!-- provenance: inferred (byte-diff, EXP-0029): appears only in out_depth (a [[depth(any)]] output) and not in the colour-only kernels; sits inside a ... -->
   <ins name="frag_depth_store" length="6" label="write the shader [[depth]] output to the tile depth buffer">
     <exact bit="0:7">11010111</exact>
-    <exact bit="8:15">00010100</exact>
-    <exact bit="16:23">01010100</exact>
+    <exact bit="9:10">10</exact>
+    <modifier name="b1_lo" bit="8"/>
+    <modifier name="b1_hi" bit="11:15"/>
+    <modifier name="b2" bit="16:23"/>
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
     <zero bit="24:31"/>
     <!-- b4 [32:39]: inferred / not yet bit-decoded -->
@@ -2028,8 +2066,11 @@
     <exact bit="18:23">010101</exact>
     <!-- b2 [17]: inferred / not yet bit-decoded -->
     <zero bit="17"/>
-    <!-- operands [24:63]: inferred / not yet bit-decoded -->
-    <zero bit="24:63"/>
+    <dest name="rot_dst" bit="24:31"/>
+    <modifier name="op_enable" bit="32:39"/>
+    <src name="rot_src" bit="40:47"/>
+    <immediate name="operands" bit="48:55"/>
+    <modifier name="amt_tail" bit="56:63"/>
     <!-- tail [64:95]: inferred / not yet bit-decoded -->
     <zero bit="64:95"/>
   </ins>
@@ -2144,9 +2185,9 @@
     <zero bit="24:31"/>
   </ins>
 
-  <!-- frame_marker_compact: 2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00) -->
-  <!-- provenance: length HW-anchored (EXP-M4-01 round-3, lenprobe): `60 00`->2 resyncs 8 clean ops in k_atomics_tg@26 and k_atomics@362 (>=4 resyncs 0); byte+2==0x00 ... -->
-  <ins name="frame_marker_compact" length="2" label="2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00)">
+  <!-- frame_marker_compact: Retired historical alias for the four-byte `?0` family member tested by EXP-0199 -->
+  <!-- provenance: RETIRED HISTORICAL ALIAS. The former two-byte reading came only from M4 corpus resynchronisation. Direct G17P insertion probes in EXP-0199 establish ... -->
+  <ins name="frame_marker_compact" length="4" label="Retired historical alias for the four-byte `?0` family member tested by EXP-0199">
     <exact bit="0:7">01100000</exact>
     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
     <zero bit="8:15"/>
@@ -2188,7 +2229,8 @@
   <!-- half_pack: HALF-LANE PACK (assemble a half2 into a packed 32-bit register) -->
   <!-- provenance: HW-VALIDATED (EXP-0038): the half2 round-trip k_h2roundtrip (float2 -> fp16 pack (0x18) -> store -> load -> unpack -> float2) returns EXACT for 8 ... -->
   <ins name="half_pack" length="4" label="HALF-LANE PACK (assemble a half2 into a packed 32-bit register)">
-    <exact bit="0:7">00011000</exact>
+    <exact bit="0:3">1000</exact>
+    <dest name="dst" bit="4:7"/>
     <dest name="dstlo" bit="8:15"/>
     <modifier name="src" bit="16:23"/>
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
@@ -2576,9 +2618,9 @@
   <!-- sfu_marker: SFU / transcendental helper CONTROL WORD (byte0 0x06, byte+1 0x02 as the compiler emits it), 2 ... -->
   <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 02 across 59 corpus occurrences in 22 own-compiled shaders; reproduced in an isolated OWN fast::sin ... -->
   <ins name="sfu_marker" length="2" label="SFU / transcendental helper CONTROL WORD (byte0 0x06, byte+1 0x02 as the compiler emits it), 2 ...">
-    <exact bit="0:2">110</exact>
+    <exact bit="0:4">00110</exact>
     <exact bit="8:9">10</exact>
-    <modifier name="b0_hi" bit="3:7"/>
+    <modifier name="b0_hi" bit="5:7"/>
     <modifier name="b1_hi" bit="10:15"/>
   </ins>
 
@@ -3131,6 +3173,15 @@
     <immediate name="b7" bit="56:63"/>
   </ins>
 
+  <!-- half_alu_ext10: Ten-byte native-half form -->
+  <!-- provenance: HW-VALIDATED LENGTH, G17P EXP-0180: 4,096 marker-staircase cases over the complete byte+2 and byte+4 low-bit cross-product, two runs, zero ambiguous ... -->
+  <ins name="half_alu_ext10" length="10" label="Ten-byte native-half form">
+    <exact bit="0:3">0000</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- body [8:79]: inferred / not yet bit-decoded -->
+    <zero bit="8:79"/>
+  </ins>
+
   <!-- half_alu_ext8: 8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte ... -->
   <!-- provenance: census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033) ... -->
   <group name="half_alu_ext8" length="8" label="8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte ...">
@@ -3163,8 +3214,11 @@
     <exact bit="16:18">110</exact>
     <modifier name="opflags" bit="19:23"/>
     <src name="srcB" bit="24:31"/>
-    <!-- ext [32:95]: inferred / not yet bit-decoded -->
-    <zero bit="32:95"/>
+    <modifier name="lensel" bit="32:33"/>
+    <modifier name="mods" bit="34:39"/>
+    <src name="srcC" bit="40:47"/>
+    <!-- ext [48:95]: inferred / not yet bit-decoded -->
+    <zero bit="48:95"/>
   </ins>
 
   <!-- falu_srcmod12b: 12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form -->
@@ -3230,6 +3284,17 @@
     <src name="srcA" bit="24:31"/>
     <src name="srcB" bit="32:39"/>
     <modifier name="tail" bit="40:63"/>
+  </ins>
+
+  <!-- op04_hw12: Length-only descriptor for the six own-G17P compiler prefixes whose consumed length EXP-0157 ... -->
+  <!-- provenance: HW-VALIDATED LENGTH, G17P EXP-0157: six compiler-produced candidate prefixes, direct register-witness framing probe, all six consumed twelve bytes ... -->
+  <ins name="op04_hw12" length="12" label="Length-only descriptor for the six own-G17P compiler prefixes whose consumed length EXP-0157 ...">
+    <exact bit="0:3">0100</exact>
+    <exact bit="15">0</exact>
+    <!-- prefix_body [4:14 16:63]: inferred / not yet bit-decoded -->
+    <zero bit="4:14 16:63"/>
+    <!-- tail [64:95]: inferred / not yet bit-decoded -->
+    <zero bit="64:95"/>
   </ins>
 
   <!-- op04_len8: 8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4 -->

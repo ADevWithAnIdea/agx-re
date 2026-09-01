@@ -4,10 +4,13 @@ Generated G17P validation of the complete source descriptor namespace and safe d
 descriptor namespace of the ten-byte FP32 direct-round `fspecial` form. Inputs are explicitly
 materialized before use; `floor(N + 0.5)` provides an exact independent oracle.
 
-Offline gate:
+Offline generation gate:
 
 ```sh
 python3 harness/selftest237.py
 ```
+
+Formal result: `RESULTS.md`. Machine gates: `analysis/formal_result.json` and
+`analysis/gate_e_result.json`.
 
 Clean-room provenance: OWN-SHADER + HW-PROBE. Apple binary introspection: **NONE**.

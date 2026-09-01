@@ -81,6 +81,9 @@ REAL_INSTRS = {
     "fspecial log2 (2f 02 56 ..)":          "2f0256000200b0400000",   # log2 (0x2f) HW
     "fspecial floor (2f 00 56 .. b8=02)":   "2f0056000200b0400200",   # floor HW
     "fspecial ceil  (2f 00 56 .. b8=04)":   "2f0056000200b0400400",   # ceil HW
+    "fspecial floor src r63 aliasbits":      "2f00560002ffb0400200",   # EXP-0237 HW
+    "fspecial floor dst r95 aliasbit":       "2f0056bf0200b0400200",   # EXP-0237 HW
+    "fspecial floor src=dst r63":            "2f00567e02fcb0400200",   # EXP-0237 HW
     # ---- SFU rcp/rsqrt/sqrt single ops + 0x29 estimate seeds (EXP-0026) ----
     "fspecial rcp  (af 00 fast 1/x)":       "af005600020010482000",   # SFU reciprocal HW
     "fspecial rsqrt(af 01 fast)":           "af0156000200b0400000",   # SFU rsqrt HW

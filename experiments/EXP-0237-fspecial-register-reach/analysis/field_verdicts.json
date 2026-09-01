@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "experiment": "EXP-0237",
+    "target": "G17P",
+    "legacy_validation_merge": false,
+    "reason_not_merged": "The generic promotion index does not parse fspecial_reach_probe records; dedicated formal237.py is the semantic gate.",
+    "formal_gate": "analysis/formal_result.json",
+    "target_gate": "analysis/gate_e_result.json"
+  },
+  "fspecial.dst@direct_round_f32_materialized": {
+    "encoding_geometry": "geometry-mapped: byte+3 values 0..191 dispatched and decoded exactly; destination is v >> 1",
+    "liveness": "live; bit 0 accepted-inert in the exact tested envelope",
+    "semantics": "semantically-mapped over r0..r95 with exact register-specific floor results",
+    "compiler_recipe": "canonical-recipe-proven for this form; no donor or carrier instruction fields",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "finite_boundary": "r95 maximum valid; r96 first invalid and r96..r127 do-not-emit by EXP-0161/EXP-0138",
+    "evidence": ["EXP-0138", "EXP-0161", "EXP-0237"]
+  },
+  "fspecial.src@direct_round_f32_materialized": {
+    "encoding_geometry": "geometry-mapped: all byte+5 values 0..255 dispatched and decoded exactly; source is v >> 2",
+    "liveness": "live; bits 0..1 accepted-inert in the exact tested envelope",
+    "semantics": "semantically-mapped over r0..r63 with exact register-specific floor results and post-read release",
+    "compiler_recipe": "canonical-recipe-proven for this form; no donor or carrier instruction fields",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "finite_boundary": "complete 8-bit namespace exhausted; field has no representation for physical r64..r95",
+    "evidence": ["EXP-0161", "EXP-0237"]
+  },
+  "fspecial.source_destination_alias@direct_round_f32_materialized": {
+    "encoding_geometry": "ledger-verified at r0,r15,r16,r31,r32,r47,r48,r63",
+    "liveness": "live",
+    "semantics": "release occurs after source read and before destination publication; result wins",
+    "compiler_recipe": "generated-point across eight register-tier boundaries",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "evidence": ["EXP-0237"]
+  },
+  "fspecial.roundmode.floor@direct_round_f32_materialized": {
+    "encoding_geometry": "ledger-verified at roundmode=2",
+    "liveness": "live direct-round operation",
+    "semantics": "semantically-mapped for positive finite exact N+0.5 inputs; 912/912 positive cases compute floor exactly",
+    "compiler_recipe": "generated-point; the relative roundmode 0/4/6 map is not closed by this experiment",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "evidence": ["EXP-0237"]
+  }
+}

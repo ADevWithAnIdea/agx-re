@@ -30,7 +30,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_load` retains its index register. EXP-0231 distinguished this from release with a
   nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0236.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0237.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -60,8 +60,8 @@ the observed alias/failure is stated. `Tested` is not extrapolated to the rest o
 | `device_load.14B` destination | 32 | r0..r95 | first out-of-file destination behavior is not yet cleanly closed for this form | EXP-0221, EXP-0230 |
 | `device_store.14B` data source, even `extmode` | 32 | r0..r95 | half index 192 wraps to r0; other upper codes include aliases and faults and need a complete accepted-set model | EXP-0221 |
 | `device_load/store.14B` index source | 32 | r0..r95 | low seven-bit values 96..127 fault; encoded bit 7 is ignored and mirrors the low seven bits | EXP-0221 |
-| `fspecial.10B` destination | 32 | r1..r14 tested | r0 and r15..r95 not directly value-proved; descriptor values for r96+ fault/hang | EXP-0161 |
-| `fspecial.10B` source | 32 | r1,r2,r3,r5,r7,r9,r14 tested | other physical registers unknown; field geometry alone is not promotion evidence | EXP-0161 |
+| `fspecial.10B` destination, canonical FP32 direct-round form | 32 | r0..r95 | byte values 0..191 select `r[v >> 1]`; r96 is first invalid and the upper descriptor region faults/hangs | EXP-0161, EXP-0237 |
+| `fspecial.10B` source, canonical FP32 direct-round form, materialized GPR | 32 | r0..r63 | byte values 0..255 select and release `r[v >> 2]`; the field has no representation for physical r64..r95 | EXP-0161, EXP-0237 |
 
 The CSV contains one cell per physical r0..r95 for each row. `?` is deliberately present wherever
 the experiment did not establish the answer; Step 2 cannot be checked while any discovered role
@@ -87,7 +87,8 @@ addressing, and first-invalid behavior remain open.
 
 ## 4. State transitions proved across anchor families
 
-For the tested 32-bit ALU recipes (`falu2`, `iadd2`, `imad`, `isel`, `ilogic`, and `falu3`):
+For the tested 32-bit ALU recipes (`falu2`, `iadd2`, `imad`, `isel`, `ilogic`, `falu3`, and the
+canonical materialized-source `fspecial` direct-round form):
 
 ```text
 read retained source     : value is consumed; source remains unchanged
@@ -126,7 +127,7 @@ behavior are Step 3 work.
    capability and performance alternative are known; do not treat the fallback as proof none exists.
 2. **Dense role reach:** the canonical b32 `iadd2` register form, canonical low-32 `imad`, canonical
    retained FP32 `falu3`, canonical `isel10`, and canonical XOR `ilogic` forms are closed. Finish
-   r0..r95 matrices for alternate forms and for `fspecial`, conversion, half, compare, other logic
+   r0..r95 matrices for alternate `fspecial` forms and for conversion, half, compare, other logic
    forms, and every alternate/compressed form. Mixed results are not a range.
 3. **Low-tier exhaustion:** execute the maximum simultaneously live compact operands/results and
    the first over-capacity case while high GPRs remain unused.
