@@ -22,7 +22,8 @@ def fv(value, note):
 
 
 def emit_imad(pg, dst, src_x, src_y, imm, b9, b10,
-              model_src_x=None, model_src_y=None, model_imm=None):
+              model_src_x=None, model_src_y=None, model_imm=None,
+              release_x=False, release_y=False):
     if not (0 <= imm <= 255):
         raise ValueError("EXP-0225 literal is eight bits")
     pg.E.emit("imad", {
@@ -48,8 +49,12 @@ def emit_imad(pg, dst, src_x, src_y, imm, b9, b10,
     mk = imm if model_imm is None else model_imm
     x, y = pg.rbits(mx), pg.rbits(my)
     result = None if x is None or y is None else (x * y + mk) & 0xFFFFFFFF
-    # The pre-registered candidates are retained-source forms.  If hardware
-    # consumes either input, the complete dump deliberately rejects the case.
+    # AMENDMENT-01: releases occur after both reads; destination publication
+    # follows, so a destination/source alias contains the result.
+    if release_x:
+        pg.set_reg(src_x, 0)
+    if release_y:
+        pg.set_reg(src_y, 0)
     pg.set_reg(dst, result)
 
 
@@ -76,6 +81,17 @@ def build_cases(include_hazard=False):
                 "i": len(out), "name": "%s_%s" % (arm.lower(), suffix),
                 "arm": arm, "kind": "imad", "op": op,
                 "expect_match": True, "predicted_bucket": "exact",
+            })
+
+    for name, b9, rx, ry in (("l1_release_y", 0x24, False, True),
+                             ("l1_release_xy", 0x26, True, True)):
+        for suffix, dst in (("plain", 0), ("alias_x", 1), ("alias_y", 2)):
+            out.append({
+                "i": len(out), "name": "%s_%s" % (name, suffix),
+                "arm": "L1", "kind": "imad", "expect_match": True,
+                "predicted_bucket": "exact",
+                "op": dict(dst=dst, src_x=1, src_y=2, imm=37,
+                           b9=b9, b10=0x0A, release_x=rx, release_y=ry),
             })
 
     out.append({
@@ -110,4 +126,3 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
