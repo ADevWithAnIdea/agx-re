@@ -1,0 +1,26 @@
+{
+  "experiment": "EXP-0230",
+  "frozen_before_dispatch": true,
+  "target": "G17P",
+  "question": "n3_mov source reach across r0..r127 with r0..r95 live",
+  "main_cases_per_run": 512,
+  "formal_runs": [
+    {"id": "g17p_e0230_run01", "order": "canonical"},
+    {"id": "g17p_e0230_run02", "order": "reverse"}
+  ],
+  "source_registers": {"min": 0, "max": 127, "dense": true},
+  "source_halves": [0, 1],
+  "register_plans": [14, 15],
+  "models": ["full96_zero_oob", "mod64", "low64_zero_high", "mod96"],
+  "required_gates": {
+    "actual_bytes": true,
+    "seed_witness": true,
+    "wrong_oracle_controls": 2,
+    "donor_fields_max": 0,
+    "carrier_fields_max": 0,
+    "quiet_runs": 2,
+    "finite_max_valid": 95,
+    "finite_first_invalid": 96
+  },
+  "device_unresponsive_action": "stop_without_recovery_and_report_blocked"
+}
