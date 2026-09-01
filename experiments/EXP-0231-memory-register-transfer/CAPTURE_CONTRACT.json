@@ -1,0 +1,29 @@
+{
+  "experiment": "EXP-0231",
+  "frozen_before_dispatch": true,
+  "target": "G17P",
+  "question": "device-memory GPR transfer across compact, middle, and upper register tiers",
+  "main_cases_per_run": 144,
+  "formal_runs": [
+    {"id": "g17p_e0231_run01", "order": "canonical"},
+    {"id": "g17p_e0231_run02", "order": "reverse"}
+  ],
+  "source_registers": [0, 11, 16, 63, 64, 95],
+  "destination_registers": [1, 10, 17, 62, 65, 94],
+  "store_to_load_gaps": [0, 1, 4, 16],
+  "scratch_byte": 3200,
+  "store_index": {"register": 14, "initial_value": 4, "expected_after": 0},
+  "load_index": {"register": 15, "initial_value": 7, "expected_after": 7},
+  "models": ["exact", "stale_destination", "zero", "source_mod64", "store_absent"],
+  "required_gates": {
+    "actual_bytes": true,
+    "complete_three_buffer_state": true,
+    "wrong_oracle_controls": 2,
+    "donor_fields_max": 0,
+    "carrier_fields_max": 0,
+    "quiet_runs": 2,
+    "register_direction_classes": 9,
+    "finite_boundary_representatives": [0, 63, 64, 94, 95]
+  },
+  "device_unresponsive_action": "stop_without_recovery_and_report_blocked"
+}
