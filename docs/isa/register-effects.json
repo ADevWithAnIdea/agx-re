@@ -134,11 +134,11 @@
       "role": "source0",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 31, "status": "direct"},
+        {"first": 32, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
-      "evidence": ["EXP-0222"]
+      "outside_behavior": "The canonical seven-bit reg<<2 selector cannot represent r32+. Alternate extension/control forms remain unknown.",
+      "evidence": ["EXP-0222", "EXP-0232"]
     },
     {
       "id": "iadd2.10B.source1.b32",
@@ -147,11 +147,11 @@
       "role": "source1",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
-      "evidence": ["EXP-0222"]
+      "outside_behavior": "The canonical eight-bit reg<<2 selector cannot represent r64+. Alternate extension/control forms remain unknown.",
+      "evidence": ["EXP-0222", "EXP-0232"]
     },
     {
       "id": "iadd2.10B.destination.b32",
@@ -160,11 +160,10 @@
       "role": "destination",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 95, "status": "direct"}
       ],
-      "outside_behavior": "Not tested beyond r23 in this canonical recipe.",
-      "evidence": ["EXP-0222"]
+      "outside_behavior": "On G17P, r96 is the first invalid destination and raises a contained command-buffer fault; r127 also faults rather than wrapping. The r95 maximum is target-specific and differs from inherited M4/G16G evidence.",
+      "evidence": ["EXP-0222", "EXP-0232"]
     },
     {
       "id": "imad.12B.sourceX.b32",

@@ -64,6 +64,15 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
+> **UPDATE 2026-09-01 — two former arithmetic/register blockers are now closed for a correctness-
+> first G17P back end.** EXP-0230 proves the bounded direct `n3_mov`; EXP-0231 proves an exact
+> r0..r95 → device scratch → r0..r95 transfer fallback. EXP-0232 independently generates the
+> canonical ten-byte b32 `iadd2` with source A r0..r31, source B r0..r63, and destination r0..r95.
+> It also corrects a target-provenance error: r95 is valid on G17P, r96 is the first invalid
+> destination, and r127 faults rather than wrapping. The older assessment below is retained as
+> historical context, but its move and b32-`iadd2` blocker statements are superseded by
+> §§3.6 and 8.
+>
 > **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
 > opposite directions, and both post-date the assessment that follows.
 >
@@ -139,8 +148,8 @@ Immediately behind the move, in the order a NIR back end meets them:
 
 | # | NIR construct | Status | Why |
 |---|---|---|---|
-| 1 | `nir_op_mov` (GPR→GPR) | **blocked** | no validated instruction (above) |
-| 2 | `nir_op_iadd` / `isub` | **blocked, one field short** | `iadd2.srcB_ext` is `corpus-correlation` (§3.6) |
+| 1 | `nir_op_mov` (GPR→GPR) | **closed for correctness; bounded direct path** | two `n3_mov`s copy 32 bits from r0..r63 to r0..r15; device scratch handles r0..r95 → r0..r95 (`EXP-0230`/`EXP-0231`) |
+| 2 | `nir_op_iadd` / `isub` | **canonical b32 register form closed** | generated G17P recipe and full per-role reach in `EXP-0232`; alternate/immediate/b64 forms remain separate |
 | 3 | `nir_op_ffma` | **blocked** | `falu3.op` / `.srcB` / `.srcC` are `untested` |
 | 4 | `nir_op_ieq`/`ilt`/`bcsel` producer | **blocked** | `icmp_pred.srcA`/`.srcB` `untested`; 44 selector fields unresolved (`EXP-0139` §2) |
 | 5 | `nir_loop` | **blocked** | `jump_cond` has **zero** emitter-grade fields (§3.1) |
@@ -739,12 +748,14 @@ stop          body = 0x000000, HW-proven non-load-bearing padding           [EXP
    0x09-group instruction-**length** selector (`EXP-0119`) — flipping them in place re-lengths the
    instruction and corrupts the stream.
 
-3. **Register-file geography.** r0..r63 are freely addressable by the ALU register fields; **r64..r95
-   are only reachable as a `get_sr` destination** (`EXP-0092`/`EXP-0113`), and r96 is a hard
-   ceiling confirmed independently by `iadd2.dst` faulting at reg ≥ 96 (`EXP-0139`) and by
-   `EXP-0020`. Note the sharp inconsistency in what happens above the limit: `falu2` register fields
-   **alias** `r(R mod 64)` for R in [64,112] and fault at 126/127; `device_load.extmode`
-   **silently zeroes** above 63; `iadd2.dst` **faults** at reg ≥ 96 and **does not alias** — see §3.6.
+3. **Register-file geography.** The physical file is r0..r95, but reach is instruction-role-
+   specific rather than one universal ALU rule. `falu2` sources reach r0..r63 and alias high
+   descriptor space; its destination reaches only r0..r15. Canonical b32 `iadd2` instead reaches
+   source A r0..r31, source B r0..r63, and destination r0..r95 on G17P (`EXP-0220`/`EXP-0232`).
+   G17P r96 is the first invalid `iadd2` destination and faults; r127 also faults without aliasing.
+   The older r95-first-fault result belongs to M4/G16G and must not be transferred across targets.
+   `device_load`/`device_store` separately reach all physical r0..r95 (`EXP-0221`/`EXP-0230`).
+   The inconsistent out-of-range behaviors are real and must be recorded per form, not generalized.
 
 ---
 
@@ -916,14 +927,28 @@ transcendental lowering. `fspecial_est` is separately blocked (`dst` `untested`)
 `iunary`/`ibitcount` do cover `nir_op_bit_count`, `ufind_msb` and `bitfield_reverse` (§1.3), so the
 bit-manipulation corner is open even though the float-special corner is not.
 
-### 3.6 The integer core — `iadd2` is one field short, and the two experiments disagree
+### 3.6 The integer core — canonical b32 `iadd2` is generated and register-bounded
 
-`iadd2` — the 32-bit integer add/subtract, and by frequency the instruction a back end needs
-second-most after `falu2` — has **13 of 14 fields at emitter grade**. The one holdout in
-`validation.json` is `srcB_ext`, at `corpus-correlation` ("part of the scattered srcB register
-number").
+**EXP-0232 supersedes this section's old compiler blocker for the canonical ten-byte b32
+register-register form.** Two opposite-order formal runs generated every instruction byte from
+documented rules and executed source A r0..r31, source B r0..r63, and destination r0..r94 densely;
+all 382 main observations were exact, both negative controls fired, and `CARRIER=COPIED=0`.
+Target-specific amended runs then proved r95 exact on G17P, r96 the first invalid destination, and
+r127 a contained fault rather than an alias. A correctness-first emitter can use:
 
-Two committed experiments disagree about that field, and this document does not pick a winner:
+```text
+srcA register = srcB_ext >> 2      (canonical direct set r0..r31)
+srcB register = srcB_imm >> 2      (canonical direct set r0..r63)
+destination   = dst >> 1           (G17P direct set r0..r95; low bit is size)
+```
+
+The current DB names and legacy labels are misleading: `srcB_ext` is typed `mod`, while the field
+named `srcA` is not the register selector. That schema issue does not block the frozen generated
+recipe, but it should be corrected before a generic table-driven packer exposes semantic operands.
+Alternate extension/control combinations, immediate mode, and b64/pair mode are not promoted by
+the b32 result.
+
+For provenance, the earlier apparent disagreement was:
 
 - **`EXP-0139`** swept it in a **32-bit** carrier and declined: *"`srcB_ext` remains blocked: only
   values 0–3 work and **no ≤4-bit rule explains the partition**."* Under that experiment's own
@@ -934,11 +959,9 @@ Two committed experiments disagree about that field, and this document does not 
   That verdict is committed in `experiments/EXP-0146-m4-emit-int-misc/analysis/field_verdicts.json`
   and is keyed `iadd2.srcB_ext@u64sub`.
 
-They are not obviously in conflict — a 5-bit mask rule is exactly what `EXP-0139`'s "no ≤4-bit rule"
-excludes — but they were measured on **different operand widths of the same instruction**, and
-`EXP-0146` states plainly that the byte making the operands 64-bit wide was *located but not
-isolated*. **An implementer must not treat `iadd2` as emittable in the 32-bit form on the strength
-of a 64-bit-carrier verdict.**
+They were not a sound basis for a 32-bit emitter. EXP-0154 first established on G17P that
+`srcB_ext` is a register selector rather than a modifier; EXP-0232 then closed the canonical b32
+recipe with independently seeded physical registers and full generated-byte provenance.
 
 The other `EXP-0139` correction that matters here: **`EXP-0112`'s `r(R mod 64)` aliasing rule does
 NOT transfer to `iadd2.dst`.** `dst = 140/141` is reg 70, which would alias r6 under that rule; r6
@@ -1344,7 +1367,7 @@ From `docs/hypotheses.md` and `docs/capability-matrix.md` §1 (20 native capabil
 | 3 | **Texture sampling operands** | all of `nir_tex`, `nir_image_*` | EVIDENCE | Seeded-register carriers for `tex_sample.coord` / `result_sel` / `result_desc` and for `tex_write`'s eight `untested` fields. `tex_addr_setup` is already emittable, so the setup half is done. |
 | 4 | **Fragment colour output + varying interpolation** | fragment `nir_store_output`, `nir_load_interpolated_input`, VS `nir_store_output` | EVIDENCE | `frag_color_store.store_mode` needs one carrier that varies it (130/130 corpus instances show `0x54`); `iter`/`iter_at` need a fragment carrier at all. |
 | 5 | **44 operand- and condition-selector fields** across `isel*`/`icmpsel`/`imad`/`iminmax`/`ishift`/`icmp_pred` | integer compare, select, multiply, shift | EVIDENCE — `EXP-0139` §2 diagnoses it precisely: a single-carrier splice sweep can prove a field is live and enumerate which values keep the program correct, *"but it cannot establish the value → register-number mapping, because every wrong value points at a register the carrier never seeded"* | A **seeded-register carrier per family**, the way `EXP-0139`'s own `iadd2` and `ibitcount` arms were built. `EXP-0139` names this "the single highest-value follow-up". |
-| 6 | **`EXP-0146`'s 94 committed field verdicts are not in `validation.json`** | `ilogic` (all 16 logic ops), `carry_gen`, `iadd2`, `irotate`, `mov_zext16`, `n2_op6/8/10`, `n3_mov`, `shift_amt_move` | **BOOKKEEPING** — the evidence exists and is committed | A merge pass, with a ruling on the 32-bit vs 64-bit carrier question for `iadd2.srcB_ext` (§3.6). This is desk work and it moves nine descriptors. |
+| 6 | **`EXP-0146`'s 94 committed field verdicts are not in `validation.json`** | `ilogic` (all 16 logic ops), `carry_gen`, `irotate`, `mov_zext16`, `n2_op6/8/10`, `n3_mov`, `shift_amt_move` | **BOOKKEEPING** — the evidence exists and is committed | Merge the remaining eight descriptors. Do not import EXP-0146's carrier-scoped `iadd2.srcB_ext` modifier rule; EXP-0154/EXP-0232 supersede it with the b32 source-register mapping (§3.6). |
 | 7 | **Atomic op-selector field model** | every `nir_intrinsic_*_atomic` | **MODELLING** — the op *byte* was swept 256/256 with `0x36` = `sub` verified by value; the DB's split into `op_lsb`/`op`/`per_lane`/`op_msb` is what has no semantics | A `db.json` field-model fix plus a sweep that varies the sub-fields independently rather than the byte. |
 | 8 | **`falu3` (FMA) operands** | `nir_op_ffma`; every fused-multiply lowering | EVIDENCE — blocked by a *measurement artefact*: `EXP-0138` §9 shows the sweeps were destroyed by their own success, since reading a GPR as a 32-bit source through these slots **zeroes that register afterwards** (release-on-read), tripping the integrity sentinel | Re-run the six sweeps *"with the sentinel routed through a register no descriptor value can name"* — `EXP-0138`'s own prescription. |
 | 9 | **Transcendentals (`fspecial`)** | `frcp`, `frsq`, `fexp2`, `flog2`, `fsin`, `fcos`, `fsqrt` | EVIDENCE, but **hazardous** — arm stopped after 3 reproduced GPU hangs | A carrier that can reach the fields without byte+3 bit 7, under a hang budget. Low priority against #1–#5. |
