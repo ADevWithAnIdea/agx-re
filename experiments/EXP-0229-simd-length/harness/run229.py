@@ -33,33 +33,39 @@ R.FUNC = "k"
 
 MARKERS = ((6, None), (7, 88), (8, 89))
 POST = (11, 94)
+KNOWN_MODES = (0, 1, 4, 5, 6, 8, 16, 20, 21)
 
 
 def fv(value, note):
     return S.FV(value, S.RULE, "EXP-0229 PRE_REGISTRATION", note)
 
 
-def add_case(out, name, arm, direction, rsv9, first_value,
+def add_case(out, name, arm, direction, mode, rsv9, first_value,
              model_first_value=None):
     out.append({
         "i": len(out), "name": name, "arm": arm,
         "kind": "simd_length", "expect_match": arm == "N10",
         "predicted_bucket": "measure" if arm != "CTL" else "refute",
-        "direction": direction, "rsv9": rsv9,
+        "direction": direction, "mode": mode, "rsv9": rsv9,
         "first_value": first_value, "model_first_value": model_first_value,
-        "expected_length": 12 if (rsv9 & 0x80) else 10,
+        "expected_length": 12 if mode == 6 else 10,
     })
 
 
 def build_cases(include_hazard=False):
     out = [case for case in ORIG_CASES(False) if case["arm"] == "S0"]
     for direction in (0, 1):
-        for rsv9, arm in ((0x11, "N10"), (0x91, "X12")):
-            for imm in (51, 87):
-                add_case(out, "%s_d%d_b%02x_m%d" %
-                         (arm.lower(), direction, rsv9, imm), arm,
-                         direction, rsv9, imm)
-    add_case(out, "ctl_wrong_marker", "CTL", 0, 0x11, 87,
+        for mode in KNOWN_MODES:
+            rsvs = (0x11, 0x91) if mode == 6 else (0x00,)
+            for rsv9 in rsvs:
+                arm = "M12" if mode == 6 else "M10"
+                add_case(out, "%s_d%d_mode%02x_b%02x" %
+                         (arm.lower(), direction, mode, rsv9), arm,
+                         direction, mode, rsv9, 51)
+    for rsv9 in (0x11, 0x91):
+        add_case(out, "m12_repeat_d1_mode06_b%02x" % rsv9, "M12",
+                 1, 6, rsv9, 87)
+    add_case(out, "ctl_wrong_marker", "CTL", 0, 4, 0x00, 87,
              model_first_value=51)
     return out
 
@@ -67,7 +73,7 @@ def build_cases(include_hazard=False):
 def emit_prefix(pg, case):
     pg.E.emit("simd_shuffle", {
         "dir": fv(case["direction"], "direction cross-check"),
-        "mode": fv(0x06, "rotate/fill family"),
+        "mode": fv(case["mode"], "named SIMD mode length discriminator"),
         "cache": fv(1, "G17P-valid SIMD cache point"),
         "dst": fv(0, "normalized destination"),
         "src": fv(2, "normalized source"),
@@ -78,9 +84,10 @@ def emit_prefix(pg, case):
         "rsv9": fv(case["rsv9"], "candidate ten/twelve-byte selector"),
     })
     pg._pending = None
-    # Length is the only claim. The candidate may alter any dumped register;
-    # following markers restore the registers used for the boundary witness.
-    for reg in P.DUMP_REGS:
+    # Length is the only claim. Mark the generated source/destination unknown,
+    # while retaining r15's known index value so the full-state dump remains
+    # addressable and auditable.
+    for reg in (0, 2):
         pg.set_reg(reg, None)
 
 

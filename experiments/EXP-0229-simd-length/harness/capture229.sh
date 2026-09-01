@@ -12,7 +12,7 @@ sleep 5
 python3 "$OLD/harness/gpusnap.py" pre > "work/gpu_pre_$RUN.json" 2>&1
 set +e
 ( python3 harness/run229.py --run "$RUN" --order "$ORDER" --seed "$SEED" \
-        --slots 0,1,2 --arms N10,X12,CTL --outroot "$EXP/raw" --timeout 20 \
+        --slots 0,1,2 --arms M10,M12,CTL --outroot "$EXP/raw" --timeout 20 \
         --hang-budget 1 > "work/log_$RUN.txt" 2>&1 ) &
 RPID=$!
 i=0
