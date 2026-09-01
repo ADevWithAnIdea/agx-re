@@ -49,12 +49,13 @@ def build_cases(include_hazard=False):
     } for slot in range(8)]
     for role, arm in (("cmp_a", "A"), ("cmp_b", "B"),
                       ("sel_true", "T"), ("sel_false", "F")):
-        for reg in range(96):
+        for reg in range(128):
             out.append({
-                "i": len(out), "name": "%s_r%02d" % (arm.lower(), reg),
+                "i": len(out), "name": "%s_r%03d" % (arm.lower(), reg),
                 "arm": arm, "kind": "isel_reach", "role": role,
                 "register": reg, "expect_match": True,
                 "predicted_bucket": "exact", "oracle_mode": "exact",
+                "oracle_model": "exact" if reg < 64 else "mod64",
             })
     for reg in range(16):
         out.append({
@@ -63,30 +64,18 @@ def build_cases(include_hazard=False):
             "expect_match": True, "predicted_bucket": "exact",
             "oracle_mode": "exact",
         })
-    for name, role, reg in (("ctl_wrong_t", "sel_true", 95),
+    for name, role, reg in (("ctl_wrong_t", "sel_true", 63),
                             ("ctl_wrong_d", "destination", 15)):
         out.append({
             "i": len(out), "name": name, "arm": "CTL",
             "kind": "isel_reach", "role": role, "register": reg,
             "expect_match": False, "predicted_bucket": "refute",
-            "oracle_mode": "wrong",
+            "oracle_mode": "wrong", "oracle_model": "exact",
         })
     if include_hazard:
-        for role, short in (("cmp_a", "a"), ("cmp_b", "b"),
-                            ("sel_true", "t"), ("sel_false", "f")):
-            for suffix, reg, expected_status in (
-                    ("ctl_pre96", 95, "exact"), ("r96", 96, "fault"),
-                    ("ctl_mid96", 95, "exact"), ("r127", 127, "fault"),
-                    ("ctl_post127", 95, "exact")):
-                out.append({
-                    "i": len(out), "name": "h_%s_%s" % (short, suffix),
-                    "arm": "H", "kind": "isel_reach", "role": role,
-                    "register": reg, "expect_match": expected_status == "exact",
-                    "predicted_bucket": ("exact" if expected_status == "exact"
-                                         else "corrupt"),
-                    "oracle_mode": "exact", "expected_status": expected_status,
-                    "hazard": expected_status != "exact",
-                })
+        # AMENDMENT-02 retires the fault-boundary arm: the complete eight-bit
+        # source descriptor namespace is covered by the ordinary formal cases.
+        pass
     return out
 
 
@@ -190,12 +179,15 @@ def source_program(case, slots, carrier_len):
         seeds[reg] = reg
     seeds[destination] = 120
     role = case["role"]
+    oracle_model = case.get("oracle_model", "exact")
     if role == "cmp_a":
         cmp_a, cmp_b, sel_true, sel_false = reg, q0, q1, q2
-        seeds[q0], seeds[q1], seeds[q2] = reg, 121, 122
+        compare_code = reg if oracle_model == "exact" else seeds[alias64]
+        seeds[q0], seeds[q1], seeds[q2] = compare_code, 121, 122
     elif role == "cmp_b":
         cmp_a, cmp_b, sel_true, sel_false = q0, reg, q1, q2
-        seeds[q0], seeds[q1], seeds[q2] = reg, 121, 122
+        compare_code = reg if oracle_model == "exact" else seeds[alias64]
+        seeds[q0], seeds[q1], seeds[q2] = compare_code, 121, 122
     elif role == "sel_true":
         cmp_a, cmp_b, sel_true, sel_false = q0, q1, reg, q2
         seeds[q0], seeds[q1], seeds[q2] = 121, 121, 122
@@ -229,9 +221,10 @@ def source_program(case, slots, carrier_len):
         "mod64": candidate_result(pg.rbits(alias64)),
         "zero": candidate_result(0),
     }
-    exact = candidate_results["exact"]
-    predicted = (0 if exact is None else
-                 (exact if case["oracle_mode"] == "exact" else exact ^ 0xFFFFFFFF))
+    expected_result = candidate_results[oracle_model]
+    predicted = (0 if expected_result is None else
+                 (expected_result if case["oracle_mode"] == "exact"
+                  else expected_result ^ 0xFFFFFFFF))
     pg.body_start = pg.E.off
     emit_isel(pg, destination, cmp_a, cmp_b, sel_true, sel_false, predicted)
     pg.body_end = pg.E.off
@@ -243,7 +236,8 @@ def source_program(case, slots, carrier_len):
     observe(pg, store_index, alias32, OBS["post_alias32"], "post_alias32")
     observe(pg, store_index, alias64, OBS["post_alias64"], "post_alias64")
     pg.probe_expected = {
-        "exact_result": exact,
+        "expected_result": expected_result,
+        "oracle_model": oracle_model,
         "candidate_results": candidate_results,
         "destination": destination,
     }
@@ -327,7 +321,8 @@ def score234(case, pg, prog, rows, bad, alias, res, base_state, oracle,
     expected = pg.probe_expected
     probe = {
         "role": case["role"], "register": case["register"],
-        "oracle_mode": case["oracle_mode"], "observed": observed,
+        "oracle_mode": case["oracle_mode"],
+        "oracle_model": case.get("oracle_model", "exact"), "observed": observed,
         "expected": expected,
         "semantic_decidable": bool(
             rec.get("status") == "OK"

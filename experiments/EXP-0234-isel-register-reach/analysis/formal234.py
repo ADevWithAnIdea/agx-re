@@ -14,7 +14,7 @@ def load(path):
 
 def main(argv):
     if len(argv) != 3:
-        raise SystemExit("usage: formal232.py RUN01 RUN02")
+        raise SystemExit("usage: formal234.py RUN01 RUN02")
     a, b = load(argv[1]), load(argv[2])
     names = sorted(set(a) | set(b))
     main_names = [n for n in names if not n.startswith("ctl_")]
@@ -27,10 +27,9 @@ def main(argv):
     semantic_fail = []
     gate_a_fail = []
     donor_fail = []
-    source_model_mismatch = {
-        role: {m: [] for m in ("exact", "mod16", "mod32", "mod64", "zero")}
-        for role in ("cmp_a", "cmp_b", "sel_true", "sel_false")
-    }
+    source_model_failures = []
+    high_exact_aliases = []
+    high_mod16_aliases = []
 
     for name in main_names + controls:
         if name not in a or name not in b:
@@ -61,11 +60,18 @@ def main(argv):
                 undecidable.append(name)
             if not ra.get("match") or not rb.get("match"):
                 semantic_fail.append(name)
-            if role in source_model_mismatch:
-                for model in source_model_mismatch[role]:
-                    if model not in pa.get("matching_models", []) \
-                            or model not in pb.get("matching_models", []):
-                        source_model_mismatch[role][model].append(name)
+            if role in ("cmp_a", "cmp_b", "sel_true", "sel_false"):
+                reg = pa.get("register")
+                expected_model = "exact" if reg < 64 else "mod64"
+                for probe in (pa, pb):
+                    models = probe.get("matching_models", [])
+                    if probe.get("oracle_model") != expected_model \
+                            or expected_model not in models:
+                        source_model_failures.append(name)
+                    if reg >= 64 and "exact" in models:
+                        high_exact_aliases.append(name)
+                    if reg >= 80 and "mod16" in models:
+                        high_mod16_aliases.append(name)
 
     control_fired = [n for n in controls if n in a and n in b
                      and not a[n].get("match") and not b[n].get("match")
@@ -73,7 +79,7 @@ def main(argv):
     result = {
         "runs": [argv[1], argv[2]],
         "expected_counts": {
-            "cmp_a": 96, "cmp_b": 96, "sel_true": 96, "sel_false": 96,
+            "cmp_a": 128, "cmp_b": 128, "sel_true": 128, "sel_false": 128,
             "destination": 16,
         },
         "seen_counts": dict(counts),
@@ -85,7 +91,9 @@ def main(argv):
         "semantic_failures": semantic_fail,
         "gate_a_failures": gate_a_fail,
         "donor_failures": donor_fail,
-        "source_model_mismatches": source_model_mismatch,
+        "source_model_failures": sorted(set(source_model_failures)),
+        "high_exact_aliases": sorted(set(high_exact_aliases)),
+        "high_mod16_aliases": sorted(set(high_mod16_aliases)),
         "control_fired": control_fired,
     }
     expected = result["expected_counts"]
@@ -93,8 +101,7 @@ def main(argv):
         dict(counts) == expected and len(controls) == 2 and not missing
         and not byte_disagree and not observation_disagree and not undecidable
         and not semantic_fail and not gate_a_fail and not donor_fail
-        and all(not models["exact"] for models in source_model_mismatch.values())
-        and all(len(models["mod64"]) > 0 for models in source_model_mismatch.values())
+        and not source_model_failures and not high_exact_aliases and not high_mod16_aliases
         and len(control_fired) == 2)
     out = Path(__file__).with_name("formal_result.json")
     out.write_text(json.dumps(result, indent=1, sort_keys=True) + "\n")
@@ -105,9 +112,9 @@ def main(argv):
         "observation_disagree": len(observation_disagree),
         "undecidable": len(undecidable), "semantic_fail": len(semantic_fail),
         "gate_a_fail": len(gate_a_fail), "donor_fail": len(donor_fail),
-        "source_model_mismatch_counts": {
-            role: {m: len(v) for m, v in models.items()}
-            for role, models in source_model_mismatch.items()},
+        "source_model_failures": len(set(source_model_failures)),
+        "high_exact_aliases": len(set(high_exact_aliases)),
+        "high_mod16_aliases": len(set(high_mod16_aliases)),
     }, indent=1, sort_keys=True))
     return 0 if result["pass"] else 1
 

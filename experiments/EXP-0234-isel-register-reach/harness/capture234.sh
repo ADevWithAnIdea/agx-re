@@ -17,7 +17,7 @@ python3 "$OLD/harness/gpusnap.py" pre > "work/gpu_pre_$RUN.json" 2>&1
 set +e
 ( python3 harness/run234.py --run "$RUN" --order "$ORDER" --seed "$SEED" \
         --slots 0,1,2 --arms "A,B,T,F,D,CTL" --outroot "$EXP/raw" --timeout 20 \
-        --hang-budget 1 > "work/log_$RUN.txt" 2>&1 ) &
+        --hang-budget 0 > "work/log_$RUN.txt" 2>&1 ) &
 RPID=$!
 i=0
 while kill -0 "$RPID" 2>/dev/null; do
@@ -43,7 +43,8 @@ if [ -d "raw/$RUN" ]; then
     cp "work/gpu_pre_$RUN.json" "raw/$RUN/gpu_pre.json"
     cp "work/gpu_post_$RUN.json" "raw/$RUN/gpu_post.json"
     cp "work/log_$RUN.txt" "raw/$RUN/03_stdout.txt"
-    shasum -a 256 harness/run234.py harness/capture234.sh \
+    shasum -a 256 AMENDMENT-02.md CAPTURE_CONTRACT_AMENDMENT_02.json \
+        harness/run234.py harness/capture234.sh \
         harness/base_run221.py harness/prog221.py harness/synth221.py \
         harness/runner221.py work/frozen/db.json work/frozen/isadb.py \
         work/frozen/shdump.m work/frozen/agxrun_persist.m \

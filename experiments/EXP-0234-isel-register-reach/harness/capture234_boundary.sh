@@ -1,5 +1,7 @@
 #!/bin/sh
 set -u
+echo "REFUSED: EXP-0234 AMENDMENT-02 retired the fault-boundary capture"
+exit 4
 RUN="$1"; ORDER="$2"; CAP="${3:-120}"
 EXP="$HOME/agxre/EXP-0234-isel-register-reach"
 OLD="$HOME/agxre/EXP-0220"

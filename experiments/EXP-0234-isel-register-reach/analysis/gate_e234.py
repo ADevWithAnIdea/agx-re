@@ -8,10 +8,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 EXP = HERE.parent
 RUNS = {
-    "g17p_e0234_run01": {"dispatches": 410, "recoveries": 0, "non_ok": 0},
-    "g17p_e0234_run02": {"dispatches": 410, "recoveries": 0, "non_ok": 0},
-    "g17p_e0234_boundary01": {"dispatches": 28, "recoveries": 8, "non_ok": 8},
-    "g17p_e0234_boundary02": {"dispatches": 28, "recoveries": 8, "non_ok": 8},
+    "g17p_e0234_run01": {"dispatches": 538, "recoveries": 0, "non_ok": 0},
+    "g17p_e0234_run02": {"dispatches": 538, "recoveries": 0, "non_ok": 0},
 }
 
 
