@@ -131,8 +131,12 @@ def main():
         "carrier_abs_off": abs_off,
         "archive_sha256": hashlib.sha256(base).hexdigest(),
         "order": a.order, "seed": a.seed,
-        "db_sha256": hashlib.sha256((EXP / "work" / "frozen" / "db.json").read_bytes()).hexdigest(),
-        "isadb_sha256": hashlib.sha256((EXP / "work" / "frozen" / "isadb.py").read_bytes()).hexdigest(),
+        # Hash the decoder actually used by synth220.  Descendant experiments
+        # may replace S.isadb with their own pinned revision after importing
+        # this reusable runner; hashing EXP-0220's original path would then
+        # produce a false provenance record.
+        "db_sha256": hashlib.sha256(Path(S.isadb._DB_JSON).read_bytes()).hexdigest(),
+        "isadb_sha256": hashlib.sha256(Path(S.isadb.__file__).read_bytes()).hexdigest(),
         "harness_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                            for p in sorted(HERE.glob("*.py"))},
         "input_sha256": {str(k): hashlib.sha256(v).hexdigest()

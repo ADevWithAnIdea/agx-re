@@ -1349,6 +1349,25 @@ def instr_length(buf, off=0):
     # Every gate is anchored by an isolated OWN-SHADER compile (S1 evidence table).
     _b1 = buf[off + 1] if off + 1 < len(buf) else -1
     _b2 = buf[off + 2] if off + 2 < len(buf) else -1
+    # EXP-0223 AMENDMENT-12/13: exact generated, HW-executed ten-byte
+    # compare/select grammar.  This must precede the R9 trailing-word lookup:
+    # that corpus table contains prefixes which V2 proved are real instruction
+    # leaders in this context.  Keep the precedence rule inside the formal V2
+    # compiler envelope; noncanonical flags/source classes remain governed by
+    # the older context-sensitive rules below.
+    if lo == 0x02 and off + 9 < len(buf):
+        _b3, _b4 = buf[off + 3], buf[off + 4]
+        _b5, _b6 = buf[off + 5], buf[off + 6]
+        _b7, _b8, _b9 = buf[off + 7], buf[off + 8], buf[off + 9]
+        if _b2 in (0x07, 0x0f, 0x17, 0x1f, 0x37, 0x3f) \
+                and _b1 <= 0x2f and (_b1 & 1) \
+                and _b3 <= 0x2f and (_b3 & 1) \
+                and (_b4 & 0x03) == 0x02 \
+                and _b5 <= 0x2e and not (_b5 & 1) \
+                and _b6 <= 0x07 and _b7 == 0xc0 \
+                and _b8 in (0x00, 0x80) \
+                and _b9 <= 0x2e and not (_b9 & 1):
+            return 10
     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
     # Fires only where baseline instr_length was None at a real boundary; the
     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).

@@ -3,6 +3,7 @@
 
 import random
 import sys
+import importlib.util
 from pathlib import Path
 
 NEW_EXP = Path(__file__).resolve().parent.parent
@@ -16,6 +17,17 @@ import cases220 as C  # noqa: E402
 import prog220 as P  # noqa: E402
 import run220 as R  # noqa: E402
 import synth220 as S  # noqa: E402
+
+
+# AMENDMENT-12/13: use EXP-0223's own immutable decoder snapshot for both
+# assembly and whole-program Gate A.  EXP-0220's snapshot remains untouched so
+# its old raw hashes keep naming the bytes that actually produced those runs.
+PINNED_DECODER = NEW_EXP / "work" / "frozen" / "isadb.py"
+_decoder_spec = importlib.util.spec_from_file_location("exp0223_isadb", PINNED_DECODER)
+EXP223_ISADB = importlib.util.module_from_spec(_decoder_spec)
+_decoder_spec.loader.exec_module(EXP223_ISADB)
+assert Path(EXP223_ISADB._DB_JSON).resolve() == (PINNED_DECODER.parent / "db.json").resolve()
+S.isadb = EXP223_ISADB
 
 
 def fv(value, note):
