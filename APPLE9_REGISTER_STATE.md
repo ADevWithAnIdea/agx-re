@@ -30,7 +30,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_load` retains its index register. EXP-0231 distinguished this from release with a
   nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0235.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0236.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -45,8 +45,8 @@ the observed alias/failure is stated. `Tested` is not extrapolated to the rest o
 | `falu2.6B` source A | 32 | r0..r63 | physical r64..r95 unaddressable in this form; high descriptor space aliases rather than selecting them | EXP-0220 |
 | `falu2.6B` source B, GPR class | 32 | r0..r63 | same compact-form bound | EXP-0220 |
 | `falu2.6B` destination | 32 | r0..r15 | r16..r95 unaddressable by this form | EXP-0220 |
-| `falu3.8B` A/B/C | 32 | r0..r15 | r16..r23 gave mixed results and no emitter rule; r24..r95 unknown | EXP-0224 |
-| `falu3.8B` destination | 32 | r0..r15 | no direct r16+ recipe is proved | EXP-0224 |
+| `falu3.8B` A/B/C, canonical retained FP32 FMA, materialized GPR | 32 | r0..r63 | physical r64..r95 unaddressable; encoded R=64..127 reads `r[R & 63]`; unresolved pending-load inputs are a separate class | EXP-0224, EXP-0236 |
+| `falu3.8B` destination, canonical retained FP32 FMA | 32 | r0..r15 | r16..r95 unaddressable by the four-bit destination nibble | EXP-0224, EXP-0236 |
 | `iadd2.10B` first source, canonical register form | 32 | r0..r31 | r32..r95 cannot be named by the seven-bit `reg<<2` selector; alternate extension forms remain unknown | EXP-0222, EXP-0232 |
 | `iadd2.10B` second source, canonical register form | 32 | r0..r63 | r64..r95 cannot be named by the eight-bit `reg<<2` selector; alternate extension forms remain unknown | EXP-0222, EXP-0232 |
 | `iadd2.10B` destination, G17P | 32 | r0..r95 | r96 is the first invalid destination and faults; r127 also faults rather than wrapping. The G17P r95 result differs from inherited M4/G16G evidence | EXP-0222, EXP-0232 |
@@ -125,9 +125,9 @@ behavior are Step 3 work.
    EXP-0231. Continue looking for a direct GPR-only move involving r64..r95 so the hardware
    capability and performance alternative are known; do not treat the fallback as proof none exists.
 2. **Dense role reach:** the canonical b32 `iadd2` register form, canonical low-32 `imad`, canonical
-   `isel10`, and canonical XOR `ilogic` forms are closed. Finish r0..r95 matrices for alternate
-   forms and for `falu3`, `fspecial`, conversion, half, compare, other logic forms, and every
-   alternate/compressed form. Mixed results are not a range.
+   retained FP32 `falu3`, canonical `isel10`, and canonical XOR `ilogic` forms are closed. Finish
+   r0..r95 matrices for alternate forms and for `fspecial`, conversion, half, compare, other logic
+   forms, and every alternate/compressed form. Mixed results are not a range.
 3. **Low-tier exhaustion:** execute the maximum simultaneously live compact operands/results and
    the first over-capacity case while high GPRs remain unused.
 4. **Pairs and partial overlap:** close 64-bit pair alignment, odd-pair behavior, overlapping pair

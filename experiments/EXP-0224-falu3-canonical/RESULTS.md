@@ -1,8 +1,12 @@
 # EXP-0224 results — generated G17P FP32 fused multiply-add
 
-Status: **canonical compiler recipe proven for FP32 FMA over the r0..r15 operand/destination
-bank.**  EXP-0230 later bounded the `n3_mov` fallback: only values held in r16..r63 can be staged
-into that bank with the compact move. See `AMENDMENT-04.md`.
+Status: **canonical compiler recipe proven for FP32 FMA with ordinary/materialized sources
+r0..r63 and destination r0..r15.** EXP-0236 supplies the widened source-reach evidence; this
+experiment originally promoted the r0..r15 envelope. See `AMENDMENT-05.md`.
+
+**Post-result correction:** EXP-0236 proves ordinary/materialized A/B/C sources directly through
+r63, with encoded r64..r127 aliasing modulo 64. EXP-0224's mixed r16..r23 result came from pending
+load state, not ordinary GPR reach. The destination remains r0..r15. See `AMENDMENT-05.md`.
 
 Target: Apple A18 Pro / G17P, Metal family Apple9.  Clean-room classes: OWN-SHADER carrier and
 HW-PROBE.  Every promoted instruction field was generated from the formulas below; no
@@ -71,7 +75,12 @@ Verify the raw captures rather than trusting these totals:
 python3 experiments/EXP-0224-falu3-canonical/analysis/verify224_v3.py
 ```
 
-## The failed wide-source matrix and the compiler fallback
+## The failed pending-source matrix and later materialized-GPR correction
+
+The observations below accurately describe EXP-0224's unresolved-load input state, but no longer
+bound ordinary GPR reach. EXP-0236 first hands every load to an accepting store, then proves A/B/C
+direct through r63 and high descriptors aliasing modulo 64. No staging is needed for an already
+materialized r16..r63 operand.
 
 The original V2 formal run is retained as `g17p_e0224_run01`.  Its 136 low-source/lifecycle/DAG
 positives were exact and its refuters fired, but 88 cases constructed around multiple r20--r22
@@ -82,7 +91,7 @@ operands were wrong.  P2 then isolated the boundary:
 - a 64-instruction gap did not generally repair them;
 - three high operands failed at gaps 1, 16, and 64.
 
-Therefore the initial backend must not guess the wide FMA source encoding.  `n3_mov` moves an
+At the time, the initial backend could not safely guess the wide FMA source encoding. `n3_mov` moves an
 arbitrary r0..r63 value into an r0..r15 destination as two generated half-register moves, with an
 exactly tested aliasing period of 64. Values in r16..r63 can therefore be staged into temporary low
 registers before this FMA. Values in r64..r95 cannot: EXP-0230 proves their source descriptors alias
@@ -91,9 +100,9 @@ or a tested memory-mediated transfer is still required for those paths. See `AME
 
 ## Claim boundary
 
-Proven: FP32 fused multiply-add, compact source/destination bank r0..r15, direct load and ALU
-provenance, conservative retention and optional release, aliases, and long chains.
+Proven across EXP-0224/EXP-0236: FP32 fused multiply-add, materialized sources r0..r63,
+destination r0..r15, conservative retention and optional release, aliases, and long chains.
 
 Not claimed: FP16 FMA; saturating/extended/source-modifier forms; non-default rounding, denormal,
-NaN, or signed-zero policy beyond existing bounded experiments; a direct r16+ FMA operand recipe;
-or a complete semantic map for every fixed bit.
+NaN, or signed-zero policy beyond existing bounded experiments; direct physical r64..r95 sources;
+universal pending-producer acceptance; or a complete semantic map for every fixed bit.

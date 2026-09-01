@@ -27,6 +27,10 @@ REAL_INSTRS = {
     "faddi 2.0 (09 c1 14 01 80 c0)": "09c1140180c0",   # d = a + 2.0   imm HW-VALIDATED
     "fsubi 1.0 (09 b1 1c 01 80 c0)": "09b11c0180c0",   # d = a + (-1.0) imm sign HW-VALIDATED
     "fma   (09 01 1e 05 81 08 02 c0)": "09011e05810802c0",
+    # EXP-0236 generated/executed all three complete canonical source namespaces.
+    "falu3 source A r127 (EXP-0236)":    "09ff0603010402c0",
+    "falu3 source B r127 (EXP-0236)":    "090306ff010402c0",
+    "falu3 source C r127 (EXP-0236)":    "0903060501fe02c0",
     "fmax  (12 03 1e 05 00 c0)": "12031e0500c0",
     "fmin  (12 03 1e 05 01 c0)": "12031e0501c0",
     "fneg  (0b 01 0e 09 02 0a 00 80 00 00)": "0b010e09020a00800000",

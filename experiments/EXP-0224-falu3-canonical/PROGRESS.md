@@ -17,3 +17,6 @@
 - 2026-09-01: V3 formal run03/run04 passed: 198/198 positives exact and two refuters fired in each,
   zero cross-run differences, faults, resets, Gate-A errors, aliases, donors, sentinel failures,
   or foreign runners. Recovery count remained 27689. `RESULTS.md` publishes the recipe.
+- 2026-09-01: EXP-0236 separated pending-load state from ordinary GPR reach and proved all three
+  materialized sources direct r0..r63 with high descriptors aliasing modulo 64. `AMENDMENT-05.md`
+  corrects the old r0..r15-only materialized-source claim without altering EXP-0224 raw evidence.

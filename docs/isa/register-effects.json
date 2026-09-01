@@ -82,11 +82,11 @@
       "role": "sourceA",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 15, "status": "direct"},
-        {"first": 16, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
-      "evidence": ["EXP-0224"]
+      "outside_behavior": "For an ordinary materialized GPR, encoded register numbers 64..127 alias r0..r63 respectively. EXP-0224's mixed adjacent-load result is a separate pending-producer class, not materialized-GPR reach.",
+      "evidence": ["EXP-0224", "EXP-0236"]
     },
     {
       "id": "falu3.8B.sourceB.b32",
@@ -95,11 +95,11 @@
       "role": "sourceB",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 15, "status": "direct"},
-        {"first": 16, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
-      "evidence": ["EXP-0224"]
+      "outside_behavior": "For an ordinary materialized GPR, encoded register numbers 64..127 alias r0..r63 respectively. EXP-0224's mixed adjacent-load result is a separate pending-producer class, not materialized-GPR reach.",
+      "evidence": ["EXP-0224", "EXP-0236"]
     },
     {
       "id": "falu3.8B.sourceC.b32",
@@ -108,11 +108,11 @@
       "role": "sourceC",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 15, "status": "direct"},
-        {"first": 16, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "r16..r23 were mixed; no direct rule. No transfer sequence into FMA was executed.",
-      "evidence": ["EXP-0224"]
+      "outside_behavior": "For an ordinary materialized GPR, encoded register numbers 64..127 alias r0..r63 respectively. EXP-0224's mixed adjacent-load result is a separate pending-producer class, not materialized-GPR reach.",
+      "evidence": ["EXP-0224", "EXP-0236"]
     },
     {
       "id": "falu3.8B.destination.b32",
@@ -122,10 +122,10 @@
       "width": 32,
       "cells": [
         {"first": 0, "last": 15, "status": "direct"},
-        {"first": 16, "last": 95, "status": "unknown"}
+        {"first": 16, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "No direct r16+ recipe or tested move-out sequence.",
-      "evidence": ["EXP-0224"]
+      "outside_behavior": "The four-bit destination nibble has no encoding for physical r16+.",
+      "evidence": ["EXP-0224", "EXP-0236"]
     },
     {
       "id": "iadd2.10B.source0.b32",

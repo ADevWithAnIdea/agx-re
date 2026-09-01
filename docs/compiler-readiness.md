@@ -64,7 +64,7 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
-> **UPDATE 2026-09-01 — five former arithmetic/register blockers are now closed for a correctness-
+> **UPDATE 2026-09-01 — six former arithmetic/register blockers are now closed for a correctness-
 > first G17P back end.** EXP-0230 proves the bounded direct `n3_mov`; EXP-0231 proves an exact
 > r0..r95 → device scratch → r0..r95 transfer fallback. EXP-0232 independently generates the
 > canonical ten-byte b32 `iadd2` with source A r0..r31, source B r0..r63, and destination r0..r95.
@@ -76,9 +76,12 @@ emitter can apply, not as prose descriptions of them.
 > modulo 64 across the complete byte namespace, and the destination is r0..r15. EXP-0235 closes
 > the same finite register question for canonical XOR `ilogic`: both semantic sources directly
 > read and release r0..r63, encoded r64..r127 alias and release modulo 64, and the destination is
-> r0..r15. The older assessment below is retained as historical context, but its move,
+> r0..r15. EXP-0236 closes canonical retained FP32 FMA over ordinary/materialized GPRs: A/B/C
+> directly read r0..r63, high descriptors alias modulo 64, and the destination is r0..r15. The
+> mixed r16..r23 result in EXP-0224 was pending-load state and remains a scoreboard question, not a
+> materialized-register limit. The older assessment below is retained as historical context, but its move,
 > b32-`iadd2`, canonical low-32 `imad`, canonical `isel10`, and canonical `ilogic` blocker
-> statements are superseded by §§3.6 and 8.
+> statements, plus its canonical `falu3` register blocker, are superseded by §§3.6 and 8.
 >
 > **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
 > opposite directions, and both post-date the assessment that follows.
@@ -157,7 +160,7 @@ Immediately behind the move, in the order a NIR back end meets them:
 |---|---|---|---|
 | 1 | `nir_op_mov` (GPR→GPR) | **closed for correctness; bounded direct path** | two `n3_mov`s copy 32 bits from r0..r63 to r0..r15; device scratch handles r0..r95 → r0..r95 (`EXP-0230`/`EXP-0231`) |
 | 2 | `nir_op_iadd` / `isub` | **canonical b32 register form closed** | generated G17P recipe and full per-role reach in `EXP-0232`; alternate/immediate/b64 forms remain separate |
-| 3 | `nir_op_ffma` | **blocked** | `falu3.op` / `.srcB` / `.srcC` are `untested` |
+| 3 | `nir_op_ffma` | **canonical FP32 form closed** | EXP-0224 proves fused arithmetic/lifecycle and EXP-0236 closes materialized-GPR reach: A/B/C r0..r63, destination r0..r15; pending-load and alternate forms remain separate |
 | 4 | `nir_op_ieq`/`ilt`/`bcsel` producer | **canonical fused form closed** | generated integer/float compare/select condition table and lifecycle in EXP-0223; complete canonical register reach in EXP-0234. Materialized predicate-only `icmp_pred` remains separate |
 | 5 | `nir_loop` | **blocked** | `jump_cond` has **zero** emitter-grade fields (§3.1) |
 | 6 | `nir_tex` | **blocked** | nothing in the sampling family is emittable (§3.2) |
@@ -759,6 +762,8 @@ stop          body = 0x000000, HW-proven non-load-bearing padding           [EXP
    specific rather than one universal ALU rule. `falu2` sources reach r0..r63 and alias high
    descriptor space; its destination reaches only r0..r15. Canonical b32 `iadd2` instead reaches
    source A r0..r31, source B r0..r63, and destination r0..r95 on G17P (`EXP-0220`/`EXP-0232`).
+   Canonical retained FP32 `falu3` materialized sources A/B/C each reach r0..r63 and alias high
+   descriptors modulo 64; its destination reaches r0..r15 (`EXP-0224`/`EXP-0236`).
    G17P r96 is the first invalid `iadd2` destination and faults; r127 also faults without aliasing.
    The older r95-first-fault result belongs to M4/G16G and must not be transferred across targets.
    `device_load`/`device_store` separately reach all physical r0..r95 (`EXP-0221`/`EXP-0230`).
@@ -978,7 +983,8 @@ The rest of the integer core, and what it blocks:
 
 | Instruction | Blocking | Blocks |
 |---|---|---|
-| `falu3` / `falu3_ext` | `op`, `srcB`, `srcC` `untested` | **`nir_op_ffma`** — fused multiply-add must be lowered to two `falu2`s |
+| `falu3` | **canonical retained FP32 FMA closed** by EXP-0224/EXP-0236: all sources direct r0..r63 with high descriptors aliasing modulo 64; destination r0..r15 | native `nir_op_ffma` is available for ordinary/materialized GPRs; pending-load acceptance and alternate/extended forms remain separate |
+| `falu3_ext` | extended/source-modifier semantics remain incomplete | no capability is inherited from the canonical eight-byte form |
 | `icmp_pred` | `srcA`, `srcB` `untested`; `opclass` `corpus-correlation` | materialized predicate values and comparison uses that cannot stay fused into canonical `isel10` |
 | `isel10` | **canonical retained-source b32 fused compare/select closed** by EXP-0223/EXP-0234: all four sources direct r0..r63 with high descriptors aliasing modulo 64; destination r0..r15 | native fused integer/float compare-select available; materialized predicates and alternate select forms remain separate |
 | `isel8`/`isel10_c`/`isel_reg`/`isel_reg8`/`icmpsel` | alternate-form fields and semantics remain separate | no capability is inherited from canonical `isel10` |
