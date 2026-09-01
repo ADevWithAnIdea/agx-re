@@ -30,3 +30,14 @@
   compare-source releases in `opsel`. AMENDMENT-10 freezes a dense false-descriptor high-byte sweep.
 - 2026-08-31: S1 maps false-source classes and F release over all 256 byte values and both predicate
   outcomes. AMENDMENT-11 freezes the two-run formal recipe gate.
+- 2026-08-31: V2 hardware semantics passed in two orders, but the frozen corpus tokenizer aliased
+  valid high-register and r2-destination forms. AMENDMENTS-12/13 preserve that hardware result and
+  freeze a narrowly proven tokenizer correction. Reconstructed V2 bodies, the repository round-trip
+  suite, and a 1,080-program corpus A/B all pass without regression.
+- 2026-08-31: V3 confirms the corrected decoder with zero aliases and all 209 positives exact in
+  both orders. A post-run audit catches `range(15)` omitting the promised r15 destination rather
+  than rounding the claim up; AMENDMENT-14 adds an independent destination-set assertion.
+- 2026-08-31: V4 runs 210/210 positives exact plus two firing refuters in both canonical and
+  shuffled orders, including dense r0..r15 destinations. Zero faults, hangs, decoder errors,
+  aliases, donor fields, recovery-count changes, or cross-run program/output mismatches. The
+  canonical 32-bit compare/select recipe is proven over the stated envelope.
