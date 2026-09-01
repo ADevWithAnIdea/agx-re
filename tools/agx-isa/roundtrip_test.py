@@ -102,6 +102,10 @@ REAL_INSTRS = {
     "isel10 cmpB r127 (EXP-0234)":          "020307ff060407c00006",
     "isel10 true r127 (EXP-0234)":          "0203070506fe07c00006",
     "isel10 false r127 (EXP-0234)":         "02030705060607c000fe",
+    # EXP-0235 generated and executed both canonical logic source-byte namespaces.
+    "ilogic semantic A r127 (EXP-0235)":    "0b031eff020800800000",
+    "ilogic semantic B r127 (EXP-0235)":    "0bff1e03020800800000",
+    "ilogic semantic B r112 shadow":        "1be11e05020800800000",
     "sel   (16 c2 a0 c8)":                 "16c2a0c8",                # data select HW
     "psel  (05 22 a0 de)":                 "0522a0de",                # grid select HW
     "jump  (0f 00 54 d4 ff ff ff ff ff 00)":"0f0054d4ffffffffff00",   # -44 back-edge HW

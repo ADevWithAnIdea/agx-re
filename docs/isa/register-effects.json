@@ -230,6 +230,32 @@
       "evidence": ["EXP-0223", "EXP-0234"]
     },
     {
+      "id": "ilogic.10B.source.b32",
+      "instruction": "ilogic",
+      "form": "10B-canonical-xor",
+      "role": "semantic A/B source",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "Both canonical source roles have identical reach and are released for XOR. Encoded register numbers 64..127 alias and release r0..r63 respectively; physical r64..r95 is neither read nor released.",
+      "evidence": ["EXP-0226", "EXP-0235"]
+    },
+    {
+      "id": "ilogic.10B.destination.b32",
+      "instruction": "ilogic",
+      "form": "10B-canonical-xor",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 15, "status": "direct"},
+        {"first": 16, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "The four-bit destination nibble has no encoding for physical r16+.",
+      "evidence": ["EXP-0226", "EXP-0235"]
+    },
+    {
       "id": "device_load.14B.destination.b32",
       "instruction": "device_load",
       "form": "14B-device",

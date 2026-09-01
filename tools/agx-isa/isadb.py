@@ -1396,6 +1396,20 @@ def instr_length(buf, off=0):
                 and _b8 in (0x00, 0x80) \
                 and not (_b9 & 1):
             return 10
+    # EXP-0235: generated canonical XOR `ilogic` over the complete source-byte
+    # namespace.  This exact ten-byte grammar must precede the older R9 prefix
+    # heuristic: valid high descriptors such as byte+1 == 0xe1 otherwise look
+    # like two-byte trailing words.  Noncanonical LUT tails remain governed by
+    # the broader context-sensitive low-nibble-b rules below.
+    if lo == 0x0b and off + 9 < len(buf):
+        _b3, _b4 = buf[off + 3], buf[off + 4]
+        _b5, _b6 = buf[off + 5], buf[off + 6]
+        _b7, _b8, _b9 = buf[off + 7], buf[off + 8], buf[off + 9]
+        if _b2 == 0x1e and (_b1 & 1) and (_b3 & 1) \
+                and _b4 == 0x02 and _b5 == 0x08 \
+                and _b6 == 0x00 and _b7 == 0x80 \
+                and _b8 == 0x00 and _b9 == 0x00:
+            return 10
     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
     # Fires only where baseline instr_length was None at a real boundary; the
     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).

@@ -64,7 +64,7 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
-> **UPDATE 2026-09-01 — four former arithmetic/register blockers are now closed for a correctness-
+> **UPDATE 2026-09-01 — five former arithmetic/register blockers are now closed for a correctness-
 > first G17P back end.** EXP-0230 proves the bounded direct `n3_mov`; EXP-0231 proves an exact
 > r0..r95 → device scratch → r0..r95 transfer fallback. EXP-0232 independently generates the
 > canonical ten-byte b32 `iadd2` with source A r0..r31, source B r0..r63, and destination r0..r95.
@@ -73,9 +73,12 @@ emitter can apply, not as prose descriptions of them.
 > low-32 IMAD/IMUL access class: X r0..r63, Y r0..r31, destination r0..r95, with the same measured
 > G17P first-invalid boundary. EXP-0223/EXP-0234 close the canonical ten-byte b32 fused
 > compare/select recipe: every source role reads r0..r63 directly, high source descriptors alias
-> modulo 64 across the complete byte namespace, and the destination is r0..r15. The older
-> assessment below is retained as historical context, but its move, b32-`iadd2`, canonical low-32
-> `imad`, and canonical `isel10` blocker statements are superseded by §§3.6 and 8.
+> modulo 64 across the complete byte namespace, and the destination is r0..r15. EXP-0235 closes
+> the same finite register question for canonical XOR `ilogic`: both semantic sources directly
+> read and release r0..r63, encoded r64..r127 alias and release modulo 64, and the destination is
+> r0..r15. The older assessment below is retained as historical context, but its move,
+> b32-`iadd2`, canonical low-32 `imad`, canonical `isel10`, and canonical `ilogic` blocker
+> statements are superseded by §§3.6 and 8.
 >
 > **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
 > opposite directions, and both post-date the assessment that follows.
@@ -983,11 +986,11 @@ The rest of the integer core, and what it blocks:
 | `ishift` | `srcA`, `opB` `untested` | `ishl`/`ishr`/`ushr` — though `shamt = n << 2` is confirmed 32/32 on hardware |
 | `ibfe` | `dst` `corpus-correlation`, `b5` `tokenization-only` | `ubfe`/`ibfe` — see §4.1 for the trap that survives even so |
 | `ibfins` | `dst`, `mask_imm`, `b6hi`, `b7`, `srcdesc`, `b10` | `bitfield_insert` |
-| `ilogic` | 11 of 11 in `validation.json` | logic ops — **but see below** |
+| `ilogic` | **canonical XOR recipe and full register namespace closed** by EXP-0226/EXP-0235; all 16 function selectors are established by the earlier LUT table | native 32-bit logic is available; noncanonical forms remain separate |
 | `carry_gen` | 5 of 5 in `validation.json` | carry chains — **but see below** |
 | `simd_ballot` / `simd_shuffle` / `simd_reduce` | 6 / 7 / 8 fields | all subgroup intrinsics |
 
-**`ilogic` and `carry_gen` are the merge gap, not an evidence gap.** `EXP-0146` §3.3 established that
+**`ilogic` and `carry_gen` were a merge gap, not an underlying capability gap.** `EXP-0146` §3.3 established that
 `ilogic` reaches **all 16 two-input boolean functions** with a collision-free selector
 `(op_base, lut_a & 3, lut_b & 0x0f)`, **zero collisions**, one hardware-validated encoding per
 function (table at `analysis/ilogic_lut_table.md`), plus field rules: `lut_a` bits 2–4 don't-care,
@@ -996,6 +999,12 @@ it clear silently zeroes); `z6`, `z8`, `z9` HW-tested inert over all 256 values 
 closed `carry_gen`'s operand model: it is `p[dst] = (r[byte+1] <u r[byte+3])`, a **two-operand
 unsigned compare**, not a marker plus a source — closing the half of `INT-14` that `EXP-0102`
 deferred by design.
+
+EXP-0226 then generated the canonical LUT recipe without donor fields and established its
+function-dependent source-release rule. EXP-0235 completes the register-side contract for the
+canonical XOR anchor: both source descriptor bytes exhaust all encoded R=0..127, direct r0..r63
+and alias/release modulo 64 above it; all destination nibbles r0..r15 work. This closes the
+register-addressability part independently of the still-stale `validation.json` bookkeeping.
 
 **None of that reached `validation.json`.** The 94 committed `EXP-0146` verdicts are unmerged (§1.1).
 An implementer reading `validation.json` alone will conclude that logic ops are unavailable; an
