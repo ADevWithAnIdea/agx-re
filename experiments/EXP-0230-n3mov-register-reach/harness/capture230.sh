@@ -1,6 +1,6 @@
 #!/bin/sh
 set -u
-RUN="$1"; ORDER="$2"; SEED="$3"; CAP="${4:-300}"
+RUN="$1"; ORDER="$2"; SEED="$3"; CAP="${4:-300}"; ARMS="${5:-R1,CTL}"
 EXP="$HOME/agxre/EXP-0230-n3mov-register-reach"
 OLD="$HOME/agxre/EXP-0220"
 cd "$EXP" || exit 1
@@ -12,7 +12,7 @@ sleep 5
 python3 "$OLD/harness/gpusnap.py" pre > "work/gpu_pre_$RUN.json" 2>&1
 set +e
 ( python3 harness/run230.py --run "$RUN" --order "$ORDER" --seed "$SEED" \
-        --slots 0,1,2 --arms R1,CTL --outroot "$EXP/raw" --timeout 20 \
+        --slots 0,1,2 --arms "$ARMS" --outroot "$EXP/raw" --timeout 20 \
         --hang-budget 1 > "work/log_$RUN.txt" 2>&1 ) &
 RPID=$!
 i=0

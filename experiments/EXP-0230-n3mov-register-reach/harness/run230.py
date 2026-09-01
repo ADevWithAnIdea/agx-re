@@ -81,6 +81,20 @@ def add_case(out, name, source, source_half, index_reg, control=False):
         "index_reg": index_reg, "expect_match": not control,
         "predicted_bucket": "refute" if control else "exact",
         "oracle_source": 2 if control else source,
+        "oracle_model": "full96_zero_oob",
+        "seed_mode": "full",
+    })
+
+
+def add_r2_case(out, name, source, source_half, index_reg, control=False):
+    out.append({
+        "i": len(out), "name": name, "arm": "R2CTL" if control else "R2",
+        "kind": "n3_reach", "source": source, "source_half": source_half,
+        "destination": 2, "destination_half": 0, "index_reg": index_reg,
+        "expect_match": not control,
+        "predicted_bucket": "refute" if control else "exact",
+        "oracle_source": 93 if control else source,
+        "oracle_model": "mod64", "seed_mode": "focused",
     })
 
 
@@ -98,6 +112,14 @@ def build_cases(include_hazard=False):
                          index_reg)
     add_case(out, "ctl_wrong_source_i14", 1, 0, 14, control=True)
     add_case(out, "ctl_wrong_source_i15", 1, 1, 15, control=True)
+    for index_reg in (14, 15):
+        for source in range(92, 96):
+            for source_half in (0, 1):
+                add_r2_case(out, "r2_i%02d_s%03d_h%d" %
+                            (index_reg, source, source_half), source,
+                            source_half, index_reg)
+    add_r2_case(out, "r2ctl_wrong_source_i14", 92, 0, 14, control=True)
+    add_r2_case(out, "r2ctl_wrong_source_i15", 92, 1, 15, control=True)
     return out
 
 
@@ -126,11 +148,59 @@ def emit_move(pg, case):
         "companion": fv(destination_half, "destination-half selector"),
     })
     model_source = case["oracle_source"]
-    src = source_value("full96_zero_oob", model_source, case["index_reg"])
+    src = source_value(case.get("oracle_model", "full96_zero_oob"),
+                       model_source, case["index_reg"])
     before = pg.rbits(destination)
     value = (src >> (16 * source_half)) & 0xFFFF
     pg.set_reg(destination, replace_half(before, destination_half, value))
     pg._pending = None
+
+
+def forward_store(pg, slots, index_reg, data_reg, idx_off, tag):
+    """Materialize and observe the immediately preceding load result."""
+    S.device_store(pg.E, index_reg, idx_off, slots["out"], data_reg,
+                   salt=tag, offnatural=False, extmode=2 * data_reg,
+                   addr_mode=S.DS_ADDRMODE_LOADFWD)
+    bits = pg.rbits(data_reg)
+    payload = None if bits is None else list(struct.pack("<I", bits))
+    pg.writes.append(("out", S.store_byte_offset(0, idx_off), payload, tag))
+    pg._pending = None
+    pg.set_reg(index_reg, 0)
+
+
+def build_focused(case, slots, carrier_len):
+    index_reg = case["index_reg"]
+    destination = case["destination"]
+    source = case["source"]
+    alias = source % 64
+    pg = P.Prog(slots, case["name"], offnatural=False)
+    pg.movi(index_reg, 0)
+    pg.movi(P.R_SENT, P.SENT_IMM)
+    pg.store(P.R_SENT, P.SENT_OFF, index_reg=index_reg, tag="sentinel")
+
+    pg.load_i(destination, P.CODEWORD_BASE + destination, index_reg=index_reg,
+              salt="focused_dst")
+    forward_store(pg, slots, index_reg, destination, OBS["pre_dst"], "pre_dst_fwd")
+    pg.load_i(alias, P.CODEWORD_BASE + alias, index_reg=index_reg,
+              salt="focused_alias")
+    forward_store(pg, slots, index_reg, alias, OBS["pre_mod64"], "pre_mod64_fwd")
+    pg.load_i(source, P.CODEWORD_BASE + source, index_reg=index_reg,
+              salt="focused_source")
+    forward_store(pg, slots, index_reg, source, OBS["pre_src"], "pre_src_fwd")
+    for _ in range(4):
+        pg.movi(index_reg, 0)
+
+    pg.body_start = pg.E.off
+    emit_move(pg, case)
+    pg.body_end = pg.E.off
+
+    exact_store(pg, slots, index_reg, destination, OBS["post_dst"], "post_dst")
+    exact_store(pg, slots, index_reg, source, OBS["post_src"], "post_src")
+    exact_store(pg, slots, index_reg, alias, OBS["post_mod64"], "post_mod64")
+    pg.movi(destination, 86)
+    exact_store(pg, slots, index_reg, destination, OBS["post_sentinel"],
+                "post_sentinel")
+    return pg, pg.finish(carrier_len)
 
 
 def build_program_for(case, slots, carrier_len):
@@ -144,6 +214,9 @@ def build_program_for(case, slots, carrier_len):
         pg.body_start = pg.E.off
         pg.body_end = pg.E.off
         return pg, pg.finish(carrier_len)
+
+    if case.get("seed_mode") == "focused":
+        return build_focused(case, slots, carrier_len)
 
     index_reg = case["index_reg"]
     pg = P.Prog(slots, case["name"], offnatural=False)
@@ -205,8 +278,9 @@ def score230(case, pg, prog, rows, bad, alias, res, base_state, oracle,
         return rec
     observed = {name: read_word(rec, pg, res, slots, off)
                 for name, off in OBS.items() if name != "low_base"}
-    observed["low"] = [read_word(rec, pg, res, slots, OBS["low_base"] + r)
-                       for r in range(16)]
+    observed["low"] = ([] if case.get("seed_mode") == "focused" else
+                       [read_word(rec, pg, res, slots, OBS["low_base"] + r)
+                        for r in range(16)])
     rec["reach_probe"] = {
         "source": case["source"],
         "source_half": case["source_half"],
