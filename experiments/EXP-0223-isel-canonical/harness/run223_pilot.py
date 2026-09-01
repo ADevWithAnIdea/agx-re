@@ -147,6 +147,38 @@ def build_cases(include_hazard=False):
                 "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
                               sel_false=4, cond="lt", flags=flags),
             })
+    high_flags = [sum(((mask >> bit) & 1) << outbit
+                      for bit, outbit in enumerate((3, 5, 6, 7)))
+                  for mask in range(16)]
+    loaded_values = {
+        "true": {1: 21, 2: 62, 3: 73, 4: 74},
+        "false": {1: 21, 2: 61, 3: 73, 4: 74},
+    }
+    for flags in high_flags:
+        for direction, ca, cb in (("true", 1, 2), ("false", 2, 1)):
+            values = loaded_values[direction]
+            for direct in (1, 2, 3, 4):
+                # One loaded operand, immediately before the select.
+                out.append({
+                    "i": len(out),
+                    "name": f"p1_one_f{flags:02x}_{direction}_r{direct}",
+                    "arm": "P1", "kind": "isel10_provenance",
+                    "expect_match": True, "predicted_bucket": "measure",
+                    "loads": [(direct, values[direct])],
+                    "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                                  sel_false=4, cond="lt", flags=flags),
+                })
+                # All four loaded, with `direct` deliberately last.
+                order = [r for r in (1, 2, 3, 4) if r != direct] + [direct]
+                out.append({
+                    "i": len(out),
+                    "name": f"p1_all_f{flags:02x}_{direction}_last_r{direct}",
+                    "arm": "P1", "kind": "isel10_provenance",
+                    "expect_match": True, "predicted_bucket": "measure",
+                    "loads": [(r, values[r]) for r in order],
+                    "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                                  sel_false=4, cond="lt", flags=flags),
+                })
     return out
 
 
@@ -154,7 +186,11 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] in ("H4", "L1"):
+    if case["arm"] == "P1":
+        for reg, word in case["loads"]:
+            pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")
+        emit_isel_r1(pg, **case["op_r1"])
+    elif case["arm"] in ("H4", "L1"):
         emit_isel_r1(pg, **case["op_r1"])
     else:
         emit_isel(pg, **case["op"])

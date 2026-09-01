@@ -10,3 +10,7 @@
 - 2026-08-31: H4 passed all nine generated signed-LT/GT, relocation, and destination-alias cases;
   both wrong-model controls fired. AMENDMENT-03 promotes the R1 point as a working pilot recipe and
   freezes a dense `flags`-byte lifecycle/capability sweep.
+- 2026-08-31: L1 accepted all 512 flags/polarity cases. The low controls select comparison/T/F,
+  bit 4 suppresses destination update, and no mov-seeded source changed. AMENDMENT-04 freezes the
+  high-bit cross over direct device-load provenance rather than declaring the remaining null bits
+  unused.
