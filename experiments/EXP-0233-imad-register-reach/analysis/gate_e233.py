@@ -11,7 +11,7 @@ RUNS = {
     "g17p_e0233_run01": {"dispatches": 202, "recoveries": 0, "non_ok": 0},
     "g17p_e0233_run02": {"dispatches": 202, "recoveries": 0, "non_ok": 0},
     "g17p_e0233_boundary01": {"dispatches": 13, "recoveries": 2, "non_ok": 2},
-    "g17p_e0233_boundary02": {"dispatches": 13, "recoveries": 2, "non_ok": 2},
+    "g17p_e0233_boundary03": {"dispatches": 13, "recoveries": 2, "non_ok": 2},
 }
 
 

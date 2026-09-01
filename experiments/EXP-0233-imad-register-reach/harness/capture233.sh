@@ -5,6 +5,10 @@ EXP="$HOME/agxre/EXP-0233-imad-register-reach"
 OLD="$HOME/agxre/EXP-0220"
 cd "$EXP" || exit 1
 mkdir -p work raw
+if [ -e "raw/$RUN" ]; then
+    echo "REFUSED: raw/$RUN already exists -- run ids are never reused"
+    exit 3
+fi
 python3 "$OLD/harness/quietsample.py" --out "work/quiet_$RUN.jsonl" \
         --seconds "$CAP" --interval 0.5 --label "$RUN" >/dev/null 2>&1 &
 QPID=$!
