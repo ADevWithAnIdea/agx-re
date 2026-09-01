@@ -28,3 +28,5 @@
   an all-opsel negative-float/signed-zero attempt before any further compiler consultation.
 - 2026-08-31: F1 proves float GT/LT/EQ with negative, signed-zero, and NaN discriminators and maps
   compare-source releases in `opsel`. AMENDMENT-10 freezes a dense false-descriptor high-byte sweep.
+- 2026-08-31: S1 maps false-source classes and F release over all 256 byte values and both predicate
+  outcomes. AMENDMENT-11 freezes the two-run formal recipe gate.
