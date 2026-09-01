@@ -1,0 +1,50 @@
+{
+ "experiment": "EXP-0229-simd-length",
+ "frozen_after": "AMENDMENT-03",
+ "run01": {
+  "id": "g17p_e0229_run01",
+  "order": "canonical",
+  "seed": 22911
+ },
+ "run02": {
+  "id": "g17p_e0229_run02",
+  "order": "reverse",
+  "seed": 22912
+ },
+ "expected_cases_run01": [
+  "m10_d0_mode00_b00",
+  "m10_d0_mode01_b00",
+  "m10_d0_mode04_b00",
+  "m10_d0_mode05_b00",
+  "m12_d0_mode06_b11",
+  "m12_d0_mode06_b91",
+  "m10_d0_mode08_b00",
+  "m10_d0_mode10_b00",
+  "m10_d0_mode14_b00",
+  "m10_d0_mode15_b00",
+  "m10_d1_mode00_b00",
+  "m10_d1_mode01_b00",
+  "m10_d1_mode04_b00",
+  "m10_d1_mode05_b00",
+  "m12_d1_mode06_b11",
+  "m12_d1_mode06_b91",
+  "m10_d1_mode08_b00",
+  "m10_d1_mode10_b00",
+  "m10_d1_mode14_b00",
+  "m10_d1_mode15_b00",
+  "m12_repeat_d1_mode06_b11",
+  "m12_repeat_d1_mode06_b91",
+  "ctl_wrong_marker"
+ ],
+ "expected_cases_run02": "reverse(expected_cases_run01)",
+ "expected_length_rule": "mode == 0x06 ? 12 : 10",
+ "expected_slot_map": {"out": 0, "mem": 1, "imem": 2},
+ "hang_budget": 1,
+ "hashes": {
+  "harness/run229.py": "9cd2c4dbc254eebb1d15e84fc099fb8dae49219d49bd06347da29c3a19a520de",
+  "harness/capture229.sh": "bd893020132cc6d9d37b545840a025507fad24abe86bd2c0e3087164d36e233d",
+  "work/frozen/db.json": "e90c62cce215ef63c0e4a6878a042ef9530fc5447b18cb90dbf565ff8c85be2e",
+  "work/frozen/isadb.py": "2a53eadb87f9f9850c5a679ed4fc8a3bc88a0fc4a5aed8a94d1fb457455ae9f2",
+  "kernels/carrier229.metal": "109867c1fec91abade86004be7ce1d6cfddcb4791256479791dac836f5b63d84"
+ }
+}
