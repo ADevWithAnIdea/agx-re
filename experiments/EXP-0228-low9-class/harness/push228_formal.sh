@@ -7,4 +7,7 @@ ALARM=300 sh "$NEOHELP" put "$HERE"/harness/*.py "$HERE"/harness/*.sh "user@$NEO
 ALARM=300 sh "$NEOHELP" put "$HERE"/analysis/*.py "user@$NEOH:$REMOTE/analysis/" || exit 1
 ALARM=300 sh "$NEOHELP" put "$HERE"/kernels/*.metal "user@$NEOH:$REMOTE/kernels/" || exit 1
 ALARM=300 sh "$NEOHELP" put "$HERE"/work/frozen/db.json "$HERE"/work/frozen/isadb.py "$HERE"/work/frozen/shdump.m "$HERE"/work/frozen/agxrun_persist.m "$HERE"/work/frozen/agxparse.py "user@$NEOH:$REMOTE/work/frozen/" || exit 1
-( cd "$HERE" && shasum -a 256 harness/*.py harness/*.sh analysis/*.py kernels/*.metal work/frozen/* | sort -k2 )
+( cd "$HERE" && shasum -a 256 harness/*.py harness/*.sh analysis/*.py \
+    kernels/*.metal work/frozen/db.json work/frozen/isadb.py \
+    work/frozen/shdump.m work/frozen/agxrun_persist.m \
+    work/frozen/agxparse.py | sort -k2 )
