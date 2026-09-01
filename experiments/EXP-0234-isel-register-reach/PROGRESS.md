@@ -11,3 +11,7 @@
 - Two 48-case opposite-order sparse runs agree exactly: all source roles address r0..r63 directly,
   while high descriptors alias after descriptor bit 7 is dropped. `AMENDMENT-02.md` freezes dense
   confirmation over every encoded source value r0..r127 and retires the refuted fault-boundary arm.
+- Formal canonical/reverse runs pass: 528/528 positive cases per run are exact, both controls fire,
+  and every complete source descriptor value follows direct r0..r63 / modulo-64-high semantics.
+- Target/provenance gates pass with zero faults, hangs, recoveries, restarts, foreign runners,
+  framing disagreements, donor fields, or carrier fields.

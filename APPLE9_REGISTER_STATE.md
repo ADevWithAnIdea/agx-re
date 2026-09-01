@@ -14,7 +14,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - A 32-bit GPR is observably composed of two independently addressable 16-bit halves. Instructions
   may use a half-register descriptor and may preserve, release, or overwrite only one half.
 - The 96 GPRs form several **instruction-role-specific access classes**. At minimum, current G17P
-  evidence distinguishes r0..r15, r0..r23, r0..r63, and r0..r95 roles.
+  evidence distinguishes r0..r15, r0..r31, r0..r63, and r0..r95 roles.
 - An encoding's apparent register-field width does not establish its direct set. For example,
   `n3_mov` accepts all 256 source/half bytes but source numbers 64..127 alias modulo 64.
 - Source release occurs after the read. Where destination aliases a released source, the tested
@@ -30,7 +30,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_load` retains its index register. EXP-0231 distinguished this from release with a
   nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, and EXP-0230 through EXP-0233.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, and EXP-0230 through EXP-0234.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -53,8 +53,8 @@ the observed alias/failure is stated. `Tested` is not extrapolated to the rest o
 | `imad.12B` X source, canonical low-32 form | 32 | r0..r63 | r64..r95 cannot be named by the eight-bit `reg<<2` selector; alternate forms remain unknown | EXP-0225, EXP-0233 |
 | `imad.12B` Y source, canonical low-32 form | 32 | r0..r31 | r32..r95 cannot be named by the eight-bit `reg<<3` selector; alternate forms remain unknown | EXP-0225, EXP-0233 |
 | `imad.12B` destination, canonical low-32 G17P form | 32 | r0..r95 | r96 is the first invalid destination and faults; r127 also faults rather than wrapping | EXP-0225, EXP-0233 |
-| `isel10` compare A/B and true/false source | 32 | r0..r23 tested | r24..r95 unknown | EXP-0223 |
-| `isel10` destination | 32 | r0..r15 tested | r16..r95 unknown | EXP-0223 |
+| `isel10` compare A/B and true/false source, canonical 10B form | 32 | r0..r63 | physical r64..r95 unaddressable; encoded R=64..127 reads `r[R & 63]`, and all canonical source codes execute | EXP-0223, EXP-0234 |
+| `isel10` destination, canonical 10B form | 32 | r0..r15 | r16..r95 unaddressable by the four-bit destination nibble | EXP-0223, EXP-0234 |
 | `device_load.14B` destination | 32 | r0..r95 | first out-of-file destination behavior is not yet cleanly closed for this form | EXP-0221, EXP-0230 |
 | `device_store.14B` data source, even `extmode` | 32 | r0..r95 | half index 192 wraps to r0; other upper codes include aliases and faults and need a complete accepted-set model | EXP-0221 |
 | `device_load/store.14B` index source | 32 | r0..r95 | low seven-bit values 96..127 fault; encoded bit 7 is ignored and mirrors the low seven bits | EXP-0221 |
@@ -123,9 +123,9 @@ behavior are Step 3 work.
    EXP-0231. Continue looking for a direct GPR-only move involving r64..r95 so the hardware
    capability and performance alternative are known; do not treat the fallback as proof none exists.
 2. **Dense role reach:** the canonical b32 `iadd2` register form and canonical low-32 `imad` form
-   are closed. Finish r0..r95 matrices for their alternate forms and for `isel`, `falu3`,
-   `fspecial`, logic, conversion, half, compare, and every alternate/compressed form. Mixed results
-   are not a range.
+   and canonical `isel10` register form are closed. Finish r0..r95 matrices for their alternate
+   forms and for `falu3`, `fspecial`, logic, conversion, half, compare, and every alternate/
+   compressed form. Mixed results are not a range.
 3. **Low-tier exhaustion:** execute the maximum simultaneously live compact operands/results and
    the first over-capacity case while high GPRs remain unused.
 4. **Pairs and partial overlap:** close 64-bit pair alignment, odd-pair behavior, overlapping pair

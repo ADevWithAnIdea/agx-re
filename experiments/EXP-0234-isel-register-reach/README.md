@@ -12,6 +12,8 @@ Offline gate:
 python3 harness/selftest234.py
 ```
 
-Formal capture commands are frozen in `PRE_REGISTRATION.md` and the two capture scripts.
+The accepted formal capture contract is frozen in `AMENDMENT-02.md` and `capture234.sh`.
+`capture234_boundary.sh` refuses execution because the original fault-boundary model was refuted
+and retired before formal dispatch.
 
 Clean-room provenance: OWN-SHADER + HW-PROBE. Apple binary introspection: **NONE**.

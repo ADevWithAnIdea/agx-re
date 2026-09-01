@@ -1377,7 +1377,7 @@ def instr_length(buf, off=0):
     # classifies those aliases.
     if lo == 0x02 and _b2 == 0x35:
         return 6
-    # EXP-0223 AMENDMENT-12/13: exact generated, HW-executed ten-byte
+    # EXP-0223 AMENDMENT-12/13 plus EXP-0234: exact generated, HW-executed ten-byte
     # compare/select grammar.  This must precede the R9 trailing-word lookup:
     # that corpus table contains prefixes which V2 proved are real instruction
     # leaders in this context.  Keep the precedence rule inside the formal V2
@@ -1388,13 +1388,13 @@ def instr_length(buf, off=0):
         _b5, _b6 = buf[off + 5], buf[off + 6]
         _b7, _b8, _b9 = buf[off + 7], buf[off + 8], buf[off + 9]
         if _b2 in (0x07, 0x0f, 0x17, 0x1f, 0x37, 0x3f) \
-                and _b1 <= 0x2f and (_b1 & 1) \
-                and _b3 <= 0x2f and (_b3 & 1) \
+                and (_b1 & 1) \
+                and (_b3 & 1) \
                 and (_b4 & 0x03) == 0x02 \
-                and _b5 <= 0x2e and not (_b5 & 1) \
+                and not (_b5 & 1) \
                 and _b6 <= 0x07 and _b7 == 0xc0 \
                 and _b8 in (0x00, 0x80) \
-                and _b9 <= 0x2e and not (_b9 & 1):
+                and not (_b9 & 1):
             return 10
     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
     # Fires only where baseline instr_length was None at a real boundary; the

@@ -64,15 +64,18 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
-> **UPDATE 2026-09-01 — three former arithmetic/register blockers are now closed for a correctness-
+> **UPDATE 2026-09-01 — four former arithmetic/register blockers are now closed for a correctness-
 > first G17P back end.** EXP-0230 proves the bounded direct `n3_mov`; EXP-0231 proves an exact
 > r0..r95 → device scratch → r0..r95 transfer fallback. EXP-0232 independently generates the
 > canonical ten-byte b32 `iadd2` with source A r0..r31, source B r0..r63, and destination r0..r95.
 > It also corrects a target-provenance error: r95 is valid on G17P, r96 is the first invalid
 > destination, and r127 faults rather than wrapping. EXP-0233 closes the canonical retained-source
 > low-32 IMAD/IMUL access class: X r0..r63, Y r0..r31, destination r0..r95, with the same measured
-> G17P first-invalid boundary. The older assessment below is retained as historical context, but its
-> move, b32-`iadd2`, and canonical low-32 `imad` blocker statements are superseded by §§3.6 and 8.
+> G17P first-invalid boundary. EXP-0223/EXP-0234 close the canonical ten-byte b32 fused
+> compare/select recipe: every source role reads r0..r63 directly, high source descriptors alias
+> modulo 64 across the complete byte namespace, and the destination is r0..r15. The older
+> assessment below is retained as historical context, but its move, b32-`iadd2`, canonical low-32
+> `imad`, and canonical `isel10` blocker statements are superseded by §§3.6 and 8.
 >
 > **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
 > opposite directions, and both post-date the assessment that follows.
@@ -152,7 +155,7 @@ Immediately behind the move, in the order a NIR back end meets them:
 | 1 | `nir_op_mov` (GPR→GPR) | **closed for correctness; bounded direct path** | two `n3_mov`s copy 32 bits from r0..r63 to r0..r15; device scratch handles r0..r95 → r0..r95 (`EXP-0230`/`EXP-0231`) |
 | 2 | `nir_op_iadd` / `isub` | **canonical b32 register form closed** | generated G17P recipe and full per-role reach in `EXP-0232`; alternate/immediate/b64 forms remain separate |
 | 3 | `nir_op_ffma` | **blocked** | `falu3.op` / `.srcB` / `.srcC` are `untested` |
-| 4 | `nir_op_ieq`/`ilt`/`bcsel` producer | **blocked** | `icmp_pred.srcA`/`.srcB` `untested`; 44 selector fields unresolved (`EXP-0139` §2) |
+| 4 | `nir_op_ieq`/`ilt`/`bcsel` producer | **canonical fused form closed** | generated integer/float compare/select condition table and lifecycle in EXP-0223; complete canonical register reach in EXP-0234. Materialized predicate-only `icmp_pred` remains separate |
 | 5 | `nir_loop` | **blocked** | `jump_cond` has **zero** emitter-grade fields (§3.1) |
 | 6 | `nir_tex` | **blocked** | nothing in the sampling family is emittable (§3.2) |
 | 7 | atomics | **blocked** | the op selector is `tokenization-only` (§3.3) |
@@ -973,8 +976,9 @@ The rest of the integer core, and what it blocks:
 | Instruction | Blocking | Blocks |
 |---|---|---|
 | `falu3` / `falu3_ext` | `op`, `srcB`, `srcC` `untested` | **`nir_op_ffma`** — fused multiply-add must be lowered to two `falu2`s |
-| `icmp_pred` | `srcA`, `srcB` `untested`; `opclass` `corpus-correlation` | every integer/float comparison |
-| `isel8`/`isel10`/`isel10_c`/`isel_reg`/`isel_reg8`/`icmpsel` | `cmpA`, `cmpB`, `cmp_mode`, `selTrue`, `selFalse`, `cc`, `flags` | `nir_op_bcsel` in its native fused-compare-select form |
+| `icmp_pred` | `srcA`, `srcB` `untested`; `opclass` `corpus-correlation` | materialized predicate values and comparison uses that cannot stay fused into canonical `isel10` |
+| `isel10` | **canonical retained-source b32 fused compare/select closed** by EXP-0223/EXP-0234: all four sources direct r0..r63 with high descriptors aliasing modulo 64; destination r0..r15 | native fused integer/float compare-select available; materialized predicates and alternate select forms remain separate |
+| `isel8`/`isel10_c`/`isel_reg`/`isel_reg8`/`icmpsel` | alternate-form fields and semantics remain separate | no capability is inherited from canonical `isel10` |
 | `imad` | **canonical retained-source low-32 IMUL/IMAD closed** by EXP-0225/EXP-0233; alternate multiply-high, b64/pair, external-addend, and modifier forms remain | native low-32 `nir_op_imul`/`imad` available; wider lowerings still require their separate forms |
 | `ishift` | `srcA`, `opB` `untested` | `ishl`/`ishr`/`ushr` — though `shamt = n << 2` is confirmed 32/32 on hardware |
 | `ibfe` | `dst` `corpus-correlation`, `b5` `tokenization-only` | `ubfe`/`ibfe` — see §4.1 for the trap that survives even so |
