@@ -49,3 +49,10 @@ instructions before `isel10`.  Cross both predicate polarities and all 16 settin
   matching is insufficient.
 
 No Apple compiler output is consulted for P2 or D1.  Every instruction remains field-generated.
+
+### Pre-dispatch harness correction
+
+The first committed D1 edit accidentally nested the existing P1 all-source case under the six-gap
+loop, producing 320 P1 cases instead of the frozen 256.  The remote build-time count caught this
+before any P2/D1 dispatch.  The indentation was corrected so P1 is exactly the original 256 and D1
+is exactly 192; no observation exists under the erroneous enumeration.

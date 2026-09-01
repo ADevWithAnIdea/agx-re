@@ -168,17 +168,6 @@ def build_cases(include_hazard=False):
                     "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
                                   sel_false=4, cond="lt", flags=flags),
                 })
-            for gap in (0, 1, 2, 4, 8, 16):
-                out.append({
-                    "i": len(out),
-                    "name": f"d1_f{flags:02x}_{direction}_gap{gap:02d}",
-                    "arm": "D1", "kind": "isel10_load_distance",
-                    "expect_match": True, "predicted_bucket": "measure",
-                    "loads": [(r, values[r]) for r in (1, 2, 3, 4)],
-                    "delay": gap,
-                    "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
-                                  sel_false=4, cond="lt", flags=flags),
-                })
                 # All four loaded, with `direct` deliberately last.
                 order = [r for r in (1, 2, 3, 4) if r != direct] + [direct]
                 out.append({
@@ -187,6 +176,17 @@ def build_cases(include_hazard=False):
                     "arm": "P1", "kind": "isel10_provenance",
                     "expect_match": True, "predicted_bucket": "measure",
                     "loads": [(r, values[r]) for r in order],
+                    "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                                  sel_false=4, cond="lt", flags=flags),
+                })
+            for gap in (0, 1, 2, 4, 8, 16):
+                out.append({
+                    "i": len(out),
+                    "name": f"d1_f{flags:02x}_{direction}_gap{gap:02d}",
+                    "arm": "D1", "kind": "isel10_load_distance",
+                    "expect_match": True, "predicted_bucket": "measure",
+                    "loads": [(r, values[r]) for r in (1, 2, 3, 4)],
+                    "delay": gap,
                     "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
                                   sel_false=4, cond="lt", flags=flags),
                 })
