@@ -14,3 +14,6 @@
 - 2026-09-01: P2 proved all 48 low-source cases exact. High-source behavior was mixed and not fixed
   by a 64-instruction gap. `AMENDMENT-03.md` freezes a 200-case V3 low-bank emitter contract; high
   values are staged through the separately proven `n3_mov` recipe.
+- 2026-09-01: V3 formal run03/run04 passed: 198/198 positives exact and two refuters fired in each,
+  zero cross-run differences, faults, resets, Gate-A errors, aliases, donors, sentinel failures,
+  or foreign runners. Recovery count remained 27689. `RESULTS.md` publishes the recipe.
