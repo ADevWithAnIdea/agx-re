@@ -43,6 +43,7 @@ def main():
     }
 
     for run_name, by_name in runs:
+        run_path = EXP / "raw" / run_name
         rows = [row for row in by_name.values() if row["arm"] == "P2"]
         positives = [row for row in rows if row["expect_match"]]
         refuters = [row for row in rows if not row["expect_match"]]
@@ -72,12 +73,25 @@ def main():
                                 (run_name, prefix, got, expected))
         if walk_bad:
             failures.append("%s %d whole-walk errors" % (run_name, walk_bad))
+        quiet = [json.loads(line) for line in
+                 (run_path / "procs.jsonl").read_text().splitlines()]
+        if not quiet or any(sample["n_foreign"] or sample["n_foreign_runner"]
+                            or sample["n_compiler_svc"] for sample in quiet):
+            failures.append("%s contaminated quiet sample" % run_name)
+        pre = json.loads((run_path / "gpu_pre.json").read_text())
+        post = json.loads((run_path / "gpu_post.json").read_text())
+        recoveries = {sample["gpu"]["recovery_count"] for sample in quiet}
+        recoveries.update((pre["recovery_count"], post["recovery_count"]))
+        if len(recoveries) != 1:
+            failures.append("%s recovery count changed" % run_name)
         summary["runs"][run_name] = {
             "p2": len(rows),
             "positive_exact": sum(r["observed_bucket"] == "exact" for r in positives),
             "refuters_fired": sum(r["observed_bucket"] != "exact" for r in refuters),
             "outcomes": dict(collections.Counter(r["outcome"] for r in rows)),
             "whole_walk_errors": walk_bad,
+            "quiet_samples": len(quiet),
+            "recovery_count": sorted(recoveries),
         }
 
     first, second = runs[0][1], runs[1][1]
