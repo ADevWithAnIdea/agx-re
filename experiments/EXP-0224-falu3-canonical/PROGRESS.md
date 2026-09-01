@@ -7,3 +7,7 @@
   hangs, Gate-A errors, aliases, or donor fields. Work paused at user request before V2.
 - 2026-09-01: work resumed. `AMENDMENT-01.md` freezes the H3 retained-source point and the V2
   promotion matrix before any V2 dispatch.
+- 2026-09-01: formal run01 rejected V2: 136 exact positives and two firing refuters, but all 88
+  cases built around multiple high-register operands were wrong-value. Zero faults, resets,
+  Gate-A errors, aliases, donors, or sentinel failures. `AMENDMENT-02.md` freezes P2 to distinguish
+  high-register encoding from pending-load/group timing before any P2 dispatch.

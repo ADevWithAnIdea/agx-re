@@ -255,6 +255,47 @@ def build_cases(include_hazard=False):
            loads=standard + [(4, 15)], expect=False)
     add_v2(out, "v2_ctl_wrong_op", cfg=ordinary_cfg(model_kind="mul_add_a"),
            loads=standard, expect=False)
+
+    # ---- P2: diagnose V2's high-source-only failures ---------------------
+    def add_p2(name, cfg, loads, gap):
+        out.append({
+            "i": len(out), "name": name, "arm": "P2", "kind": "p2",
+            "cfg": cfg, "loads": list(loads), "gap": gap,
+            "expect_match": True, "predicted_bucket": "exact",
+        })
+
+    for role in ("a", "b", "c"):
+        for target in range(16):
+            regs = {"a": target if role == "a" else 1,
+                    "b": target if role == "b" else 2,
+                    "c": target if role == "c" else 3}
+            # Avoid accidental role aliases except in the dedicated alias suite.
+            used = {target}
+            for other in ("a", "b", "c"):
+                if other == role:
+                    continue
+                if regs[other] in used:
+                    regs[other] = next(r for r in (4, 5, 6, 7) if r not in used)
+                used.add(regs[other])
+            dst = next(r for r in (0, 14, 13, 12, 11) if r not in used)
+            words = {regs["a"]: 3, regs["b"]: 7, regs["c"]: 11}
+            add_p2(f"p2_low_{role}_r{target:02d}",
+                   ordinary_cfg(dst, regs["a"], regs["b"], regs["c"]),
+                   sorted(words.items()), 1)
+
+        for target in range(16, 24):
+            regs = {"a": target if role == "a" else 1,
+                    "b": target if role == "b" else 2,
+                    "c": target if role == "c" else 3}
+            words = {regs["a"]: 3, regs["b"]: 7, regs["c"]: 11}
+            for gap in (1, 64):
+                add_p2(f"p2_high_{role}_r{target:02d}_gap{gap}",
+                       ordinary_cfg(0, regs["a"], regs["b"], regs["c"]),
+                       sorted(words.items()), gap)
+
+    for gap in (1, 16, 64):
+        add_p2(f"p2_three_high_gap{gap}", ordinary_cfg(0, 20, 21, 22),
+               [(20, 3), (21, 7), (22, 11)], gap)
     return out
 
 
@@ -262,9 +303,15 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = B.fresh(case, slots)
-    if case["arm"] == "V2":
+    if case["arm"] in ("V2", "P2"):
         cfg = case["cfg"]
-        if case["kind"] == "load_adj":
+        if case["kind"] == "p2":
+            seed_h(pg, case["loads"])
+            protected = {r for r, _ in case["loads"]} | {
+                cfg["dst"], cfg["src_a"], cfg["src_b"], cfg["src_c"]}
+            visibility_gap(pg, protected, case["gap"])
+            emit_fma(pg, **cfg)
+        elif case["kind"] == "load_adj":
             final_reg = case["final_reg"]
             early = [rw for rw in case["loads"] if rw[0] != final_reg]
             final = [rw for rw in case["loads"] if rw[0] == final_reg]
