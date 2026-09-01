@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """EXP-0223 pre-freeze generated isel10 pilots."""
 
+import random
 import sys
 from pathlib import Path
 
@@ -58,11 +59,31 @@ def signed32(value):
     return value - (1 << 32) if value & 0x80000000 else value
 
 
+def model_predicate(kind, a, b):
+    if kind == "slt":
+        return signed32(a) < signed32(b)
+    if kind == "sgt":
+        return signed32(a) > signed32(b)
+    if kind == "ult":
+        return a < b
+    if kind == "ugt":
+        return a > b
+    if kind == "eq":
+        return a == b
+    if kind == "flt":
+        return S.bits_f32(a) < S.bits_f32(b)
+    if kind == "fgt":
+        return S.bits_f32(a) > S.bits_f32(b)
+    if kind == "feq":
+        return S.bits_f32(a) == S.bits_f32(b)
+    raise ValueError(kind)
+
+
 def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
                  opsel=0,
                  cc_value=None, cmp_mode=0x02, sel_false_file=0,
                  model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
-                 model_sel_false=None):
+                 model_sel_false=None, model_kind=None):
     pg.E.emit("isel10", {
         "dst": fv(dst, "R1 destination GPR"),
         "cmpA": fv((cmp_a << 1) | 1, "R1 compare-A descriptor"),
@@ -86,8 +107,20 @@ def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
     if None in (av, bv, tv, fv_bits):
         out = None
     else:
-        pred = signed32(av) < signed32(bv) if cond == "lt" else signed32(av) > signed32(bv)
+        pred = (model_predicate(model_kind, av, bv) if model_kind is not None else
+                (signed32(av) < signed32(bv) if cond == "lt" else
+                 signed32(av) > signed32(bv)))
         out = tv if pred else fv_bits
+    # F1/S1: source releases occur after all reads and regardless of predicate.
+    # Destination publication follows, so an aliased destination wins.
+    if opsel & 1:
+        pg.set_reg(cmp_a, 0)
+    if opsel & 2:
+        pg.set_reg(cmp_b, 0)
+    if (cmp_mode & 0xE0) == 0x80:
+        pg.set_reg(sel_true, 0)
+    if (sel_false_file & 0xE0) == 0x80:
+        pg.set_reg(sel_false, 0)
     pg.set_reg(dst, out)
 
 
@@ -335,6 +368,154 @@ def build_cases(include_hazard=False):
                 "relation": relation, "expect_match": True,
                 "predicted_bucket": "measure", "cmp_mode": mode,
             })
+
+    def v2_single(name, op, relation=None, expect_match=True):
+        out.append({
+            "i": len(out), "name": name, "arm": "V2", "kind": "v2_single",
+            "relation": relation, "op_r1": op, "expect_match": expect_match,
+            "predicted_bucket": "exact" if expect_match else "refute",
+        })
+
+    # Integer condition table, both predicate outcomes.
+    int_specs = [
+        ("slt_t", "sneg_lt", 7, "slt", 3, 4),
+        ("slt_f", "sneg_gt", 7, "slt", 3, 4),
+        ("sgt_t", "sneg_gt", 6, "sgt", 3, 4),
+        ("sgt_f", "sneg_lt", 6, "sgt", 3, 4),
+        ("ult_t", "sneg_gt", 5, "ult", 3, 4),
+        ("ult_f", "sneg_lt", 5, "ult", 3, 4),
+        ("ugt_t", "sneg_lt", 4, "ugt", 3, 4),
+        ("ugt_f", "sneg_gt", 4, "ugt", 3, 4),
+        ("eq_t", "eq", 7, "eq", 3, 4),
+        ("eq_f", "lt", 7, "eq", 3, 4),
+        ("ne_t", "lt", 7, "eq", 4, 3),
+        ("ne_f", "eq", 7, "eq", 4, 3),
+    ]
+    for name, relation, cc, kind, st, sf in int_specs:
+        v2_single("v2_int_" + name,
+                  dict(dst=0, cmp_a=1, cmp_b=2, sel_true=st, sel_false=sf,
+                       cond="lt", flags=0xC0, opsel=0,
+                       cmp_mode=0x06 if name.startswith(("eq", "ne")) else 0x02,
+                       cc_value=cc, sel_false_file=0, model_kind=kind), relation)
+
+    float_specs = [
+        ("fgt_t", "fneg_gt", 2, 0x02, "fgt", 3, 4),
+        ("fgt_f", "fneg_lt", 2, 0x02, "fgt", 3, 4),
+        ("flt_t", "fneg_lt", 3, 0x02, "flt", 3, 4),
+        ("flt_f", "fneg_gt", 3, 0x02, "flt", 3, 4),
+        ("feq_t", "fzero", 0, 0x06, "feq", 3, 4),
+        ("feq_f", "fneq", 0, 0x06, "feq", 3, 4),
+        ("fneu_nan", "fnan", 0, 0x06, "feq", 4, 3),
+        ("fneu_eq", "feq", 0, 0x06, "feq", 4, 3),
+    ]
+    for name, relation, cc, mode, kind, st, sf in float_specs:
+        v2_single("v2_float_" + name,
+                  dict(dst=0, cmp_a=1, cmp_b=2, sel_true=st, sel_false=sf,
+                       cond="lt", flags=0xC0, opsel=0, cmp_mode=mode,
+                       cc_value=cc, sel_false_file=0, model_kind=kind), relation)
+
+    # Lifecycle truth tables over both predicate outcomes.
+    for opsel in (0, 1, 2, 3, 6, 7):
+        for direction, ca, cb in (("t", 1, 2), ("f", 2, 1)):
+            v2_single(f"v2_life_cmp_op{opsel}_{direction}",
+                      dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                           cond="lt", flags=0xC0, opsel=opsel, cmp_mode=0x02,
+                           cc_value=7, sel_false_file=0, model_kind="slt"))
+    for mode in (0x02, 0x82):
+        for direction, ca, cb in (("t", 1, 2), ("f", 2, 1)):
+            v2_single(f"v2_life_true_m{mode:02x}_{direction}",
+                      dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                           cond="lt", flags=0xC0, opsel=0, cmp_mode=mode,
+                           cc_value=7, sel_false_file=0, model_kind="slt"))
+    for ff in (0x00, 0x80):
+        for direction, ca, cb in (("t", 1, 2), ("f", 2, 1)):
+            v2_single(f"v2_life_false_f{ff:02x}_{direction}",
+                      dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                           cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02,
+                           cc_value=7, sel_false_file=ff, model_kind="slt"))
+    for direction, ca, cb in (("t", 1, 2), ("f", 2, 1)):
+        v2_single(f"v2_life_all_{direction}",
+                  dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                       cond="lt", flags=0xC0, opsel=3, cmp_mode=0x82,
+                       cc_value=7, sel_false_file=0x80, model_kind="slt"))
+
+    for name, op in h4_specs[5:9]:
+        op = dict(op)
+        op["model_kind"] = "slt"
+        v2_single("v2_" + name, op)
+
+    # Canonical load provenance, one loaded source or all with each final slot.
+    for direction, ca, cb in (("true", 1, 2), ("false", 2, 1)):
+        values = loaded_values[direction]
+        for direct in (1, 2, 3, 4):
+            base = dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
+                        cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02,
+                        cc_value=7, sel_false_file=0, model_kind="slt")
+            out.append({
+                "i": len(out), "name": f"v2_load_one_{direction}_r{direct}",
+                "arm": "V2", "kind": "v2_load", "expect_match": True,
+                "predicted_bucket": "exact", "loads": [(direct, values[direct])],
+                "op_r1": base,
+            })
+            order = [r for r in (1, 2, 3, 4) if r != direct] + [direct]
+            out.append({
+                "i": len(out), "name": f"v2_load_all_{direction}_last_r{direct}",
+                "arm": "V2", "kind": "v2_load", "expect_match": True,
+                "predicted_bucket": "exact",
+                "loads": [(r, values[r]) for r in order], "op_r1": dict(base),
+            })
+
+    # Operand and destination reach over the complete dumped register envelope.
+    for role in ("a", "b", "t", "f"):
+        for reg in (0, 5, 10, 14, 16, 19, 22, 23):
+            op = dict(dst=11, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4,
+                      cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02,
+                      cc_value=7, sel_false_file=0, model_kind="slt")
+            op[{"a": "cmp_a", "b": "cmp_b", "t": "sel_true", "f": "sel_false"}[role]] = reg
+            v2_single(f"v2_cross_{role}_r{reg:02d}", op)
+    for dst in range(15):
+        v2_single(f"v2_dst_r{dst:02d}",
+                  dict(dst=dst, cmp_a=16, cmp_b=17, sel_true=18, sel_false=19,
+                       cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02,
+                       cc_value=7, sel_false_file=0, model_kind="slt"))
+
+    # Deterministic generated programs, 2..64 operations, no release hints.
+    src_pool = list(range(12)) + [13, 14] + list(range(16, 24))
+    dst_pool = list(range(12)) + [13, 14]
+    for case_i in range(100):
+        rng = random.Random(223000 + case_i)
+        ops = []
+        for _ in range(2 + ((case_i * 37) % 63)):
+            if rng.randrange(5) < 2:
+                ops.append(("iadd", dict(dst=rng.choice(dst_pool),
+                                          src_a=rng.choice(src_pool),
+                                          src_b=rng.choice(src_pool),
+                                          add=bool(rng.randrange(2)))))
+            else:
+                ops.append(("isel", dict(dst=rng.choice(dst_pool),
+                                          cmp_a=rng.choice(src_pool),
+                                          cmp_b=rng.choice(src_pool),
+                                          sel_true=rng.choice(src_pool),
+                                          sel_false=rng.choice(src_pool),
+                                          cond="lt", flags=0xC0, opsel=0,
+                                          cmp_mode=0x02, cc_value=7,
+                                          sel_false_file=0, model_kind="slt")))
+        out.append({
+            "i": len(out), "name": f"v2_dag_{case_i:03d}", "arm": "V2",
+            "kind": "v2_dag", "ops": ops, "expect_match": True,
+            "predicted_bucket": "exact",
+        })
+
+    v2_single("v2_ctl_wrong_cmp",
+              dict(dst=0, cmp_a=1, cmp_b=2, sel_true=3, sel_false=4,
+                   cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02, cc_value=7,
+                   sel_false_file=0, model_kind="slt", model_cmp_a=2,
+                   model_cmp_b=1), expect_match=False)
+    v2_single("v2_ctl_wrong_true",
+              dict(dst=0, cmp_a=1, cmp_b=2, sel_true=5, sel_false=4,
+                   cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02, cc_value=7,
+                   sel_false_file=0, model_kind="slt", model_sel_true=3),
+              expect_match=False)
     return out
 
 
@@ -342,7 +523,25 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] in ("C1", "C2", "C2B", "F1"):
+    if case["arm"] == "V2":
+        if case.get("relation") is not None:
+            ca, cb = prepare_relation(pg, case["relation"])
+            op = dict(case["op_r1"])
+            op["cmp_a"], op["cmp_b"] = ca, cb
+            emit_isel_r1(pg, **op)
+        elif case["kind"] == "v2_load":
+            for reg, word in case["loads"]:
+                pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")
+            emit_isel_r1(pg, **case["op_r1"])
+        elif case["kind"] == "v2_dag":
+            for kind, op in case["ops"]:
+                if kind == "iadd":
+                    emit_iadd_proven(pg, **op)
+                else:
+                    emit_isel_r1(pg, **op)
+        else:
+            emit_isel_r1(pg, **case["op_r1"])
+    elif case["arm"] in ("C1", "C2", "C2B", "F1"):
         ca, cb = prepare_relation(pg, case["relation"])
         emit_isel_r1(pg, dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
                      cond="lt", flags=0xC0, cc_value=case.get("cc_value"),
