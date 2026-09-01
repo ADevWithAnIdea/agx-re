@@ -315,6 +315,31 @@
       ],
       "outside_behavior": "In the canonical FP32 direct-round form with a materialized GPR, all byte values 0..255 select and release r[v >> 2]; bits 0..1 are accepted-inert in this envelope. The exhausted field cannot represent physical r64..r95.",
       "evidence": ["EXP-0161", "EXP-0237"]
+    },
+    {
+      "id": "cvt_f2i.10B.destination.b32",
+      "instruction": "cvt_f2i",
+      "form": "10B-canonical-f32-to-s32",
+      "role": "destination",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 95, "status": "direct"}
+      ],
+      "outside_behavior": "Byte values 0..191 select r[v >> 1], with bit 0 accepted-inert in the tested envelope. EXP-0168's complete destination sweep establishes r96 as first invalid: across two carriers and two runs, the 256 observations of byte values 192..255 were 255 ErrorHang and one recovery-adjacent InnocentVictim.",
+      "evidence": ["EXP-0168", "EXP-0238"]
+    },
+    {
+      "id": "cvt_f2i.10B.source.b32",
+      "instruction": "cvt_f2i",
+      "form": "10B-canonical-f32-to-s32-materialized",
+      "role": "source",
+      "width": 32,
+      "cells": [
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
+      ],
+      "outside_behavior": "All byte values 0..255 select and release r[v >> 2]; bits 0..1 are accepted-inert in this envelope. The exhausted field cannot represent physical r64..r95.",
+      "evidence": ["EXP-0238"]
     }
   ],
   "transfers": [

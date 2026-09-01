@@ -378,6 +378,16 @@ EXP-0112 correctly found bit 6 inert (`r(R mod 64)` aliasing).
   result publication, so the new result wins. These access sets belong to this form and are not
   inherited by `fspecial_est`, pending-producer forms, or other source classes/datapaths.
 
+- **Canonical `cvt_f2i` register lifecycle (G17P, EXP-0238).** In the ten-byte materialized-source
+  FP32-to-signed-I32 form, byte+5 exhaustively selects and releases `r[byte5 >> 2]`, so it directly
+  reaches r0..r63 and cannot represent physical r64..r95; bits 0..1 are accepted aliases in this
+  envelope. Byte+3 selects `r[byte3 >> 1]` and writes every physical r0..r95; bit 0 aliases. Eight
+  source=destination cases prove release precedes integer-result publication and the result wins.
+  EXP-0168 independently exhausted the finite destination boundary: byte values 192..255 (r96+)
+  are invalid, with 255/256 carrier/run observations reporting `ErrorHang` and one neighbouring
+  `InnocentVictim`. These access sets are not inherited by unsigned, half, pending-producer, or
+  alternate conversion forms.
+
 - ⛔ **`imad` has NO first operand in older documentation.** `db.json` modelled no `srcA` at all;
   the byte it called `srcC_lo` (byte+6) is the **first multiplicand's register selector**,
   `reg = (byte+6) >> 3`, reproduced in both seed sets and solved from scratch with both
@@ -1529,6 +1539,18 @@ field values (`slot6←{0,1}`, `slot5←{6,7}`, `slot4←{10,11}`, `slot3←{14,
 `slot1←{22,23}`, anchor `slot0←{24,25}`), i.e. **`field = register << 1` with bit 0 free**.
 `pack_convert` byte+3 produces the **identical** map — which is why it is reclassified above
 from `src` to `dst`.
+
+EXP-0238 replaces that small observation window with a generated complete register proof for the
+canonical signed FP32-to-I32 form. Its exact emitter recipe is:
+
+```text
+27 07 56 (D<<1) 02 (S<<2) b4 48 03 00
+```
+
+`D=0..95` and `S=0..63`; the otherwise-free low destination bit and two low source bits are
+accepted aliases in this envelope. Conversion truncates toward zero, reads then releases its
+source, and publishes the destination after release when `D == S`. Do not emit destination values
+192..255; EXP-0168's complete raw matrix places the first invalid encoding at 192.
 
 **⚠️ Rounding: the ALU pack path and the PBE store path round DIFFERENTLY. Do not reuse one
 rule for the other.**

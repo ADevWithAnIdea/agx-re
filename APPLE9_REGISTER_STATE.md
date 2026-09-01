@@ -30,7 +30,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_load` retains its index register. EXP-0231 distinguished this from release with a
   nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0237.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0226, and EXP-0230 through EXP-0238.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -62,6 +62,8 @@ the observed alias/failure is stated. `Tested` is not extrapolated to the rest o
 | `device_load/store.14B` index source | 32 | r0..r95 | low seven-bit values 96..127 fault; encoded bit 7 is ignored and mirrors the low seven bits | EXP-0221 |
 | `fspecial.10B` destination, canonical FP32 direct-round form | 32 | r0..r95 | byte values 0..191 select `r[v >> 1]`; r96 is first invalid and the upper descriptor region faults/hangs | EXP-0161, EXP-0237 |
 | `fspecial.10B` source, canonical FP32 direct-round form, materialized GPR | 32 | r0..r63 | byte values 0..255 select and release `r[v >> 2]`; the field has no representation for physical r64..r95 | EXP-0161, EXP-0237 |
+| `cvt_f2i.10B` destination, canonical FP32-to-signed-I32 form | 32 | r0..r95 | byte values 0..191 select `r[v >> 1]`; r96 is first invalid and 192..255 fault/hang by the complete EXP-0168 sweep | EXP-0168, EXP-0238 |
+| `cvt_f2i.10B` source, canonical FP32-to-signed-I32 form, materialized GPR | 32 | r0..r63 | byte values 0..255 select and release `r[v >> 2]`; the field has no representation for physical r64..r95 | EXP-0238 |
 
 The CSV contains one cell per physical r0..r95 for each row. `?` is deliberately present wherever
 the experiment did not establish the answer; Step 2 cannot be checked while any discovered role
@@ -87,8 +89,9 @@ addressing, and first-invalid behavior remain open.
 
 ## 4. State transitions proved across anchor families
 
-For the tested 32-bit ALU recipes (`falu2`, `iadd2`, `imad`, `isel`, `ilogic`, `falu3`, and the
-canonical materialized-source `fspecial` direct-round form):
+For the tested 32-bit ALU recipes (`falu2`, `iadd2`, `imad`, `isel`, `ilogic`, `falu3`, the
+canonical materialized-source `fspecial` direct-round form, and canonical materialized-source
+`cvt_f2i`):
 
 ```text
 read retained source     : value is consumed; source remains unchanged
@@ -126,9 +129,10 @@ behavior are Step 3 work.
    EXP-0231. Continue looking for a direct GPR-only move involving r64..r95 so the hardware
    capability and performance alternative are known; do not treat the fallback as proof none exists.
 2. **Dense role reach:** the canonical b32 `iadd2` register form, canonical low-32 `imad`, canonical
-   retained FP32 `falu3`, canonical `isel10`, and canonical XOR `ilogic` forms are closed. Finish
-   r0..r95 matrices for alternate `fspecial` forms and for conversion, half, compare, other logic
-   forms, and every alternate/compressed form. Mixed results are not a range.
+   retained FP32 `falu3`, canonical `isel10`, canonical XOR `ilogic`, and canonical FP32-to-signed-
+   I32 `cvt_f2i` forms are closed. Finish r0..r95 matrices for alternate `fspecial` and conversion
+   forms, half, compare, other logic forms, and every alternate/compressed form. Mixed results are
+   not a range.
 3. **Low-tier exhaustion:** execute the maximum simultaneously live compact operands/results and
    the first over-capacity case while high GPRs remain unused.
 4. **Pairs and partial overlap:** close 64-bit pair alignment, odd-pair behavior, overlapping pair

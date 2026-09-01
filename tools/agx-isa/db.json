@@ -1692,7 +1692,8 @@
      "name": "dst",
      "start": 24,
      "width": 8,
-     "type": "reg"
+     "type": "reg",
+     "note": "Canonical signed FP32-to-I32 form on G17P: destination = v >> 1. EXP-0238 generated and value-proved every safe byte value 0..191, directly writing r0..r95; bit 0 is an accepted alias in this envelope. EXP-0168 independently dispatched the complete field on two carriers in two runs: values 192..255 (r96+) are invalid, with 255/256 observations ErrorHang and one recovery-adjacent InnocentVictim. Never emit v >= 192."
     },
     {
      "name": "src_class",
@@ -1704,7 +1705,8 @@
      "name": "src",
      "start": 40,
      "width": 8,
-     "type": "reg"
+     "type": "reg",
+     "note": "Canonical signed FP32-to-I32 materialized-source form on G17P: source = v >> 2. EXP-0238 generated and value-proved all 256 values, directly reading and releasing r0..r63; bits 0..1 are accepted aliases in this envelope. The exhausted field has no representation for physical r64..r95."
     },
     {
      "name": "cvtop",
@@ -1734,8 +1736,8 @@
      "type": "mod"
     }
    ],
-   "semantics": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane float4<->int4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (the two move in opposite directions, so dst and src are separately located). byte+2 = result-routing/source-cache mode (same field as the byte+1==0x17 sibling cvt_i2f_src: 0x54 result-consumed-by-following-ALU vs 0x56 standalone). byte+4 = source format/class descriptor; byte+8 = dest format/width descriptor; byte+9 = reserved 0x00. Mode/class exact per-VALUE maps are role-typed (byte-diff located), not independently splice-proven (no fabricated value map).",
-   "provenance": "HW-VALIDATED (EXP-0013): int(3.9)/int(-3.9)/int(2.5) = 3/-3/2 (trunc); splicing byte+7 0x48->0x08 turns the signed f2i into the unsigned f2u convert on hardware. EXP-M4-13 R9 own-MSL byte-diff (compile-only, NO GPU dispatch): reversed-lane int4<->float4 chain PROVES byte+3=dst reg and byte+5=src reg (they step in opposite directions); byte+8 bit0 tracks dest int width/sign across s32/u32/s16/u16 kernels; byte+9 const 0x00 over 136 corpus instances. mode/src_class/dst_class typed by ROLE (located), value semantics not splice-validated."
+   "semantics": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane float4<->int4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (the two move in opposite directions, so dst and src are separately located). Canonical generated signed FP32-to-I32 recipe (EXP-0238): `27 07 56 (D<<1) 02 (S<<2) b4 48 03 00`, D=0..95 and S=0..63. It reads then releases the source; if source equals destination, release precedes result publication and the integer result wins. byte+2 = result-routing/source-cache mode (same field as the byte+1==0x17 sibling cvt_i2f_src: 0x54 result-consumed-by-following-ALU vs 0x56 standalone). byte+4 = source format/class descriptor; byte+8 = dest format/width descriptor; byte+9 = reserved 0x00. Mode/class exact per-VALUE maps are role-typed (byte-diff located), not independently splice-proven (no fabricated value map).",
+   "provenance": "HW-VALIDATED (EXP-0013): int(3.9)/int(-3.9)/int(2.5) = 3/-3/2 (trunc); splicing byte+7 0x48->0x08 turns the signed f2i into the unsigned f2u convert on hardware. EXP-M4-13 R9 own-MSL byte-diff (compile-only, NO GPU dispatch): reversed-lane int4<->float4 chain PROVES byte+3=dst reg and byte+5=src reg (they step in opposite directions); byte+8 bit0 tracks dest int width/sign across s32/u32/s16/u16 kernels; byte+9 const 0x00 over 136 corpus instances. EXP-0238 HW-PROBE + OWN-SHADER: two quiet opposite-order generated runs exhaust all 256 source codes and all 192 safe destination codes with exact register-specific integer results, source release, eight source=destination lifecycle points, no copied/carrier instruction fields, and two firing wrong-oracle controls. EXP-0168 supplies the complete r96+ invalid destination boundary. mode/src_class/dst_class beyond the canonical values remain role-typed rather than fully value-mapped."
   },
   {
    "mnemonic": "cvt_i2f",

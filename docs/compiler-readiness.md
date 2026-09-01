@@ -81,8 +81,11 @@ emitter can apply, not as prose descriptions of them.
 > mixed r16..r23 result in EXP-0224 was pending-load state and remains a scoreboard question, not a
 > materialized-register limit. EXP-0237 closes the canonical ten-byte FP32 direct-round `fspecial`
 > register class: its source byte reads and releases r0..r63 and cannot encode r64..r95; its
-> destination byte directly writes r0..r95, with r96 first invalid by EXP-0161. The older assessment
-> below is retained as historical context, but its move,
+> destination byte directly writes r0..r95, with r96 first invalid by EXP-0161. EXP-0238 likewise
+> closes the canonical ten-byte materialized FP32-to-signed-I32 `cvt_f2i` register class: source
+> r0..r63, destination r0..r95,
+> source release, and release-before-publication alias behavior; EXP-0168 supplies the exhaustive
+> r96+ invalid boundary. The older assessment below is retained as historical context, but its move,
 > b32-`iadd2`, canonical low-32 `imad`, canonical `isel10`, and canonical `ilogic` blocker
 > statements, plus its canonical `falu3` register blocker, are superseded by §§3.6 and 8.
 >
@@ -770,6 +773,9 @@ stop          body = 0x000000, HW-proven non-load-bearing padding           [EXP
    Canonical FP32 direct-round `fspecial` reads/releases r0..r63 and writes r0..r95
    (`EXP-0161`/`EXP-0237`); its source field has no representation for r64..r95, while r96 is the
    destination's measured first-invalid boundary.
+   Canonical materialized FP32-to-signed-I32 `cvt_f2i` has the same direct register sets and
+   release-before-publication lifecycle (`EXP-0238`), with its destructive r96+ boundary closed by
+   EXP-0168 rather than repeated.
    G17P r96 is the first invalid `iadd2` destination and faults; r127 also faults without aliasing.
    The older r95-first-fault result belongs to M4/G16G and must not be transferred across targets.
    `device_load`/`device_store` separately reach all physical r0..r95 (`EXP-0221`/`EXP-0230`).
@@ -941,6 +947,11 @@ form over the complete positive register namespaces in two quiet opposite-order 
 This removes register placement as a blocker for the tested canonical form. It does **not** close
 every `frcp`/`frsq`/`fexp2`/`flog2`/`fsin`/`fcos`/`fsqrt` datapath, exceptional-value behavior,
 pending-producer acceptance, or `fspecial_est`; those remain semantic/form-specific work.
+
+Canonical signed FP32-to-I32 conversion is separately register-closed by EXP-0238. The generated
+recipe `27 07 56 (D<<1) 02 (S<<2) b4 48 03 00` truncates toward zero, reads/releases r0..r63, and
+writes r0..r95; source=destination publishes the result after release. This does not transfer to
+unsigned, half-width, integer-to-float, pending-producer, or alternate conversion forms.
 
 `iunary`/`ibitcount` do cover `nir_op_bit_count`, `ufind_msb` and `bitfield_reverse` (§1.3), so the
 bit-manipulation corner is open even though the float-special corner is not.

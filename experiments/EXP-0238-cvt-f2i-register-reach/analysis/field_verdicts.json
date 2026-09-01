@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "experiment": "EXP-0238",
+    "target": "G17P",
+    "legacy_validation_merge": false,
+    "reason_not_merged": "The generic promotion index does not parse cvt_f2i_reach_probe records; dedicated formal238.py is the semantic gate.",
+    "formal_gate": "analysis/formal_result.json",
+    "target_gate": "analysis/gate_e_result.json"
+  },
+  "cvt_f2i.dst@canonical_f32_to_s32_materialized": {
+    "encoding_geometry": "geometry-mapped: byte+3 values 0..191 dispatched and decoded exactly; destination is v >> 1",
+    "liveness": "live; bit 0 accepted-inert in the exact tested envelope",
+    "semantics": "semantically-mapped over r0..r95 with exact register-specific integer results",
+    "compiler_recipe": "canonical-recipe-proven for this form; no donor or carrier instruction fields",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "finite_boundary": "r95 maximum valid; r96 first invalid and r96..r127 do-not-emit by EXP-0168",
+    "evidence": ["EXP-0168", "EXP-0238"]
+  },
+  "cvt_f2i.src@canonical_f32_to_s32_materialized": {
+    "encoding_geometry": "geometry-mapped: all byte+5 values 0..255 dispatched and decoded exactly; source is v >> 2",
+    "liveness": "live; bits 0..1 accepted-inert in the exact tested envelope",
+    "semantics": "semantically-mapped over r0..r63 with exact register-specific truncation results and post-read release",
+    "compiler_recipe": "canonical-recipe-proven for this form; no donor or carrier instruction fields",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "finite_boundary": "complete 8-bit namespace exhausted; field has no representation for physical r64..r95",
+    "evidence": ["EXP-0238"]
+  },
+  "cvt_f2i.source_destination_alias@canonical_f32_to_s32_materialized": {
+    "encoding_geometry": "ledger-verified at r0,r15,r16,r31,r32,r47,r48,r63",
+    "liveness": "live",
+    "semantics": "release occurs after source read and before destination publication; integer result wins",
+    "compiler_recipe": "generated-point across eight register-tier boundaries",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "evidence": ["EXP-0238"]
+  },
+  "cvt_f2i.trunc@canonical_f32_to_s32_materialized": {
+    "encoding_geometry": "ledger-verified at mode=0x56, cvtop=0xb4, signflag=0x48, dst_class=0x03",
+    "liveness": "live conversion operation",
+    "semantics": "semantically-mapped for positive finite exact N+1.5 inputs; 912/912 positive cases produce signed integer N+1",
+    "compiler_recipe": "generated-point; exceptional values and alternate conversion forms are outside this experiment",
+    "target": "G17P-direct",
+    "reproducibility": "auditable and independently confirmed in canonical/reverse quiet runs",
+    "evidence": ["EXP-0238"]
+  }
+}

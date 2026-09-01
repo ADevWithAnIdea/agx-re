@@ -72,6 +72,9 @@ REAL_INSTRS = {
     "icmp  (12 03 1d 05 ... 14B)":         "12031d05228107c0208013000001",# (a<b)?1:0 (14B)
     # ---- SCALAR ALU (EXP-0013): conversions / special funcs / bitwise-LUT / cmp CC ----
     "cvt_f2i (27 07 56 .. 10B)":            "270756000200b4480300",   # float->int (trunc) HW
+    "cvt_f2i src r63 aliasbits":             "2707560002ffb4480300",   # EXP-0238 HW
+    "cvt_f2i dst r95 aliasbit":              "270756bf0200b4480300",   # EXP-0238 HW
+    "cvt_f2i src=dst r63":                   "2707567e02fcb4480300",   # EXP-0238 HW
     "cvt_f2u (27 07 56 .. 10B)":            "270756000200b4080200",   # float->uint HW
     "cvt_i2f (a7 07 56 .. 8B)":             "a70756000200ac60",       # int->float HW
     "cvt_u2f (a7 07 56 .. 8B)":             "a70756000200ac20",       # uint->float HW
@@ -404,6 +407,10 @@ SYNTH = [
     # ---- scalar ALU (EXP-0013) ----
     # cvt_f2i (float->int, byte+7 0x48 = signed): reproduces 27 07 56 00 02 00 b4 48 03 00
     ("cvt_f2i", {"mode": 0x56, "dst": 0x0, "src_class": 0x2, "src": 0x0, "cvtop": 0xb4, "signflag": 0x48, "dst_class": 0x3, "b9": 0x0}),
+    # EXP-0238 register-reach canaries for the same canonical signed conversion form.
+    ("cvt_f2i", {"mode": 0x56, "dst": 0x0, "src_class": 0x2, "src": 0xff, "cvtop": 0xb4, "signflag": 0x48, "dst_class": 0x3, "b9": 0x0}),
+    ("cvt_f2i", {"mode": 0x56, "dst": 0xbf, "src_class": 0x2, "src": 0x0, "cvtop": 0xb4, "signflag": 0x48, "dst_class": 0x3, "b9": 0x0}),
+    ("cvt_f2i", {"mode": 0x56, "dst": 0x7e, "src_class": 0x2, "src": 0xfc, "cvtop": 0xb4, "signflag": 0x48, "dst_class": 0x3, "b9": 0x0}),
     # cvt_i2f (int->float, byte+7 0x60 = signed): a7 07 56 00 02 00 ac 60
     ("cvt_i2f", {"mode": 0x56, "dst": 0x0, "src_class": 0x2, "src": 0x0, "cvtop": 0xac, "signflag": 0x60}),
     # cvt_f2h (fp32->fp16): 11 03 1c 81 00 c2
