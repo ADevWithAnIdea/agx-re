@@ -11,3 +11,6 @@
   cases built around multiple high-register operands were wrong-value. Zero faults, resets,
   Gate-A errors, aliases, donors, or sentinel failures. `AMENDMENT-02.md` freezes P2 to distinguish
   high-register encoding from pending-load/group timing before any P2 dispatch.
+- 2026-09-01: P2 proved all 48 low-source cases exact. High-source behavior was mixed and not fixed
+  by a 64-instruction gap. `AMENDMENT-03.md` freezes a 200-case V3 low-bank emitter contract; high
+  values are staged through the separately proven `n3_mov` recipe.

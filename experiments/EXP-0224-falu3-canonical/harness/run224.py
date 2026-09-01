@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """EXP-0224 generated FP32 falu3 recipe harness."""
 
+import copy
 import random
 import struct
 import sys
@@ -296,6 +297,28 @@ def build_cases(include_hazard=False):
     for gap in (1, 16, 64):
         add_p2(f"p2_three_high_gap{gap}", ordinary_cfg(0, 20, 21, 22),
                [(20, 3), (21, 7), (22, 11)], gap)
+
+    # ---- V3: formal compiler-safe low-bank recipe ------------------------
+    for dst in range(16):
+        add_v2(out, f"v3_dst_r{dst:02d}", cfg=ordinary_cfg(dst), loads=standard)
+        out[-1]["arm"] = "V3"
+
+    for p2 in [c for c in out if c["arm"] == "P2" and c["name"].startswith("p2_low_")]:
+        clone = copy.deepcopy(p2)
+        clone.update({
+            "i": len(out), "name": p2["name"].replace("p2_low_", "v3_src"),
+            "arm": "V3", "kind": "single",
+        })
+        clone.pop("gap", None)
+        out.append(clone)
+
+    keep_prefixes = ("v2_alias_", "v2_num_", "v2_life_", "v2_load_",
+                     "v2_dag_", "v2_ctl_")
+    for old in [c for c in out if c["arm"] == "V2" and c["name"].startswith(keep_prefixes)]:
+        clone = copy.deepcopy(old)
+        clone.update({"i": len(out), "name": old["name"].replace("v2_", "v3_", 1),
+                      "arm": "V3"})
+        out.append(clone)
     return out
 
 
@@ -303,7 +326,7 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = B.fresh(case, slots)
-    if case["arm"] in ("V2", "P2"):
+    if case["arm"] in ("V2", "P2", "V3"):
         cfg = case["cfg"]
         if case["kind"] == "p2":
             seed_h(pg, case["loads"])
