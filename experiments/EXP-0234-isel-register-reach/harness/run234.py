@@ -145,7 +145,7 @@ def emit_isel(pg, destination, cmp_a, cmp_b, sel_true, sel_false, predicted):
         "cmpB": fv((cmp_b << 1) | 1, "32-bit compare-B descriptor"),
         "cmp_mode": fv(0x06, "integer equality mode and retain true source"),
         "selTrue": fv(sel_true << 1, "32-bit true-value descriptor"),
-        "cc": fv(0, "integer equality condition"),
+        "cc": fv(7, "EXP-0223 integer equality condition"),
         "flags": fv(0xC0, "canonical dependency-accepting flags"),
         "selFalse_file": fv(0, "GPR false source and retain it"),
         "selFalse": fv(sel_false << 1, "32-bit false-value descriptor"),

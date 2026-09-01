@@ -82,6 +82,8 @@ def main():
     ap.add_argument("--slots", default="",
                     help="frozen out,mem,imem slot mapping; empty = learn it from arm S0")
     ap.add_argument("--arms", default="")
+    ap.add_argument("--names", default="",
+                    help="comma-separated exact case names for amended sparse discovery")
     ap.add_argument("--hazard", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--timeout", type=float, default=20.0)
@@ -204,6 +206,16 @@ def main():
         want = set(a.arms.split(","))
         rest = [c for c in rest if c["arm"] in want
                 or c["arm"].split("-")[0] in want]
+    if a.names:
+        want_names = set(a.names.split(","))
+        rest = [c for c in rest if c["name"] in want_names]
+        missing_names = sorted(want_names - {c["name"] for c in rest})
+        if missing_names:
+            print("UNKNOWN CASE NAMES: %s -- ABORTING before dispatch"
+                  % ",".join(missing_names))
+            sweep.close()
+            runner.close()
+            return 8
     if a.order == "reverse":
         rest = list(reversed(rest))
     elif a.order == "shuffle":
