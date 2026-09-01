@@ -271,6 +271,17 @@ def build_cases(include_hazard=False):
                 "expect_match": True, "predicted_bucket": "measure",
                 "cmp_mode": mode,
             })
+    for mode in range(256):
+        if (mode & 3) != 2:
+            continue
+        for relation in ("lt", "gt", "eq", "sneg_lt", "sneg_gt",
+                         "flt", "fgt", "feq", "fnan"):
+            out.append({
+                "i": len(out), "name": f"c2b_mode{mode:02x}_{relation}",
+                "arm": "C2B", "kind": "isel10_cmp_mode_valid",
+                "relation": relation, "expect_match": True,
+                "predicted_bucket": "measure", "cmp_mode": mode,
+            })
     return out
 
 
@@ -278,7 +289,7 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] in ("C1", "C2"):
+    if case["arm"] in ("C1", "C2", "C2B"):
         ca, cb = prepare_relation(pg, case["relation"])
         emit_isel_r1(pg, dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
                      cond="lt", flags=0xC0, cc_value=case.get("cc_value"),

@@ -20,3 +20,6 @@
 - 2026-08-31: reverse P1 reproduces 32/32 canonical and 224/224 stale; D1 shows the same partition
   through a 16-instruction pre-consumer gap. AMENDMENT-06 bounds the load-accept mode; AMENDMENT-07
   freezes exhaustive condition and compare-mode discovery without another compiler consultation.
+- 2026-08-31: C2 was adaptively stopped after every finite mode had 2..9 samples: exactly
+  `(mode & 3) == 2` executes, with no mixed mode. AMENDMENT-08 freezes a 576-case valid-only C2B
+  completion rather than repeating hundreds of established contained faults.
