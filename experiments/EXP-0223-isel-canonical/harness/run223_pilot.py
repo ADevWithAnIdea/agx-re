@@ -485,7 +485,7 @@ def build_cases(include_hazard=False):
                       cc_value=7, sel_false_file=0, model_kind="slt")
             op[{"a": "cmp_a", "b": "cmp_b", "t": "sel_true", "f": "sel_false"}[role]] = reg
             v2_single(f"v2_cross_{role}_r{reg:02d}", op)
-    for dst in range(15):
+    for dst in range(16):
         v2_single(f"v2_dst_r{dst:02d}",
                   dict(dst=dst, cmp_a=16, cmp_b=17, sel_true=18, sel_false=19,
                        cond="lt", flags=0xC0, opsel=0, cmp_mode=0x02,

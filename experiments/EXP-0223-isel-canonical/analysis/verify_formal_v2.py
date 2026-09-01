@@ -73,14 +73,14 @@ def main():
     parser.add_argument("--decoder", type=Path,
                         default=REPO / "tools" / "agx-isa" / "isadb.py")
     parser.add_argument("--runs", nargs=2,
-                        help="two raw directory names; defaults to CAPTURE_CONTRACT_V3")
+                        help="two raw directory names; defaults to CAPTURE_CONTRACT_V4")
     args = parser.parse_args()
     isadb = load_decoder(args.decoder)
 
     if args.runs:
         run_paths = [args.raw / name for name in args.runs]
     else:
-        contract = json.loads((EXP / "CAPTURE_CONTRACT_V3.json").read_text())
+        contract = json.loads((EXP / "CAPTURE_CONTRACT_V4.json").read_text())
         run_paths = [args.raw / run["id"] for run in contract["runs"]]
     if any(not path.is_dir() for path in run_paths):
         raise SystemExit("missing formal run directory")
@@ -111,7 +111,11 @@ def main():
         if token_errors:
             failures.append("%s has %d corrected-tokenizer failures" %
                             (run_name, len(token_errors)))
-        if len(rows) != 211 or len(positives) != 209 or len(refuters) != 2:
+        expected_dst = {"v2_dst_r%02d" % dst for dst in range(16)}
+        actual_dst = {row["name"] for row in rows if row["name"].startswith("v2_dst_r")}
+        if actual_dst != expected_dst:
+            failures.append("%s has wrong destination-reach set" % run_name)
+        if len(rows) != 212 or len(positives) != 210 or len(refuters) != 2:
             failures.append("%s has wrong V2 cardinality" % run_name)
         if any(row["observed_bucket"] != "exact" for row in positives):
             failures.append("%s has a non-exact positive" % run_name)
