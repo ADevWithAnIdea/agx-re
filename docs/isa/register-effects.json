@@ -172,11 +172,11 @@
       "role": "sourceX",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 63, "status": "direct"},
+        {"first": 64, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "Not tested beyond r23.",
-      "evidence": ["EXP-0225"]
+      "outside_behavior": "The canonical eight-bit reg<<2 selector cannot represent r64+. Alternate forms remain unknown.",
+      "evidence": ["EXP-0225", "EXP-0233"]
     },
     {
       "id": "imad.12B.sourceY.b32",
@@ -185,11 +185,11 @@
       "role": "sourceY",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 31, "status": "direct"},
+        {"first": 32, "last": 95, "status": "unaddressable"}
       ],
-      "outside_behavior": "Not tested beyond r23.",
-      "evidence": ["EXP-0225"]
+      "outside_behavior": "The canonical eight-bit reg<<3 selector cannot represent r32+. Alternate forms remain unknown.",
+      "evidence": ["EXP-0225", "EXP-0233"]
     },
     {
       "id": "imad.12B.destination.b32",
@@ -198,11 +198,10 @@
       "role": "destination",
       "width": 32,
       "cells": [
-        {"first": 0, "last": 23, "status": "direct"},
-        {"first": 24, "last": 95, "status": "unknown"}
+        {"first": 0, "last": 95, "status": "direct"}
       ],
-      "outside_behavior": "Not tested beyond r23.",
-      "evidence": ["EXP-0225"]
+      "outside_behavior": "On G17P, r96 is the first invalid destination and raises a contained command-buffer fault; r127 also faults rather than wrapping.",
+      "evidence": ["EXP-0225", "EXP-0233"]
     },
     {
       "id": "isel10.source.b32",

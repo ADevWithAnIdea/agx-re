@@ -64,14 +64,15 @@ emitter can apply, not as prose descriptions of them.
 
 ## 0. The headline
 
-> **UPDATE 2026-09-01 — two former arithmetic/register blockers are now closed for a correctness-
+> **UPDATE 2026-09-01 — three former arithmetic/register blockers are now closed for a correctness-
 > first G17P back end.** EXP-0230 proves the bounded direct `n3_mov`; EXP-0231 proves an exact
 > r0..r95 → device scratch → r0..r95 transfer fallback. EXP-0232 independently generates the
 > canonical ten-byte b32 `iadd2` with source A r0..r31, source B r0..r63, and destination r0..r95.
 > It also corrects a target-provenance error: r95 is valid on G17P, r96 is the first invalid
-> destination, and r127 faults rather than wrapping. The older assessment below is retained as
-> historical context, but its move and b32-`iadd2` blocker statements are superseded by
-> §§3.6 and 8.
+> destination, and r127 faults rather than wrapping. EXP-0233 closes the canonical retained-source
+> low-32 IMAD/IMUL access class: X r0..r63, Y r0..r31, destination r0..r95, with the same measured
+> G17P first-invalid boundary. The older assessment below is retained as historical context, but its
+> move, b32-`iadd2`, and canonical low-32 `imad` blocker statements are superseded by §§3.6 and 8.
 >
 > **UPDATE 2026-08-30 — read this before the section below.** Two results have moved the answer in
 > opposite directions, and both post-date the assessment that follows.
@@ -974,7 +975,7 @@ The rest of the integer core, and what it blocks:
 | `falu3` / `falu3_ext` | `op`, `srcB`, `srcC` `untested` | **`nir_op_ffma`** — fused multiply-add must be lowered to two `falu2`s |
 | `icmp_pred` | `srcA`, `srcB` `untested`; `opclass` `corpus-correlation` | every integer/float comparison |
 | `isel8`/`isel10`/`isel10_c`/`isel_reg`/`isel_reg8`/`icmpsel` | `cmpA`, `cmpB`, `cmp_mode`, `selTrue`, `selFalse`, `cc`, `flags` | `nir_op_bcsel` in its native fused-compare-select form |
-| `imad` | `dst`, `srcB`, `srcC_lo`, `srcC_desc`, `mulsel` | `nir_op_imul`, `imad`, 64-bit multiply (which lowers to three `imad`s) |
+| `imad` | **canonical retained-source low-32 IMUL/IMAD closed** by EXP-0225/EXP-0233; alternate multiply-high, b64/pair, external-addend, and modifier forms remain | native low-32 `nir_op_imul`/`imad` available; wider lowerings still require their separate forms |
 | `ishift` | `srcA`, `opB` `untested` | `ishl`/`ishr`/`ushr` — though `shamt = n << 2` is confirmed 32/32 on hardware |
 | `ibfe` | `dst` `corpus-correlation`, `b5` `tokenization-only` | `ubfe`/`ibfe` — see §4.1 for the trap that survives even so |
 | `ibfins` | `dst`, `mask_imm`, `b6hi`, `b7`, `srcdesc`, `b10` | `bitfield_insert` |

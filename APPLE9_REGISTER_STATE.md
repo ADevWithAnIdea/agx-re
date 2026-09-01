@@ -30,7 +30,7 @@ Machine-readable source: `docs/isa/register-effects.json`. The generated 96-colu
 - `device_load` retains its index register. EXP-0231 distinguished this from release with a
   nonzero index and proved an adjacent device-store/device-load transfer across every GPR tier.
 
-Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, and EXP-0230 through EXP-0232.
+Primary evidence: EXP-0020, EXP-0174, EXP-0220 through EXP-0225, and EXP-0230 through EXP-0233.
 
 ## 2. Access classes established by direct G17P experiments
 
@@ -50,8 +50,9 @@ the observed alias/failure is stated. `Tested` is not extrapolated to the rest o
 | `iadd2.10B` first source, canonical register form | 32 | r0..r31 | r32..r95 cannot be named by the seven-bit `reg<<2` selector; alternate extension forms remain unknown | EXP-0222, EXP-0232 |
 | `iadd2.10B` second source, canonical register form | 32 | r0..r63 | r64..r95 cannot be named by the eight-bit `reg<<2` selector; alternate extension forms remain unknown | EXP-0222, EXP-0232 |
 | `iadd2.10B` destination, G17P | 32 | r0..r95 | r96 is the first invalid destination and faults; r127 also faults rather than wrapping. The G17P r95 result differs from inherited M4/G16G evidence | EXP-0222, EXP-0232 |
-| `imad.12B` X/Y source | 32 | r0..r23 tested | r24..r95 unknown | EXP-0225 |
-| `imad.12B` destination | 32 | r0..r23 tested | r24..r95 unknown | EXP-0225 |
+| `imad.12B` X source, canonical low-32 form | 32 | r0..r63 | r64..r95 cannot be named by the eight-bit `reg<<2` selector; alternate forms remain unknown | EXP-0225, EXP-0233 |
+| `imad.12B` Y source, canonical low-32 form | 32 | r0..r31 | r32..r95 cannot be named by the eight-bit `reg<<3` selector; alternate forms remain unknown | EXP-0225, EXP-0233 |
+| `imad.12B` destination, canonical low-32 G17P form | 32 | r0..r95 | r96 is the first invalid destination and faults; r127 also faults rather than wrapping | EXP-0225, EXP-0233 |
 | `isel10` compare A/B and true/false source | 32 | r0..r23 tested | r24..r95 unknown | EXP-0223 |
 | `isel10` destination | 32 | r0..r15 tested | r16..r95 unknown | EXP-0223 |
 | `device_load.14B` destination | 32 | r0..r95 | first out-of-file destination behavior is not yet cleanly closed for this form | EXP-0221, EXP-0230 |
@@ -121,9 +122,10 @@ behavior are Step 3 work.
 1. **Direct top-tier transfer capability:** the memory-mediated low↔mid↔high fallback is proved by
    EXP-0231. Continue looking for a direct GPR-only move involving r64..r95 so the hardware
    capability and performance alternative are known; do not treat the fallback as proof none exists.
-2. **Dense role reach:** the canonical b32 `iadd2` register form is closed. Finish r0..r95 matrices
-   for its alternate forms and for `imad`, `isel`, `falu3`, `fspecial`, logic, conversion, half,
-   compare, and every alternate/compressed form. Mixed results are not a range.
+2. **Dense role reach:** the canonical b32 `iadd2` register form and canonical low-32 `imad` form
+   are closed. Finish r0..r95 matrices for their alternate forms and for `isel`, `falu3`,
+   `fspecial`, logic, conversion, half, compare, and every alternate/compressed form. Mixed results
+   are not a range.
 3. **Low-tier exhaustion:** execute the maximum simultaneously live compact operands/results and
    the first over-capacity case while high GPRs remain unused.
 4. **Pairs and partial overlap:** close 64-bit pair alignment, odd-pair behavior, overlapping pair
