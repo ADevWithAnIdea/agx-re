@@ -60,7 +60,7 @@ def signed32(value):
 
 def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
                  opsel=0,
-                 cc_value=None, cmp_mode=0x02,
+                 cc_value=None, cmp_mode=0x02, sel_false_file=0,
                  model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
                  model_sel_false=None):
     pg.E.emit("isel10", {
@@ -73,7 +73,8 @@ def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
         "cc": fv((0x07 if cond == "lt" else 0x06) if cc_value is None else cc_value,
                  "R1 condition; AMENDMENT-07 C1 sweep"),
         "flags": fv(flags, "R1 flags byte; AMENDMENT-03 L1 sweep"),
-        "selFalse_file": fv(0, "R1 GPR false-source file"),
+        "selFalse_file": fv(sel_false_file,
+                            "R1 false-source control; AMENDMENT-10 S1 sweep"),
         "selFalse": fv(sel_false << 1, "R1 false-value descriptor"),
     })
     pg._pending = None
@@ -312,6 +313,17 @@ def build_cases(include_hazard=False):
                 "cc_value": 0, "expect_match": True,
                 "predicted_bucket": "measure",
             })
+    for false_file in range(256):
+        for direction, ca, cb in (("true", 1, 2), ("false", 2, 1)):
+            out.append({
+                "i": len(out),
+                "name": f"s1_ff{false_file:02x}_{direction}",
+                "arm": "S1", "kind": "isel10_false_file",
+                "expect_match": True, "predicted_bucket": "measure",
+                "op_r1": dict(dst=0, cmp_a=ca, cmp_b=cb, sel_true=3,
+                              sel_false=4, cond="lt", flags=0xC0, opsel=0,
+                              cmp_mode=0x02, sel_false_file=false_file),
+            })
     for mode in range(256):
         if (mode & 3) != 2:
             continue
@@ -342,7 +354,7 @@ def build_program_for(case, slots, carrier_len):
         for n in range(case.get("delay", 0)):
             pg.movi(14, 75 + (n & 3))
         emit_isel_r1(pg, **case["op_r1"])
-    elif case["arm"] in ("H4", "L1"):
+    elif case["arm"] in ("H4", "L1", "S1"):
         emit_isel_r1(pg, **case["op_r1"])
     else:
         emit_isel(pg, **case["op"])

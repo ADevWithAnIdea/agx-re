@@ -26,3 +26,5 @@
 - 2026-08-31: C2B closes integer strict/equality compare points and maps alternate true-source
   classes. AMENDMENT-09 explicitly rejects C2's inadequate positive-float discriminator and freezes
   an all-opsel negative-float/signed-zero attempt before any further compiler consultation.
+- 2026-08-31: F1 proves float GT/LT/EQ with negative, signed-zero, and NaN discriminators and maps
+  compare-source releases in `opsel`. AMENDMENT-10 freezes a dense false-descriptor high-byte sweep.
