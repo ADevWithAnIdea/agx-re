@@ -59,13 +59,14 @@ def signed32(value):
 
 
 def emit_isel_r1(pg, dst, cmp_a, cmp_b, sel_true, sel_false, cond, flags=0xC0,
+                 opsel=0,
                  cc_value=None, cmp_mode=0x02,
                  model_cmp_a=None, model_cmp_b=None, model_sel_true=None,
                  model_sel_false=None):
     pg.E.emit("isel10", {
         "dst": fv(dst, "R1 destination GPR"),
         "cmpA": fv((cmp_a << 1) | 1, "R1 compare-A descriptor"),
-        "opsel": fv(0, "R1 ten-byte member"),
+        "opsel": fv(opsel, "R1 member; AMENDMENT-09 F1 sweep"),
         "cmpB": fv((cmp_b << 1) | 1, "R1 compare-B descriptor"),
         "cmp_mode": fv(cmp_mode, "R1 compare mode; AMENDMENT-07 C2 sweep"),
         "selTrue": fv(sel_true << 1, "R1 true-value descriptor"),
@@ -147,6 +148,26 @@ def prepare_relation(pg, relation):
     if relation == "fnan":
         pg.load_f(1, 522)
         pg.load_f(2, 514)
+        return 1, 2
+    if relation == "fpos_lt":
+        pg.load_f(1, 514)
+        pg.load_f(2, 516)
+        return 1, 2
+    if relation == "fneg_lt":
+        pg.load_f(1, 517)
+        pg.load_f(2, 515)
+        return 1, 2
+    if relation == "fneg_gt":
+        pg.load_f(1, 515)
+        pg.load_f(2, 517)
+        return 1, 2
+    if relation == "fzero":
+        pg.load_f(1, 513)
+        pg.load_f(2, 512)
+        return 1, 2
+    if relation == "fneq":
+        pg.load_f(1, 514)
+        pg.load_f(2, 516)
         return 1, 2
     raise ValueError(relation)
 
@@ -271,6 +292,26 @@ def build_cases(include_hazard=False):
                 "expect_match": True, "predicted_bucket": "measure",
                 "cmp_mode": mode,
             })
+    for opsel in range(32):
+        for cc in (2, 3):
+            for relation in ("fpos_lt", "fneg_lt", "fneg_gt", "fzero", "fnan"):
+                out.append({
+                    "i": len(out),
+                    "name": f"f1_op{opsel:02x}_cc{cc}_{relation}",
+                    "arm": "F1", "kind": "isel10_float_opsel",
+                    "relation": relation, "opsel": opsel, "cmp_mode": 0x02,
+                    "cc_value": cc, "expect_match": True,
+                    "predicted_bucket": "measure",
+                })
+        for relation in ("feq", "fneq", "fzero", "fnan"):
+            out.append({
+                "i": len(out),
+                "name": f"f1_op{opsel:02x}_eq_{relation}",
+                "arm": "F1", "kind": "isel10_float_eq_opsel",
+                "relation": relation, "opsel": opsel, "cmp_mode": 0x06,
+                "cc_value": 0, "expect_match": True,
+                "predicted_bucket": "measure",
+            })
     for mode in range(256):
         if (mode & 3) != 2:
             continue
@@ -289,11 +330,12 @@ def build_program_for(case, slots, carrier_len):
     if case["arm"] == "S0":
         return ORIG_BUILD(case, slots, carrier_len)
     pg = fresh(case, slots)
-    if case["arm"] in ("C1", "C2", "C2B"):
+    if case["arm"] in ("C1", "C2", "C2B", "F1"):
         ca, cb = prepare_relation(pg, case["relation"])
         emit_isel_r1(pg, dst=0, cmp_a=ca, cmp_b=cb, sel_true=3, sel_false=4,
                      cond="lt", flags=0xC0, cc_value=case.get("cc_value"),
-                     cmp_mode=case.get("cmp_mode", 0x02))
+                     cmp_mode=case.get("cmp_mode", 0x02),
+                     opsel=case.get("opsel", 0))
     elif case["arm"] in ("P1", "D1"):
         for reg, word in case["loads"]:
             pg.load_i(reg, word, salt=f"{case['name']}.load_r{reg}")

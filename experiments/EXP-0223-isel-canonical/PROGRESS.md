@@ -23,3 +23,6 @@
 - 2026-08-31: C2 was adaptively stopped after every finite mode had 2..9 samples: exactly
   `(mode & 3) == 2` executes, with no mixed mode. AMENDMENT-08 freezes a 576-case valid-only C2B
   completion rather than repeating hundreds of established contained faults.
+- 2026-08-31: C2B closes integer strict/equality compare points and maps alternate true-source
+  classes. AMENDMENT-09 explicitly rejects C2's inadequate positive-float discriminator and freezes
+  an all-opsel negative-float/signed-zero attempt before any further compiler consultation.
