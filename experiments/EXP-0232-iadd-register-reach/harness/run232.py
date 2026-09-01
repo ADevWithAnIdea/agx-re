@@ -93,6 +93,20 @@ def build_cases(include_hazard=False):
                 "oracle_mode": "exact", "expected_status": expected_status,
                 "hazard": expected_status != "exact",
             })
+        for name, reg, expected_status in (
+                ("h2_ctl_pre96", 95, "exact"),
+                ("h2_d96", 96, "fault"),
+                ("h2_ctl_mid96", 95, "exact"),
+                ("h2_d127", 127, "fault"),
+                ("h2_ctl_post127", 95, "exact")):
+            out.append({
+                "i": len(out), "name": name, "arm": "H2",
+                "kind": "iadd_reach", "role": "destination",
+                "register": reg, "expect_match": expected_status == "exact",
+                "predicted_bucket": "exact" if expected_status == "exact" else "corrupt",
+                "oracle_mode": "exact", "expected_status": expected_status,
+                "hazard": expected_status != "exact",
+            })
     return out
 
 
