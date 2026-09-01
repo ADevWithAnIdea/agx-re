@@ -1,8 +1,8 @@
 {
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
- "generated": "2026-08-28",
- "db_sha256": "90166d9605eef649dc6fa27bf4d2f8610b92b666f285bec1521372277ff2f267",
+ "generated": "2026-09-01",
+ "db_sha256": "a1a32d360240545e4a6dc6e1b94b287efd7fb5a3f7ba7950e74c0090ea26b62d",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -13,27 +13,27 @@
   "emittable": "an instruction qualifies only if EVERY field in its db.json descriptor is hardware-run or isolated-byte-diff (docs/evidence-classification.md section 2, the emittable rule). Field-less descriptors qualify only if the instruction itself is hardware-run / isolated-byte-diff."
  },
  "coverage": {
-  "total_instructions": 172,
-  "total_fields": 1053,
+  "total_instructions": 176,
+  "total_fields": 1068,
   "by_label": {
    "hardware-run": 492,
    "isolated-byte-diff": 68,
    "corpus-correlation": 75,
-   "tokenization-only": 133,
+   "tokenization-only": 148,
    "single-template-inference": 29,
    "api-accept-reject": 0,
    "host-private": 0,
    "untested": 256
   },
   "by_label_pct": {
-   "hardware-run": 46.7,
-   "isolated-byte-diff": 6.5,
-   "corpus-correlation": 7.1,
-   "tokenization-only": 12.6,
-   "single-template-inference": 2.8,
+   "hardware-run": 46.1,
+   "isolated-byte-diff": 6.4,
+   "corpus-correlation": 7.0,
+   "tokenization-only": 13.9,
+   "single-template-inference": 2.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.3
+   "untested": 24.0
   },
   "emittable_instructions": 37,
   "emittable_mnemonics": [
@@ -75,7 +75,7 @@
    "sr_read_wide",
    "uniform_mov"
   ],
-  "decodable_not_yet_emittable": 135,
+  "decodable_not_yet_emittable": 139,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -85,7 +85,7 @@
    "operand_word_x2_h7",
    "pad_operand"
   ],
-  "emitter_relevant_instructions": 166,
+  "emitter_relevant_instructions": 170,
   "emittable_of_emitter_relevant": 37
  },
  "instructions": {
@@ -35702,6 +35702,82 @@
      "no_raw_statement": "NO per-case dispatched raw found for this field. Searched: K1 exact (instr,field) jsonl; K2 `field: null` byte sweeps intersected with this field's db.json byte span [8..9]; K3 dotted `mnem.field`; K4 leading-underscore control/falsifier records; K5 instruction-only framing records; K6 composite names (`a|b|c`, `a+b`, `x@bytemate`, `x+match[..]=v`); K7 byte-position names (`byte+N`, `bN`) and record-carried `byte`/`byte_index`; K8 record-carried `start`/`width` bit-span overlap (recovers legacy names such as `fmt_word`, `dst_pair`); K9 name containment (`dst_desc` -> `dst_desc_lo`); non-jsonl .json structural (op,field) records; non-jsonl .txt/.log/.md textual co-occurrence; and the EXP-M4-14 root-evidence-json prose records. Non-jsonl structural hits: 0 (all in derived audit outputs unless named above); textual co-occurrence hits: 0; instruction-only framing records: 204; sibling-descriptor records: 0.",
      "source": "EXP-0208 desk reclassification (\u00a710.2) \u2014 derived from ALREADY-COMMITTED raw, no new device time. NOT a promotion: the legacy `label` is unchanged."
     }
+   }
+  },
+  "icmp_pred_ext10": {
+   "_instruction": {
+    "label": "tokenization-only",
+    "range": "exact generated prefix 2a 00 2b c0 06 00; direct ten-byte enclosing span",
+    "target": "G17P",
+    "evidence": ["EXP-0200-cfrt-word-instruction-hw"],
+    "note": "Consumed length is hardware-measured. Operation and tail semantics are deliberately deferred."
+   },
+   "tail": {
+    "label": "tokenization-only",
+    "range": "32-bit residue consumed inside the measured ten-byte span; values not semantically swept",
+    "target": "G17P",
+    "evidence": ["EXP-0200-cfrt-word-instruction-hw"]
+   }
+  },
+  "simd_shuffle_ext12": {
+   "_instruction": {
+    "label": "tokenization-only",
+    "range": "mode 0x06, both directions and both observed byte+9 bit-7 classes; two opposite-order formal runs",
+    "target": "G17P",
+    "evidence": ["EXP-0229-simd-length"],
+    "note": "Twelve-byte framing is closed. Operand semantics are inherited only where separately established; the final two bytes remain semantically open."
+   },
+   "dir": {"label": "tokenization-only", "range": "both encoded values in the length matrix", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "cache": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "dst": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "src": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "srctype": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "lane": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "rtype": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "dsthi": {"label": "tokenization-only", "range": "framing witness value only", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "rsv9": {"label": "tokenization-only", "range": "both observed bit-7 classes; no semantic claim", "target": "G17P", "evidence": ["EXP-0229-simd-length"]},
+   "extra": {"label": "tokenization-only", "range": "the full final two-byte span is consumed; values not semantically swept", "target": "G17P", "evidence": ["EXP-0229-simd-length"]}
+  },
+  "half_alu_ext10": {
+   "_instruction": {
+    "label": "tokenization-only",
+    "range": "all 32 opsel-by-length-selector cells measured; this row represents the ten-byte cells",
+    "target": "G17P",
+    "evidence": ["EXP-0180-g17p-halfalu-rerecord", "EXP-0183"],
+    "note": "Length-only descriptor. Field splitting follows in the semantic instruction-family step."
+   },
+   "dst": {
+    "label": "tokenization-only",
+    "range": "destination nibble represented for framing; destination semantics are recorded on sibling half descriptors",
+    "target": "G17P",
+    "evidence": ["EXP-0180-g17p-halfalu-rerecord", "EXP-0183"]
+   },
+   "body": {
+    "label": "tokenization-only",
+    "range": "72-bit body consumed by the ten-byte form; no unified semantic field is claimed",
+    "target": "G17P",
+    "evidence": ["EXP-0180-g17p-halfalu-rerecord", "EXP-0183"]
+   }
+  },
+  "op04_hw12": {
+   "_instruction": {
+    "label": "tokenization-only",
+    "range": "six own-G17P compiler prefixes, each directly measured as twelve bytes",
+    "target": "G17P",
+    "evidence": ["EXP-0157-g17p-emit-misc"],
+    "note": "Exact-prefix framing record only. The broad op04 semantic family remains unclassified and this descriptor is emit_unsafe."
+   },
+   "prefix_body": {
+    "label": "tokenization-only",
+    "range": "six exact eight-byte compiler prefixes; no coherent semantic field is claimed",
+    "target": "G17P",
+    "evidence": ["EXP-0157-g17p-emit-misc"]
+   },
+   "tail": {
+    "label": "tokenization-only",
+    "range": "four bytes directly proven to remain inside the twelve-byte span; semantics not classified",
+    "target": "G17P",
+    "evidence": ["EXP-0157-g17p-emit-misc"]
    }
   },
   "frag_sample_submit": {

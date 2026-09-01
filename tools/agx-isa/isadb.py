@@ -1221,19 +1221,22 @@ def _r9_succ_safe(buf, q):
         return True
     return _r9_named_at(buf, q, L)
 
-def _half_len_agreed(b2, b4):
-    """EXP-0182: True iff the committed corpus-anchored native-half length formula and
-    EXP-0180's G17P-measured table give the SAME length for this (byte+2, byte+4) pair.
+def _half_len_hw(b2, b4):
+    """G17P native-half length measured by EXP-0180's 4,096-case marker scan.
 
-    Committed formula (EXP-M4-10 / EXP-0148, corpus-anchored):
-        (6 + 2m) if (byte+2 & 2) and m else 8 if (byte+2 & 2) else 6 + 2m,   m = byte+4 & 3
-    Measured (EXP-0180, G17P, 4,096 cases, two gated runs, zero ambiguous cells):
-        experiments/EXP-0180-g17p-halfalu-rerecord/analysis/length_rule.json
-    They agree in 14 of 32 cells; only the nine listed here are op-selects the hardware
-    validated as arithmetic (4 hadd / 5 hmul / 6 hfma). Used to bound the DEF-0180-7
-    destination generalisation so it never asserts a refuted length."""
+    This is the silicon result, not the older M4 corpus-resynchronisation formula.
+    Return None only for an impossible low-three-bit selector (kept for callers which
+    may later narrow the recognised semantic opcode set)."""
     o, m = b2 & 0x07, b4 & 0x03
-    return (o in (0x04, 0x05) and m in (0, 1, 2)) or (o == 0x06 and m in (1, 2, 3))
+    if o in (0, 1, 2, 3, 7):
+        return (10, 10, 10, 8)[m]
+    if o == 4:                         # hadd
+        return (6, 8, 10, 6)[m]
+    if o == 5:                         # hmul
+        return (6, 8, 10, 8)[m]
+    if o == 6:                         # hfma
+        return (6, 8, 10, 12)[m]
+    return None
 
 def _n1_len(buf, off):
     """EXP-0182: length of the LOW-NIBBLE-1 group (single-source CONVERT + NATIVE
@@ -1349,6 +1352,31 @@ def instr_length(buf, off=0):
     # Every gate is anchored by an isolated OWN-SHADER compile (S1 evidence table).
     _b1 = buf[off + 1] if off + 1 < len(buf) else -1
     _b2 = buf[off + 2] if off + 2 < len(buf) else -1
+    # ---- native-half framing, G17P direct (EXP-0180) ---------------------------
+    # The low nibble is the family and byte0's high nibble is the destination.
+    # This must precede the 0x00/0x20/0x60 corpus-word fallbacks: those old
+    # resynchronisation rules otherwise shadow genuine half ALU writes to r0/r2/r6.
+    # Texture sampler leaders overlap at 0x30/0x90/0xb0, but their byte+2 values are
+    # disjoint from the currently named half arithmetic op-select bytes.
+    _half_texture_b2 = {
+        0x00, 0x04, 0x07, 0x09, 0x13, 0x17, 0x1b, 0x20, 0x21,
+        0x29, 0x39, 0x53, 0x79, 0x80, 0x97,
+    }
+    if (b0 & 0x0f) == 0x00 and off + 4 < len(buf) \
+            and (_b2 & 0x07) in (4, 5, 6) \
+            and not (b0 in (0x30, 0x90, 0xb0) and _b2 in _half_texture_b2):
+        return _half_len_hw(_b2, buf[off + 4])
+    # EXP-0200's stop scan proved this exact G17P form occupies [start,start+10).
+    # It is a local 10-byte sibling of the ordinary six-byte icmp_pred form.
+    if off + 9 < len(buf) and bytes(buf[off:off + 6]) == bytes.fromhex("2a002bc00600"):
+        return 10
+    # EXP-0161 executed canonical carry-generate forms with source selectors that
+    # collide with the older R9 corpus trailing-word table.  byte+2 == 0x35 is the
+    # canonical carry opcode, so it must win before that heuristic.  Keep this
+    # narrower than the complete accepted byte+2 mask until the semantic step
+    # classifies those aliases.
+    if lo == 0x02 and _b2 == 0x35:
+        return 6
     # EXP-0223 AMENDMENT-12/13: exact generated, HW-executed ten-byte
     # compare/select grammar.  This must precede the R9 trailing-word lookup:
     # that corpus table contains prefixes which V2 proved are real instruction
@@ -1529,6 +1557,18 @@ def instr_length(buf, off=0):
     if b0 == 0x04 and _b2 == 0x20 and off + 3 < len(buf) and buf[off + 3] == 0x80:
         return 4                       # n4_rt_word: `04 <d> 20 80` RT-query compact op. byte+3==0x80
                                        # distinguishes it from fragment reads (byte+3==0x00).
+    # EXP-0157 measured these six prefixes from our own G17P compiles directly.
+    # All consume twelve bytes. Keep this exact, evidence-bounded precedence rule;
+    # the broad eight-byte fallback below is only a legacy corpus-resync heuristic.
+    if off + 7 < len(buf) and bytes(buf[off:off + 8]) in {
+            bytes.fromhex("0402008000008240"),
+            bytes.fromhex("0442a22a4f808634"),
+            bytes.fromhex("040200800000c24a"),
+            bytes.fromhex("0442922c0f808612"),
+            bytes.fromhex("0442922c0f80060c"),
+            bytes.fromhex("04429b132f6b0002"),
+    }:
+        return 12
     # byte0==0x04 8-byte RESIDUE (op04_len8): the low-nibble-4 datapath fallback after
     # get_sr / sr_read_wide / rt_intersect / mesh_out_src / n4_cf_word / n4_rt_word.
     # NB (EXP-M4-14 splice+audit): NOT a fragment-position read ([[position]]/[[front_facing]]
@@ -1619,10 +1659,13 @@ def instr_length(buf, off=0):
                                        # `27 00 54 .. f0 13 01 00` is a 12-byte ibfe. The fragment
                                        # derivative (dfdx/dfdy) is byte+2==0x54 and stays 10 below.
         return 10                      # derivative / quad-difference (dfdx/dfdy); EXP-0016
-    # SIMD/quad shuffle & broadcast: byte0 0x47 (broadcast / up) / 0xc7 (xor / down),
-    # 10 bytes (EXP-0018 HW-validated semantics).
+    # SIMD/quad shuffle & broadcast: byte0 0x47 (broadcast / up) / 0xc7 (xor / down).
+    # EXP-0229 measured every currently named mode in two quiet opposite-order
+    # G17P runs: mode byte 0x06 consumes 12 bytes; modes
+    # {0,1,4,5,8,16,20,21} consume 10.  This corrects the old interpretation of
+    # the mode-6 tail (`02 00` / `03 00`) as a separate compact instruction.
     if b0 in (0x47, 0xc7):
-        return 10                      # simd/quad shuffle / broadcast
+        return 12 if _b1 == 0x06 else 10
     # ---- byte0 0x17: three length-distinct ops, disambiguated by byte+1 (EXP-M4-12) ----
     # The old flat `-> 10` was correct only for compute simd_ballot; it mis-lengthed the
     # fragment unpack_convert (should be 8) and the texture coordinate-projection setup
@@ -1788,8 +1831,10 @@ def instr_length(buf, off=0):
             return 4                   # RAY register-marshalling MOVE (ray_move family, EXP-O2C / nb_ray):
                                        # 0x81 copy / 0x80 zero-init (bit7 class) + 0x41 copy / 0x40 zero
                                        # (bit6 class). Reused for MPP matmul2d TRANSPOSE tile moves.
-        if b2 == 0x09 and b3 == 0x00:
-            return 4                   # rtq_state_move (intersection-query state read, nb_ray).
+        if (b2 & 0x0f) == 0x09:
+            return 4                   # reg_move_c9 / preload-slot move. EXP-0113 executed
+                                       # the `2b 00 09 c0` form in two runs; the prior
+                                       # b3 gate left that proven form without a length.
         if b1 == 0x00 and b2 == 0x06:
             return 8                   # tg_atomic_prep: threadgroup-atomic RMW descriptor prep (8B).
         if (b2 & 0x0f) in (0x00, 0x01, 0x09) and b3 in (0x00, 0x08):
@@ -2017,39 +2062,21 @@ def instr_length(buf, off=0):
                                        # the old rule dropped it to the 8-byte else-branch and exposed the
                                        # tail `f0 11 01 00` as a spurious 0xf0 undecoded group.
         return 8                       # integer unary (popcount / reduce)
-    # ---- native-half (fp16) float ALU (byte0 0x10, EXP-0033) ----
-    # The 16-bit-destination sibling of the 0x09 float ALU (half/half2 arithmetic);
-    # same length bit (byte+2 bit1) as 0x09/0x11.
+    # ---- native-half (fp16) float ALU (low nibble 0, EXP-0180) ----
+    # byte0's high nibble is the destination.  The early rule above handles every
+    # currently named arithmetic selector before corpus-word and texture shadows;
+    # this fallback retains measured framing for the remaining G17P selector cells.
     _n0_half = (b0 == 0x10)
     if not _n0_half and (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \
-            and off + 4 < len(buf) and _half_len_agreed(buf[off + 2], buf[off + 4]):
-        # EXP-0182 (DEF-0180-7, HW-VALIDATED on G17P by EXP-0180): byte0's HIGH NIBBLE is
-        # the DESTINATION register of this family. EXP-0180's DSTNIB arm ran byte0 = n<<4
-        # for every n = 0..15 on two carriers in two gated runs and the result landed in
-        # r[n]'s low 16 bits with r[n]'s high 16 bits preserved, 16 of 16. The old FULL-BYTE
-        # gate `if b0 == 0x10` lengthed only dst r1, so fifteen of sixteen destinations did
-        # not tokenize at all and every corpus census over this family under-counts by
-        # construction. This function's own docstring records the identical bug being found
-        # and fixed for the 0x09 float family -- "using the full byte mis-tokenizes any
-        # falu2 whose dst register is >= 1" -- and it was never applied here.
-        #
-        # TWO LIMITS, both deliberate and both measured (EXP-0182):
-        # (1) `_half_len_agreed` restricts the generalisation to the nine (op-select,
-        #     byte+4 & 3) cells where the committed corpus-anchored formula below and
-        #     EXP-0180's G17P measurement AGREE. They disagree in 18 of 32 cells, and
-        #     adopting the measured rule wholesale costs 17 clean corpus files and 3,220
-        #     leftover bytes (EXP-0182 candidate `n0m`), so neither rule may be extended to
-        #     new destinations on its own authority.
-        # (2) 0x30 / 0x90 / 0xb0 are excluded: they are the texture SAMPLER leaders, and
-        #     byte0 alone cannot separate a sampler op from a half ALU writing r3/r9/r11.
-        #     Those three destinations remain UNKNOWN -- a real, bounded residue.
-        #
-        # DECODE IS STILL BLOCKED, and not by this file: db.json gives `half_alu`,
-        # `half_alu_ext8` and `half_alu_fma12` the match `[[0, 8, 16]]`, pinning the FULL
-        # byte0, so `decode_one` finds no descriptor at any destination but r1 even when the
-        # length is right (DEF-0180-1; db.json is the orchestrator's file).
+            and off + 4 < len(buf) and _half_len_hw(buf[off + 2], buf[off + 4]) is not None:
+        # Texture sampler leaders at 0x30/0x90/0xb0 retain their more-specific rules.
+        # The arithmetic destination geometry and table were directly measured on
+        # G17P; descriptor matches were separately relaxed to the destination nibble.
         _n0_half = True
     if _n0_half:
+        measured = _half_len_hw(buf[off + 2], buf[off + 4])
+        if measured is not None:
+            return measured
         if buf[off + 2] in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):
             return 4                   # EXP-0148 H2-narrow: fp16 sibling of falu_compact4.
         if buf[off + 2] & 0x02:
@@ -2347,12 +2374,12 @@ def instr_length(buf, off=0):
         # RT-1a-FIX HW: exact `60 00 00 00` form is 4B (byte+3 live). EXP-M4-01.
         # EXP-0041: absent from nine M4 own mains, including 208--576 B scratch;
         # the historical spill_frame_marker name is not a universal semantic rule.
-        # round-3: the `60 00 <nonzero>` form is a 2-byte compact frame/scope marker that
-        # PRECEDES a threadgroup-atomic store (`60 00` + `e7 02 54..` in k_atomics_tg@26, which
-        # matches the bare `e7 02 54..` threadgroup store in the isolated tg_store) or a divergent
-        # control-flow block (`60 00` + `1b 00 00 00` in k_atomics@362). Both resync 8 clean ops
-        # (lenprobe). Gate on byte+2: ==0x00 keeps the spill marker at 4.
-        return 4 if (off + 2 < len(buf) and buf[off + 2] == 0x00) else 2
+        # EXP-0199 insertion probes refuted the two-byte reading: `60 XX`
+        # failed at every tested boundary while `60 XX 00 00` preserved both
+        # straight-line carriers. A byte outside a claimed two-byte instruction
+        # cannot select that instruction's length. Corpus fit does not override
+        # the direct consumed-length measurement.
+        return 4
     # ---- u64 CARRY-GENERATE (byte0 0x32, EXP-0038) ---------------------------
     # Unsigned-overflow compare (integer compare/min-max family, base 0x02|0x30;
     # byte+2==0x35, byte+4==0x22) detecting the carry-out of the low-word add in a
@@ -2360,18 +2387,13 @@ def instr_length(buf, off=0):
     # word. 6 bytes. HW+splice-validated.
     if b0 == 0x32:
         return 6                       # carry_gen (EXP-0038 HW)
-    # ---- HALF-LANE PACK (byte0 0x18, EXP-0038) -------------------------------
-    # Assembles the two fp16 lanes of a half2 (native-half 0x10 ALU result) into one
-    # packed 32-bit register before the device store. `18 05 18 03`. 4 bytes. byte0
-    # high nibble = dst reg nibble (0x08/0x18/0x28/0x38 = dst r0..r3). HW round-trip
-    # proven. GATED on the validated compute shape (byte+1==0x05, byte+2 = half_alu
-    # result reg with high-nibble 1) so it never mis-lengths the 6-byte high-register
-    # sibling form (byte+2==0x24, a documented follow-up) NOR spuriously names operand
-    # bytes reached via census resync (`18 05 e7 00` etc.). EXP-0039 regression-tested:
-    # blanket 0x18->4 named operand bytes as half_pack and dropped k_cvt_half 78->76.
-    if (b0 == 0x18 and off + 2 < len(buf)
-            and buf[off + 1] == 0x05 and (buf[off + 2] & 0xf8) == 0x18):
-        return 4                       # half_pack (EXP-0038 HW; shape-gated EXP-0039)
+    # ---- native-half HIGH-lane compact ALU (low nibble 8, EXP-0203) ----------
+    # This is the four-byte high-lane sibling with opflags byte+2 == 0x18.
+    # EXP-0160/0203 prove that byte+1 and byte+3 are operands, not length gates,
+    # and EXP-0203 directly executes destination nibbles 1 and 7.  Keep byte+2 as
+    # the local discriminator from the longer high-half arithmetic members below.
+    if (b0 & 0x0f) == 0x08 and _b2 == 0x18:
+        return 4                       # historical mnemonic half_pack
     # ---- COMPACT half move/pack `18 00` (byte0 0x18, byte+1==0x00), 2 bytes -------
     # EXP-M4-01: a 2-byte compact half move that immediately follows every `27 04`
     # convert in the software texture-coordinate address path (k_tex_atomic @264/@736,
@@ -2656,6 +2678,12 @@ def assemble(mnemonic, fields):
     (or defaulted to its match/const bits)."""
     if mnemonic not in _BY_MNEM:
         raise KeyError(f"unknown mnemonic {mnemonic!r}")
+    if mnemonic in ("frame_marker_compact", "op04_len8", "falu_srcmod12b"):
+        raise ValueError(f"{mnemonic} is a decode/framing record, not a canonical "
+                         "emission recipe; semantic closure is still required")
+    if mnemonic == "simd_shuffle" and fields.get("mode", 0) == 0x06:
+        raise ValueError("simd_shuffle mode 0x06 is the 12-byte "
+                         "simd_shuffle_ext12 form (EXP-0229)")
     desc = _BY_MNEM[mnemonic]
     length = desc["length"]
     v = 0

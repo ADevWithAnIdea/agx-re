@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "scope": "Canonical G17P framing witnesses and direct-hardware corrections used by Step 1.",
+  "cases": [
+    {"id": "stop", "hex": "0e000000", "length": 4, "mnemonic": "stop", "evidence": "EXP-0001"},
+    {"id": "mov_imm", "hex": "0c20", "length": 2, "mnemonic": "mov_imm", "evidence": "EXP-0031"},
+    {"id": "get_sr", "hex": "54821466", "length": 4, "mnemonic": "get_sr", "evidence": "EXP-0031"},
+
+    {"id": "falu_compact_selector0", "hex": "69010005", "length": 4, "mnemonic": "falu_compact4", "evidence": "EXP-0228"},
+    {"id": "falu_compact_selector1", "hex": "69010105", "length": 4, "mnemonic": "falu_compact4", "evidence": "EXP-0228"},
+    {"id": "falu_normal6", "hex": "09051c0100c0", "length": 6, "mnemonic": "falu2", "evidence": "EXP-0005"},
+    {"id": "falu_fma8", "hex": "09011e05810802c0", "length": 8, "mnemonic": "falu3", "evidence": "EXP-0005"},
+    {"id": "falu_extended10", "hex": "09011e05820802000082", "length": 10, "evidence": "EXP-M4-10"},
+    {"id": "falu_extended12", "hex": "09011e058308020000800100", "length": 12, "evidence": "EXP-M4-10"},
+
+    {"id": "half_hadd_m0", "hex": "10031c0500c0", "length": 6, "mnemonic": "half_alu", "evidence": "EXP-0180"},
+    {"id": "half_hadd_m1", "hex": "10031c0501c00000", "length": 8, "mnemonic": "half_alu_ext8", "evidence": "EXP-0180"},
+    {"id": "half_hadd_m2", "hex": "10031c0502c000000000", "length": 10, "mnemonic": "half_alu_ext10", "evidence": "EXP-0180"},
+    {"id": "half_hadd_m3", "hex": "10031c0503c0", "length": 6, "mnemonic": "half_alu", "evidence": "EXP-0180"},
+    {"id": "half_hmul_m3", "hex": "10031d0503c00000", "length": 8, "mnemonic": "half_alu_ext8", "evidence": "EXP-0180"},
+    {"id": "half_hfma_m3", "hex": "10031e0503c0000000000000", "length": 12, "mnemonic": "half_alu_fma12", "evidence": "EXP-0180"},
+    {"id": "half_high_compact_dst7", "hex": "780d1811", "length": 4, "mnemonic": "half_pack", "evidence": "EXP-0203"},
+
+    {"id": "icmp_pred6", "hex": "0a0122821422", "length": 6, "mnemonic": "icmp_pred", "evidence": "EXP-0010"},
+    {"id": "icmp_pred_ext10", "hex": "2a002bc0060006c20000", "length": 10, "mnemonic": "icmp_pred_ext10", "evidence": "EXP-0200"},
+    {"id": "carry_gen_r9_shadow", "hex": "320035032281", "length": 6, "mnemonic": "carry_gen", "evidence": "EXP-0161"},
+    {"id": "reg_move_c9", "hex": "2b0009c0", "length": 4, "mnemonic": "reg_move_c9", "evidence": "EXP-0113"},
+
+    {"id": "mesh_source_canonical", "hex": "0400e702", "length": 2, "mnemonic": "mesh_out_src", "evidence": "EXP-M4-13 and EXP-0157"},
+    {"id": "op04_compiler_prefix_0", "hex": "04020080000082400c010c02", "length": 12, "mnemonic": "op04_hw12", "roundtrip": false, "evidence": "EXP-0157"},
+    {"id": "op04_compiler_prefix_1", "hex": "0442a22a4f80863400000000", "length": 12, "mnemonic": "op04_hw12", "roundtrip": false, "evidence": "EXP-0157"},
+    {"id": "frame_word4", "hex": "6000e702", "length": 4, "mnemonic": "spill_frame_marker", "evidence": "EXP-0199"},
+
+    {"id": "simd_shuffle_normal10", "hex": "470456000200002c0400", "length": 10, "mnemonic": "simd_shuffle", "evidence": "EXP-0229"},
+    {"id": "simd_shuffle_mode6_12", "hex": "c70656000200020014a20200", "length": 12, "mnemonic": "simd_shuffle_ext12", "evidence": "EXP-0229"},
+
+    {"id": "device_load14", "hex": "6710540000012000510100404600", "length": 14, "mnemonic": "device_load", "evidence": "EXP-0012"},
+    {"id": "fragment_tile_load12", "hex": "670e5404000001ce02000000", "length": 12, "mnemonic": "tile_read", "evidence": "EXP-0029"},
+    {"id": "matrix_mac12", "hex": "cf02560200040809d4432401", "length": 12, "mnemonic": "matrix_mac", "evidence": "EXP-0022"},
+    {"id": "jump10", "hex": "0f0054d4ffffffffff00", "length": 10, "mnemonic": "jump", "evidence": "EXP-0010"},
+    {"id": "direct_call14", "hex": "0f05541a8f105454ffffffffff00", "length": 14, "mnemonic": "call", "evidence": "EXP-0035"}
+  ]
+}

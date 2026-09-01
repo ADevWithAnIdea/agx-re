@@ -212,22 +212,23 @@ Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
 > decode, which makes round-trip a **non-local** test: a change here can break a file whose own
 > instructions you never touched.
 
-Parcels are 2 bytes. **Unlike G13, the *first* parcel does not encode length** (e.g. `fsub` 6B
-and `fma` 8B share an identical first parcel). Length is a function of the byte-0 group, with a
-per-group length bit where needed:
+Parcels are 2 bytes. **Unlike G13, the *first* parcel does not always encode length** (e.g. `fsub`
+and extended FMA forms can share it). Length is a family-local prefix decision; the current
+normative framing table is `../../../APPLE9_INSTRUCTION_LENGTHS.md` at the workspace root.
 
 | byte 0 | group | length (bytes) |
 |---|---|---|
 | `0x0e` | stop | 4 |
 | low-nibble `0xC` | preamble | 4 |
 | low-nibble `0x7` (`67`/`e7`) | device load/store | 14 |
-| `0x09` | **float ALU (2-src)** | 6, or **8 if `byte[+2] & 0x02`** (the fma/length bit) |
+| low-nibble `0x9` | float ALU | 4 when `(byte[+2] & 7) in {0,1}`; otherwise normally `6 + 2*(byte[+4] & 3)` (exact coordinate subforms take priority) |
 | `0x0b` | float unary | 10 — **UNVERIFIED against the live tokenizer (flagged 2026-08-30 by `check_doc_lengths.py`).** A zero-filled byte0 probe returns **4**, and **no byte0 = `0x0b` encoding appears in the sampled committed raw**, so this row cannot be confirmed or refuted here. It is an early-wave claim (EXP-0005) that no later experiment revisited. Treat as `INFERRED` until a real encoding is dispatched. |
 | `0x12` | float min/max | 6 |
-| `0x9f` | integer ALU | 10/12 — **not yet solved (follow-up)** |
+| `0x9f`/`0x1f` | integer ALU | 10 when byte `+1` bit 0 is set; otherwise 12 |
 
-Proof: `agxisa.py tokenize` splits all 11 float `_agc.main` programs into instructions with 0
-leftover bytes and re-serializes byte-exact. (Integer kernels, byte0 `0x9f`, still uncovered.)
+Current regression proof is `tools/agx-isa/length_canary_test.py` plus
+`tools/agx-isa/roundtrip_test.py`; the latter walks 74 complete own-generated programs with zero
+leftover and byte-exact re-serialization.
 
 ### ✅ Float ALU 2-source op-select (HARDWARE-VALIDATED, 256-value sweep)
 For the `0x09` float-ALU instruction, the op-select is a **3-bit field = instruction bits

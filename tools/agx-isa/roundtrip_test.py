@@ -96,6 +96,7 @@ REAL_INSTRS = {
     "icmp_eq  (12 03 1d .. == b4=26)":      "12031d05268107c0208013000001", # signed == HW
     # ---- CONTROL FLOW (EXP-0010), carved from our own compiled CF shaders -----
     "icmp_pred (0a 01 22 82 14 22)":       "0a0122821422",            # gid>=4 predicate HW
+    "icmp_pred ext10 (EXP-0200)":           "2a002bc0060006c20000",    # exact 10B enclosing span
     "sel   (16 c2 a0 c8)":                 "16c2a0c8",                # data select HW
     "psel  (05 22 a0 de)":                 "0522a0de",                # grid select HW
     "jump  (0f 00 54 d4 ff ff ff ff ff 00)":"0f0054d4ffffffffff00",   # -44 back-edge HW
@@ -117,6 +118,8 @@ REAL_INSTRS = {
     "simd_shuffle bcast0 (47 04 56..)":    "470456000200002c0400",   # simd_broadcast(v,0) HW
     "simd_shuffle bcast5 (47 04 56..0a)":  "4704560002000a2c0400",   # simd_broadcast(v,5) lane<<1 HW
     "simd_shuffle xor1  (c7 04 56..02)":   "c70456000200022c0400",   # simd_shuffle_xor(v,1) HW
+    "simd_shuffle rotate 12B (c7 06 56..)":"c70656000200020014a20200", # mode 6 length HW, EXP-0229
+    "simd_shuffle fill 12B (47 06 56..03)":"470656040200020814110300", # mode 6 alternate tail, EXP-0229
     "quad_shuffle bcast0 (47 00 56..)":    "470056000200002c0400",   # quad_broadcast(v,0) HW
     "simd_ballot (17 07 56..)":            "17075600020000582204",   # simd_ballot mask source HW
     "atomic_rmw add  (67 11 54..20)":      "6711540000800100004200002000",  # device fetch_add HW
@@ -157,6 +160,10 @@ REAL_INSTRS = {
     "get_sr lane (54 82 14 66)":          "54821466",   # dst r5, SR 0x82 simd_lane_id (0xN4 form)
     "mov_imm 32 (0c 20)":                 "0c20",       # threads_per_simdgroup=32 (constant-fold)
     "half_alu hadd (10 85 24 84 00 c0)":  "1085248400c0",  # native fp16 add (EXP-0033)
+    "half_alu ext10 (m=2)":               "10021c03020000000000",  # direct length map, EXP-0180
+    "half high compact dst7 (78 0d 18 11)":"780d1811",      # operand-independent 4B, EXP-0203
+    "reg_move_c9 preload (2b 00 09 c0)":  "2b0009c0",      # direct 4B execution, EXP-0113
+    "carry_gen R9-shadow source (32 00 ..)":"320035032281",  # direct 6B family, EXP-0161
     "ibitcount popcount (27 05 56 ..)":   "2705560002005c04",   # popcount (EXP-0033/0007)
     "ibitcount find_msb (a7 05 56 ..)":   "a7055604030c4e04",   # find-MSB / bit-scan (EXP-0033, from k_int_bitcount)
     "irotate imm (27 01 56 .. 12B)":      "2701560002006c00f0150900",  # rotate-by-immediate funnel (EXP-0033)
@@ -208,8 +215,9 @@ REAL_INSTRS = {
     "imageblock_load (67 16 54 04 05 00 01 8e ..)":  "671654040500018e02000010",  # tile imageblock read (byte+1=0x16)
     "mem_fence device (07 04 54 84 0a 00)":        "070454840a00",  # atomic_thread_fence(mem_device, seq_cst)
     "get_sr helper (04 84 11 06)":                 "04841106",  # simd_is_helper_thread (SR 0x84, FS)
+    "op04 G17P exact prefix p0 12B":                "04020080000082400c010c02", # EXP-0157
     # ---- EXP-M4-01 round-3 census ops (length HW-anchored, own-shader) ----
-    "frame_marker_compact (60 00)":                "6000",          # 2B compact frame/scope marker (tg-atomic)
+    "frame marker 4B continuation (60 00 e7 02)":  "6000e702",      # EXP-0199
     "cubearray_coord_const (f0 c0 04 00)":         "f0c00400",      # cube/cube-array normalized-coord const load
     "tg_addr_compute (1c 02 00 00 00 00)":         "1c0200000000",  # threadgroup-buffer base/offset compute
 }
@@ -424,6 +432,10 @@ SYNTH = [
                      "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1), cache=1 -> 47 04 56 00 02 00 0a 2c 04 00
     ("simd_shuffle", {"dir": 0x0, "mode": 0x4, "cache": 0x1, "dst": 0x0, "src": 0x2, "srctype": 0x0, "lane": 0xa, "rtype": 0x2c, "dsthi": 0x4, "rsv9": 0x0}),
+    # mode 0x06 is the 12-byte extra-operand form (EXP-0229).
+    ("simd_shuffle_ext12", {"dir": 0x1, "cache": 0x1, "dst": 0x0, "src": 0x2,
+                            "srctype": 0x0, "lane": 0x2, "rtype": 0x0,
+                            "dsthi": 0x14, "rsv9": 0xa2, "extra": 0x0002}),
     # atomic_rmw add (op=16 'add' at byte+12 bits[1:6]) -> 6711540000800100004200002000
     # EXP-M4-13 R10 (atomics_tex retype): the old raw b2/b3/mid/b13 fields were split
     # into the typed amode/index_reg/oper_reg_*/idx_off/op(5b)/per_lane layout; same bytes.
