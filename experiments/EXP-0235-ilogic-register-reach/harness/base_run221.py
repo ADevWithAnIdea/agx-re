@@ -85,6 +85,8 @@ def main():
     ap.add_argument("--names", default="",
                     help="comma-separated exact case names for amended sparse discovery")
     ap.add_argument("--hazard", action="store_true")
+    ap.add_argument("--full", action="store_true",
+                    help="use the amended complete source-descriptor matrix")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--timeout", type=float, default=20.0)
     ap.add_argument("--hang-budget", type=int, default=12)
@@ -199,7 +201,7 @@ def main():
         return rec
 
     # ---- arm S0 first: it establishes the slot mapping everything else uses -
-    all_cases = C.build_cases(include_hazard=a.hazard)
+    all_cases = C.build_cases(include_hazard=a.hazard, full=a.full)
     s0 = [c for c in all_cases if c["arm"] == "S0"]
     rest = [c for c in all_cases if c["arm"] != "S0"]
     if a.arms:

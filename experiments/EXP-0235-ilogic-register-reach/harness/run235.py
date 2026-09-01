@@ -44,14 +44,15 @@ OBS = {
 }
 
 
-def build_cases(include_hazard=False):
+def build_cases(include_hazard=False, full=False):
     out = [{
         "i": slot, "name": "s0_slot%d" % slot, "arm": "S0",
         "kind": "s0_slot", "slot": slot, "expect_match": True,
         "predicted_bucket": "measure", "expect_sentinel": False,
     } for slot in range(8)]
+    source_regs = range(128) if full else SPARSE_REGS
     for role, arm in (("semantic_a", "A"), ("semantic_b", "B")):
-        for reg in SPARSE_REGS:
+        for reg in source_regs:
             out.append({
                 "i": len(out), "name": "%s_r%03d" % (arm.lower(), reg),
                 "arm": arm, "kind": "ilogic_reach", "role": role,
