@@ -72,12 +72,18 @@ def main():
     parser.add_argument("--raw", type=Path, default=EXP / "raw")
     parser.add_argument("--decoder", type=Path,
                         default=REPO / "tools" / "agx-isa" / "isadb.py")
+    parser.add_argument("--runs", nargs=2,
+                        help="two raw directory names; defaults to CAPTURE_CONTRACT_V3")
     args = parser.parse_args()
     isadb = load_decoder(args.decoder)
 
-    run_paths = sorted(path for path in args.raw.iterdir() if path.is_dir())
-    if len(run_paths) != 2:
-        raise SystemExit("expected exactly two formal run directories, got %d" % len(run_paths))
+    if args.runs:
+        run_paths = [args.raw / name for name in args.runs]
+    else:
+        contract = json.loads((EXP / "CAPTURE_CONTRACT_V3.json").read_text())
+        run_paths = [args.raw / run["id"] for run in contract["runs"]]
+    if any(not path.is_dir() for path in run_paths):
+        raise SystemExit("missing formal run directory")
     runs = [(path.name, load_run(path)) for path in run_paths]
     failures = []
     summary = {"decoder": str(args.decoder), "runs": {}}
